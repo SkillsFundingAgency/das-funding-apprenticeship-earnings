@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
@@ -12,9 +13,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
     {
         private readonly string _connectionString;
 
-        public ApprenticeshipEarningsDataContext(string connectionString)
+        public ApprenticeshipEarningsDataContext(IConfiguration configuration)
         {
-            _connectionString = connectionString;
+            _connectionString = configuration.GetConnectionString("ApprenticeshipEarningsDatabase");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,6 +23,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             optionsBuilder.UseSqlServer(_connectionString);
         }
 
-        public virtual DbSet<Earning> Earnings { get; set; }
+        public virtual DbSet<Earning> Earning { get; set; }
     }
 }
