@@ -17,9 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Queries", "Queries\SFA.DAS.Funding.ApprenticeshipEarnings.Queries.csproj", "{07844F7C-BE1C-424D-BC6E-CDEDEF8C5380}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Functions", "DurableFunctions\SFA.DAS.Funding.ApprenticeshipEarnings.Functions.csproj", "{15C38F71-002C-44D3-8467-2ED893EA1120}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions", "DurableFunctions\SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions.csproj", "{15C38F71-002C-44D3-8467-2ED893EA1120}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests", "Domain.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests.csproj", "{0E5FBB69-B1BA-4DDD-8CE2-228CA203C36E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests", "Domain.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests.csproj", "{0E5FBB69-B1BA-4DDD-8CE2-228CA203C36E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

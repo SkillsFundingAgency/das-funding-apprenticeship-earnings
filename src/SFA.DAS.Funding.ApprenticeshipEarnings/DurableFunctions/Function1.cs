@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Functions
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions
 {
     public static class Function1
     {
