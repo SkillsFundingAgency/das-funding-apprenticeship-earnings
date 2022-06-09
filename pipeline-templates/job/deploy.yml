@@ -51,9 +51,9 @@ jobs:
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             AppServiceName: $(AppServiceName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}.InnerApi/${{ parameters.SolutionBaseName }}.InnerApi.zip
+            DeploymentPackagePath: $(Pipeline.Workspace)/InnerApi.zip
         - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}.Functions/${{ parameters.SolutionBaseName }}.Functions.zip
+            DeploymentPackagePath: $(Pipeline.Workspace)/DurableFunctions.zip
