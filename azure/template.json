@@ -263,10 +263,7 @@
                         "value": "[parameters('subnetDelegations')]"
                     }
                 }
-            },
-            "dependsOn": [
-                "[variables('resourceGroupName')]"
-            ]
+            }
         },
         {
             "apiVersion": "2020-06-01",
@@ -287,7 +284,10 @@
                         "value": "[parameters('workerAppServicePlanSku')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
