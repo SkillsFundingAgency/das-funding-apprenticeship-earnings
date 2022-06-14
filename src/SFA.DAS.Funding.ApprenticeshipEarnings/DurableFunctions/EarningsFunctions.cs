@@ -1,16 +1,44 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions
 {
-    public static class Function1
+    public class EarningsFunctions
     {
+        [FunctionName("EarningsHttpTrigger")]
+        public async Task<IActionResult> EarningsHttpTrigger(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "GenerateEarnings")] HttpRequest request,
+            [DurableClient] IDurableOrchestrationClient client)
+        {
+            var requestId = Guid.NewGuid();
+
+            //string requestBody = await new StreamReader(request.Body).ReadToEndAsync();
+
+            string instanceId = await client.StartNewAsync(nameof(EarningsOrchestrator), $"{requestId}");
+
+
+            return client.CreateCheckStatusResponse(request, instanceId);
+        }
+
+        [FunctionName("EarningsOrchestrator")]
+        public async Task<string> EarningsOrchestrator(
+            [OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            //todo process earnings
+            return context.InstanceId;
+        }
+
         [FunctionName("Function1")]
         public static async Task<List<string>> RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
@@ -33,8 +61,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions
             return $"Hello {name}!";
         }
 
+        //[FunctionName("Function1_HttpStart")]
+        //public static async Task<HttpResponseMessage> HttpStart(
+        //    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestMessage req,
+        //    [DurableClient] IDurableOrchestrationClient starter,
+        //    ILogger log)
+        //{
+        //    // Function input comes from the request content.
+        //    string instanceId = await starter.StartNewAsync("Function1", null);
+
+        //    log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+
+        //    return starter.CreateCheckStatusResponse(req, instanceId);
+        //}
+
         [FunctionName("Function1_HttpStart")]
-        public static async Task<HttpResponseMessage> HttpStart(
+        public static async Task HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
@@ -44,7 +86,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions
 
             log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 
-            return starter.CreateCheckStatusResponse(req, instanceId);
+            starter.CreateCheckStatusResponse(req, instanceId);
         }
     }
 }

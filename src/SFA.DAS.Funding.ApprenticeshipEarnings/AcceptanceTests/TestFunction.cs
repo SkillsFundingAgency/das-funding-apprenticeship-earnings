@@ -35,10 +35,10 @@ public class TestFunction : IDisposable
         _appConfig = new Dictionary<string, string>{ //todo this needs to match our durable function config
             { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
             { "AzureWebJobsStorage", "UseDevelopmentStorage=true" },
-            { "NServiceBusConnectionString", "UseDevelopmentStorage=true" },
-            { "ConfigNames", "SFA.DAS.EmployerIncentives" },
-            { "ApplicationSettings:LogLevel", "Info" },
-            { "ApplicationSettings:DbConnectionString", _testContext.SqlDatabase.DatabaseInfo.ConnectionString },
+            //{ "NServiceBusConnectionString", "UseDevelopmentStorage=true" },
+            //{ "ConfigNames", "SFA.DAS.EmployerIncentives" },
+            //{ "ApplicationSettings:LogLevel", "Info" },
+            //{ "ApplicationSettings:DbConnectionString", _testContext.SqlDatabase.DatabaseInfo.ConnectionString },
         };
 
         _testContext = testContext;

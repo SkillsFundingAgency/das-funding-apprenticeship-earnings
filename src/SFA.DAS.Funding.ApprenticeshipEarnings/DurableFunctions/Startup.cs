@@ -12,7 +12,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
             //todo IoC etc.
         }
     }

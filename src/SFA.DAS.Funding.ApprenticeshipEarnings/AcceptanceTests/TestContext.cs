@@ -13,7 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance
         public SqlDatabase SqlDatabase { get; set; }
         public void Dispose()
         {
-            throw new NotImplementedException(); //todo stop function?
+            //throw new NotImplementedException(); //todo stop function?
         }
     }
 }

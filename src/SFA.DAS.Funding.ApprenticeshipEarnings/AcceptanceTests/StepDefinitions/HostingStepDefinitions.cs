@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
 
@@ -25,6 +28,25 @@ public class HostingStepDefinitions
         await _testContext.TestFunction.StartHost();
         stopwatch.Stop();
         Console.WriteLine($"Time it took to spin up Azure Functions Host: {stopwatch.Elapsed.Milliseconds} milliseconds for hub {_testContext.TestFunction.HubName}");
+    }
+
+    //[When(@"A call is made")]
+    public async Task MakeCall()
+    {
+        await _testContext.TestFunction.Start(new OrchestrationStarterInfo("Function1", nameof(EarningsFunctions), new Dictionary<string, object>
+        {
+            ["req"] = new DummyHttpRequest() { Path = "/api/Function1" }
+        }));
+    }
+
+    [When(@"A call is made")]
+    public async Task MakeCallV2()
+    {
+        await _testContext.TestFunction.Start(new OrchestrationStarterInfo("EarningsHttpTrigger", "EarningsOrchestrator", new Dictionary<string, object>
+        {
+            ["req"] = new DummyHttpRequest() { Path = "/api/GenerateEarnings" },
+            //["context"] = (IDurableOrchestrationContext)null
+        }));
     }
 
     [AfterScenario()]
