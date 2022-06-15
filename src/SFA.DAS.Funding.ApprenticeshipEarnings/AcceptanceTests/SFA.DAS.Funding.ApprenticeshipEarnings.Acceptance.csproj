@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.23" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.33" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="4.0.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.6.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
@@ -28,8 +28,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DurableFunctions\SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions.csproj" />
+    <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
     <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

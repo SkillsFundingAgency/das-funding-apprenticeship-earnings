@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;

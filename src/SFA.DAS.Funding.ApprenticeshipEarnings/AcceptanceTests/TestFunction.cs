@@ -5,18 +5,34 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableFunctions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance;
 
+public class Settings
+{
+    public string EnvironmentName { get; set; }
+    public string AzureWebJobsStorage { get; set; }
+    public string ServiceBusConnectionString { get; set; }
+    public string TopicPath { get; set; }
+    public string QueueName { get; set; }
+}
+
 public class TestFunction : IDisposable
 {
+    private static readonly string ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString", EnvironmentVariableTarget.Process);
+    private static readonly string AzureWebJobsStorage = Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process);
+    private static readonly string TopicPath = Environment.GetEnvironmentVariable("TopicPath", EnvironmentVariableTarget.Process);
+    private static readonly string QueueName = Environment.GetEnvironmentVariable("QueueName", EnvironmentVariableTarget.Process);
+
     public const int BusinessCentralPaymentRequestsLimit = 1;
     private readonly TestContext _testContext;
     private readonly Dictionary<string, string> _appConfig;
     private readonly IHost _host;
     private readonly OrchestrationData _orchestrationData;
+    private readonly Settings _settings;
     private bool isDisposed;
 
     private IJobHost Jobs => _host.Services.GetService<IJobHost>();
@@ -32,10 +48,23 @@ public class TestFunction : IDisposable
 
         _testContext = testContext;
 
-        _appConfig = new Dictionary<string, string>{ //todo this needs to match our durable function config
+        
+        var config = new ConfigurationBuilder()
+            //.SetBasePath()
+            .AddJsonFile("local.settings.json", optional: false)
+            .AddEnvironmentVariables()
+            .Build();
+
+        _settings = new Settings();
+
+        config.Bind(_settings);
+
+        _appConfig = new Dictionary<string, string>{ //todo this needs to match our durable entity config
             { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
-            { "AzureWebJobsStorage", "UseDevelopmentStorage=true" },
-            //{ "NServiceBusConnectionString", "UseDevelopmentStorage=true" },
+            { "AzureWebJobsStorage", _settings.AzureWebJobsStorage },
+            { "ServiceBusConnectionString", _settings.ServiceBusConnectionString },
+            { "TopicPath", _settings.TopicPath },
+            { "QueueName", _settings.QueueName },
             //{ "ConfigNames", "SFA.DAS.EmployerIncentives" },
             //{ "ApplicationSettings:LogLevel", "Info" },
             //{ "ApplicationSettings:DbConnectionString", _testContext.SqlDatabase.DatabaseInfo.ConnectionString },
@@ -75,6 +104,14 @@ public class TestFunction : IDisposable
                 .AddAzureStorageCoreServices()
                 .ConfigureServices(s =>
                 {
+                    s.Configure<ApplicationSettings>(a =>
+                    {
+                        a.AzureWebJobsStorage = _appConfig["AzureWebJobsStorage"];
+                        a.QueueName = _appConfig["QueueName"];
+                        a.TopicPath = _appConfig["TopicPath"];
+                        a.ServiceBusConnectionString = _appConfig["ServiceBusConnectionString"];
+                    });
+
                     new Startup().Configure(builder);
 
 
@@ -90,25 +127,6 @@ public class TestFunction : IDisposable
                     //{
                     //    c.ApiBaseUrl = _testContext.PaymentsApi.BaseAddress;
                     //    c.PaymentRequestsLimit = BusinessCentralPaymentRequestsLimit;
-                    //});
-
-                    //s.Configure<ApplicationSettings>(a =>
-                    //{
-                    //    a.DbConnectionString = _testContext.SqlDatabase.DatabaseInfo.ConnectionString;
-                    //    a.DistributedLockStorage = _testContext.ApplicationSettings.DistributedLockStorage;
-                    //    a.LockedRetryPolicyInMilliSeconds = _testContext.ApplicationSettings.LockedRetryPolicyInMilliSeconds;
-                    //    a.AllowedHashstringCharacters = _testContext.ApplicationSettings.AllowedHashstringCharacters;
-                    //    a.Hashstring = _testContext.ApplicationSettings.Hashstring;
-                    //    a.NServiceBusConnectionString = _testContext.ApplicationSettings.NServiceBusConnectionString;
-                    //    a.NServiceBusLicense = _testContext.ApplicationSettings.NServiceBusLicense;
-                    //    a.UseLearningEndpointStorageDirectory = _testContext.ApplicationSettings.UseLearningEndpointStorageDirectory;
-                    //    a.MinimumAgreementVersion = _testContext.ApplicationSettings.MinimumAgreementVersion;
-                    //    a.ApiBaseUrl = _testContext.ApplicationSettings.ApiBaseUrl;
-                    //    a.Identifier = _testContext.ApplicationSettings.Identifier;
-                    //    a.EmployerIncentivesWebBaseUrl = _testContext.ApplicationSettings.EmployerIncentivesWebBaseUrl;
-                    //    a.LogLevel = _testContext.ApplicationSettings.LogLevel;
-                    //    a.EmploymentCheckEnabled = _testContext.ApplicationSettings.EmploymentCheckEnabled;
-                    //    a.LearnerServiceCacheIntervalInMinutes = _testContext.ApplicationSettings.LearnerServiceCacheIntervalInMinutes;
                     //});
 
                     //s.AddSingleton<IDistributedLockProvider, TestDistributedLockProvider>();
