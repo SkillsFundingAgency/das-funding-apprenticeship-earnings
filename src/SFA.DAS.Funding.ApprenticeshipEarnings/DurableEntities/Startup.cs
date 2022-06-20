@@ -8,6 +8,8 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
@@ -20,9 +22,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         private static readonly string QueueNameKey = "QueueName";
         private static readonly string ServiceBusConnectionStringKey = "ServiceBusConnectionString";
 
+        public IConfiguration Configuration { get; set; }
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var serviceProvider = builder.Services.BuildServiceProvider();
+            //serviceProvider
             var configuration = serviceProvider.GetService<IConfiguration>();
 
             var configBuilder = new ConfigurationBuilder()
@@ -30,12 +35,23 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            var config = configBuilder.Build();
-            builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
+            
 
-            //QueueHelper.EnsureTopic(config[ServiceBusConnectionStringKey], config[TopicPathKey]).GetAwaiter().GetResult();
-            //QueueHelper.EnsureQueue(config[ServiceBusConnectionStringKey], config[QueueNameKey]).GetAwaiter().GetResult();
-            //QueueHelper.EnsureSubscription(config[ServiceBusConnectionStringKey], config[TopicPathKey], config[QueueNameKey], typeof(InternalApprenticeshipLearnerEvent)).GetAwaiter().GetResult();
+            //builder.UseNServiceBus(config => ,);
+
+            builder.StartNServiceBus(configuration);
+
+            Configuration = configBuilder.Build();
+            builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
+
+            QueueHelper.EnsureTopic(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey]).GetAwaiter().GetResult();
+            QueueHelper.EnsureQueue(Configuration[ServiceBusConnectionStringKey], Configuration[QueueNameKey]).GetAwaiter().GetResult();
+            QueueHelper.EnsureSubscription(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey], Configuration[QueueNameKey], typeof(InternalApprenticeshipLearnerEvent)).GetAwaiter().GetResult();
         }
+
+        //public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
+        //{
+        //    serviceProvider.StartNServiceBus(Configuration).GetAwaiter().GetResult();
+        //}
     }
 }
