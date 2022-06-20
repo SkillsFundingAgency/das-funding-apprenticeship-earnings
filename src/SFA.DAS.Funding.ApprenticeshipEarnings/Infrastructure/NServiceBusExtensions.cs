@@ -65,14 +65,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 
                 if (configuration["ServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
                 {
-
-                    endpointConfiguration.AdvancedConfiguration
-                        .UseTransport<LearningTransport>()
-                        .StorageDirectory(configuration["UseLearningEndpointStorageDirectory"] ??
-                                          Path.Combine(
-                                              Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")),
-                                              @"src\SFA.DAS.EmployerIncentives.Functions.TestConsole\.learningtransport"));
-                    endpointConfiguration.AdvancedConfiguration.UseLearningTransport(s => s.AddRouting());
+                    throw new NotImplementedException("todo fix learning transport"); //todo fix learning transport
+                    //endpointConfiguration.AdvancedConfiguration
+                    //    .UseTransport<LearningTransport>()
+                    //    .StorageDirectory(configuration["UseLearningEndpointStorageDirectory"] ??
+                    //                      Path.Combine(
+                    //                          Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")),
+                    //                          @"src\.learningtransport")); //todo 
+                    //endpointConfiguration.AdvancedConfiguration.UseLearningTransport(s => s.AddRouting());
                 }
                 else
                 {
