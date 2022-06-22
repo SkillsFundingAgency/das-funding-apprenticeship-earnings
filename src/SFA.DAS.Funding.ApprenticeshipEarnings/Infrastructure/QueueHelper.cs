@@ -7,6 +7,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     {
         public static async Task EnsureTopic(string serviceBusConnectionString, string topicPath)
         {
+            if(serviceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+                return;
+            
             var manageClient = new ManagementClient(serviceBusConnectionString);
 
             if (await manageClient.TopicExistsAsync(topicPath))
@@ -17,6 +20,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 
         public static async Task EnsureQueue(string serviceBusConnectionString, string queueName)
         {
+            if (serviceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+                return;
+
             var manageClient = new ManagementClient(serviceBusConnectionString);
 
             if (await manageClient.QueueExistsAsync(queueName))
@@ -37,6 +43,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 
         public static async Task EnsureSubscription(string serviceBusConnectionString, string topicPath, string queueName, Type eventType)
         {
+            if (serviceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+                return;
+
             _ = await GetOrCreateSubscription(serviceBusConnectionString, topicPath, queueName, CancellationToken.None);
 
             var existingRules = await GetExistingRules(serviceBusConnectionString, topicPath, queueName, CancellationToken.None);

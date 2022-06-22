@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
@@ -32,6 +33,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
         {
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
+            webBuilder.AddExtension<NServiceBusExtensionConfigProvider>();
 
             var endpointName = configuration["NServiceBusEndpointName"];
             if (string.IsNullOrEmpty(endpointName))
@@ -50,7 +52,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
             {
                 endpointConfiguration
                     .UseTransport<LearningTransport>()
-                    .StorageDirectory(configuration.GetValue("UseLearningEndpointStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\SFA.DAS.EmployerIncentives.Functions.TestConsole\.learningtransport")));
+                    .StorageDirectory(configuration.GetValue("UseLearningEndpointStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport")));
                 endpointConfiguration.UseLearningTransport(s => s.AddRouting());
             }
             else

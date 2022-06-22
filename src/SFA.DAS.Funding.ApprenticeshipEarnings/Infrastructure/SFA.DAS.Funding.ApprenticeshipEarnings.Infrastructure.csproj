@@ -8,14 +8,19 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.2.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NServiceBus.AzureFunctions.InProcess.ServiceBus" Version="3.0.0" />
-    <PackageReference Include="NServiceBus.MSDependencyInjection" Version="0.1.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
+    <PackageReference Include="SFA.DAS.NServiceBus.AzureFunction" Version="16.0.21" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
+    <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj" />
   </ItemGroup>
 
 </Project>
