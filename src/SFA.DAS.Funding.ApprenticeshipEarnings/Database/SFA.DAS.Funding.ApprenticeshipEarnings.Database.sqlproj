@@ -59,5 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Earning.sql" />
+    <Build Include="OutboxData.sql" />
+    <Build Include="ClientOutboxData.sql" />
   </ItemGroup>
 </Project>

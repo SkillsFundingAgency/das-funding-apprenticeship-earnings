@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities", "DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj", "{DE9DC81B-42B9-4890-A3EF-8315CA9A6D43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure", "Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj", "{BC323D44-59D1-48C6-B8A3-EC87A5901204}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure", "Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj", "{BC323D44-59D1-48C6-B8A3-EC87A5901204}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents", "ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj", "{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,10 @@ Global
 		{BC323D44-59D1-48C6-B8A3-EC87A5901204}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC323D44-59D1-48C6-B8A3-EC87A5901204}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC323D44-59D1-48C6-B8A3-EC87A5901204}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

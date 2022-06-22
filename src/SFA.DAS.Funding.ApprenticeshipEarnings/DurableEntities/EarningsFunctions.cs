@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
