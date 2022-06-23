@@ -1,11 +1,10 @@
-﻿using System.IO;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
@@ -37,7 +36,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
 
             builder.Services
                 .AddNServiceBus(applicationSettings)
-                .AddNServiceBusMessageHandlers(applicationSettings)
                 ;
         }
     }

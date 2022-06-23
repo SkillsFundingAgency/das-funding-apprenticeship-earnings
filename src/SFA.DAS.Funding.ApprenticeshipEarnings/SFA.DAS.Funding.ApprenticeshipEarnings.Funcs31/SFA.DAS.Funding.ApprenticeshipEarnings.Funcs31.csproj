@@ -8,9 +8,6 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.1.1" />
     <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="SFA.DAS.NServiceBus.AzureFunction" Version="16.0.21" />
-    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
-    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

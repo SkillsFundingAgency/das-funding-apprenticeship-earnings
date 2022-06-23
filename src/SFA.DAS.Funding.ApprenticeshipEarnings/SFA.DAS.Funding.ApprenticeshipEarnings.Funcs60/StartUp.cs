@@ -33,10 +33,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
             
             var applicationSettings = config.GetSection("Values").Get<ServiceBusConfiguration>();
 
-            builder.Services
-                .AddNServiceBus(applicationSettings)
-                .AddNServiceBusMessageHandlers(applicationSettings)
-                ;
+            //builder.Services
+            //    //.AddNServiceBus(applicationSettings)
+            //    //.AddNServiceBusMessageHandlers(applicationSettings)
+            //    ;
         }
     }
 }
