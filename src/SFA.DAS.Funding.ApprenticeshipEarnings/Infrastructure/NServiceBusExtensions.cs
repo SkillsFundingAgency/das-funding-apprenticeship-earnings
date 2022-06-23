@@ -16,11 +16,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {
     public static class RoutingSettingsExtensions
     {
-        private const string DurableEntitiesDestination = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities";
-
         public static void AddRouting(this RoutingSettings routingSettings)
         {
-            routingSettings.RouteToEndpoint(typeof(InternalApprenticeshipLearnerEvent), DurableEntitiesDestination);
+            routingSettings.RouteToEndpoint(typeof(InternalApprenticeshipLearnerEvent), QueueNames.ApprenticeshipLearners);
             //Types.RoutingSettingsExtensions.AddRouting(routingSettings);
         }
     }
@@ -38,7 +36,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
             var endpointName = configuration["NServiceBusEndpointName"];
             if (string.IsNullOrEmpty(endpointName))
             {
-                endpointName = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities";
+                endpointName = QueueNames.ApprenticeshipLearners;
             }
 
             var endpointConfiguration = new EndpointConfiguration(endpointName)
@@ -47,8 +45,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
                 .UseOutbox(true)
                 .UseSqlServerPersistence(() => new SqlConnection(configuration["ApprenticeshipEarningsDatabase"]))
                 .UseUnitOfWork();
+                
+            //todo scrap this before PR?
+            //endpointConfiguration.DefineCriticalErrorAction(async context =>
+            //{
+            //    await Console.Out.WriteLineAsync("Critical error: " + context.Exception);
+            //});
 
-            if (configuration["ServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            //endpointConfiguration.CustomDiagnosticsWriter(async x =>
+            //{
+            //    await Console.Out.WriteLineAsync("Diagnostics: " + x);
+            //});
+
+            if (configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {
                 endpointConfiguration
                     .UseTransport<LearningTransport>()
@@ -58,7 +67,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
             else
             {
                 endpointConfiguration
-                    .UseAzureServiceBusTransport(configuration["ServiceBusConnectionString"], r => r.AddRouting());
+                    .UseAzureServiceBusTransport(configuration["NServiceBusConnectionString"], r => r.AddRouting());
             }
 
             if (!string.IsNullOrEmpty(configuration["NServiceBusLicense"]))

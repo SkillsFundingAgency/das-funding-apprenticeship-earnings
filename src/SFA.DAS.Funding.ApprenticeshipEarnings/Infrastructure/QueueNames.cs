@@ -2,6 +2,6 @@
 {
     public static class QueueNames
     {
-        public const string DurableEntities = "sfa-das-funding-durable-entities";
+        public const string ApprenticeshipLearners = "sfa-das-funding-apprenticeship-learners";
     }
 }

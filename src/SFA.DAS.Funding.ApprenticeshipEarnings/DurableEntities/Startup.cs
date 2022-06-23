@@ -13,7 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         private static readonly string TopicPathKey = "TopicPath";
         private static readonly string QueueNameKey = "QueueName";
-        private static readonly string ServiceBusConnectionStringKey = "ServiceBusConnectionString";
+        private static readonly string ServiceBusConnectionStringKey = "NServiceBusConnectionString";
 
         public IConfiguration Configuration { get; set; }
 
