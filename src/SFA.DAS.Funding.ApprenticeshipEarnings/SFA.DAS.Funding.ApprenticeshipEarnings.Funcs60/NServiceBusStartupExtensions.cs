@@ -11,7 +11,7 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System.Data.SqlClient;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
 {
     public static class NServiceBusStartupExtensions
     {
