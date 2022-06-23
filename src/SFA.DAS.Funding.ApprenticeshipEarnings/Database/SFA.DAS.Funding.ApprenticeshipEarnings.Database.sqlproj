@@ -62,4 +62,7 @@
     <Build Include="OutboxData.sql" />
     <Build Include="ClientOutboxData.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.publish.xml" />
+  </ItemGroup>
 </Project>

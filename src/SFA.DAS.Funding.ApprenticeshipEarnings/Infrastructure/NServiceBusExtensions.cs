@@ -2,9 +2,12 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
@@ -20,7 +23,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 
         public static void AddRouting(this RoutingSettings routingSettings)
         {
-            routingSettings.RouteToEndpoint(typeof(InternalApprenticeshipLearnerEvent), DurableEntitiesDestination);
+           // routingSettings.RouteToEndpoint(typeof(InternalApprenticeshipLearnerEvent), DurableEntitiesDestination);
+            routingSettings.RouteToEndpoint(typeof(SampleEvent), QueueNames.PublishSampleEvent);
             //Types.RoutingSettingsExtensions.AddRouting(routingSettings);
         }
     }
@@ -31,34 +35,31 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
             this IServiceCollection serviceCollection,
             IConfiguration configuration)
         {
+
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
-            webBuilder.AddExtension<NServiceBusExtensionConfigProvider>();
 
-            var endpointName = configuration["NServiceBusEndpointName"];
-            if (string.IsNullOrEmpty(endpointName))
-            {
-                endpointName = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities";
-            }
-
-            var endpointConfiguration = new EndpointConfiguration(endpointName)
+            var endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
                 .UseOutbox(true)
                 .UseSqlServerPersistence(() => new SqlConnection(configuration["ApprenticeshipEarningsDatabase"]))
                 .UseUnitOfWork();
 
-            if (configuration["ServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            if (configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {
+                var dir = Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory()
+                    .IndexOf("src", StringComparison.Ordinal)], "src\\.learningtransport");
                 endpointConfiguration
                     .UseTransport<LearningTransport>()
-                    .StorageDirectory(configuration.GetValue("UseLearningEndpointStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport")));
+                    .StorageDirectory(dir);
                 endpointConfiguration.UseLearningTransport(s => s.AddRouting());
             }
             else
             {
                 endpointConfiguration
-                    .UseAzureServiceBusTransport(configuration["ServiceBusConnectionString"], r => r.AddRouting());
+                    .UseAzureServiceBusTransport(configuration["NServiceBusConnectionString"], r => r.AddRouting())
+                    ;
             }
 
             if (!string.IsNullOrEmpty(configuration["NServiceBusLicense"]))
@@ -69,6 +70,41 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
             var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
             endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
             serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
+
+            return serviceCollection;
+        }
+
+        public static IServiceCollection AddNServiceBusMessageHandlers(
+         this IServiceCollection serviceCollection,
+         IConfiguration configuration,
+         Action<NServiceBusOptions> onConfigureOptions = null)
+        {
+            Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration["NServiceBusConnectionString"], EnvironmentVariableTarget.Process);
+
+            var webBuilder = serviceCollection.AddWebJobs(x => { });
+            webBuilder.AddExecutionContextBinding();
+
+            var options = new NServiceBusOptions
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
+                    context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
+                    context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
+                    context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
+                },
+                OnMessageErrored = (ex, context) =>
+                {
+                    context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
+                    context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
+                    context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
+                    context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
+                },
+            };
+
+            onConfigureOptions?.Invoke(options);
+
+            webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(options));
 
             return serviceCollection;
         }
