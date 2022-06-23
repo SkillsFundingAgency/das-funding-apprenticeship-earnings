@@ -17,7 +17,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
         public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipLearners)] string message,
+            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipLearners)] InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -26,7 +26,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             {
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
 
-                var apprenticeshipLearnerEvent = JsonConvert.DeserializeObject<InternalApprenticeshipLearnerEvent>(message);
+                //var apprenticeshipLearnerEvent = JsonConvert.DeserializeObject<InternalApprenticeshipLearnerEvent>(message);
                 var apprenticeshipLearnerData = apprenticeshipLearnerEvent.DummyEventData;
 
                 var entityId = new EntityId(nameof(ApprenticeshipEntity), $"{Guid.NewGuid()} - {apprenticeshipLearnerData}");

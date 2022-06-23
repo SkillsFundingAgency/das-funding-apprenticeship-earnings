@@ -1,10 +1,13 @@
 ﻿using System.Data.SqlClient;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
@@ -19,7 +22,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
         public static void AddRouting(this RoutingSettings routingSettings)
         {
             routingSettings.RouteToEndpoint(typeof(InternalApprenticeshipLearnerEvent), QueueNames.ApprenticeshipLearners);
-            //Types.RoutingSettingsExtensions.AddRouting(routingSettings);
         }
     }
 
@@ -31,7 +33,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
         {
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
-            webBuilder.AddExtension<NServiceBusExtensionConfigProvider>();
+            //webBuilder.AddExtension<NServiceBusExtensionConfigProvider>();
+            webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(new NServiceBusOptions()));
 
             var endpointName = configuration["NServiceBusEndpointName"];
             if (string.IsNullOrEmpty(endpointName))
