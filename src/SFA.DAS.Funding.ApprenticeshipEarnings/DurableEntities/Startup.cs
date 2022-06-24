@@ -14,7 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         private static readonly string TopicPathKey = "TopicPath";
         private static readonly string QueueNameKey = "QueueName";
-        private static readonly string ServiceBusConnectionStringKey = "NServiceBusConnectionString";
+        private static readonly string ServiceBusConnectionStringKey = "ServiceBusConnectionString";
 
         public IConfiguration Configuration { get; set; }
 
@@ -32,10 +32,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             
             
             Configuration = configBuilder.Build();
-            Environment.SetEnvironmentVariable("NServiceBusConnectionString", Configuration["NServiceBusConnectionString"], EnvironmentVariableTarget.Process);
+            //Environment.SetEnvironmentVariable("NServiceBusConnectionString", Configuration["NServiceBusConnectionString"], EnvironmentVariableTarget.Process);
 
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
-            builder.Services.AddNServiceBus(Configuration);
 
             //QueueHelper.EnsureTopic(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey]).GetAwaiter().GetResult();
             //QueueHelper.EnsureQueue(Configuration[ServiceBusConnectionStringKey], Configuration[QueueNameKey]).GetAwaiter().GetResult();

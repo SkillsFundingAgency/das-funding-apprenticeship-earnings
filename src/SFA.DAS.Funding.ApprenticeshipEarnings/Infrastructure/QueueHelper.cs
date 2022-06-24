@@ -7,9 +7,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     {
         public static async Task EnsureTopic(string serviceBusConnectionString, string topicPath)
         {
-            if(serviceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
-                return;
-            
             var manageClient = new ManagementClient(serviceBusConnectionString);
 
             if (await manageClient.TopicExistsAsync(topicPath))
