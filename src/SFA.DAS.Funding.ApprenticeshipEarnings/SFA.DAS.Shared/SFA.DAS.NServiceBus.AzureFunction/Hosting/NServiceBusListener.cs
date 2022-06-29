@@ -9,6 +9,7 @@ using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using System.Reflection;
+using Microsoft.Azure.ServiceBus.Primitives;
 
 namespace SFA.DAS.NServiceBus.AzureFunction.Hosting
 {
@@ -48,11 +49,13 @@ namespace SFA.DAS.NServiceBus.AzureFunction.Hosting
             }
             else
             {
+                // var tokenProvider = TokenProvider.CreateManagedIdentityTokenProvider();
                 endpointConfigurationRaw.UseTransport<AzureServiceBusTransport>()
                     .RuleNameShortener(nameShortener.Shorten)
                     .ConnectionString(_attribute.Connection)
                     .Transactions(TransportTransactionMode.ReceiveOnly)
                     .CustomTokenCredential(new DefaultAzureCredential())
+                    // .CustomTokenProvider(tokenProvider)
                     ;
             }
 

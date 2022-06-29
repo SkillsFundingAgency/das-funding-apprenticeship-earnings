@@ -23,6 +23,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
             var endpointConfiguration = new EndpointConfiguration("sfa.das.whatever")
                     .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
+                    //.UseOutbox(true)
+                    //.UseSqlServerPersistence(() => new SqlConnection(configuration.DbConnectionString))
+                    //.UseUnitOfWork()
                 ;
 
             endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
