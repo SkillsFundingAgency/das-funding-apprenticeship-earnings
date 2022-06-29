@@ -1,4 +1,7 @@
-﻿using Azure.Identity;
+﻿using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus.Primitives;
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Host.Listeners;
 using NServiceBus;
@@ -8,8 +11,6 @@ using NServiceBus.Transport;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
-using System.Reflection;
-using Microsoft.Azure.ServiceBus.Primitives;
 
 namespace SFA.DAS.NServiceBus.AzureFunction.Hosting
 {
@@ -49,14 +50,13 @@ namespace SFA.DAS.NServiceBus.AzureFunction.Hosting
             }
             else
             {
-                // var tokenProvider = TokenProvider.CreateManagedIdentityTokenProvider();
+                var tokenProvider = TokenProvider.CreateManagedIdentityTokenProvider();
+
                 endpointConfigurationRaw.UseTransport<AzureServiceBusTransport>()
                     .RuleNameShortener(nameShortener.Shorten)
+                    .CustomTokenProvider(tokenProvider)
                     .ConnectionString(_attribute.Connection)
-                    .Transactions(TransportTransactionMode.ReceiveOnly)
-                    .CustomTokenCredential(new DefaultAzureCredential())
-                    // .CustomTokenProvider(tokenProvider)
-                    ;
+                    .Transactions(TransportTransactionMode.ReceiveOnly);
             }
 
             if (!string.IsNullOrEmpty(EnvironmentVariables.NServiceBusLicense))
