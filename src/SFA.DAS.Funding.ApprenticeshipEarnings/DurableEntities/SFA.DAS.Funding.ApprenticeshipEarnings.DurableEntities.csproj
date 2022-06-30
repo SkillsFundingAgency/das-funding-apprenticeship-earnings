@@ -4,6 +4,7 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.8.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.7.2" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.5.1" />
@@ -12,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj" />
+    <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -27,7 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure", "Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj", "{BC323D44-59D1-48C6-B8A3-EC87A5901204}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents", "ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj", "{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents", "ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj", "{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBusTestConsole", "NServiceBusTestConsole\NServiceBusTestConsole.csproj", "{ACF11D1A-8F7B-44DA-8520-2349A870B5FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests", "ApprenticeshipEarnings.DurableEntities.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests.csproj", "{C46F6030-5DFD-4688-98D8-428F3E035DAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +93,14 @@ Global
 		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73F60DC3-B5D1-49C8-8BF0-89FB5B39C1B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACF11D1A-8F7B-44DA-8520-2349A870B5FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACF11D1A-8F7B-44DA-8520-2349A870B5FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACF11D1A-8F7B-44DA-8520-2349A870B5FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACF11D1A-8F7B-44DA-8520-2349A870B5FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
