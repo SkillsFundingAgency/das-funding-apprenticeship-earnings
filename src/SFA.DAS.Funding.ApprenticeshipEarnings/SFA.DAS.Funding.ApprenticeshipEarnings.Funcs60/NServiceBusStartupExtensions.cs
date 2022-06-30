@@ -1,9 +1,7 @@
-﻿using System;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
-using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
@@ -17,11 +15,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
             this IServiceCollection serviceCollection,
             ServiceBusConfiguration configuration)
         {
-            var webBuilder = serviceCollection.AddWebJobs(x => { });
+            var webBuilder = serviceCollection.AddWebJobs(_ => { });
             webBuilder.AddExecutionContextBinding();
             webBuilder.AddExtension(new NServiceBusExtensionConfigProvider());
 
-            var endpointConfiguration = new EndpointConfiguration("sfa.das.whatever")
+            var endpointConfiguration = new EndpointConfiguration("sfa.das.funding.sandbox")
                     .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
                     //.UseOutbox(true)

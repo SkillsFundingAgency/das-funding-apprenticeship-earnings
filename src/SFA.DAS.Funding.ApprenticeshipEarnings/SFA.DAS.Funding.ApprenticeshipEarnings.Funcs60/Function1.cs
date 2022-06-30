@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.Funding.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
 {

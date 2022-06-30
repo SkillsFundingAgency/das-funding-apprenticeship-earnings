@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using SFA.DAS.Funding.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
 {

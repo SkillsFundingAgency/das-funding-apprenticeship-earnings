@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
+namespace SFA.DAS.Funding.Events
 {
     public class SampleFundingEvent
     {

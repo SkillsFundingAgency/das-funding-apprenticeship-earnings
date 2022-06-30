@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
 {
