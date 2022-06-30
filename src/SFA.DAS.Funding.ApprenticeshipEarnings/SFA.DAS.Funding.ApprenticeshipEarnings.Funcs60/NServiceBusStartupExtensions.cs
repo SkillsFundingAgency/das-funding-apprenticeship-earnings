@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -18,7 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
         {
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
-            webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(new NServiceBusOptions()));
+            webBuilder.AddExtension(new NServiceBusExtensionConfigProvider());
 
             var endpointConfiguration = new EndpointConfiguration("sfa.das.whatever")
                     .UseMessageConventions()
