@@ -1,11 +1,6 @@
 ﻿using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-#if NET6_0
-using Azure.Identity;
-#else
-using Microsoft.Azure.ServiceBus.Primitives;
-#endif
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Host.Listeners;
 using NServiceBus;
@@ -14,7 +9,6 @@ using NServiceBus.Raw;
 using NServiceBus.Transport;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
-using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 
 namespace SFA.DAS.NServiceBus.AzureFunction.Hosting
 {
@@ -55,20 +49,16 @@ namespace SFA.DAS.NServiceBus.AzureFunction.Hosting
             }
             else
             {
+                endpointConfigurationRaw.UseTransport<AzureServiceBusTransport>()
+                    .ConnectionString(_attribute.Connection)
+                    .Transactions(TransportTransactionMode.ReceiveOnly)
 #if NET6_0
-                endpointConfigurationRaw.UseTransport<AzureServiceBusTransport>()
-                    .ConnectionString(_attribute.Connection)
-                    .CustomTokenCredential(new DefaultAzureCredential())
-                    .Transactions(TransportTransactionMode.ReceiveOnly);
+                    .CustomTokenCredential(new Azure.Identity.DefaultAzureCredential())
 #else
-                var tokenProvider = TokenProvider.CreateManagedIdentityTokenProvider();
-                var nameShortener = new RuleNameShortener();
-                endpointConfigurationRaw.UseTransport<AzureServiceBusTransport>()
-                    .RuleNameShortener(nameShortener.Shorten)
-                    .CustomTokenProvider(tokenProvider)
-                    .ConnectionString(_attribute.Connection)
-                    .Transactions(TransportTransactionMode.ReceiveOnly);
+                    .RuleNameShortener(new SFA.DAS.NServiceBus.Configuration.AzureServiceBus.RuleNameShortener().Shorten)
+                    .CustomTokenProvider(Microsoft.Azure.ServiceBus.Primitives.TokenProvider.CreateManagedIdentityTokenProvider())
 #endif
+                    ;
             }
 
             if (!string.IsNullOrEmpty(EnvironmentVariables.NServiceBusLicense))

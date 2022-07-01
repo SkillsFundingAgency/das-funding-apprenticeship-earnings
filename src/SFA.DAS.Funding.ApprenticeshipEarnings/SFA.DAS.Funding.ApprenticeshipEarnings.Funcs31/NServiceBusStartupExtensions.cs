@@ -20,7 +20,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
             webBuilder.AddExecutionContextBinding();
             webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(new NServiceBusOptions()));
 
-            var endpointConfiguration = new EndpointConfiguration("sfa.das.whatever")
+            var endpointConfiguration = new EndpointConfiguration("sfa.das.funding.sandbox")
                     .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
                 ;
