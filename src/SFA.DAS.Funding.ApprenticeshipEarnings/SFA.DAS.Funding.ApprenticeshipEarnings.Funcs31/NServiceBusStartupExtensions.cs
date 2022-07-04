@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System;
+using System.IO;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -24,9 +26,24 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
                     .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
                 ;
+            if (configuration.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            {
+                endpointConfiguration
+                    .UseTransport<LearningTransport>()
+                    .StorageDirectory("C://temp//.fae-learningtransport");
+                endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+            }
+            else
+            {
+                endpointConfiguration
+                    .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
+            }
 
-            endpointConfiguration
-                .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
+
+            if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
+            {
+                endpointConfiguration.License(configuration.NServiceBusLicense);
+            }
 
             var endpointWithExternallyManagedServiceProvider =
                 EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
