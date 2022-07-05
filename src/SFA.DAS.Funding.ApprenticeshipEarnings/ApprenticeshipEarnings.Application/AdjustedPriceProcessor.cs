@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Application
 {
     public interface IAdjustedPriceProcessor
     {

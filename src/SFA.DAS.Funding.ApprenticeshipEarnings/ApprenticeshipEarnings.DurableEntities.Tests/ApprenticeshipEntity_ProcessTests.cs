@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 
@@ -13,10 +15,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
         private ApprenticeshipEntity _sut;
         private InternalApprenticeshipLearnerEvent _apprenticeshipLearnerEvent;
         private Mock<IAdjustedPriceProcessor> _mockAdjustedPriceProcessor;
+        private Mock<IInstallmentsGenerator> _mockInstallmentsGenerator;
         private decimal _expectedAdjustedPrice;
+        private List<EarningsInstallment> _expectedEarningsInstallments;
 
         [SetUp]
-        public async Task WhenProcessingAnApprenticeshipLearnerEvent()
+        public async Task SetUp()
         {
             _apprenticeshipLearnerEvent = new InternalApprenticeshipLearnerEvent
             {
@@ -41,7 +45,28 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
             _mockAdjustedPriceProcessor.Setup(x => x.CalculateAdjustedPrice(It.IsAny<decimal>()))
                 .Returns(_expectedAdjustedPrice);
 
-            _sut = new ApprenticeshipEntity(_mockAdjustedPriceProcessor.Object);
+            _expectedEarningsInstallments = new List<EarningsInstallment>
+            {
+                new EarningsInstallment
+                {
+                    Amount = 1000,
+                    AcademicYear = 1920,
+                    DeliveryPeriod = 4
+                },
+                new EarningsInstallment
+                {
+                    Amount = 1000,
+                    AcademicYear = 1920,
+                    DeliveryPeriod = 5
+                }
+            };
+
+            _mockInstallmentsGenerator = new Mock<IInstallmentsGenerator>();
+            _mockInstallmentsGenerator
+                .Setup(x => x.Generate(It.IsAny<decimal>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(_expectedEarningsInstallments);
+
+            _sut = new ApprenticeshipEntity(_mockAdjustedPriceProcessor.Object, _mockInstallmentsGenerator.Object);
             await _sut.Process(_apprenticeshipLearnerEvent);
         }
 
@@ -124,9 +149,27 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
         }
 
         [Test]
-        public void ShouldSetTheAdjustedPriceToTheResultFromTheProcessor()
+        public void ShouldPassTheAgreedPriceToTheAdjustedPriceProcessor()
         {
-            _sut.AdjustedPrice.Should().Be(_expectedAdjustedPrice);
+            _mockAdjustedPriceProcessor.Verify(x => x.CalculateAdjustedPrice(_apprenticeshipLearnerEvent.AgreedPrice));
+        }
+
+        [Test]
+        public void ShouldSetTheAdjustedPriceToTheResultFromTheAdjustedPriceProcessor()
+        {
+            _sut.EarningsProfile.AdjustedPrice.Should().Be(_expectedAdjustedPrice);
+        }
+
+        [Test]
+        public void ShouldPassTheAdjustedPriceAndCorrectDatesToTheInstallmentsGenerator()
+        {
+            _mockInstallmentsGenerator.Verify(x => x.Generate(_expectedAdjustedPrice, _apprenticeshipLearnerEvent.ActualStartDate, _apprenticeshipLearnerEvent.PlannedEndDate));
+        }
+
+        [Test]
+        public void ShouldSetTheInstallmentsToTheResultFromTheInstallmentsGenerator()
+        {
+            _sut.EarningsProfile.Installments.Should().BeEquivalentTo(_expectedEarningsInstallments);
         }
     }
 }

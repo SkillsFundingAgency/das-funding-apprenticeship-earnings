@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 
@@ -29,7 +30,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            
+            builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
             
             Configuration = configBuilder.Build();
             //Environment.SetEnvironmentVariable("NServiceBusConnectionString", Configuration["NServiceBusConnectionString"], EnvironmentVariableTarget.Process);

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 
@@ -28,27 +29,30 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         [JsonProperty] public long? TransferSenderEmployerId { get; set; }
         [JsonProperty] public EmployerType EmployerType { get; set; }
 
-        [JsonProperty] public decimal? AdjustedPrice { get; set; }
-
+        [JsonProperty] public EarningsProfile EarningsProfile { get; set; }
 
         private readonly IAdjustedPriceProcessor _adjustedPriceProcessor;
+        private readonly IInstallmentsGenerator _installmentsGenerator;
 
-        public ApprenticeshipEntity(IAdjustedPriceProcessor adjustedPriceProcessor)
+        public ApprenticeshipEntity(IAdjustedPriceProcessor adjustedPriceProcessor,
+            IInstallmentsGenerator installmentsGenerator)
         {
             _adjustedPriceProcessor = adjustedPriceProcessor;
+            _installmentsGenerator = installmentsGenerator;
         }
 
         public async Task Process(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
         {
             //todo logging
             MapApprenticeshipLearnerEventProperties(apprenticeshipLearnerEvent);
-            AdjustedPrice = _adjustedPriceProcessor.CalculateAdjustedPrice(AgreedPrice);
+            EarningsProfile = new EarningsProfile { AdjustedPrice = _adjustedPriceProcessor.CalculateAdjustedPrice(AgreedPrice) };
+            EarningsProfile.Installments = _installmentsGenerator.Generate(EarningsProfile.AdjustedPrice.Value, ActualStartDate, PlannedEndDate);
         }
 
         [FunctionName(nameof(ApprenticeshipEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext ctx) => ctx.DispatchAsync<ApprenticeshipEntity>();
 
-        private void MapApprenticeshipLearnerEventProperties( InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
+        private void MapApprenticeshipLearnerEventProperties(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
         {
             ApprenticeshipKey = apprenticeshipLearnerEvent.ApprenticeshipKey;
             CommitmentId = apprenticeshipLearnerEvent.CommitmentId;

@@ -19,7 +19,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         {
             try
             {
-
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
 
                 var entityId = new EntityId(nameof(ApprenticeshipEntity),
