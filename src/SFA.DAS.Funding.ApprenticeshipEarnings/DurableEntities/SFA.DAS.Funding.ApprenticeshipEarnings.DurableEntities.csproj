@@ -17,7 +17,6 @@
     <ProjectReference Include="..\ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj" />
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Shared\SFA.DAS.NServiceBus.AzureFunction\SFA.DAS.NServiceBus.AzureFunction.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

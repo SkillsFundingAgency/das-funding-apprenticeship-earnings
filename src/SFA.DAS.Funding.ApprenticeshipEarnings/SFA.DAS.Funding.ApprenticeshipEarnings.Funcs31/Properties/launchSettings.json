@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7116",
-      "launchBrowser": false
-    }
-  }
-}
