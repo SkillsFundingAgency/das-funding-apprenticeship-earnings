@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -9,6 +7,7 @@ using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using System;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
 {
@@ -30,7 +29,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
             {
                 endpointConfiguration
                     .UseTransport<LearningTransport>()
-                    .StorageDirectory("C://temp//.fae-learningtransport");
+                    .StorageDirectory(configuration.LearningTransportStorageDirectory);
                 endpointConfiguration.UseLearningTransport(s => s.AddRouting());
             }
             else
@@ -38,7 +37,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs31
                 endpointConfiguration
                     .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
             }
-
 
             if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
             {

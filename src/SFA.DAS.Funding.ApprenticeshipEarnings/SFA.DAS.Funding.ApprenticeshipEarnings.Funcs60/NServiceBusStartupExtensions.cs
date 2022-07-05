@@ -6,6 +6,7 @@ using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using System;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
 {
@@ -22,12 +23,25 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Funcs60
             var endpointConfiguration = new EndpointConfiguration("sfa.das.funding.sandbox")
                     .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
-                    //.UseOutbox(true)
-                    //.UseSqlServerPersistence(() => new SqlConnection(configuration.DbConnectionString))
-                    //.UseUnitOfWork()
                 ;
 
-            endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
+            if (configuration.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            {
+                endpointConfiguration
+                    .UseTransport<LearningTransport>()
+                    .StorageDirectory(configuration.LearningTransportStorageDirectory);
+                endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+            }
+            else
+            {
+                endpointConfiguration
+                    .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
+            }
+
+            if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
+            {
+                endpointConfiguration.License(configuration.NServiceBusLicense);
+            }
 
             var endpointWithExternallyManagedServiceProvider =
                 EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
