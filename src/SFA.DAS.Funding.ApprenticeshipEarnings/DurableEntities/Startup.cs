@@ -1,12 +1,19 @@
 ﻿using System;
 using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.NServiceBus.AzureFunction.Hosting;
+using SFA.DAS.NServiceBus.Configuration;
+using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Startup))]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
@@ -28,18 +35,26 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             var configBuilder = new ConfigurationBuilder()
                 .AddConfiguration(configuration)
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .AddJsonFile("local.settings.json");
 
             builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
+
             
             Configuration = configBuilder.Build();
             //Environment.SetEnvironmentVariable("NServiceBusConnectionString", Configuration["NServiceBusConnectionString"], EnvironmentVariableTarget.Process);
 
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
 
+            var nServiceBusConfiguration = Configuration.GetSection("Values").Get<ServiceBusConfiguration>();
+
+            builder.Services.AddNServiceBus(nServiceBusConfiguration);
+
             //QueueHelper.EnsureTopic(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey]).GetAwaiter().GetResult();
             //QueueHelper.EnsureQueue(Configuration[ServiceBusConnectionStringKey], Configuration[QueueNameKey]).GetAwaiter().GetResult();
             //QueueHelper.EnsureSubscription(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey], Configuration[QueueNameKey], typeof(InternalApprenticeshipLearnerEvent)).GetAwaiter().GetResult();
         }
     }
+
+    
 }

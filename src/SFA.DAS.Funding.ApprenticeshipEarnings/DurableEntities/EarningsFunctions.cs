@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -12,7 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
         public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-            [ServiceBusTrigger(QueueNames.ApprenticeshipLearners)]
+            [NServiceBusTrigger(Connection = "NServiceBusConnectionString", Endpoint = QueueNames.ApprenticeshipLearners)]
             InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent,
             [DurableClient] IDurableEntityClient client,
             ILogger log)

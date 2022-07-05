@@ -10,12 +10,14 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.5.1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApprenticeshipEarnings.Application\SFA.DAS.Funding.ApprenticeshipEarnings.Application.csproj" />
     <ProjectReference Include="..\ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj" />
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Shared\SFA.DAS.NServiceBus.AzureFunction\SFA.DAS.NServiceBus.AzureFunction.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
