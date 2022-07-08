@@ -39,6 +39,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 .AddJsonFile("local.settings.json");
 
             builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
+            builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
 
             
             Configuration = configBuilder.Build();
@@ -46,9 +47,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
 
-            var nServiceBusConfiguration = Configuration.GetSection("Values").Get<ServiceBusConfiguration>();
-
-            builder.Services.AddNServiceBus(nServiceBusConfiguration);
+            builder.Services.AddNServiceBus();
 
             //QueueHelper.EnsureTopic(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey]).GetAwaiter().GetResult();
             //QueueHelper.EnsureQueue(Configuration[ServiceBusConnectionStringKey], Configuration[QueueNameKey]).GetAwaiter().GetResult();
