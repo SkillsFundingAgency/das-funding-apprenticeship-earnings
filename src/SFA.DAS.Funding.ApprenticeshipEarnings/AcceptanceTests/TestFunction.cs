@@ -19,6 +19,7 @@ public class Settings
     public string NServiceBusConnectionString { get; set; }
     public string TopicPath { get; set; }
     public string QueueName { get; set; }
+    public string LearningTransportStorageDirectory { get; set; }
 }
 
 public class TestFunction : IDisposable
@@ -74,6 +75,8 @@ public class TestFunction : IDisposable
         _testContext = testContext;
 
         //Microsoft.Extensions.Hosting.WebJobsHostBuilderExtensions
+        Environment.SetEnvironmentVariable("NServiceBusConnectionString", _settings.NServiceBusConnectionString, EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable("LearningTransportStorageDirectory", _settings.LearningTransportStorageDirectory, EnvironmentVariableTarget.Process);
 
         _host = new HostBuilder()
             .ConfigureAppConfiguration(a =>

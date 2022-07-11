@@ -13,7 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
         public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipLearners, Connection = "UseLearningEndpoint=true", LearningTransportStorageDirectory = "C:\\temp\\LearningTransport\\FPAY-14")]
+            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipLearners)]
             InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
