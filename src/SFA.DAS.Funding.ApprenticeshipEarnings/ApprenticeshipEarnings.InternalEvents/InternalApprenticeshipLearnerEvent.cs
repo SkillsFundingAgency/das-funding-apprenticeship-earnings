@@ -1,8 +1,10 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents
+﻿using NServiceBus;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents
 {
     //todo this obviously needs to come from the event that will be published by the upstream service (Apprenticeship Earnings Approvals Event Handlers or similar)
     [Obsolete("this obviously needs to come from the event that will be published by the upstream service (Apprenticeship Earnings Approvals Event Handlers or similar)")]
-    public class InternalApprenticeshipLearnerEvent
+    public class InternalApprenticeshipLearnerEvent : IEvent
     {
         public string ApprenticeshipKey { get; set; }
         public long CommitmentId { get; set; }

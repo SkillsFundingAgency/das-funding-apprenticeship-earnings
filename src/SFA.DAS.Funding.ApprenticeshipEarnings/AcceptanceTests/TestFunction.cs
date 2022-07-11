@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance;
 
@@ -15,14 +16,14 @@ public class Settings
 {
     public string EnvironmentName { get; set; }
     public string AzureWebJobsStorage { get; set; }
-    public string ServiceBusConnectionString { get; set; }
+    public string NServiceBusConnectionString { get; set; }
     public string TopicPath { get; set; }
     public string QueueName { get; set; }
 }
 
 public class TestFunction : IDisposable
 {
-    private static readonly string ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString", EnvironmentVariableTarget.Process);
+    private static readonly string NServiceBusConnectionString = Environment.GetEnvironmentVariable("NServiceBusConnectionString", EnvironmentVariableTarget.Process);
     private static readonly string AzureWebJobsStorage = Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process);
     private static readonly string TopicPath = Environment.GetEnvironmentVariable("TopicPath", EnvironmentVariableTarget.Process);
     private static readonly string QueueName = Environment.GetEnvironmentVariable("QueueName", EnvironmentVariableTarget.Process);
@@ -62,7 +63,7 @@ public class TestFunction : IDisposable
         _appConfig = new Dictionary<string, string>{ //todo this needs to match our durable entity config
             { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
             { "AzureWebJobsStorage", _settings.AzureWebJobsStorage },
-            { "ServiceBusConnectionString", _settings.ServiceBusConnectionString },
+            { "NServiceBusConnectionString", _settings.NServiceBusConnectionString },
             { "TopicPath", _settings.TopicPath },
             { "QueueName", _settings.QueueName },
             //{ "ConfigNames", "SFA.DAS.EmployerIncentives" },
@@ -109,8 +110,10 @@ public class TestFunction : IDisposable
                         a.AzureWebJobsStorage = _appConfig["AzureWebJobsStorage"];
                         a.QueueName = _appConfig["QueueName"];
                         a.TopicPath = _appConfig["TopicPath"];
-                        a.ServiceBusConnectionString = _appConfig["ServiceBusConnectionString"];
+                        a.ServiceBusConnectionString = _appConfig["NServiceBusConnectionString"];
                     });
+
+                    
 
                     new Startup().Configure(builder);
 
@@ -143,8 +146,10 @@ public class TestFunction : IDisposable
 
     public async Task StartHost()
     {
-        var timeout = new TimeSpan(0, 0, 10);
+        var timeout = new TimeSpan(0, 2, 10);
         var delayTask = Task.Delay(timeout);
+        //await _host.StartAsync(); //todo remove when working
+
         await Task.WhenAny(Task.WhenAll(_host.StartAsync(), Jobs.Terminate()), delayTask);
 
         if (delayTask.IsCompleted)
