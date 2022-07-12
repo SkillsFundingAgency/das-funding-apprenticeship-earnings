@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
+using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
@@ -35,14 +36,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 
         private readonly IAdjustedPriceProcessor _adjustedPriceProcessor;
         private readonly IInstallmentsGenerator _installmentsGenerator;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IMessageSession _messageSession;
 
         public ApprenticeshipEntity(IAdjustedPriceProcessor adjustedPriceProcessor,
-            IInstallmentsGenerator installmentsGenerator, IEventPublisher eventPublisher)
+            IInstallmentsGenerator installmentsGenerator, IMessageSession messageSession)
         {
             _adjustedPriceProcessor = adjustedPriceProcessor;
             _installmentsGenerator = installmentsGenerator;
-            _eventPublisher = eventPublisher;
+            _messageSession = messageSession;
         }
 
         public async Task HandleApprenticeshipLearnerEvent(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
@@ -53,7 +54,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             EarningsProfile = new EarningsProfile { AdjustedPrice = _adjustedPriceProcessor.CalculateAdjustedPrice(AgreedPrice) };
             EarningsProfile.Installments = _installmentsGenerator.Generate(EarningsProfile.AdjustedPrice.Value, ActualStartDate, PlannedEndDate);
 
-            await _eventPublisher.Publish(new EarningsGeneratedEvent
+            await _messageSession.Publish(new EarningsGeneratedEvent
             {
                 ApprenticeshipKey = ApprenticeshipKey,
                 CommitmentId = CommitmentId

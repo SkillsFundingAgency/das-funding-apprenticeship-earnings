@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
@@ -18,7 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
         private InternalApprenticeshipLearnerEvent _apprenticeshipLearnerEvent;
         private Mock<IAdjustedPriceProcessor> _mockAdjustedPriceProcessor;
         private Mock<IInstallmentsGenerator> _mockInstallmentsGenerator;
-        private Mock<IEventPublisher> _mockEventPublisher;
+        private Mock<IMessageSession> _mockMessageSession;
         private decimal _expectedAdjustedPrice;
         private List<EarningsInstallment> _expectedEarningsInstallments;
 
@@ -69,9 +70,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
                 .Setup(x => x.Generate(It.IsAny<decimal>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Returns(_expectedEarningsInstallments);
 
-            _mockEventPublisher = new Mock<IEventPublisher>();
+            _mockMessageSession = new Mock<IMessageSession>();
 
-            _sut = new ApprenticeshipEntity(_mockAdjustedPriceProcessor.Object, _mockInstallmentsGenerator.Object, _mockEventPublisher.Object);
+            _sut = new ApprenticeshipEntity(_mockAdjustedPriceProcessor.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object);
             await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipLearnerEvent);
         }
 
@@ -180,19 +181,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
         [Test]
         public void ShouldPublishEarningsGeneratedEvent()
         {
-            _mockEventPublisher.Verify(x => x.Publish(It.IsAny<EarningsGeneratedEvent>()));
+            _mockMessageSession.Verify(x => x.Publish(It.IsAny<EarningsGeneratedEvent>(), It.IsAny<PublishOptions>()));
         }
 
         [Test]
         public void ShouldPublishApprenticeshipKeyOnEarningsGeneratedEvent()
         {
-            _mockEventPublisher.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.ApprenticeshipKey == _apprenticeshipLearnerEvent.ApprenticeshipKey)));
+            _mockMessageSession.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.ApprenticeshipKey == _apprenticeshipLearnerEvent.ApprenticeshipKey), It.IsAny<PublishOptions>()));
         }
 
         [Test]
         public void ShouldPublishCommitmentIdOnEarningsGeneratedEvent()
         {
-            _mockEventPublisher.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.CommitmentId == _apprenticeshipLearnerEvent.CommitmentId)));
+            _mockMessageSession.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.CommitmentId == _apprenticeshipLearnerEvent.CommitmentId), It.IsAny<PublishOptions>()));
         }
     }
 }

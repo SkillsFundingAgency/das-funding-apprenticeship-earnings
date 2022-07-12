@@ -14,6 +14,7 @@ using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.NServiceBus.Services;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Startup))]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
@@ -41,13 +42,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
             builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
 
-            
+
             Configuration = configBuilder.Build();
             //Environment.SetEnvironmentVariable("NServiceBusConnectionString", Configuration["NServiceBusConnectionString"], EnvironmentVariableTarget.Process);
 
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
 
-            builder.Services.AddNServiceBus();
+            builder.Services.AddNServiceBus(Configuration);
 
             //QueueHelper.EnsureTopic(Configuration[ServiceBusConnectionStringKey], Configuration[TopicPathKey]).GetAwaiter().GetResult();
             //QueueHelper.EnsureQueue(Configuration[ServiceBusConnectionStringKey], Configuration[QueueNameKey]).GetAwaiter().GetResult();
