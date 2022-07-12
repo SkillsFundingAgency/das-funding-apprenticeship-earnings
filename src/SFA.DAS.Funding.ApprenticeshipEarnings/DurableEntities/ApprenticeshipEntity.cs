@@ -8,7 +8,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -33,20 +35,29 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 
         private readonly IAdjustedPriceProcessor _adjustedPriceProcessor;
         private readonly IInstallmentsGenerator _installmentsGenerator;
+        private readonly IEventPublisher _eventPublisher;
 
         public ApprenticeshipEntity(IAdjustedPriceProcessor adjustedPriceProcessor,
-            IInstallmentsGenerator installmentsGenerator)
+            IInstallmentsGenerator installmentsGenerator, IEventPublisher eventPublisher)
         {
             _adjustedPriceProcessor = adjustedPriceProcessor;
             _installmentsGenerator = installmentsGenerator;
+            _eventPublisher = eventPublisher;
         }
 
-        public async Task Process(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
+        public async Task HandleApprenticeshipLearnerEvent(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
         {
             //todo logging
             MapApprenticeshipLearnerEventProperties(apprenticeshipLearnerEvent);
+
             EarningsProfile = new EarningsProfile { AdjustedPrice = _adjustedPriceProcessor.CalculateAdjustedPrice(AgreedPrice) };
             EarningsProfile.Installments = _installmentsGenerator.Generate(EarningsProfile.AdjustedPrice.Value, ActualStartDate, PlannedEndDate);
+
+            await _eventPublisher.Publish(new EarningsGeneratedEvent
+            {
+                ApprenticeshipKey = ApprenticeshipKey,
+                CommitmentId = CommitmentId
+            });
         }
 
         [FunctionName(nameof(ApprenticeshipEntity))]

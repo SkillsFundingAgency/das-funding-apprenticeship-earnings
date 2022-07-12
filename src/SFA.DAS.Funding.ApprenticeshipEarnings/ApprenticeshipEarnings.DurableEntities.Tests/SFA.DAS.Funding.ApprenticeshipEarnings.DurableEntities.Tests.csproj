@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -11,6 +11,7 @@
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
     <PackageReference Include="coverlet.collector" Version="3.1.0" />
@@ -18,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApprenticeshipEarnings.Application\SFA.DAS.Funding.ApprenticeshipEarnings.Application.csproj" />
+    <ProjectReference Include="..\ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj" />
     <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
   </ItemGroup>
 
