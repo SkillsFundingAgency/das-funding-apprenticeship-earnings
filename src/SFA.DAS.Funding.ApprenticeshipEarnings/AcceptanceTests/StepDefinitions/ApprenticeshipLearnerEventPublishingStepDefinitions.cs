@@ -36,6 +36,20 @@ public class ApprenticeshipLearnerEventPublishingStepDefinitions
     public async Task PublishApprenticeshipLearnerEvent()
     {
         await _endpointInstance.Publish(new InternalApprenticeshipLearnerEvent()
-            { AgreedPrice = 11000 });
+        {
+            AgreedPrice = 11000,
+            CommitmentId = 112,
+            ActualStartDate = new DateTime(2019, 01, 01),
+            AgreedOn = new DateTime(2018, 05, 05),
+            ApprenticeshipKey = Guid.NewGuid().ToString(),
+            ApprovedOn = new DateTime(2018, 05, 05),
+            EmployerId = 114,
+            EmployerType = EmployerType.Levy,
+            PlannedEndDate = new DateTime(2020, 12, 31),
+            ProviderId = 116,
+            TrainingCode = "AbleSeafarer",
+            TransferSenderEmployerId = null,
+            Uln = 118
+        });
     }
 }
