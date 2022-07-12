@@ -351,3 +351,6 @@ MigrationBackup/
 
 # Specflow generated feature.cs files
 *.feature.cs
+
+#local settings json file
+local.settings.json
