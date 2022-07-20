@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
-using SFA.DAS.NServiceBus.Services;
+using EmployerType = SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.EmployerType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -34,31 +30,17 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 
         [JsonProperty] public EarningsProfile EarningsProfile { get; set; }
 
-        private readonly IAdjustedPriceProcessor _adjustedPriceProcessor;
-        private readonly IInstallmentsGenerator _installmentsGenerator;
-        private readonly IMessageSession _messageSession;
+        private readonly IEarningsProfileGenerator _earningsProfileGenerator;
 
-        public ApprenticeshipEntity(IAdjustedPriceProcessor adjustedPriceProcessor,
-            IInstallmentsGenerator installmentsGenerator, IMessageSession messageSession)
+        public ApprenticeshipEntity(IEarningsProfileGenerator earningsProfileGenerator)
         {
-            _adjustedPriceProcessor = adjustedPriceProcessor;
-            _installmentsGenerator = installmentsGenerator;
-            _messageSession = messageSession;
+            _earningsProfileGenerator = earningsProfileGenerator;
         }
 
         public async Task HandleApprenticeshipLearnerEvent(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
         {
-            //todo logging
             MapApprenticeshipLearnerEventProperties(apprenticeshipLearnerEvent);
-
-            EarningsProfile = new EarningsProfile { AdjustedPrice = _adjustedPriceProcessor.CalculateAdjustedPrice(AgreedPrice) };
-            EarningsProfile.Installments = _installmentsGenerator.Generate(EarningsProfile.AdjustedPrice.Value, ActualStartDate, PlannedEndDate);
-
-            await _messageSession.Publish(new EarningsGeneratedEvent
-            {
-                ApprenticeshipKey = ApprenticeshipKey,
-                CommitmentId = CommitmentId
-            });
+            await _earningsProfileGenerator.GenerateEarnings(apprenticeshipLearnerEvent);
         }
 
         [FunctionName(nameof(ApprenticeshipEntity))]

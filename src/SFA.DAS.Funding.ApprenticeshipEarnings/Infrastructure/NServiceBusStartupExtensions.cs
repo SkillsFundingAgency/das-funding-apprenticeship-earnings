@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
@@ -14,16 +13,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
 public static class NServiceBusStartupExtensions
 {
-    //public static IServiceCollection AddNServiceBus(
-    //    this IServiceCollection serviceCollection)
-    //{
-    //    var webBuilder = serviceCollection.AddWebJobs(_ => { });
-    //    webBuilder.AddExecutionContextBinding();
-    //    webBuilder.AddExtension(new NServiceBusExtensionConfigProvider());
-
-    //    return serviceCollection;
-    //}
-
     public static IServiceCollection AddNServiceBus(
             this IServiceCollection serviceCollection,
             IConfiguration configuration)
@@ -55,7 +44,6 @@ public static class NServiceBusStartupExtensions
         }
 
         ExcludeTestAssemblies(endpointConfiguration.AssemblyScanner());
-        //endpointConfiguration.SendOnly();
 
         var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
         endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));

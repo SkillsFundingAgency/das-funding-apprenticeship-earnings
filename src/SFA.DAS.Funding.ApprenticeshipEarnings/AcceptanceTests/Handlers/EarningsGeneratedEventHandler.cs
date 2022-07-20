@@ -2,16 +2,15 @@
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.Handlers
-{
-    public class EarningsGeneratedEventHandler : IHandleMessages<EarningsGeneratedEvent>
-    {
-        public static ConcurrentBag<EarningsGeneratedEvent> ReceivedEvents { get; } = new ConcurrentBag<EarningsGeneratedEvent>();
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.Handlers;
 
-        public Task Handle(EarningsGeneratedEvent message, IMessageHandlerContext context)
-        {
-            ReceivedEvents.Add(message);
-            return Task.CompletedTask;
-        }
+public class EarningsGeneratedEventHandler : IHandleMessages<EarningsGeneratedEvent>
+{
+    public static ConcurrentBag<EarningsGeneratedEvent> ReceivedEvents { get; } = new();
+
+    public Task Handle(EarningsGeneratedEvent message, IMessageHandlerContext context)
+    {
+        ReceivedEvents.Add(message);
+        return Task.CompletedTask;
     }
 }

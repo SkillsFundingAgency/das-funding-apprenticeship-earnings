@@ -31,11 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests", "ApprenticeshipEarnings.DurableEntities.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests.csproj", "{C46F6030-5DFD-4688-98D8-428F3E035DAD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Application", "ApprenticeshipEarnings.Application\SFA.DAS.Funding.ApprenticeshipEarnings.Application.csproj", "{424C525B-6FDE-4F50-B409-8CE43B1F20CA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Application.Tests", "ApprenticeshipEarnings.Application.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.Application.Tests.csproj", "{E41DB603-BF01-455D-86B0-DB482B40743F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Events", "ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj", "{3C2815F1-6F42-40FD-B649-037C6202D7E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Events", "ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj", "{3C2815F1-6F42-40FD-B649-037C6202D7E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,14 +97,6 @@ Global
 		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{424C525B-6FDE-4F50-B409-8CE43B1F20CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{424C525B-6FDE-4F50-B409-8CE43B1F20CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{424C525B-6FDE-4F50-B409-8CE43B1F20CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{424C525B-6FDE-4F50-B409-8CE43B1F20CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E41DB603-BF01-455D-86B0-DB482B40743F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E41DB603-BF01-455D-86B0-DB482B40743F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E41DB603-BF01-455D-86B0-DB482B40743F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E41DB603-BF01-455D-86B0-DB482B40743F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C2815F1-6F42-40FD-B649-037C6202D7E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C2815F1-6F42-40FD-B649-037C6202D7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C2815F1-6F42-40FD-B649-037C6202D7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -10,4 +10,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj" />
+    <ProjectReference Include="..\ApprenticeshipEarnings.InternalEvents\SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.csproj" />
+  </ItemGroup>
+
 </Project>

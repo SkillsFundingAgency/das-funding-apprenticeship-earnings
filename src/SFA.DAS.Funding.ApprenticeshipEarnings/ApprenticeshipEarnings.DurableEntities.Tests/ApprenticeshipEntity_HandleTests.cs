@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Application;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
-using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
 {
@@ -17,11 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
     {
         private ApprenticeshipEntity _sut;
         private InternalApprenticeshipLearnerEvent _apprenticeshipLearnerEvent;
-        private Mock<IAdjustedPriceProcessor> _mockAdjustedPriceProcessor;
-        private Mock<IInstallmentsGenerator> _mockInstallmentsGenerator;
-        private Mock<IMessageSession> _mockMessageSession;
-        private decimal _expectedAdjustedPrice;
-        private List<EarningsInstallment> _expectedEarningsInstallments;
+        private Mock<IEarningsProfileGenerator> _mockEarningsProfileGenerator;
 
         [SetUp]
         public async Task SetUp()
@@ -43,36 +35,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
                 AgreedPrice = 15000
             };
 
-            _expectedAdjustedPrice = 12000;
+            _mockEarningsProfileGenerator = new Mock<IEarningsProfileGenerator>();
 
-            _mockAdjustedPriceProcessor = new Mock<IAdjustedPriceProcessor>();
-            _mockAdjustedPriceProcessor.Setup(x => x.CalculateAdjustedPrice(It.IsAny<decimal>()))
-                .Returns(_expectedAdjustedPrice);
-
-            _expectedEarningsInstallments = new List<EarningsInstallment>
-            {
-                new EarningsInstallment
-                {
-                    Amount = 1000,
-                    AcademicYear = 1920,
-                    DeliveryPeriod = 4
-                },
-                new EarningsInstallment
-                {
-                    Amount = 1000,
-                    AcademicYear = 1920,
-                    DeliveryPeriod = 5
-                }
-            };
-
-            _mockInstallmentsGenerator = new Mock<IInstallmentsGenerator>();
-            _mockInstallmentsGenerator
-                .Setup(x => x.Generate(It.IsAny<decimal>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(_expectedEarningsInstallments);
-
-            _mockMessageSession = new Mock<IMessageSession>();
-
-            _sut = new ApprenticeshipEntity(_mockAdjustedPriceProcessor.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object);
+            _sut = new ApprenticeshipEntity(_mockEarningsProfileGenerator.Object);
             await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipLearnerEvent);
         }
 
@@ -155,45 +120,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
         }
 
         [Test]
-        public void ShouldPassTheAgreedPriceToTheAdjustedPriceProcessor()
+        public void ShouldCallGenerateEarnings()
         {
-            _mockAdjustedPriceProcessor.Verify(x => x.CalculateAdjustedPrice(_apprenticeshipLearnerEvent.AgreedPrice));
+            _mockEarningsProfileGenerator.Verify(x => x.GenerateEarnings(_apprenticeshipLearnerEvent));
         }
-
-        [Test]
-        public void ShouldSetTheAdjustedPriceToTheResultFromTheAdjustedPriceProcessor()
-        {
-            _sut.EarningsProfile.AdjustedPrice.Should().Be(_expectedAdjustedPrice);
-        }
-
-        [Test]
-        public void ShouldPassTheAdjustedPriceAndCorrectDatesToTheInstallmentsGenerator()
-        {
-            _mockInstallmentsGenerator.Verify(x => x.Generate(_expectedAdjustedPrice, _apprenticeshipLearnerEvent.ActualStartDate, _apprenticeshipLearnerEvent.PlannedEndDate));
-        }
-
-        [Test]
-        public void ShouldSetTheInstallmentsToTheResultFromTheInstallmentsGenerator()
-        {
-            _sut.EarningsProfile.Installments.Should().BeEquivalentTo(_expectedEarningsInstallments);
-        }
-
-        [Test]
-        public void ShouldPublishEarningsGeneratedEvent()
-        {
-            _mockMessageSession.Verify(x => x.Publish(It.IsAny<EarningsGeneratedEvent>(), It.IsAny<PublishOptions>()));
-        }
-
-        [Test]
-        public void ShouldPublishApprenticeshipKeyOnEarningsGeneratedEvent()
-        {
-            _mockMessageSession.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.ApprenticeshipKey == _apprenticeshipLearnerEvent.ApprenticeshipKey), It.IsAny<PublishOptions>()));
-        }
-
-        [Test]
-        public void ShouldPublishCommitmentIdOnEarningsGeneratedEvent()
-        {
-            _mockMessageSession.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.CommitmentId == _apprenticeshipLearnerEvent.CommitmentId), It.IsAny<PublishOptions>()));
-        }
+        
     }
 }

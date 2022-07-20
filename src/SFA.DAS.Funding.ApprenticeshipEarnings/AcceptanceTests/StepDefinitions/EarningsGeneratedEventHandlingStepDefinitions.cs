@@ -1,5 +1,6 @@
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.Handlers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -10,7 +11,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
 [Binding]
 public class EarningsGeneratedEventHandlingStepDefinitions
 {
+    private readonly ScenarioContext _scenarioContext;
     private static IEndpointInstance _endpointInstance;
+
+    public EarningsGeneratedEventHandlingStepDefinitions(ScenarioContext scenarioContext)
+    {
+        _scenarioContext = scenarioContext;
+    }
 
     [BeforeTestRun]
     public static async Task StartEndpoint()
@@ -33,9 +40,16 @@ public class EarningsGeneratedEventHandlingStepDefinitions
             .ConfigureAwait(false);
     }
 
-    [Then(@"An earnings generated event is published")]
+    [Then(@"An earnings generated event is published with the correct learning amounts")]
     public async Task AssertEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForIt(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(), "Failed to find published EarningsGenerated event");
+        await WaitHelper.WaitForIt(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(EventMatchesExpectation), "Failed to find published EarningsGenerated event");
+    }
+
+    private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent)
+    {
+        return earningsGeneratedEvent.FundingPeriods.Count == 1 
+               && earningsGeneratedEvent.FundingPeriods.First().DeliveryPeriods.Count == (int)_scenarioContext["expectedDeliveryPeriodCount"]
+               && earningsGeneratedEvent.FundingPeriods.First().DeliveryPeriods.All(x => x.LearningAmount == (int)_scenarioContext["expectedDeliveryPeriodLearningAmount"]);
     }
 }

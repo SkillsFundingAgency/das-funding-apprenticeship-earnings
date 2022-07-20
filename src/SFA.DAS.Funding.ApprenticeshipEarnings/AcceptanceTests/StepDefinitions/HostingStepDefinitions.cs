@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
 
@@ -8,7 +7,6 @@ public class HostingStepDefinitions
 {
     private readonly TestContext _testContext;
     private readonly FeatureContext _featureContext;
-    private static IConfiguration _config;
 
     public HostingStepDefinitions(TestContext testContext, FeatureContext featureContext)
     {
@@ -19,13 +17,6 @@ public class HostingStepDefinitions
     [BeforeScenario]
     public async Task CreateConfig()
     {
-        if (_config == null)
-        {
-            _config = new ConfigurationBuilder()
-                .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
-                .Build();
-        }
-
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         _testContext.TestFunction = new TestFunction(_testContext, $"TEST{_featureContext.FeatureInfo.Title.Replace(" ", "")}");

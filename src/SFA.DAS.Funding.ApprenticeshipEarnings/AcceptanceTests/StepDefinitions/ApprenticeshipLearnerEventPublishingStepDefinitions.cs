@@ -8,7 +8,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
 [Binding]
 public class ApprenticeshipLearnerEventPublishingStepDefinitions
 {
+    private readonly ScenarioContext _scenarioContext;
     private static IEndpointInstance _endpointInstance;
+
+    public ApprenticeshipLearnerEventPublishingStepDefinitions(ScenarioContext scenarioContext)
+    {
+        _scenarioContext = scenarioContext;
+    }
 
     [BeforeTestRun]
     public static async Task StartEndpoint()
@@ -37,7 +43,7 @@ public class ApprenticeshipLearnerEventPublishingStepDefinitions
     {
         await _endpointInstance.Publish(new InternalApprenticeshipLearnerEvent()
         {
-            AgreedPrice = 11000,
+            AgreedPrice = 15000,
             CommitmentId = 112,
             ActualStartDate = new DateTime(2019, 01, 01),
             AgreedOn = new DateTime(2018, 05, 05),
@@ -51,5 +57,8 @@ public class ApprenticeshipLearnerEventPublishingStepDefinitions
             TransferSenderEmployerId = null,
             Uln = 118
         });
+
+        _scenarioContext["expectedDeliveryPeriodCount"] = 24;
+        _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 500;
     }
 }

@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ApprenticeshipEarnings.Application\SFA.DAS.Funding.ApprenticeshipEarnings.Application.csproj" />
     <ProjectReference Include="..\ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj" />
     <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
   </ItemGroup>

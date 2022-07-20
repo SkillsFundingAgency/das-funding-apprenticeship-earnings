@@ -1,6 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Application;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 public interface IInstallmentsGenerator
 {

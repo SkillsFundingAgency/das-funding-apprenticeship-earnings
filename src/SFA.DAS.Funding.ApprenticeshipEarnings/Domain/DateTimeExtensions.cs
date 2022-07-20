@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Application;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 public static class DateTimeExtensions
 {
@@ -18,5 +18,21 @@ public static class DateTimeExtensions
             return short.Parse($"{twoDigitYear}{twoDigitYear + 1}");
         
         return short.Parse($"{twoDigitYear - 1}{twoDigitYear}");
+    }
+
+    public static byte ToCalendarMonth(this byte deliveryPeriod)
+    {
+        if (deliveryPeriod >= 6)
+            return (byte)(deliveryPeriod - 5);
+        else
+            return (byte)(deliveryPeriod + 7);
+    }
+
+    public static short ToCalendarYear(this short academicYear, byte deliveryPeriod)
+    {
+        if (deliveryPeriod >= 6)
+            return short.Parse($"20{academicYear.ToString().Substring(2,2)}");
+        else
+            return short.Parse($"20{academicYear.ToString().Substring(0, 2)}");
     }
 }
