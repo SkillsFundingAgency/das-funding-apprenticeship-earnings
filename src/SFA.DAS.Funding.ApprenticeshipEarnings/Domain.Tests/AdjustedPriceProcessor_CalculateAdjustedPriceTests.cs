@@ -5,9 +5,8 @@ using FluentAssertions;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
-using EmployerType = SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.EmployerType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests;
 
@@ -30,7 +29,7 @@ public class AdjustedPriceProcessor_CalculateAdjustedPriceTests
 public class EarningsProfileGenerator_GenerateEarningsTests
 {
     private EarningsProfileGenerator _sut;
-    private InternalApprenticeshipLearnerEvent _apprenticeshipLearnerEvent;
+    private ApprenticeshipCreatedEvent _apprenticeshipLearnerEvent;
     private Mock<IAdjustedPriceProcessor> _mockAdjustedPriceProcessor;
     private Mock<IInstallmentsGenerator> _mockInstallmentsGenerator;
     private Mock<IMessageSession> _mockMessageSession;
@@ -43,21 +42,20 @@ public class EarningsProfileGenerator_GenerateEarningsTests
     [SetUp]
     public async Task SetUp()
     {
-        _apprenticeshipLearnerEvent = new InternalApprenticeshipLearnerEvent
+        _apprenticeshipLearnerEvent = new ApprenticeshipCreatedEvent
         {
-            EmployerType = EmployerType.NonLevy,
+            FundingType = FundingType.NonLevy,
             ActualStartDate = new DateTime(2022, 8, 1),
-            AgreedOn = new DateTime(2022, 06, 01),
-            ApprenticeshipKey = "unit-test-apprenticeship",
-            ApprovedOn = new DateTime(2022, 06, 01),
-            CommitmentId = 112,
-            EmployerId = 114,
+            ApprenticeshipKey = Guid.NewGuid(),
+            EmployerAccountId = 114,
             PlannedEndDate = new DateTime(2024, 7, 31),
-            ProviderId = 116,
+            UKPRN = 116,
             TrainingCode = "able-seafarer",
-            TransferSenderEmployerId = 118,
+            FundingEmployerAccountId = 118,
             Uln = 900000118,
-            AgreedPrice = 15000
+            AgreedPrice = 15000,
+            ApprovalsApprenticeshipId = 120,
+            LegalEntityName = "MyTrawler"
         };
 
         _expectedAdjustedPrice = 12000;
@@ -89,11 +87,11 @@ public class EarningsProfileGenerator_GenerateEarningsTests
 
         _mockMessageSession = new Mock<IMessageSession>();
 
-        _expectedEarningsGeneratedEvent = new EarningsGeneratedEvent { ApprenticeshipKey = "testkey1" };
+        _expectedEarningsGeneratedEvent = new EarningsGeneratedEvent { ApprenticeshipKey = Guid.NewGuid() };
 
         _mockEarningsGeneratedEventBuilder = new Mock<IEarningsGeneratedEventBuilder>();
 
-        _mockEarningsGeneratedEventBuilder.Setup(x => x.Build(It.IsAny<InternalApprenticeshipLearnerEvent>(), It.IsAny<EarningsProfile>())).Returns(_expectedEarningsGeneratedEvent);
+        _mockEarningsGeneratedEventBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipCreatedEvent>(), It.IsAny<EarningsProfile>())).Returns(_expectedEarningsGeneratedEvent);
 
         _sut = new EarningsProfileGenerator(_mockAdjustedPriceProcessor.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object, _mockEarningsGeneratedEventBuilder.Object);
         _result = await _sut.GenerateEarnings(_apprenticeshipLearnerEvent);
@@ -114,7 +112,7 @@ public class EarningsProfileGenerator_GenerateEarningsTests
     [Test]
     public void ShouldPassTheAdjustedPriceAndCorrectDatesToTheInstallmentsGenerator()
     {
-        _mockInstallmentsGenerator.Verify(x => x.Generate(_expectedAdjustedPrice, _apprenticeshipLearnerEvent.ActualStartDate, _apprenticeshipLearnerEvent.PlannedEndDate));
+        _mockInstallmentsGenerator.Verify(x => x.Generate(_expectedAdjustedPrice, _apprenticeshipLearnerEvent.ActualStartDate.GetValueOrDefault(), _apprenticeshipLearnerEvent.PlannedEndDate.GetValueOrDefault()));
     }
 
     [Test]
@@ -128,16 +126,4 @@ public class EarningsProfileGenerator_GenerateEarningsTests
     {
         _mockMessageSession.Verify(x => x.Publish(_expectedEarningsGeneratedEvent, It.IsAny<PublishOptions>()));
     }
-
-    //[Test]
-    //public void ShouldPublishApprenticeshipKeyOnEarningsGeneratedEvent()
-    //{
-    //    _mockMessageSession.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.ApprenticeshipKey == _apprenticeshipLearnerEvent.ApprenticeshipKey), It.IsAny<PublishOptions>()));
-    //}
-
-    //[Test]
-    //public void ShouldPublishEarningsGeneratedEventCorrectly()
-    //{
-    //    _mockMessageSession.Verify(x => x.Publish(It.Is<EarningsGeneratedEvent>(x => x.CommitmentId == _apprenticeshipLearnerEvent.CommitmentId), It.IsAny<PublishOptions>()));
-    //}
 }

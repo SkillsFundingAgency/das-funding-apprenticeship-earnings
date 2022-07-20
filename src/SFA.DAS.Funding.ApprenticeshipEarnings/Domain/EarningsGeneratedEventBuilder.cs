@@ -1,16 +1,16 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+﻿using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 public interface IEarningsGeneratedEventBuilder
 {
-    EarningsGeneratedEvent Build(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent, EarningsProfile earningsProfile);
+    EarningsGeneratedEvent Build(ApprenticeshipCreatedEvent apprenticeshipLearnerEvent, EarningsProfile earningsProfile);
 }
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 {
-    public EarningsGeneratedEvent Build(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent, EarningsProfile earningsProfile)
+    public EarningsGeneratedEvent Build(ApprenticeshipCreatedEvent apprenticeshipLearnerEvent, EarningsProfile earningsProfile)
     {
         return new EarningsGeneratedEvent
         {
@@ -20,14 +20,13 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
                 new FundingPeriod()
                 {
                     Uln = apprenticeshipLearnerEvent.Uln,
-                    CommitmentId = apprenticeshipLearnerEvent.CommitmentId,
-                    EmployerId = apprenticeshipLearnerEvent.EmployerId,
-                    ProviderId = apprenticeshipLearnerEvent.ProviderId,
-                    TransferSenderEmployerId = apprenticeshipLearnerEvent.TransferSenderEmployerId,
+                    EmployerId = apprenticeshipLearnerEvent.EmployerAccountId,
+                    ProviderId = apprenticeshipLearnerEvent.UKPRN,
+                    TransferSenderEmployerId = apprenticeshipLearnerEvent.FundingEmployerAccountId,
                     AgreedPrice = apprenticeshipLearnerEvent.AgreedPrice,
-                    StartDate = apprenticeshipLearnerEvent.ActualStartDate,
+                    StartDate = apprenticeshipLearnerEvent.ActualStartDate.GetValueOrDefault(),
                     TrainingCode = apprenticeshipLearnerEvent.TrainingCode,
-                    EmployerType = apprenticeshipLearnerEvent.EmployerType.ToOutboundEventEmployerType(),
+                    EmployerType = apprenticeshipLearnerEvent.FundingType.ToOutboundEventEmployerType(),
                     DeliveryPeriods = BuildDeliveryPeriods(earningsProfile)
                 }
             }

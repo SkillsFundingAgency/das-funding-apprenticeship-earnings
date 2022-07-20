@@ -2,7 +2,7 @@
 
 public class EarningsGeneratedEvent
 {
-    public string ApprenticeshipKey { get; set; }
+    public Guid ApprenticeshipKey { get; set; }
     public List<FundingPeriod> FundingPeriods { get; set; }
 }
 

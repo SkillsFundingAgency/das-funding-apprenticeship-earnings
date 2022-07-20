@@ -1,17 +1,17 @@
 using NServiceBus;
+using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
-using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
 
 [Binding]
-public class ApprenticeshipLearnerEventPublishingStepDefinitions
+public class ApprenticeshipCreatedEventPublishingStepDefinitions
 {
     private readonly ScenarioContext _scenarioContext;
     private static IEndpointInstance _endpointInstance;
 
-    public ApprenticeshipLearnerEventPublishingStepDefinitions(ScenarioContext scenarioContext)
+    public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext)
     {
         _scenarioContext = scenarioContext;
     }
@@ -41,21 +41,20 @@ public class ApprenticeshipLearnerEventPublishingStepDefinitions
     [Given(@"An apprenticeship learner event comes in from approvals")]
     public async Task PublishApprenticeshipLearnerEvent()
     {
-        await _endpointInstance.Publish(new InternalApprenticeshipLearnerEvent()
+        await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
         {
             AgreedPrice = 15000,
-            CommitmentId = 112,
             ActualStartDate = new DateTime(2019, 01, 01),
-            AgreedOn = new DateTime(2018, 05, 05),
-            ApprenticeshipKey = Guid.NewGuid().ToString(),
-            ApprovedOn = new DateTime(2018, 05, 05),
-            EmployerId = 114,
-            EmployerType = EmployerType.Levy,
+            ApprenticeshipKey = Guid.NewGuid(),
+            EmployerAccountId = 114,
+            FundingType = FundingType.Levy,
             PlannedEndDate = new DateTime(2020, 12, 31),
-            ProviderId = 116,
+            UKPRN = 116,
             TrainingCode = "AbleSeafarer",
-            TransferSenderEmployerId = null,
-            Uln = 118
+            FundingEmployerAccountId = null,
+            Uln = 118,
+            LegalEntityName = "MyTrawler",
+            ApprovalsApprenticeshipId = 120
         });
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;

@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
-using EmployerType = SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents.EmployerType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests;
 
 public class EarningsGeneratedEventBuilder_BuildTests
 {
     private EarningsGeneratedEventBuilder _sut;
-    private InternalApprenticeshipLearnerEvent _apprenticeshipLearnerEvent;
+    private ApprenticeshipCreatedEvent _apprenticeshipLearnerEvent;
     private EarningsProfile _earningsProfile;
     private EarningsGeneratedEvent _result;
 
@@ -21,19 +20,16 @@ public class EarningsGeneratedEventBuilder_BuildTests
     {
         _sut = new EarningsGeneratedEventBuilder();
 
-        _apprenticeshipLearnerEvent = new InternalApprenticeshipLearnerEvent
+        _apprenticeshipLearnerEvent = new ApprenticeshipCreatedEvent
         {
-            EmployerType = EmployerType.NonLevy,
+            FundingType = FundingType.NonLevy,
             ActualStartDate = new DateTime(2022, 8, 1),
-            AgreedOn = new DateTime(2022, 06, 01),
-            ApprenticeshipKey = "unit-test-apprenticeship",
-            ApprovedOn = new DateTime(2022, 06, 01),
-            CommitmentId = 112,
-            EmployerId = 114,
+            ApprenticeshipKey = Guid.NewGuid(),
+            EmployerAccountId = 114,
             PlannedEndDate = new DateTime(2024, 7, 31),
-            ProviderId = 116,
+            UKPRN = 116,
             TrainingCode = "able-seafarer",
-            TransferSenderEmployerId = 118,
+            FundingEmployerAccountId = 118,
             Uln = 900000118,
             AgreedPrice = 20000
         };
@@ -74,27 +70,21 @@ public class EarningsGeneratedEventBuilder_BuildTests
     }
 
     [Test]
-    public void ShouldPopulateTheCommitmentIdCorrectly()
-    {
-        _result.FundingPeriods.First().CommitmentId.Should().Be(_apprenticeshipLearnerEvent.CommitmentId);
-    }
-
-    [Test]
     public void ShouldPopulateTheEmployerIdCorrectly()
     {
-        _result.FundingPeriods.First().EmployerId.Should().Be(_apprenticeshipLearnerEvent.EmployerId);
+        _result.FundingPeriods.First().EmployerId.Should().Be(_apprenticeshipLearnerEvent.EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateTheProviderIdCorrectly()
     {
-        _result.FundingPeriods.First().ProviderId.Should().Be(_apprenticeshipLearnerEvent.ProviderId);
+        _result.FundingPeriods.First().ProviderId.Should().Be(_apprenticeshipLearnerEvent.UKPRN);
     }
 
     [Test]
     public void ShouldPopulateTheTransferSenderEmployerIdCorrectly()
     {
-        _result.FundingPeriods.First().TransferSenderEmployerId.Should().Be(_apprenticeshipLearnerEvent.TransferSenderEmployerId);
+        _result.FundingPeriods.First().TransferSenderEmployerId.Should().Be(_apprenticeshipLearnerEvent.FundingEmployerAccountId);
     }
 
     [Test]
@@ -118,7 +108,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateTheEmployerTypeCorrectly()
     {
-        _result.FundingPeriods.First().EmployerType.Should().Be(Events.EmployerType.NonLevy);
+        _result.FundingPeriods.First().EmployerType.Should().Be(EmployerType.NonLevy);
     }
 
     [Test]

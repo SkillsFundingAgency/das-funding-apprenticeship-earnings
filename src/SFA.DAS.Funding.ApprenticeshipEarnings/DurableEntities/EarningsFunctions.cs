@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
-using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
@@ -13,7 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
         public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipLearners)] InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent,
+            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipLearners)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -22,10 +22,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
 
                 var entityId = new EntityId(nameof(ApprenticeshipEntity),
-                    $"{Guid.NewGuid()} - {apprenticeshipLearnerEvent}");
+                    $"{Guid.NewGuid()} - {apprenticeshipCreatedEvent}");
 
                 await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent),
-                    apprenticeshipLearnerEvent);
+                    apprenticeshipCreatedEvent);
 
                 log.LogInformation($"Started {nameof(ApprenticeshipEntity)} with EntityId = '{entityId}'.");
             }

@@ -1,12 +1,11 @@
 ﻿using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
+using SFA.DAS.Apprenticeships.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
 {
     public interface IEarningsProfileGenerator
     {
-        public Task<EarningsProfile> GenerateEarnings(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent);
+        public Task<EarningsProfile> GenerateEarnings(ApprenticeshipCreatedEvent apprenticeshipLearnerEvent);
     }
 
     public class EarningsProfileGenerator : IEarningsProfileGenerator
@@ -28,10 +27,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
             _earningsGeneratedEventBuilder = earningsGeneratedEventBuilder;
         }
 
-        public async Task<EarningsProfile> GenerateEarnings(InternalApprenticeshipLearnerEvent apprenticeshipLearnerEvent)
+        public async Task<EarningsProfile> GenerateEarnings(ApprenticeshipCreatedEvent apprenticeshipLearnerEvent)
         {
             var earningsProfile = new EarningsProfile { AdjustedPrice = _adjustedPriceProcessor.CalculateAdjustedPrice(apprenticeshipLearnerEvent.AgreedPrice) };
-            earningsProfile.Installments = _installmentsGenerator.Generate(earningsProfile.AdjustedPrice.Value, apprenticeshipLearnerEvent.ActualStartDate, apprenticeshipLearnerEvent.PlannedEndDate);
+            earningsProfile.Installments = _installmentsGenerator.Generate(earningsProfile.AdjustedPrice.Value, apprenticeshipLearnerEvent.ActualStartDate.GetValueOrDefault(), apprenticeshipLearnerEvent.PlannedEndDate.GetValueOrDefault());
 
             await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(apprenticeshipLearnerEvent, earningsProfile));
 
