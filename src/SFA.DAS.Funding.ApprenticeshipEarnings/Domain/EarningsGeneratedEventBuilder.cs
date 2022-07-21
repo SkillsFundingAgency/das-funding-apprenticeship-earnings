@@ -19,7 +19,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             {
                 new FundingPeriod()
                 {
-                    Uln = apprenticeshipLearnerEvent.Uln,
+                    // Uln = apprenticeshipLearnerEvent.Uln,
                     EmployerId = apprenticeshipLearnerEvent.EmployerAccountId,
                     ProviderId = apprenticeshipLearnerEvent.UKPRN,
                     TransferSenderEmployerId = apprenticeshipLearnerEvent.FundingEmployerAccountId,

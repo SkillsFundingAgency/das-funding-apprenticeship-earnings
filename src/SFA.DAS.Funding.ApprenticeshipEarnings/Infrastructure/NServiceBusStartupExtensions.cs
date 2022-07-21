@@ -21,15 +21,16 @@ public static class NServiceBusStartupExtensions
         webBuilder.AddExecutionContextBinding();
         webBuilder.AddExtension(new NServiceBusExtensionConfigProvider());
 
-        var endpointConfiguration = new EndpointConfiguration("SFA.DAS.Funding.ApprenticeshipEarnings")
+        var endpointConfiguration = new EndpointConfiguration(QueueNames.EarningsGenerated)
             .UseMessageConventions()
             .UseNewtonsoftJsonSerializer();
 
         if (configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
         {
+            var dir = configuration["LearningTransportStorageDirectory"];
             endpointConfiguration
                 .UseTransport<LearningTransport>()
-                .StorageDirectory(configuration.GetValue("UseLearningEndpointStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\SFA.DAS.EmployerIncentives.Functions.TestConsole\.learningtransport")));
+                .StorageDirectory(dir);
             endpointConfiguration.UseLearningTransport(s => s.AddRouting());
         }
         else

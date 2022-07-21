@@ -1,6 +1,10 @@
 ﻿using NServiceBus;
+<<<<<<< Updated upstream
 using SFA.DAS.Apprenticeships.Events;
+=======
+using SFA.DAS.Funding.ApprenticeshipEarnings.InternalEvents;
 using SFA.DAS.Funding.Events;
+>>>>>>> Stashed changes
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {
@@ -8,9 +12,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     {
         public static void AddRouting(this RoutingSettings settings)
         {
+<<<<<<< Updated upstream
             settings.RouteToEndpoint(typeof(ApprenticeshipCreatedEvent), QueueNames.ApprenticeshipLearners);
+=======
+            settings.RouteToEndpoint(typeof(InternalApprenticeshipLearnerEvent), QueueNames.ApprenticeshipLearners);
 
             settings.RouteToEndpoint(typeof(SampleOutputEvent), QueueNames.EarningsGenerated);
+>>>>>>> Stashed changes
         }
     }
 }
