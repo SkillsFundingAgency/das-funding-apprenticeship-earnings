@@ -3,16 +3,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <Name>SFA.DAS.ProviderEarnings.Database</Name>
+    <Name>SFA.DAS.Funding.ApprenticeshipEarnings.Database</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{cac7932f-3265-4884-bc9d-0be811fdd44e}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
-    <RootNamespace>SFA.DAS.ProviderEarnings.Database</RootNamespace>
-    <AssemblyName>SFA.DAS.ProviderEarnings.Database</AssemblyName>
+    <RootNamespace>SFA.DAS.Funding.ApprenticeshipEarnings.Database</RootNamespace>
+    <AssemblyName>SFA.DAS.Funding.ApprenticeshipEarnings.Database</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
