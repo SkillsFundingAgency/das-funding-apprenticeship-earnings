@@ -1,5 +1,6 @@
 ﻿using NServiceBus;
 using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {

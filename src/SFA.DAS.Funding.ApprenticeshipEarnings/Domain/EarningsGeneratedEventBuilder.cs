@@ -1,5 +1,5 @@
 ﻿using SFA.DAS.Apprenticeships.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
@@ -17,7 +17,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             ApprenticeshipKey = apprenticeshipLearnerEvent.ApprenticeshipKey,
             FundingPeriods = new List<FundingPeriod>
             {
-                new FundingPeriod()
+                new()
                 {
                     Uln = apprenticeshipLearnerEvent.Uln,
                     EmployerId = apprenticeshipLearnerEvent.EmployerAccountId,
@@ -33,21 +33,16 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
         };
     }
 
-    private List<DeliveryPeriod> BuildDeliveryPeriods(EarningsProfile earningsProfile)
+    private static List<DeliveryPeriod> BuildDeliveryPeriods(EarningsProfile earningsProfile)
     {
-        var deliveryPeriods = new List<DeliveryPeriod>();
-        foreach (var installment in earningsProfile.Installments)
-        {
-            deliveryPeriods.Add(new DeliveryPeriod
+        return earningsProfile.Installments.Select(instalment => new DeliveryPeriod
             {
-                Period = installment.DeliveryPeriod,
-                CalendarMonth = installment.DeliveryPeriod.ToCalendarMonth(),
-                CalenderYear = installment.AcademicYear.ToCalendarYear(installment.DeliveryPeriod),
-                AcademicYear = installment.AcademicYear,
-                LearningAmount = installment.Amount
-            });
-        }
-
-        return deliveryPeriods;
+                Period = instalment.DeliveryPeriod,
+                CalendarMonth = instalment.DeliveryPeriod.ToCalendarMonth(),
+                CalenderYear = instalment.AcademicYear.ToCalendarYear(instalment.DeliveryPeriod),
+                AcademicYear = instalment.AcademicYear,
+                LearningAmount = instalment.Amount
+            })
+            .ToList();
     }
 }

@@ -11,6 +11,7 @@
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
     <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="NServiceBus" Version="7.7.4" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="coverlet.collector" Version="3.1.2">
@@ -20,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj" />
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Funding.ApprenticeshipEarnings.Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
 </Project>

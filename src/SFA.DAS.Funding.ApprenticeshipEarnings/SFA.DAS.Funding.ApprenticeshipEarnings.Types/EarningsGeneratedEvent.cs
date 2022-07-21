@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Events;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 public class EarningsGeneratedEvent
 {

@@ -1,6 +1,6 @@
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;

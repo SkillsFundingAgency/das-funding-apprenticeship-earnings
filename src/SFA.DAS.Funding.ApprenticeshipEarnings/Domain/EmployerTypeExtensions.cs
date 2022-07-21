@@ -1,14 +1,12 @@
 ﻿using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 public static class FundingTypeExtensions
 {
-    public static Events.EmployerType ToOutboundEventEmployerType(this FundingType fundingType)
+    public static EmployerType ToOutboundEventEmployerType(this FundingType fundingType)
     {
-        if (fundingType == FundingType.NonLevy)
-            return Events.EmployerType.NonLevy;
-
-        return Events.EmployerType.Levy;
+        return fundingType == FundingType.NonLevy ? EmployerType.NonLevy : EmployerType.Levy;
     }
 }

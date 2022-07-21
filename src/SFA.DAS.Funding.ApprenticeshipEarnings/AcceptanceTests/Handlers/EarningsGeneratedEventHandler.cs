@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.Handlers;
 

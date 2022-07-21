@@ -13,7 +13,6 @@
     <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ApprenticeshipEarnings.Events\SFA.DAS.Funding.ApprenticeshipEarnings.Events.csproj" />
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
   </ItemGroup>
