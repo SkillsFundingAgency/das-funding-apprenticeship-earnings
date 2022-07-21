@@ -20,7 +20,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/${{ parameters.SolutionBaseName }}/InnerApi/${{ parameters.SolutionBaseName }}.InnerApi.csproj
+      projects: src/InnerApi/${{ parameters.SolutionBaseName }}.InnerApi.csproj
       arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
       modifyOutputPath: true
       zipAfterPublish: true
@@ -30,7 +30,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/${{ parameters.SolutionBaseName }}/DurableFunctions/${{ parameters.SolutionBaseName }}.DurableFunctions.csproj
+      projects: src/DurableFunctions/${{ parameters.SolutionBaseName }}.DurableFunctions.csproj
       arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
       modifyOutputPath: true
       zipAfterPublish: true
@@ -48,3 +48,8 @@ jobs:
     inputs:
       targetPath: $(build.artifactstagingdirectory)/publish
       artifactName: ${{ parameters.SolutionBaseName }}
+  
+  - template: azure-pipelines-templates/build/step/nuget-pack.yml@das-platform-building-blocks
+    parameters:
+      DotNetStandardPackagesToPack: |
+        src/${{ parameters.SolutionBaseName }}.Types/${{ parameters.SolutionBaseName }}.Types.csproj;
