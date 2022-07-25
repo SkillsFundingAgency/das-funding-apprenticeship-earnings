@@ -1,7 +1,10 @@
 ﻿// ReSharper disable once CheckNamespace
+
+using NServiceBus;
+
 namespace SFA.DAS.Apprenticeships.Events;
 
-public class ApprenticeshipCreatedEvent // TODO: Use nuget when available
+public class ApprenticeshipCreatedEvent : IEvent // TODO: Use nuget when available
 {
     public Guid ApprenticeshipKey { get; set; }
 
