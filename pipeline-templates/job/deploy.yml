@@ -66,4 +66,4 @@ jobs:
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/DurableFunctions.zip
+            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/DurableEntities.zip
