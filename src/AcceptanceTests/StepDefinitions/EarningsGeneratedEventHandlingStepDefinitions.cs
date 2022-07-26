@@ -20,7 +20,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [BeforeTestRun]
     public static async Task StartEndpoint()
     {
-        var endpointConfiguration = new EndpointConfiguration(QueueNames.EarningsGenerated);
+        var endpointConfiguration = new EndpointConfiguration("SFA.DAS.Funding.ApprenticeshipEarnings");
         endpointConfiguration.AssemblyScanner().ThrowExceptions = false;
         endpointConfiguration.UseNewtonsoftJsonSerializer();
 

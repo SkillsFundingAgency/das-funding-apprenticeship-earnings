@@ -76,6 +76,7 @@ public class TestFunction : IDisposable
 
         //Microsoft.Extensions.Hosting.WebJobsHostBuilderExtensions
         Environment.SetEnvironmentVariable("NServiceBusConnectionString", _settings.NServiceBusConnectionString, EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable("LearningTransportStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"), EnvironmentVariableTarget.Process);
 
         _host = new HostBuilder()
             .ConfigureAppConfiguration(a =>
