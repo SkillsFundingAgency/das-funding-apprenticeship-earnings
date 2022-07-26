@@ -29,7 +29,7 @@ public static class NServiceBusStartupExtensions
         {
             endpointConfiguration
                 .UseTransport<LearningTransport>()
-                .StorageDirectory(configuration.GetValue("UseLearningEndpointStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\SFA.DAS.EmployerIncentives.Functions.TestConsole\.learningtransport")));
+                .StorageDirectory(configuration["LearningTransportStorageDirectory"]);
             endpointConfiguration.UseLearningTransport(s => s.AddRouting());
         }
         else
