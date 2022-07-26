@@ -25,7 +25,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         endpointConfiguration.UseNewtonsoftJsonSerializer();
 
         var transport = endpointConfiguration.UseTransport<LearningTransport>();
-        transport.StorageDirectory("C:\\temp\\LearningTransport\\FPAY-14");
+        transport.StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
 
         _endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);

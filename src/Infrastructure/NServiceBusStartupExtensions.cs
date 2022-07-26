@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
@@ -25,11 +26,13 @@ public static class NServiceBusStartupExtensions
             .UseMessageConventions()
             .UseNewtonsoftJsonSerializer();
 
+        endpointConfiguration.SendOnly();
+
         if (configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
         {
             endpointConfiguration
                 .UseTransport<LearningTransport>()
-                .StorageDirectory(configuration.GetValue("UseLearningEndpointStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport")));
+                .StorageDirectory( Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
             endpointConfiguration.UseLearningTransport(s => s.AddRouting());
         }
         else
