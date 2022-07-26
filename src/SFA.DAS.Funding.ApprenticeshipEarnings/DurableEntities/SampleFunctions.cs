@@ -6,7 +6,7 @@ using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
 using System.Threading.Tasks;
 using NServiceBus;
-using SFA.DAS.Funding.Events;
+using SFA.DAS.Funding.IntegrationTests.Infrastructure.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
