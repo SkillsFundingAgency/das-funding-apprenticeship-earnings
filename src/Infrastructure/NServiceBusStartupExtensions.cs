@@ -42,12 +42,12 @@ public static class NServiceBusStartupExtensions
         else
         {
             endpointConfiguration
-                .UseAzureServiceBusTransport(configuration["NServiceBusConnectionString"], r => r.AddRouting());
+                .UseAzureServiceBusTransport(configuration["ApplicationSettings:NServiceBusConnectionString"], r => r.AddRouting());
         }
 
-        if (!string.IsNullOrEmpty(configuration["NServiceBusLicense"]))
+        if (!string.IsNullOrEmpty(configuration["ApplicationSettings:NServiceBusLicense"]))
         {
-            endpointConfiguration.License(configuration["NServiceBusLicense"]);
+            endpointConfiguration.License(configuration["ApplicationSettings:NServiceBusLicense"]);
         }
 
         ExcludeTestAssemblies(endpointConfiguration.AssemblyScanner());
