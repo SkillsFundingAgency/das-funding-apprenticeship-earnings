@@ -29,10 +29,15 @@ public static class NServiceBusStartupExtensions
 
         if (configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
         {
+            var learningTransportFolder =
+                Path.Combine(
+                    Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
+                    @"src\.learningtransport");
             endpointConfiguration
                 .UseTransport<LearningTransport>()
-                .StorageDirectory( Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
+                .StorageDirectory(learningTransportFolder);
             endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+            Environment.SetEnvironmentVariable("LearningTransportStorageDirectory", learningTransportFolder, EnvironmentVariableTarget.Process);
         }
         else
         {
