@@ -13,7 +13,7 @@ public static class WaitConfigurationHelper
             {
                 _waitConfiguration = new WaitConfiguration();
                 new ConfigurationBuilder()
-                    .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                     .Build()
                     .GetSection("WaitConfiguration")
                     .Bind(_waitConfiguration);
@@ -32,7 +32,7 @@ public class WaitHelper
 
     public static async Task WaitForIt(Func<bool> lookForIt, string failText)
     {
-        var endTime = DateTime.Now.Add(Config.TimeToWait);
+        var endTime = DateTime.Now.Add(Config.TimeToWait ?? TimeSpan.FromMinutes(1));
         var lastRun = false;
 
         while (DateTime.Now < endTime || lastRun)
@@ -47,7 +47,7 @@ public class WaitHelper
                 if (lastRun) break;
             }
 
-            await Task.Delay(Config.TimeToPause);
+            await Task.Delay(Config.TimeToPause ?? TimeSpan.FromSeconds(5));
         }
         Assert.Fail($"{failText}  Time: {DateTime.Now:G}.");
     }
@@ -55,6 +55,6 @@ public class WaitHelper
 
 public class WaitConfiguration
 {
-    public TimeSpan TimeToWait { get; set; }
-    public TimeSpan TimeToPause { get; set; }
+    public TimeSpan? TimeToWait { get; set; }
+    public TimeSpan? TimeToPause { get; set; }
 }
