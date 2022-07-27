@@ -34,10 +34,4 @@
     <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="local.settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

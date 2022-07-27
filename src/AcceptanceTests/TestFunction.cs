@@ -53,7 +53,7 @@ public class TestFunction : IDisposable
         
         var config = new ConfigurationBuilder()
             //.SetBasePath()
-            .AddJsonFile("local.settings.json", optional: false)
+            .AddJsonFile("local.settings.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
 
@@ -75,6 +75,7 @@ public class TestFunction : IDisposable
         _testContext = testContext;
 
         //Microsoft.Extensions.Hosting.WebJobsHostBuilderExtensions
+        Environment.SetEnvironmentVariable("AzureWebJobsStorage", "UseDevelopmentStorage=true", EnvironmentVariableTarget.Process);
         Environment.SetEnvironmentVariable("NServiceBusConnectionString", "UseLearningEndpoint=true", EnvironmentVariableTarget.Process);
         Environment.SetEnvironmentVariable("LearningTransportStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"), EnvironmentVariableTarget.Process);
 
