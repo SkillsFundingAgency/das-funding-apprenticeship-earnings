@@ -23,6 +23,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         endpointConfiguration.AssemblyScanner().ThrowExceptions = false;
         endpointConfiguration.SendOnly();
         endpointConfiguration.UseNewtonsoftJsonSerializer();
+        endpointConfiguration.Conventions().DefiningEventsAs(x => x == typeof(ApprenticeshipCreatedEvent));
 
         var transport = endpointConfiguration.UseTransport<LearningTransport>();
         transport.StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
