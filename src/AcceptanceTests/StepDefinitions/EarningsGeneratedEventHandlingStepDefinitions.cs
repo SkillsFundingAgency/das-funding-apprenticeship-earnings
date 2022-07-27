@@ -24,6 +24,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         var endpointConfiguration = new EndpointConfiguration(QueueNames.EarningsGenerated);
         endpointConfiguration.AssemblyScanner().ThrowExceptions = false;
         endpointConfiguration.UseNewtonsoftJsonSerializer();
+        endpointConfiguration.Conventions().DefiningEventsAs(x => x == typeof(EarningsGeneratedEvent));
 
         endpointConfiguration.UseTransport<LearningTransport>()
             .StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
