@@ -22,7 +22,7 @@ public static class NServiceBusStartupExtensions
         webBuilder.AddExecutionContextBinding();
         webBuilder.AddExtension(new NServiceBusExtensionConfigProvider());
 
-        var endpointConfiguration = new EndpointConfiguration(QueueNames.EarningsGenerated)
+        var endpointConfiguration = new EndpointConfiguration("SFA.DAS.Funding.ApprenticeshipEarnings")
             .UseMessageConventions()
             .UseNewtonsoftJsonSerializer();
 

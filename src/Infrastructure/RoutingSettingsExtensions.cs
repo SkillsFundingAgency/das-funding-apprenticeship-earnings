@@ -8,7 +8,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     {
         public static void AddRouting(this RoutingSettings settings)
         {
-            settings.RouteToEndpoint(typeof(ApprenticeshipCreatedEvent), QueueNames.ApprenticeshipCreated);
+            settings.RouteToEndpoint(typeof(ApprenticeshipCreatedEvent), QueueNames.ApprenticeshipLearners);
         }
     }
 }

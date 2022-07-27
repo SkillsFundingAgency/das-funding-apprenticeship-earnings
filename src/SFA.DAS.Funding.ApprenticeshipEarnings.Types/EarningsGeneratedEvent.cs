@@ -1,6 +1,8 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+﻿using NServiceBus;
 
-public class EarningsGeneratedEvent
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+
+public class EarningsGeneratedEvent : IEvent
 {
     public Guid ApprenticeshipKey { get; set; }
     public List<FundingPeriod> FundingPeriods { get; set; }

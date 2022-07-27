@@ -19,7 +19,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [BeforeTestRun]
     public static async Task StartEndpoint()
     {
-        var endpointConfiguration = new EndpointConfiguration(QueueNames.ApprenticeshipCreated);
+        var endpointConfiguration = new EndpointConfiguration(QueueNames.ApprenticeshipLearners);
         endpointConfiguration.AssemblyScanner().ThrowExceptions = false;
         endpointConfiguration.SendOnly();
         endpointConfiguration.UseNewtonsoftJsonSerializer();

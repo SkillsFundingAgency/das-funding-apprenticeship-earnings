@@ -1,7 +1,9 @@
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.Handlers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
@@ -24,8 +26,9 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         endpointConfiguration.AssemblyScanner().ThrowExceptions = false;
         endpointConfiguration.UseNewtonsoftJsonSerializer();
 
-        var transport = endpointConfiguration.UseTransport<LearningTransport>();
-        transport.StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
+        endpointConfiguration.UseTransport<LearningTransport>()
+            .StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
+        endpointConfiguration.UseLearningTransport(s => s.RouteToEndpoint(typeof(EarningsGeneratedEvent), QueueNames.EarningsGenerated));
 
         _endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);
