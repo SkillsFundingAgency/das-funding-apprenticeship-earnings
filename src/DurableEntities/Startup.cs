@@ -23,7 +23,7 @@ public class Startup : FunctionsStartup
             .AddConfiguration(configuration)
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddEnvironmentVariables()
-            .AddJsonFile("local.settings.json");
+            .AddJsonFile("local.settings.json", true);
 
         builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
         builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
