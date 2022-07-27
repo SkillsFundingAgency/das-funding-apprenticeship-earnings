@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Funding.ApprenticeshipEarnings.Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
+    <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
 </Project>

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
+    <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

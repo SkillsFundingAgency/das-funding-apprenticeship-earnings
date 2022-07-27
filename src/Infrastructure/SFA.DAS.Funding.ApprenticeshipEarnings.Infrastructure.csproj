@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Funding.ApprenticeshipEarnings.Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
+    <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
 </Project>
