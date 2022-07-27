@@ -354,3 +354,6 @@ MigrationBackup/
 
 #local settings json file
 local.settings.json
+
+#learning transport folder
+.learningtransport/
