@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Queries", "Queries\SFA.DAS.Funding.ApprenticeshipEarnings.Queries.csproj", "{07844F7C-BE1C-424D-BC6E-CDEDEF8C5380}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests", "Domain.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.csproj", "{0E5FBB69-B1BA-4DDD-8CE2-228CA203C36E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests", "Domain.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.csproj", "{0E5FBB69-B1BA-4DDD-8CE2-228CA203C36E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests", "AcceptanceTests\SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.csproj", "{A22E55BF-9071-42BE-9F66-80D21815AADD}"
 EndProject
@@ -25,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure", "Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj", "{BC323D44-59D1-48C6-B8A3-EC87A5901204}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests", "ApprenticeshipEarnings.DurableEntities.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.csproj", "{C46F6030-5DFD-4688-98D8-428F3E035DAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests", "DurableEntities.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.csproj", "{C46F6030-5DFD-4688-98D8-428F3E035DAD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Types", "SFA.DAS.Funding.ApprenticeshipEarnings.Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj", "{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Types", "Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj", "{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
