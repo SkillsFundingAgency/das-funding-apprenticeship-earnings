@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
 public class PurgeBackgroundJob : BackgroundService
 {

@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
 public class EarningsGeneratedEventBuilder_BuildTests
 {

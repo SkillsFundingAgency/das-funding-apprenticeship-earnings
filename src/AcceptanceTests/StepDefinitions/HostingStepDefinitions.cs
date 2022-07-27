@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.StepDefinitions;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
 [Binding]
 public class HostingStepDefinitions

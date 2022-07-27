@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
 public class AdjustedPriceProcessor_CalculateAdjustedPriceTests
 {

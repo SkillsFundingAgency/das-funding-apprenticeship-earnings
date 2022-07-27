@@ -4,13 +4,11 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
 public class Settings
 {

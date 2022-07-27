@@ -6,7 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Tests
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
 {
     public class ApprenticeshipEntity_HandleTests
     {

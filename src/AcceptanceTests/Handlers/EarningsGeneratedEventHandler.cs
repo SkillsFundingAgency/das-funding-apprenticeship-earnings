@@ -2,7 +2,7 @@
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.Handlers;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Handlers;
 
 public class EarningsGeneratedEventHandler : IHandleMessages<EarningsGeneratedEvent>
 {

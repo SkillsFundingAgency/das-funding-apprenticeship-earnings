@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
 public class InstallmentsGenerator_GenerateTests
 {
