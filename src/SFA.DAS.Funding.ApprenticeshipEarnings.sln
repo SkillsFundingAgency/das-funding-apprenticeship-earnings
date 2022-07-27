@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests", "Domain.Tests\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Tests.csproj", "{0E5FBB69-B1BA-4DDD-8CE2-228CA203C36E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance", "AcceptanceTests\SFA.DAS.Funding.ApprenticeshipEarnings.Acceptance.csproj", "{A22E55BF-9071-42BE-9F66-80D21815AADD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests", "AcceptanceTests\SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.csproj", "{A22E55BF-9071-42BE-9F66-80D21815AADD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers", "TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj", "{44B8941D-9B56-4024-A04B-E819AFCECA1F}"
 EndProject
