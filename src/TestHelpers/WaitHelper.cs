@@ -32,29 +32,21 @@ public class WaitHelper
 
     public static async Task WaitForIt(Func<bool> lookForIt, string failText)
     {
-        var endTime = DateTime.Now.Add(Config.TimeToWait ?? TimeSpan.FromMinutes(1));
-        var lastRun = false;
+        var endTime = DateTime.Now.Add(Config.TimeToWait);
 
-        while (DateTime.Now < endTime || lastRun)
+        while (DateTime.Now <= endTime)
         {
-            if (lookForIt())
-            {
-                if (lastRun) return;
-                lastRun = true;
-            }
-            else
-            {
-                if (lastRun) break;
-            }
+            if (lookForIt()) return;
 
-            await Task.Delay(Config.TimeToPause ?? TimeSpan.FromSeconds(5));
+            await Task.Delay(Config.TimeToPause);
         }
+
         Assert.Fail($"{failText}  Time: {DateTime.Now:G}.");
     }
 }
 
 public class WaitConfiguration
 {
-    public TimeSpan? TimeToWait { get; set; }
-    public TimeSpan? TimeToPause { get; set; }
+    public TimeSpan TimeToWait { get; set; } = TimeSpan.FromMinutes(1);
+    public TimeSpan TimeToPause { get; set; } = TimeSpan.FromMilliseconds(10);
 }
