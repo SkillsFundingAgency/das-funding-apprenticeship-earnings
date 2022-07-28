@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
@@ -15,7 +15,7 @@ public static class NServiceBusStartupExtensions
 {
     public static IServiceCollection AddNServiceBus(
             this IServiceCollection serviceCollection,
-            IConfiguration configuration)
+            ApplicationSettings applicationSettings)
     {
         var webBuilder = serviceCollection.AddWebJobs(x => { });
         webBuilder.AddExecutionContextBinding();
@@ -27,7 +27,7 @@ public static class NServiceBusStartupExtensions
 
         endpointConfiguration.SendOnly();
 
-        if (configuration["ApplicationSettings:NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+        if (applicationSettings.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
         {
             var learningTransportFolder =
                 Path.Combine(
@@ -42,12 +42,12 @@ public static class NServiceBusStartupExtensions
         else
         {
             endpointConfiguration
-                .UseAzureServiceBusTransport(configuration["ApplicationSettings:NServiceBusConnectionString"], r => r.AddRouting());
+                .UseAzureServiceBusTransport(applicationSettings.NServiceBusConnectionString, r => r.AddRouting());
         }
 
-        if (!string.IsNullOrEmpty(configuration["ApplicationSettings:NServiceBusLicense"]))
+        if (!string.IsNullOrEmpty(applicationSettings.NServiceBusLicense))
         {
-            endpointConfiguration.License(configuration["ApplicationSettings:NServiceBusLicense"]);
+            endpointConfiguration.License(applicationSettings.NServiceBusLicense);
         }
 
         ExcludeTestAssemblies(endpointConfiguration.AssemblyScanner());

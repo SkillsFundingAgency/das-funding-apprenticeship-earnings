@@ -59,15 +59,12 @@ public class TestFunction : IDisposable
 
         config.Bind(_settings);
 
-        _appConfig = new Dictionary<string, string>{ //todo this needs to match our durable entity config
+        _appConfig = new Dictionary<string, string>{
             { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
             { "AzureWebJobsStorage", _settings.AzureWebJobsStorage },
-            { "NServiceBusConnectionString", _settings.NServiceBusConnectionString },
+            { "NServiceBusConnectionString", _settings.NServiceBusConnectionString ?? "UseLearningEndpoint=true" },
             { "TopicPath", _settings.TopicPath },
-            { "QueueName", _settings.QueueName },
-            //{ "ConfigNames", "SFA.DAS.EmployerIncentives" },
-            //{ "ApplicationSettings:LogLevel", "Info" },
-            //{ "ApplicationSettings:DbConnectionString", _testContext.SqlDatabase.DatabaseInfo.ConnectionString },
+            { "QueueName", _settings.QueueName }
         };
 
         _testContext = testContext;
@@ -75,6 +72,7 @@ public class TestFunction : IDisposable
         //Microsoft.Extensions.Hosting.WebJobsHostBuilderExtensions
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "UseDevelopmentStorage=true", EnvironmentVariableTarget.Process);
         Environment.SetEnvironmentVariable("NServiceBusConnectionString", "UseLearningEndpoint=true", EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable("ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true", EnvironmentVariableTarget.Process);
         Environment.SetEnvironmentVariable("LearningTransportStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"), EnvironmentVariableTarget.Process);
 
         _host = new HostBuilder()

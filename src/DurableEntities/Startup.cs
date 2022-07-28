@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System.Drawing;
+using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Startup))]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
@@ -32,8 +34,12 @@ public class Startup : FunctionsStartup
 
         Configuration = configBuilder.Build();
 
-        builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
+        var applicationSettings = new ApplicationSettings();
+        Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
 
-        builder.Services.AddNServiceBus(Configuration);
+        builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
+        builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
+
+        builder.Services.AddNServiceBus(applicationSettings);
     }
 }
