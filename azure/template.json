@@ -441,7 +441,7 @@
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "[concat('role-assignments-', copyIndex(),'-', parameters('utcValue'))]",
+            "name": "[concat('sb-role-assignments-', variables('functionAppName'), '-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
             "properties": {
@@ -452,7 +452,7 @@
                 },
                 "parameters": {
                     "principalId": {
-                        "value": "[createArray(reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value)[copyIndex()]]"
+                        "value": "[reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value]"
                     },
                     "assignmentType": {
                         "value": "ServiceBusOwner"
@@ -461,10 +461,6 @@
                         "value": "[parameters('sharedServiceBusName')]"
                     }
                 }
-            },
-            "copy": {
-                "name": "role-assignments",
-                "count": 1
             }
         }
     ],
