@@ -74,6 +74,7 @@ public class TestFunction : IDisposable
         Environment.SetEnvironmentVariable("NServiceBusConnectionString", "UseLearningEndpoint=true", EnvironmentVariableTarget.Process);
         Environment.SetEnvironmentVariable("ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true", EnvironmentVariableTarget.Process);
         Environment.SetEnvironmentVariable("LearningTransportStorageDirectory", Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"), EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable("EnvironmentName", "LOCAL_ACCEPTANCE_TESTS", EnvironmentVariableTarget.Process);
 
         _host = new HostBuilder()
             .ConfigureAppConfiguration(a =>

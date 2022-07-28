@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
@@ -27,10 +28,16 @@ public class Startup : FunctionsStartup
             .AddEnvironmentVariables()
             .AddJsonFile("local.settings.json", true);
 
-        builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
-        builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
-        builder.Services.AddSingleton<IEarningsProfileGenerator, EarningsProfileGenerator>();
-        builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
+        if (!configuration["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase))
+        {
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
+        }
 
         Configuration = configBuilder.Build();
 
@@ -42,6 +49,11 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
+
+        builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
+        builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
+        builder.Services.AddSingleton<IEarningsProfileGenerator, EarningsProfileGenerator>();
+        builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
     }
 
     private void EnsureConfig(ApplicationSettings applicationSettings)
