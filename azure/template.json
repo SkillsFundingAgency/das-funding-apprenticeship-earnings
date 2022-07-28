@@ -464,7 +464,7 @@
             },
             "copy": {
                 "name": "role-assignments",
-                "count": 5
+                "count": 1
             }
         }
     ],
