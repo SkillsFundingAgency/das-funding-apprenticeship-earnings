@@ -27,7 +27,7 @@ public static class NServiceBusStartupExtensions
 
         endpointConfiguration.SendOnly();
 
-        if (configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+        if (configuration["ApplicationSettings:NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
         {
             var learningTransportFolder =
                 Path.Combine(
