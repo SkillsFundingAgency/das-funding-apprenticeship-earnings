@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using System;
 using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -36,10 +36,17 @@ public class Startup : FunctionsStartup
 
         var applicationSettings = new ApplicationSettings();
         Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
+        EnsureConfig(applicationSettings);
 
         builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
         builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
+    }
+
+    private void EnsureConfig(ApplicationSettings applicationSettings)
+    {
+        if (string.IsNullOrWhiteSpace(applicationSettings.NServiceBusConnectionString))
+            throw new ArgumentNullException("NServiceBusConnectionString", "NServiceBusConnectionString in ApplicationSettings should not be null.");
     }
 }
