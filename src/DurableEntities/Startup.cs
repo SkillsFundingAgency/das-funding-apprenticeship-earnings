@@ -44,7 +44,8 @@ public class Startup : FunctionsStartup
         var applicationSettings = new ApplicationSettings();
         Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
         EnsureConfig(applicationSettings);
-
+        Environment.SetEnvironmentVariable("NServiceBusConnectionString", applicationSettings.NServiceBusConnectionString);
+       
         builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
         builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
 
@@ -56,7 +57,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
     }
 
-    private void EnsureConfig(ApplicationSettings applicationSettings)
+    private static void EnsureConfig(ApplicationSettings applicationSettings)
     {
         if (string.IsNullOrWhiteSpace(applicationSettings.NServiceBusConnectionString))
             throw new Exception("NServiceBusConnectionString in ApplicationSettings should not be null.");
