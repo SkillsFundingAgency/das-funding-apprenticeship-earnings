@@ -27,6 +27,8 @@ public class ApprenticeshipCreatedEvent // TODO: Use nuget when available
 
     public FundingType FundingType { get; set; }
 
+    public decimal FundingBandMaximum { get; set; }
+
 }
 
 public enum FundingType
