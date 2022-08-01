@@ -3,17 +3,17 @@ using NUnit.Framework;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
-public class AdjustedPriceProcessor_CalculateAdjustedPriceTests
+public class OnProgramTotalPriceCalculator_CalculateAdjustedPriceTests
 {
-    private AdjustedPriceProcessor _sut;
+    private OnProgramTotalPriceCalculator _sut;
 
     [TestCase(15000, 12000)]
     [TestCase(18777, 15021.60)]
     public void ShouldReturn80PercentOfAgreedPrice(decimal agreedPrice, decimal expectedAdjustedPrice)
     {
-        _sut = new AdjustedPriceProcessor();
+        _sut = new OnProgramTotalPriceCalculator();
 
-        var actualAdjustedPrice = _sut.CalculateAdjustedPrice(agreedPrice);
+        var actualAdjustedPrice = _sut.CalculateOnProgramTotalPrice(agreedPrice);
 
         actualAdjustedPrice.Should().Be(expectedAdjustedPrice);
     }

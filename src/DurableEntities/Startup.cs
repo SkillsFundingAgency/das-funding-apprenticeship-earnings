@@ -51,7 +51,7 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddNServiceBus(applicationSettings);
 
-        builder.Services.AddSingleton<IAdjustedPriceProcessor, AdjustedPriceProcessor>();
+        builder.Services.AddSingleton<IOnProgramTotalPriceCalculator, OnProgramTotalPriceCalculator>();
         builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
         builder.Services.AddSingleton<IEarningsProfileGenerator, EarningsProfileGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();

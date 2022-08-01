@@ -14,7 +14,7 @@ public class EarningsProfileGenerator_GenerateEarningsTests
 {
     private EarningsProfileGenerator _sut;
     private ApprenticeshipCreatedEvent _apprenticeshipLearnerEvent;
-    private Mock<IAdjustedPriceProcessor> _mockAdjustedPriceProcessor;
+    private Mock<IOnProgramTotalPriceCalculator> _mockOnProgramTotalPriceCalculator;
     private Mock<IInstallmentsGenerator> _mockInstallmentsGenerator;
     private Mock<IMessageSession> _mockMessageSession;
     private Mock<IEarningsGeneratedEventBuilder> _mockEarningsGeneratedEventBuilder;
@@ -44,8 +44,8 @@ public class EarningsProfileGenerator_GenerateEarningsTests
 
         _expectedAdjustedPrice = 12000;
 
-        _mockAdjustedPriceProcessor = new Mock<IAdjustedPriceProcessor>();
-        _mockAdjustedPriceProcessor.Setup(x => x.CalculateAdjustedPrice(It.IsAny<decimal>()))
+        _mockOnProgramTotalPriceCalculator = new Mock<IOnProgramTotalPriceCalculator>();
+        _mockOnProgramTotalPriceCalculator.Setup(x => x.CalculateOnProgramTotalPrice(It.IsAny<decimal>()))
             .Returns(_expectedAdjustedPrice);
 
         _expectedEarningsInstallments = new List<EarningsInstallment>
@@ -77,18 +77,18 @@ public class EarningsProfileGenerator_GenerateEarningsTests
 
         _mockEarningsGeneratedEventBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipCreatedEvent>(), It.IsAny<EarningsProfile>())).Returns(_expectedEarningsGeneratedEvent);
 
-        _sut = new EarningsProfileGenerator(_mockAdjustedPriceProcessor.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object, _mockEarningsGeneratedEventBuilder.Object);
+        _sut = new EarningsProfileGenerator(_mockOnProgramTotalPriceCalculator.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object, _mockEarningsGeneratedEventBuilder.Object);
         _result = await _sut.GenerateEarnings(_apprenticeshipLearnerEvent);
     }
 
     [Test]
-    public void ShouldPassTheAgreedPriceToTheAdjustedPriceProcessor()
+    public void ShouldPassTheAgreedPriceToTheOnProgramPriceCalculator()
     {
-        _mockAdjustedPriceProcessor.Verify(x => x.CalculateAdjustedPrice(_apprenticeshipLearnerEvent.AgreedPrice));
+        _mockOnProgramTotalPriceCalculator.Verify(x => x.CalculateOnProgramTotalPrice(_apprenticeshipLearnerEvent.AgreedPrice));
     }
 
     [Test]
-    public void ShouldSetTheAdjustedPriceToTheResultFromTheAdjustedPriceProcessor()
+    public void ShouldSetTheAdjustedPriceToTheResultFromTheOnProgramPriceCalculator()
     {
         _result.AdjustedPrice.Should().Be(_expectedAdjustedPrice);
     }
