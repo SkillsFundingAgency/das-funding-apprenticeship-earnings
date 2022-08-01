@@ -70,13 +70,9 @@ public static class NServiceBusStartupExtensions
         foreach (var fileName in Directory.EnumerateFiles(baseDirectory, "*.dll")
                      .Select(Path.GetFileName))
         {
-            foreach (var pattern in excludeRegexs)
+            if (fileName != null && excludeRegexs.Any(pattern => Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase)))
             {
-                if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase))
-                {
-                    scanner.ExcludeAssemblies(fileName);
-                    break;
-                }
+                scanner.ExcludeAssemblies(fileName);
             }
         }
     }

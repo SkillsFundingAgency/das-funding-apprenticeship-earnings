@@ -59,6 +59,6 @@ public class Startup : FunctionsStartup
     private void EnsureConfig(ApplicationSettings applicationSettings)
     {
         if (string.IsNullOrWhiteSpace(applicationSettings.NServiceBusConnectionString))
-            throw new ArgumentNullException("NServiceBusConnectionString", "NServiceBusConnectionString in ApplicationSettings should not be null.");
+            throw new Exception("NServiceBusConnectionString in ApplicationSettings should not be null.");
     }
 }

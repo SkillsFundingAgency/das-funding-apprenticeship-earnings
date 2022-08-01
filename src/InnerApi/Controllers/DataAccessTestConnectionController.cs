@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
-using SFA.DAS.ProviderEarnings.InnerApi;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
 {

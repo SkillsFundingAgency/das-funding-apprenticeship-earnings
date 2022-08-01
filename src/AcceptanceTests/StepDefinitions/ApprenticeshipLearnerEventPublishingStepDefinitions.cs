@@ -9,7 +9,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
 public class ApprenticeshipCreatedEventPublishingStepDefinitions
 {
     private readonly ScenarioContext _scenarioContext;
-    private static IEndpointInstance _endpointInstance;
+    private static IEndpointInstance? _endpointInstance;
 
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext)
     {

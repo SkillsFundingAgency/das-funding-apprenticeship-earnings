@@ -16,7 +16,7 @@ public class PurgeBackgroundJob : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await _jobHost.Purge();
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
 }
