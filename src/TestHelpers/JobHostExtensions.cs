@@ -35,7 +35,7 @@ public static class JobHostExtensions
         return jobs;
     }
 
-    public static async Task<IJobHost> WaitFor(this IJobHost jobs, string orchestration, TimeSpan? timeout = null, string expectedCustomStatus = null)
+    public static async Task<IJobHost> WaitFor(this IJobHost jobs, string orchestration, TimeSpan? timeout = null, string? expectedCustomStatus = null)
     {
         await jobs.CallAsync(nameof(WaitForFunction), new Dictionary<string, object>
         {
