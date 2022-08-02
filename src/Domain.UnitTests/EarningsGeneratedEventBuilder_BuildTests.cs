@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
@@ -30,7 +30,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
             UKPRN = 116,
             TrainingCode = "able-seafarer",
             FundingEmployerAccountId = 118,
-            Uln = 900000118,
+            Uln = "900000118",
             AgreedPrice = 20000
         };
 
@@ -66,7 +66,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateTheUlnCorrectly()
     {
-        _result.FundingPeriods.First().Uln.Should().Be(_apprenticeshipLearnerEvent.Uln);
+        _result.FundingPeriods.First().Uln.ToString().Should().Be(_apprenticeshipLearnerEvent.Uln);
     }
 
     [Test]

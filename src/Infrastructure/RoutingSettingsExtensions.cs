@@ -1,6 +1,6 @@
 ﻿using NServiceBus;
-using SFA.DAS.Apprenticeships.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Apprenticeships.Types;
+using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {

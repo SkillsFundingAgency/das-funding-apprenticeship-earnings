@@ -5,7 +5,7 @@ using FluentAssertions;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
@@ -36,7 +36,7 @@ public class EarningsProfileGenerator_GenerateEarningsTests
             UKPRN = 116,
             TrainingCode = "able-seafarer",
             FundingEmployerAccountId = 118,
-            Uln = 900000118,
+            Uln = "900000118",
             AgreedPrice = 15000,
             ApprovalsApprenticeshipId = 120,
             LegalEntityName = "MyTrawler"

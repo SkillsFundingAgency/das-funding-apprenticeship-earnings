@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
@@ -27,7 +27,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 UKPRN = 116,
                 TrainingCode = "able-seafarer",
                 FundingEmployerAccountId = 118,
-                Uln = 900000118,
+                Uln = "900000118",
                 AgreedPrice = 15000,
                 ApprovalsApprenticeshipId = 120,
                 LegalEntityName = "MyTrawler"
@@ -48,7 +48,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         [Test]
         public void ShouldMapUlnToEntity()
         {
-            _sut.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
+            _sut.Uln.ToString().Should().Be(_apprenticeshipCreatedEvent.Uln);
         }
 
         [Test]

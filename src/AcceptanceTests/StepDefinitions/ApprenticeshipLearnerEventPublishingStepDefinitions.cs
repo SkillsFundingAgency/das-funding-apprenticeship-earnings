@@ -1,7 +1,7 @@
 using NServiceBus;
-using SFA.DAS.Apprenticeships.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -53,7 +53,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             UKPRN = 116,
             TrainingCode = "AbleSeafarer",
             FundingEmployerAccountId = null,
-            Uln = 118,
+            Uln = "118",
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120
         });

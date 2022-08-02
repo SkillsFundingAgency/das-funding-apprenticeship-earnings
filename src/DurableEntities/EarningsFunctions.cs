@@ -1,11 +1,11 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
 using System.Threading.Tasks;
+using SFA.DAS.Apprenticeships.Types;
+using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
