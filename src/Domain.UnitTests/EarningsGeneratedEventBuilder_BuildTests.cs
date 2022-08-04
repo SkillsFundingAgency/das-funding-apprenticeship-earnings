@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
@@ -11,98 +10,67 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 public class EarningsGeneratedEventBuilder_BuildTests
 {
     private EarningsGeneratedEventBuilder _sut;
-    private ApprenticeshipCreatedEvent _apprenticeshipLearnerEvent;
-    private EarningsProfile _earningsProfile;
     private EarningsGeneratedEvent _result;
+    private Fixture _fixture;
+    private Apprenticeship.Apprenticeship _apprenticeship;
 
     [SetUp]
     public void SetUp()
     {
         _sut = new EarningsGeneratedEventBuilder();
+        _fixture = new Fixture();
 
-        _apprenticeshipLearnerEvent = new ApprenticeshipCreatedEvent
-        {
-            FundingType = FundingType.NonLevy,
-            ActualStartDate = new DateTime(2022, 8, 1),
-            ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            PlannedEndDate = new DateTime(2024, 7, 31),
-            UKPRN = 116,
-            TrainingCode = "able-seafarer",
-            FundingEmployerAccountId = 118,
-            Uln = 900000118,
-            AgreedPrice = 20000
-        };
+        _apprenticeship = _fixture.Create<Apprenticeship.Apprenticeship>();
 
-        _earningsProfile = new EarningsProfile
-        {
-            AdjustedPrice = 15000,
-            Installments = new List<EarningsInstallment>
-            {
-                new EarningsInstallment
-                {
-                    Amount = 1000,
-                    AcademicYear = 1920,
-                    DeliveryPeriod = 5
-                },
-                new EarningsInstallment
-                {
-                    Amount = 2000,
-                    AcademicYear = 1920,
-                    DeliveryPeriod = 6
-                }
-            }
-        };
-
-        _result = _sut.Build(_apprenticeshipLearnerEvent, _earningsProfile);
+        _result = _sut.Build(_apprenticeship);
     }
 
     [Test]
     public void ShouldPopulateTheApprenticeshipKeyCorrectly()
     {
-        _result.ApprenticeshipKey.Should().Be(_apprenticeshipLearnerEvent.ApprenticeshipKey);
+        _result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
     }
 
     [Test]
     public void ShouldPopulateTheUlnCorrectly()
     {
-        _result.FundingPeriods.First().Uln.Should().Be(_apprenticeshipLearnerEvent.Uln);
+        _result.FundingPeriods.First().Uln.Should().Be(_apprenticeship.Uln);
     }
 
     [Test]
     public void ShouldPopulateTheEmployerIdCorrectly()
     {
-        _result.FundingPeriods.First().EmployerId.Should().Be(_apprenticeshipLearnerEvent.EmployerAccountId);
+        _result.FundingPeriods.First().EmployerId.Should().Be(_apprenticeship.EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateTheProviderIdCorrectly()
     {
-        _result.FundingPeriods.First().ProviderId.Should().Be(_apprenticeshipLearnerEvent.UKPRN);
+        _result.FundingPeriods.First().ProviderId.Should().Be(_apprenticeship.UKPRN);
     }
 
     [Test]
     public void ShouldPopulateTheTransferSenderEmployerIdCorrectly()
     {
-        _result.FundingPeriods.First().TransferSenderEmployerId.Should().Be(_apprenticeshipLearnerEvent.FundingEmployerAccountId);
+        _result.FundingPeriods.First().TransferSenderEmployerId.Should().Be(_apprenticeship.FundingEmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateTheAgreedPriceCorrectly()
     {
-        _result.FundingPeriods.First().AgreedPrice.Should().Be(_apprenticeshipLearnerEvent.AgreedPrice);
+        _result.FundingPeriods.First().AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
     }
 
     [Test]
     public void ShouldPopulateTheStartDateCorrectly()
     {
-        _result.FundingPeriods.First().StartDate.Should().Be(_apprenticeshipLearnerEvent.ActualStartDate);
+        _result.FundingPeriods.First().StartDate.Should().Be(_apprenticeship.ActualStartDate);
     }
 
     [Test]
     public void ShouldPopulateTheTrainingCodeCorrectly()
     {
-        _result.FundingPeriods.First().TrainingCode.Should().Be(_apprenticeshipLearnerEvent.TrainingCode);
+        _result.FundingPeriods.First().TrainingCode.Should().Be(_apprenticeship.TrainingCode);
     }
 
     [Test]

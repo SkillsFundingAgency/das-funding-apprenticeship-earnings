@@ -1,22 +1,24 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
-public interface IInstallmentsGenerator
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+
+public interface IInstalmentsGenerator
 {
-    public List<EarningsInstallment> Generate(decimal total, DateTime startDate, DateTime endDate);
+    public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate);
 }
 
-public class InstallmentsGenerator : IInstallmentsGenerator
+public class InstalmentsGenerator : IInstalmentsGenerator
 {
-    public List<EarningsInstallment> Generate(decimal total, DateTime startDate, DateTime endDate)
+    public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate)
     {
-        var installments = new List<EarningsInstallment>();
+        var installments = new List<Earning>();
 
         var startDateMonth = new DateTime(startDate.Year, startDate.Month, 1);
         var endDateMonth = new DateTime(endDate.Year, endDate.Month, 1);
 
         while (startDateMonth <= endDateMonth)
         {
-            installments.Add(new EarningsInstallment
+            installments.Add(new Earning
             {
                 DeliveryPeriod = startDateMonth.ToDeliveryPeriod(),
                 AcademicYear = startDateMonth.ToAcademicYear()

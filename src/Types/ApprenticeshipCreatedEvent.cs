@@ -15,9 +15,9 @@ public class ApprenticeshipCreatedEvent // TODO: Use nuget when available
 
     public string LegalEntityName { get; set; }
 
-    public DateTime? ActualStartDate { get; set; }
+    public DateTime ActualStartDate { get; set; }
 
-    public DateTime? PlannedEndDate { get; set; }
+    public DateTime PlannedEndDate { get; set; }
 
     public Decimal AgreedPrice { get; set; }
 

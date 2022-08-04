@@ -4,6 +4,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
@@ -12,7 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
     {
         private ApprenticeshipEntity _sut;
         private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
-        private Mock<IEarningsProfileGenerator> _mockEarningsProfileGenerator;
+        private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
 
         [SetUp]
         public async Task SetUp()
@@ -33,88 +34,88 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 LegalEntityName = "MyTrawler"
             };
 
-            _mockEarningsProfileGenerator = new Mock<IEarningsProfileGenerator>();
+            _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
 
-            _sut = new ApprenticeshipEntity(_mockEarningsProfileGenerator.Object);
+            _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object);
             await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipCreatedEvent);
         }
 
         [Test]
         public void ShouldMapApprenticeshipKeyToEntity()
         {
-            _sut.ApprenticeshipKey.Should().Be(_apprenticeshipCreatedEvent.ApprenticeshipKey);
+            _sut.Model.ApprenticeshipKey.Should().Be(_apprenticeshipCreatedEvent.ApprenticeshipKey);
         }
 
         [Test]
         public void ShouldMapUlnToEntity()
         {
-            _sut.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
+            _sut.Model.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
         }
 
         [Test]
         public void ShouldMapUKPRNToEntity()
         {
-            _sut.UKPRN.Should().Be(_apprenticeshipCreatedEvent.UKPRN);
+            _sut.Model.UKPRN.Should().Be(_apprenticeshipCreatedEvent.UKPRN);
         }
 
         [Test]
         public void ShouldMapEmployerAccountIdToEntity()
         {
-            _sut.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
+            _sut.Model.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
         }
 
         [Test]
         public void ShouldMapActualStartDateToEntity()
         {
-            _sut.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
+            _sut.Model.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
         }
 
         [Test]
         public void ShouldMapPlannedEndDateToEntity()
         {
-            _sut.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);
+            _sut.Model.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);
         }
 
         [Test]
         public void ShouldMapAgreedPriceToEntity()
         {
-            _sut.AgreedPrice.Should().Be(_apprenticeshipCreatedEvent.AgreedPrice);
+            _sut.Model.AgreedPrice.Should().Be(_apprenticeshipCreatedEvent.AgreedPrice);
         }
 
         [Test]
         public void ShouldMapTrainingCodeToEntity()
         {
-            _sut.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
+            _sut.Model.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
         }
 
         [Test]
         public void ShouldMapFundingEmployerAccountIdToEntity()
         {
-            _sut.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
+            _sut.Model.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
         }
 
         [Test]
         public void ShouldMapFundingTypeToEntity()
         {
-            _sut.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
+            _sut.Model.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
         }
 
         [Test]
         public void ShouldMapApprovalsApprenticeshipIdToEntity()
         {
-            _sut.ApprovalsApprenticeshipId.Should().Be(_apprenticeshipCreatedEvent.ApprovalsApprenticeshipId);
+            _sut.Model.ApprovalsApprenticeshipId.Should().Be(_apprenticeshipCreatedEvent.ApprovalsApprenticeshipId);
         }
 
         [Test]
         public void ShouldMapLegalEntityNameToEntity()
         {
-            _sut.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
+            _sut.Model.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
         }
 
         [Test]
         public void ShouldCallGenerateEarnings()
         {
-            _mockEarningsProfileGenerator.Verify(x => x.GenerateEarnings(_apprenticeshipCreatedEvent));
+            _createApprenticeshipCommandHandler.Verify(x => x.Create(It.Is<CreateApprenticeshipCommand>(y => y.ApprenticeshipEntity == _sut.Model)));
         }
         
     }

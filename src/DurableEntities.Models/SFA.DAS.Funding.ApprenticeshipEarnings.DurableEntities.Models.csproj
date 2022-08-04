@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
-    <ProjectReference Include="..\DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
 </Project>

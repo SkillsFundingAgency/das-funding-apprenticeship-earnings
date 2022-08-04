@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
@@ -51,9 +52,7 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddNServiceBus(applicationSettings);
 
-        builder.Services.AddSingleton<IOnProgramTotalPriceCalculator, OnProgramTotalPriceCalculator>();
-        builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
-        builder.Services.AddSingleton<IEarningsProfileGenerator, EarningsProfileGenerator>();
+        builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
     }
 
