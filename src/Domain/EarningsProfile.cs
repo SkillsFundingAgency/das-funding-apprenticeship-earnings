@@ -2,7 +2,7 @@
 
 public class EarningsProfile
 {
-    public decimal? AdjustedPrice { get; set; }
+    public decimal? OnProgramTotalPrice { get; set; }
     public List<EarningsInstallment> Installments { get; set; }
 }
 

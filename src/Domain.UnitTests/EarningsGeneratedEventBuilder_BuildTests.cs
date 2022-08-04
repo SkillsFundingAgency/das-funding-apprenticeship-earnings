@@ -36,7 +36,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
 
         _earningsProfile = new EarningsProfile
         {
-            AdjustedPrice = 15000,
+            OnProgramTotalPrice = 15000,
             Installments = new List<EarningsInstallment>
             {
                 new EarningsInstallment

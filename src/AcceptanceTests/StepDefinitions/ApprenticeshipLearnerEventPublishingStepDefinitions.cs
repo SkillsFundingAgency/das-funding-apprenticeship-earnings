@@ -55,10 +55,35 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             FundingEmployerAccountId = null,
             Uln = 118,
             LegalEntityName = "MyTrawler",
-            ApprovalsApprenticeshipId = 120
+            ApprovalsApprenticeshipId = 120,
+            FundingBandMaximum = 15000
         });
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;
         _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 500;
+    }
+
+    [Given("An apprenticeship learner event comes in from approvals with a funding band maximum lower than the agreed price")]
+    public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
+    {
+        await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
+        {
+            AgreedPrice = 35000,
+            ActualStartDate = new DateTime(2019, 01, 01),
+            ApprenticeshipKey = Guid.NewGuid(),
+            EmployerAccountId = 114,
+            FundingType = FundingType.Levy,
+            PlannedEndDate = new DateTime(2020, 12, 31),
+            UKPRN = 116,
+            TrainingCode = "AbleSeafarer",
+            FundingEmployerAccountId = null,
+            Uln = 118,
+            LegalEntityName = "MyTrawler",
+            ApprovalsApprenticeshipId = 120,
+            FundingBandMaximum = 30000
+        });
+
+        _scenarioContext["expectedDeliveryPeriodCount"] = 24;
+        _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 1000;
     }
 }
