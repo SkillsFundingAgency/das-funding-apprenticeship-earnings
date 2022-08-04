@@ -9,8 +9,8 @@
             CompletionPayment = completionPayment;
         }
 
-        public decimal AdjustedPrice { get; set; }
-        public List<Instalment> Instalments { get; set; }
-        public decimal CompletionPayment { get; set; }
+        public decimal AdjustedPrice { get; }
+        public List<Instalment> Instalments { get; }
+        public decimal CompletionPayment { get; }
     }
 }
