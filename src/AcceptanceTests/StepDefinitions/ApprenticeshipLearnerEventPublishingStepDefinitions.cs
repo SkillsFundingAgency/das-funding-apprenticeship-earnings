@@ -1,6 +1,6 @@
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -19,17 +19,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [BeforeTestRun]
     public static async Task StartEndpoint()
     {
-        var endpointConfiguration = new EndpointConfiguration(QueueNames.ApprenticeshipCreated);
-        endpointConfiguration.AssemblyScanner().ThrowExceptions = false;
-        endpointConfiguration.SendOnly();
-        endpointConfiguration.UseNewtonsoftJsonSerializer();
-        endpointConfiguration.Conventions().DefiningEventsAs(x => x == typeof(ApprenticeshipCreatedEvent));
-
-        var transport = endpointConfiguration.UseTransport<LearningTransport>();
-        transport.StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\.learningtransport"));
-
-        _endpointInstance = await Endpoint.Start(endpointConfiguration)
-            .ConfigureAwait(false);
+        _endpointInstance = await EndpointHelper
+            .StartEndpoint(QueueNames.ApprenticeshipCreated, true, new[] { typeof(ApprenticeshipCreatedEvent) });
     }
 
     [AfterTestRun]
@@ -39,8 +30,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             .ConfigureAwait(false);
     }
 
-    [Given(@"An apprenticeship learner event comes in from approvals")]
-    public async Task PublishApprenticeshipLearnerEvent()
+    [Given(@"An apprenticeship has been created as part of the approvals journey")]
+    public async Task PublishApprenticeshipCreatedEvent()
     {
         await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
         {
