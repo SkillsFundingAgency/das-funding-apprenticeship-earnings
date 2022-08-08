@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
@@ -14,45 +15,35 @@ public class EarningsGeneratedEventBuilder_BuildTests
     private ApprenticeshipCreatedEvent _apprenticeshipLearnerEvent;
     private EarningsProfile _earningsProfile;
     private EarningsGeneratedEvent _result;
+    private Fixture _fixture;
 
     [SetUp]
     public void SetUp()
     {
         _sut = new EarningsGeneratedEventBuilder();
+        _fixture = new Fixture();
 
-        _apprenticeshipLearnerEvent = new ApprenticeshipCreatedEvent
-        {
-            FundingType = FundingType.NonLevy,
-            ActualStartDate = new DateTime(2022, 8, 1),
-            ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            PlannedEndDate = new DateTime(2024, 7, 31),
-            UKPRN = 116,
-            TrainingCode = "able-seafarer",
-            FundingEmployerAccountId = 118,
-            Uln = "900000118",
-            AgreedPrice = 20000
-        };
+        _apprenticeshipLearnerEvent = _fixture.Build<ApprenticeshipCreatedEvent>()
+            .With(x => x.FundingType, FundingType.NonLevy)
+            .With(x => x.Uln, _fixture.Create<long>().ToString)
+            .Create();
 
-        _earningsProfile = new EarningsProfile
-        {
-            AdjustedPrice = 15000,
-            Installments = new List<EarningsInstallment>
-            {
-                new EarningsInstallment
+        _earningsProfile = _fixture.Build<EarningsProfile>()
+            .With(x => x.Installments, new List<EarningsInstallment>
                 {
-                    Amount = 1000,
-                    AcademicYear = 1920,
-                    DeliveryPeriod = 5
-                },
-                new EarningsInstallment
-                {
-                    Amount = 2000,
-                    AcademicYear = 1920,
-                    DeliveryPeriod = 6
-                }
-            }
-        };
+                    new EarningsInstallment
+                    {
+                        Amount = 1000,
+                        AcademicYear = 1920,
+                        DeliveryPeriod = 5
+                    },
+                    new EarningsInstallment
+                    {
+                        Amount = 2000,
+                        AcademicYear = 1920,
+                        DeliveryPeriod = 6
+                    }
+                }).Create();
 
         _result = _sut.Build(_apprenticeshipLearnerEvent, _earningsProfile);
     }

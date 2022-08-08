@@ -1,6 +1,5 @@
 ﻿using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
-using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {
@@ -8,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     {
         public static void AddRouting(this RoutingSettings settings)
         {
-            settings.RouteToEndpoint(typeof(ApprenticeshipCreatedEvent), QueueNames.ApprenticeshipCreated);
+            settings.RouteToEndpoint(typeof(ApprenticeshipCreatedEvent), QueueNames.ApprovalCreated);
         }
     }
 }

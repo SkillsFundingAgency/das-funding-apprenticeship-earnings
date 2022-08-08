@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NServiceBus;
@@ -22,25 +23,17 @@ public class EarningsProfileGenerator_GenerateEarningsTests
     private List<EarningsInstallment> _expectedEarningsInstallments;
     private EarningsGeneratedEvent _expectedEarningsGeneratedEvent;
     private EarningsProfile _result;
+    private Fixture _fixture;
 
     [SetUp]
     public async Task SetUp()
     {
-        _apprenticeshipLearnerEvent = new ApprenticeshipCreatedEvent
-        {
-            FundingType = FundingType.NonLevy,
-            ActualStartDate = new DateTime(2022, 8, 1),
-            ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            PlannedEndDate = new DateTime(2024, 7, 31),
-            UKPRN = 116,
-            TrainingCode = "able-seafarer",
-            FundingEmployerAccountId = 118,
-            Uln = "900000118",
-            AgreedPrice = 15000,
-            ApprovalsApprenticeshipId = 120,
-            LegalEntityName = "MyTrawler"
-        };
+        _fixture = new Fixture();
+
+        _apprenticeshipLearnerEvent = _fixture.Build<ApprenticeshipCreatedEvent>()
+            .With(x => x.FundingType, FundingType.NonLevy)
+            .With(x => x.Uln, _fixture.Create<long>().ToString)
+            .Create();
 
         _expectedAdjustedPrice = 12000;
 
@@ -108,6 +101,6 @@ public class EarningsProfileGenerator_GenerateEarningsTests
     [Test]
     public void ShouldPublishEarningsGeneratedEventCorrectly()
     {
-        _mockMessageSession.Verify(x => x.Publish(_expectedEarningsGeneratedEvent, It.IsAny<PublishOptions>()));
+        _mockMessageSession.Verify(x => x.Publish(_expectedEarningsGeneratedEvent, It.IsAny<PublishOptions>()), Times.Once);
     }
 }

@@ -1,7 +1,6 @@
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -20,7 +19,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public static async Task StartEndpoint()
     {
         _endpointInstance = await EndpointHelper
-            .StartEndpoint(QueueNames.ApprenticeshipCreated, true, new[] { typeof(ApprenticeshipCreatedEvent) });
+            .StartEndpoint(QueueNames.ApprovalCreated, true, new[] { typeof(ApprenticeshipCreatedEvent) });
     }
 
     [AfterTestRun]

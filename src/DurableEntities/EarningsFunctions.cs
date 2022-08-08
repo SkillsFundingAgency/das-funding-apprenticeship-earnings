@@ -5,7 +5,6 @@ using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
 using System.Threading.Tasks;
 using SFA.DAS.Apprenticeships.Types;
-using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -13,7 +12,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
     {
         [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
         public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-            [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
+            [NServiceBusTrigger(Endpoint = QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
