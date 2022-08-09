@@ -5,4 +5,5 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 public class OrchestrationData : IOrchestrationData
 {
     public DurableOrchestrationStatus Status { get; set; }
+    public object Entity { get; set; }
 }

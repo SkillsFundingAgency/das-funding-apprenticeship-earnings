@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
@@ -24,6 +27,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         {
             MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
             var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
+            Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
         }
 
         [FunctionName(nameof(ApprenticeshipEntity))]
@@ -46,6 +50,26 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
                 LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName
             };
+        }
+
+        private EarningsProfileEntityModel MapEarningsProfileToModel(EarningsProfile earningsProfile)
+        {
+            return new EarningsProfileEntityModel
+            {
+                AdjustedPrice = earningsProfile.AdjustedPrice,
+                CompletionPayment = earningsProfile.CompletionPayment,
+                Instalments = MapInstalmentsToModel(earningsProfile.Instalments),
+            };
+        }
+
+        private List<InstalmentEntityModel> MapInstalmentsToModel(List<Instalment> instalments)
+        {
+            return instalments.Select(x => new InstalmentEntityModel
+            {
+                AcademicYear = x.AcademicYear,
+                DeliveryPeriod = x.DeliveryPeriod,
+                Amount = x.Amount
+            }).ToList();
         }
     }
 }

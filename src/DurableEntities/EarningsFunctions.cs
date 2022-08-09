@@ -21,11 +21,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             {
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
 
-                var entityId = new EntityId(nameof(ApprenticeshipEntity),
-                    $"{Guid.NewGuid()} - {apprenticeshipCreatedEvent}");
+                var entityId = new EntityId(nameof(ApprenticeshipEntity), apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
 
-                await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent),
-                    apprenticeshipCreatedEvent);
+                await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent), apprenticeshipCreatedEvent);
 
                 log.LogInformation($"Started {nameof(ApprenticeshipEntity)} with EntityId = '{entityId}'.");
             }

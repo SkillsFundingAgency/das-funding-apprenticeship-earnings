@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -19,8 +21,21 @@ public class EarningsGeneratedEventBuilder_BuildTests
     {
         _sut = new EarningsGeneratedEventBuilder();
         _fixture = new Fixture();
-
-        _apprenticeship = _fixture.Create<Apprenticeship.Apprenticeship>();
+        
+        _apprenticeship = new Apprenticeship.Apprenticeship(
+            Guid.NewGuid(),
+            _fixture.Create<long>(),
+            _fixture.Create<long>(),
+            _fixture.Create<long>(),
+            _fixture.Create<long>(),
+            _fixture.Create<string>(),
+            new DateTime(2022, 8, 1),
+            new DateTime(2022, 9, 30),
+            20000,
+            _fixture.Create<string>(),
+            null,
+            FundingType.NonLevy);
+        _apprenticeship.CalculateEarnings();
 
         _result = _sut.Build(_apprenticeship);
     }
@@ -88,60 +103,60 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 5).Should().NotBeNull();
+        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 6).Should().NotBeNull();
+        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodCalendarMonthCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 5).CalendarMonth.Should().Be(12);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).CalendarMonth.Should().Be(8);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodCalendarMonthCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 6).CalendarMonth.Should().Be(1);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).CalendarMonth.Should().Be(9);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodCalendarYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 5).CalenderYear.Should().Be(2019);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).CalenderYear.Should().Be(2022);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodCalendarYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 6).CalenderYear.Should().Be(2020);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).CalenderYear.Should().Be(2022);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodAcademicYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 5).AcademicYear.Should().Be(1920);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).AcademicYear.Should().Be(2223);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodAcademicYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 6).AcademicYear.Should().Be(1920);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).AcademicYear.Should().Be(2223);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodLearningAmountCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 5).LearningAmount.Should().Be(1000);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).LearningAmount.Should().Be(8000);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodLearningAmountCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 6).LearningAmount.Should().Be(2000);
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
     }
 }

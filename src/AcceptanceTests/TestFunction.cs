@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -25,11 +26,12 @@ public class TestFunction : IDisposable
 
     private IJobHost Jobs => _host.Services.GetService<IJobHost>();
     public string HubName { get; }
+    private readonly OrchestrationData _orchestrationData;
 
     public TestFunction(TestContext testContext, string hubName)
     {
         HubName = hubName;
-        var orchestrationData = new OrchestrationData();
+        _orchestrationData = new OrchestrationData();
 
         _testContext = testContext;
 
@@ -89,7 +91,7 @@ public class TestFunction : IDisposable
 
                     new Startup().Configure(builder);
 
-                    s.AddSingleton(typeof(IOrchestrationData), orchestrationData);
+                    s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                 })
             )
             .ConfigureServices(s =>
@@ -110,6 +112,12 @@ public class TestFunction : IDisposable
         {
             throw new Exception($"Failed to start test function host within {timeout.Seconds} seconds.  Check the AzureStorageEmulator is running. ");
         }
+    }
+
+    public async Task<ApprenticeshipEntity> GetEntity(string entityType, string entityKey)
+    {
+        await Jobs.GetEntity(entityType, entityKey);
+        return _orchestrationData.Entity as ApprenticeshipEntity;
     }
     
     public async Task DisposeAsync()

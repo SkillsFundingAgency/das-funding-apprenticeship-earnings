@@ -31,7 +31,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
             var agreedPrice = _fixture.Create<decimal>();
             var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(), _fixture.Create<DateTime>());
 
-            apprenticeshipFunding.AdjustedPrice.Should().Be(agreedPrice * 0.2m);
+            apprenticeshipFunding.CompletionPayment.Should().Be(agreedPrice * 0.2m);
         }
     }
 }
