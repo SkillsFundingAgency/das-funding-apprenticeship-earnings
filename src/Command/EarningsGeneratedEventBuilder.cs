@@ -21,7 +21,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             {
                 new()
                 {
-                    Uln = long.Parse(apprenticeshipLearnerEvent.Uln),
+                    Uln = apprenticeshipLearnerEvent.Uln,
                     EmployerId = apprenticeshipLearnerEvent.EmployerAccountId,
                     ProviderId = apprenticeshipLearnerEvent.UKPRN,
                     TransferSenderEmployerId = apprenticeshipLearnerEvent.FundingEmployerAccountId,

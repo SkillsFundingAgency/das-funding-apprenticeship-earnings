@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
-using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -43,8 +41,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 Uln = apprenticeshipCreatedEvent.Uln,
                 UKPRN = apprenticeshipCreatedEvent.UKPRN,
                 EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
-                ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate,
-                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate,
+                ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
+                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
                 AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
                 TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
                 FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,

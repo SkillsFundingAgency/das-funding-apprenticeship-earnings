@@ -1,10 +1,10 @@
-﻿using SFA.DAS.Apprenticeships.Events;
+﻿using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
     public class Apprenticeship
     {
-        public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, long uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType)
+        public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType)
         {
             ApprenticeshipKey = apprenticeshipKey;
             ApprovalsApprenticeshipId = approvalsApprenticeshipId;
@@ -22,7 +22,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 
         public Guid ApprenticeshipKey { get; }
         public long ApprovalsApprenticeshipId { get; }
-        public long Uln { get; }
+        public string Uln { get; }
         public long UKPRN { get; }
         public long EmployerAccountId { get; }
         public string LegalEntityName { get; }

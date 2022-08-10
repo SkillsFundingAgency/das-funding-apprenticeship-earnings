@@ -2,7 +2,7 @@
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding
 {
@@ -19,7 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
             _sut = new Apprenticeship.Apprenticeship(
                 Guid.NewGuid(),
                 _fixture.Create<long>(),
-                _fixture.Create<long>(),
+                _fixture.Create<string>(),
                 _fixture.Create<long>(),
                 _fixture.Create<long>(),
                 _fixture.Create<string>(),

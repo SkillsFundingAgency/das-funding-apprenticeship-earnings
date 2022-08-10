@@ -1,10 +1,8 @@
 using NServiceBus;
-using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+using QueueNames = SFA.DAS.Apprenticeships.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 

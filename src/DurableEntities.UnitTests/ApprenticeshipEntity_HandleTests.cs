@@ -4,11 +4,9 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
 {
@@ -44,7 +42,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
             _apprenticeship = new Apprenticeship(
                 Guid.NewGuid(),
                 _fixture.Create<long>(),
-                _fixture.Create<long>(),
+                _fixture.Create<string>(),
                 _fixture.Create<long>(),
                 _fixture.Create<long>(),
                 _fixture.Create<string>(),

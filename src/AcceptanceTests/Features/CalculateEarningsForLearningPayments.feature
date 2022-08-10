@@ -8,4 +8,3 @@ Scenario: As a Training provider I want the completion earnings (Forecast) so th
 	Given the apprenticeship commitment is approved
 	When the adjusted price has been calculated
 	Then the total completion payment amount of 20% of the adjusted price must be calculated
-	And the total completion payment amount must be paid the following month after the apprenticeship completion end date

@@ -3,7 +3,6 @@ using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -26,7 +25,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
         _apprenticeship = new Apprenticeship.Apprenticeship(
             Guid.NewGuid(),
             _fixture.Create<long>(),
-            _fixture.Create<long>(),
+            _fixture.Create<string>(),
             _fixture.Create<long>(),
             _fixture.Create<long>(),
             _fixture.Create<string>(),
