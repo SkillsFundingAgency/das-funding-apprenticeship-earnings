@@ -1,5 +1,6 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -20,7 +21,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             {
                 new()
                 {
-                    Uln = apprenticeshipLearnerEvent.Uln,
+                    Uln = long.Parse(apprenticeshipLearnerEvent.Uln),
                     EmployerId = apprenticeshipLearnerEvent.EmployerAccountId,
                     ProviderId = apprenticeshipLearnerEvent.UKPRN,
                     TransferSenderEmployerId = apprenticeshipLearnerEvent.FundingEmployerAccountId,

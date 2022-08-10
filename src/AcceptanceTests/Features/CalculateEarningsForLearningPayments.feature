@@ -1,8 +1,8 @@
 ﻿Feature: Calculate earnings for learning payments
 
 Scenario: Simple Earnings Generation
-	Given An apprenticeship learner event comes in from approvals
-	Then An earnings generated event is published with the correct learning amounts
+	Given An apprenticeship has been created as part of the approvals journey
+	Then Earnings are generated with the correct learning amounts
 
 Scenario: As a Training provider I want the completion earnings (Forecast) so that they feed into payment calculations and I get paid
 	Given the apprenticeship commitment is approved

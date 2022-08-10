@@ -8,6 +8,8 @@ using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {

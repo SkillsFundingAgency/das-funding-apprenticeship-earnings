@@ -7,6 +7,8 @@ using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
 {
@@ -31,7 +33,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 UKPRN = 116,
                 TrainingCode = "able-seafarer",
                 FundingEmployerAccountId = 118,
-                Uln = 900000118,
+                Uln = "900000118",
                 AgreedPrice = 15000,
                 ApprovalsApprenticeshipId = 120,
                 LegalEntityName = "MyTrawler"
