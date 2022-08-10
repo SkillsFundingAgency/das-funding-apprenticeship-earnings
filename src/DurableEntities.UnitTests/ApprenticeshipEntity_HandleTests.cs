@@ -1,11 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
 {
@@ -14,6 +15,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         private ApprenticeshipEntity _sut;
         private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
         private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
+        private Fixture _fixture;
+        private Apprenticeship _apprenticeship;
 
         [SetUp]
         public async Task SetUp()
@@ -34,9 +37,28 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 LegalEntityName = "MyTrawler"
             };
 
-            _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
+            _fixture = new Fixture();
 
+            _apprenticeship = new Apprenticeship(
+                Guid.NewGuid(),
+                _fixture.Create<long>(),
+                _fixture.Create<long>(),
+                _fixture.Create<long>(),
+                _fixture.Create<long>(),
+                _fixture.Create<string>(),
+                new DateTime(2021, 1, 15),
+                new DateTime(2022, 1, 15),
+                _fixture.Create<decimal>(),
+                _fixture.Create<string>(),
+                null,
+                _fixture.Create<FundingType>());
+            _apprenticeship.CalculateEarnings();
+
+            _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
             _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object);
+
+            _createApprenticeshipCommandHandler.Setup(x => x.Create(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
+
             await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipCreatedEvent);
         }
 
