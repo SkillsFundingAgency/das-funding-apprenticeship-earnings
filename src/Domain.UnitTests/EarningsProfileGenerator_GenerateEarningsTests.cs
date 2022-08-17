@@ -36,9 +36,6 @@ public class EarningsProfileGenerator_GenerateEarningsTests
             .With(x => x.FundingType, FundingType.NonLevy)
             .With(x => x.Uln, _fixture.Create<long>().ToString)
             .Create();
-            AgreedPrice = 18000,
-            LegalEntityName = "MyTrawler",
-            FundingBandMaximum = 15000
 
         _expectedAdjustedPrice = 15000;
         _expectedOnProgramTotalPrice = 12000;

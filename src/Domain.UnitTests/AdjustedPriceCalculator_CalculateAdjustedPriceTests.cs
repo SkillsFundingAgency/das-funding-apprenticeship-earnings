@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Events;
+using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 

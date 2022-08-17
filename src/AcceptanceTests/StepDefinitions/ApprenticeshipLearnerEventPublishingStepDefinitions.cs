@@ -67,7 +67,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             UKPRN = 116,
             TrainingCode = "AbleSeafarer",
             FundingEmployerAccountId = null,
-            Uln = 118,
+            Uln = "118",
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             FundingBandMaximum = 30000

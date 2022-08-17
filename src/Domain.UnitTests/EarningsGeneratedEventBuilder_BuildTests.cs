@@ -30,8 +30,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
 
         _earningsProfile = _fixture.Build<EarningsProfile>()
             .With(x => x.Installments, new List<EarningsInstallment>
-            OnProgramTotalPrice = 15000,
-                {
+            {
                     new EarningsInstallment
                     {
                         Amount = 1000,
