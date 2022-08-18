@@ -348,3 +348,12 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Specflow generated feature.cs files
+*.feature.cs
+
+#local settings json file
+local.settings.json
+
+#learning transport folder
+.learningtransport/

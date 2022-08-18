@@ -106,7 +106,7 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
-        "configNames": "SFA.DAS.FundingApprenticeshipEarnings"
+        "configNames": "SFA.DAS.Funding.ApprenticeshipEarnings"
     },
     "resources": [
         {
@@ -377,7 +377,7 @@
                                 },
                                 {
                                     "name": "FUNCTIONS_EXTENSION_VERSION",
-                                    "value": "~3"
+                                    "value": "~4"
                                 },
                                 {
                                     "name": "FUNCTIONS_WORKER_RUNTIME",
