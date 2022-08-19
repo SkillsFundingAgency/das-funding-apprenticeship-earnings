@@ -18,7 +18,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
                 entityModel.AgreedPrice,
                 entityModel.TrainingCode,
                 entityModel.FundingEmployerAccountId,
-                entityModel.FundingType
+                entityModel.FundingType,
+                entityModel.AgeAtStartOfApprenticeship
             );
         }
     }

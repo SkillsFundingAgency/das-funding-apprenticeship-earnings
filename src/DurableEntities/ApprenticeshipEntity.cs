@@ -48,7 +48,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
                 FundingType = apprenticeshipCreatedEvent.FundingType,
                 ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
-                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName
+                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
+                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship
             };
         }
 

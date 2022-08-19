@@ -21,5 +21,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
         [JsonProperty] public FundingType FundingType { get; set; }
 
         [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; }
+        [JsonProperty] public int AgeAtStartOfApprenticeship { get; set; }
     }
 }

@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
-    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="0.1.1-prerelease-35" />
+    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="0.1.1-prerelease-53" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />

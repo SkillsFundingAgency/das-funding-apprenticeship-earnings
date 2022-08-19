@@ -28,7 +28,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
                 _fixture.Create<decimal>(),
                 _fixture.Create<string>(),
                 null,
-                _fixture.Create<FundingType>());
+                _fixture.Create<FundingType>(),
+                _fixture.Create<int>());
         }
 
         [Test]

@@ -34,7 +34,8 @@ public class EarningsGeneratedEventBuilder_BuildTests
             20000,
             _fixture.Create<string>(),
             null,
-            FundingType.NonLevy);
+            FundingType.NonLevy,
+            _fixture.Create<int>());
         _apprenticeship.CalculateEarnings();
 
         _result = _sut.Build(_apprenticeship);
@@ -158,5 +159,17 @@ public class EarningsGeneratedEventBuilder_BuildTests
     public void ShouldPopulateTheSecondDeliveryPeriodLearningAmountCorrectly()
     {
         _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
+    }
+
+    [Test]
+    public void ShouldPopulateTheFirstDeliveryPeriodFundingLineTypeCorrectly()
+    {
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+    }
+
+    [Test]
+    public void ShouldPopulateTheSecondDeliveryPeriodFundingLineTypeCorrectly()
+    {
+        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
     }
 }
