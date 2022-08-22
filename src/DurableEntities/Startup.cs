@@ -55,6 +55,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
         builder.Services.AddSingleton<IEarningsProfileGenerator, EarningsProfileGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
+        builder.Services.AddSingleton<IAdjustedPriceCalculator, AdjustedPriceCalculator>();
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)

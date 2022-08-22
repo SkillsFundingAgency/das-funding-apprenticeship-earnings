@@ -19,6 +19,8 @@ public class EarningsProfileGenerator_GenerateEarningsTests
     private Mock<IInstallmentsGenerator> _mockInstallmentsGenerator;
     private Mock<IMessageSession> _mockMessageSession;
     private Mock<IEarningsGeneratedEventBuilder> _mockEarningsGeneratedEventBuilder;
+    private Mock<IAdjustedPriceCalculator> _mockAdjustedPriceCalculator;
+    private decimal _expectedOnProgramTotalPrice;
     private decimal _expectedAdjustedPrice;
     private List<EarningsInstallment> _expectedEarningsInstallments;
     private EarningsGeneratedEvent _expectedEarningsGeneratedEvent;
@@ -35,11 +37,16 @@ public class EarningsProfileGenerator_GenerateEarningsTests
             .With(x => x.Uln, _fixture.Create<long>().ToString)
             .Create();
 
-        _expectedAdjustedPrice = 12000;
+        _expectedAdjustedPrice = 15000;
+        _expectedOnProgramTotalPrice = 12000;
+
+        _mockAdjustedPriceCalculator = new Mock<IAdjustedPriceCalculator>();
+        _mockAdjustedPriceCalculator.Setup(x => x.CalculateAdjustedPrice(It.IsAny<ApprenticeshipCreatedEvent>()))
+            .Returns(_expectedAdjustedPrice);
 
         _mockOnProgramTotalPriceCalculator = new Mock<IOnProgramTotalPriceCalculator>();
         _mockOnProgramTotalPriceCalculator.Setup(x => x.CalculateOnProgramTotalPrice(It.IsAny<decimal>()))
-            .Returns(_expectedAdjustedPrice);
+            .Returns(_expectedOnProgramTotalPrice);
 
         _expectedEarningsInstallments = new List<EarningsInstallment>
         {
@@ -70,26 +77,26 @@ public class EarningsProfileGenerator_GenerateEarningsTests
 
         _mockEarningsGeneratedEventBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipCreatedEvent>(), It.IsAny<EarningsProfile>())).Returns(_expectedEarningsGeneratedEvent);
 
-        _sut = new EarningsProfileGenerator(_mockOnProgramTotalPriceCalculator.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object, _mockEarningsGeneratedEventBuilder.Object);
+        _sut = new EarningsProfileGenerator(_mockOnProgramTotalPriceCalculator.Object, _mockInstallmentsGenerator.Object, _mockMessageSession.Object, _mockEarningsGeneratedEventBuilder.Object, _mockAdjustedPriceCalculator.Object);
         _result = await _sut.GenerateEarnings(_apprenticeshipLearnerEvent);
     }
 
     [Test]
-    public void ShouldPassTheAgreedPriceToTheOnProgramPriceCalculator()
+    public void ShouldPassTheAdjustedPriceToTheOnProgramPriceCalculator()
     {
-        _mockOnProgramTotalPriceCalculator.Verify(x => x.CalculateOnProgramTotalPrice(_apprenticeshipLearnerEvent.AgreedPrice));
+        _mockOnProgramTotalPriceCalculator.Verify(x => x.CalculateOnProgramTotalPrice(_expectedAdjustedPrice));
     }
 
     [Test]
-    public void ShouldSetTheAdjustedPriceToTheResultFromTheOnProgramPriceCalculator()
+    public void ShouldSetTheOnProgramTotalPriceToTheResultFromTheOnProgramPriceCalculator()
     {
-        _result.AdjustedPrice.Should().Be(_expectedAdjustedPrice);
+        _result.OnProgramTotalPrice.Should().Be(_expectedOnProgramTotalPrice);
     }
 
     [Test]
-    public void ShouldPassTheAdjustedPriceAndCorrectDatesToTheInstallmentsGenerator()
+    public void ShouldPassTheOnProgramTotalPriceAndCorrectDatesToTheInstallmentsGenerator()
     {
-        _mockInstallmentsGenerator.Verify(x => x.Generate(_expectedAdjustedPrice, _apprenticeshipLearnerEvent.ActualStartDate.GetValueOrDefault(), _apprenticeshipLearnerEvent.PlannedEndDate.GetValueOrDefault()));
+        _mockInstallmentsGenerator.Verify(x => x.Generate(_expectedOnProgramTotalPrice, _apprenticeshipLearnerEvent.ActualStartDate.GetValueOrDefault(), _apprenticeshipLearnerEvent.PlannedEndDate.GetValueOrDefault()));
     }
 
     [Test]

@@ -30,7 +30,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
 
         _earningsProfile = _fixture.Build<EarningsProfile>()
             .With(x => x.Installments, new List<EarningsInstallment>
-                {
+            {
                     new EarningsInstallment
                     {
                         Amount = 1000,
