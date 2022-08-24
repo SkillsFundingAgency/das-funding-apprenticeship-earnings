@@ -6,30 +6,35 @@
         private readonly DateTime _startDate;
         private readonly DateTime _endDate;
         public decimal AdjustedPrice { get; }
-        public decimal CompletionPayment { get; }
+        public decimal OnProgramTotal => CalculateOnProgramTotal();
+        public decimal CompletionPayment => CalculateCompletionPayment();
 
-        public ApprenticeshipFunding(decimal agreedPrice, DateTime startDate, DateTime endDate)
+        public ApprenticeshipFunding(decimal agreedPrice, DateTime startDate, DateTime endDate, decimal fundingBandMaximum)
         {
             _startDate = startDate;
             _endDate = endDate;
-            AdjustedPrice = CalculateAdjustedPrice(agreedPrice);
-            CompletionPayment = CalculateCompletionPayment(agreedPrice);
+            AdjustedPrice = CalculateAdjustedPrice(agreedPrice, fundingBandMaximum);
         }
 
-        private decimal CalculateCompletionPayment(decimal agreedPrice)
+        private decimal CalculateAdjustedPrice(decimal agreedPrice, decimal fundingBandMaximum)
         {
-            return agreedPrice - AdjustedPrice;
+            return Math.Min(agreedPrice, fundingBandMaximum);
         }
 
-        private decimal CalculateAdjustedPrice(decimal agreedPrice)
+        private decimal CalculateCompletionPayment()
         {
-            return agreedPrice * AgreedPriceMultiplier;
+            return AdjustedPrice - OnProgramTotal;
+        }
+
+        private decimal CalculateOnProgramTotal()
+        {
+            return AdjustedPrice * AgreedPriceMultiplier;
         }
 
         public List<Earning> GenerateEarnings()
         {
             var instalmentGenerator = new InstalmentsGenerator();
-            var earnings = instalmentGenerator.Generate(AdjustedPrice, _startDate, _endDate);
+            var earnings = instalmentGenerator.Generate(OnProgramTotal, _startDate, _endDate);
             return earnings;
         }
     }
