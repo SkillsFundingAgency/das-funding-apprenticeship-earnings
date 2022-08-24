@@ -8,3 +8,7 @@ Scenario: As a Training provider I want the completion earnings (Forecast) so th
 	Given the apprenticeship commitment is approved
 	When the adjusted price has been calculated
 	Then the total completion payment amount of 20% of the adjusted price must be calculated
+
+Scenario: Funding Band Maximum Cap
+	Given An apprenticeship learner event comes in from approvals with a funding band maximum lower than the agreed price
+	Then Earnings are generated with the correct learning amounts
