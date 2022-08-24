@@ -5,30 +5,32 @@
         private const decimal AgreedPriceMultiplier = 0.8m;
         private readonly DateTime _startDate;
         private readonly DateTime _endDate;
-        public decimal AdjustedPrice { get; }
-        public decimal OnProgramTotal => CalculateOnProgramTotal();
-        public decimal CompletionPayment => CalculateCompletionPayment();
+        public decimal OnProgramTotal { get; }
+        public decimal CompletionPayment { get; }
+        public decimal CappedAgreedPrice { get; }
 
         public ApprenticeshipFunding(decimal agreedPrice, DateTime startDate, DateTime endDate, decimal fundingBandMaximum)
         {
             _startDate = startDate;
             _endDate = endDate;
-            AdjustedPrice = CalculateAdjustedPrice(agreedPrice, fundingBandMaximum);
+            CappedAgreedPrice = CalculateCappedAgreedPrice(fundingBandMaximum, agreedPrice);
+            OnProgramTotal = CalculateOnProgramTotalAmount(CappedAgreedPrice);
+            CompletionPayment = CalculateCompletionPayment(CappedAgreedPrice);
         }
 
-        private decimal CalculateAdjustedPrice(decimal agreedPrice, decimal fundingBandMaximum)
+        private decimal CalculateCappedAgreedPrice(decimal fundingBandMaximum, decimal agreedPrice)
         {
-            return Math.Min(agreedPrice, fundingBandMaximum);
+            return Math.Min(fundingBandMaximum, agreedPrice);
         }
 
-        private decimal CalculateCompletionPayment()
+        private decimal CalculateCompletionPayment(decimal agreedPrice)
         {
-            return AdjustedPrice - OnProgramTotal;
+            return agreedPrice - OnProgramTotal;
         }
 
-        private decimal CalculateOnProgramTotal()
+        private decimal CalculateOnProgramTotalAmount(decimal agreedPrice)
         {
-            return AdjustedPrice * AgreedPriceMultiplier;
+            return agreedPrice * AgreedPriceMultiplier;
         }
 
         public List<Earning> GenerateEarnings()
