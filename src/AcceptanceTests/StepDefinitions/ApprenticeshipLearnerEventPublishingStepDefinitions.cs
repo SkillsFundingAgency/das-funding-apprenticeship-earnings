@@ -73,7 +73,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         entity.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.AgreedPrice * .2m);
 	}
 
-    [Given("An apprenticeship learner event comes in from approvals with a funding band maximum lower than the agreed price")]
+    [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
     public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
     {
         await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
