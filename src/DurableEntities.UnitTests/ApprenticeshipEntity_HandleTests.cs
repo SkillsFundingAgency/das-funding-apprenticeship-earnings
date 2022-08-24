@@ -34,7 +34,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 Uln = "900000118",
                 AgreedPrice = 15000,
                 ApprovalsApprenticeshipId = 120,
-                LegalEntityName = "MyTrawler"
+                LegalEntityName = "MyTrawler",
+                FundingBandMaximum = 16000
             };
 
             _fixture = new Fixture();
@@ -51,7 +52,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 _fixture.Create<decimal>(),
                 _fixture.Create<string>(),
                 null,
-                _fixture.Create<FundingType>());
+                _fixture.Create<FundingType>(),
+                _fixture.Create<decimal>());
             _apprenticeship.CalculateEarnings();
 
             _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
@@ -132,6 +134,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         public void ShouldMapLegalEntityNameToEntity()
         {
             _sut.Model.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
+        }
+
+        [Test]
+        public void ShouldMapFundingBandMaximumToEntity()
+        {
+            _sut.Model.FundingBandMaximum.Should().Be(_apprenticeshipCreatedEvent.FundingBandMaximum);
         }
 
         [Test]

@@ -4,7 +4,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
     public class Apprenticeship
     {
-        public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType)
+        public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType, decimal fundingBandMaximum)
         {
             ApprenticeshipKey = apprenticeshipKey;
             ApprovalsApprenticeshipId = approvalsApprenticeshipId;
@@ -18,6 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             TrainingCode = trainingCode;
             FundingEmployerAccountId = fundingEmployerAccountId;
             FundingType = fundingType;
+            FundingBandMaximum = fundingBandMaximum;
         }
 
         public Guid ApprenticeshipKey { get; }
@@ -33,12 +34,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public long? FundingEmployerAccountId { get; }
         public FundingType FundingType { get; }
         public EarningsProfile EarningsProfile { get; private set; }
+        public decimal FundingBandMaximum { get; set; }
 
         public void CalculateEarnings()
         {
-            var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate);
+            var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
             var earnings = apprenticeshipFunding.GenerateEarnings();
-            EarningsProfile = new EarningsProfile(apprenticeshipFunding.AdjustedPrice, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment);
+            EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotalAmount, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         public void SetUp()
         {
             _fixture = new Fixture();
+            var fundingBandMaximum = _fixture.Create<decimal>();
+            var agreedPrice = fundingBandMaximum;
             _sut = new Apprenticeship.Apprenticeship(
                 Guid.NewGuid(),
                 _fixture.Create<long>(),
@@ -25,10 +27,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
                 _fixture.Create<string>(),
                 new DateTime(2021, 1, 15),
                 new DateTime(2022, 1, 15),
-                _fixture.Create<decimal>(),
+                agreedPrice,
                 _fixture.Create<string>(),
                 null,
-                _fixture.Create<FundingType>());
+                _fixture.Create<FundingType>(),
+                fundingBandMaximum
+                );
         }
 
         [Test]

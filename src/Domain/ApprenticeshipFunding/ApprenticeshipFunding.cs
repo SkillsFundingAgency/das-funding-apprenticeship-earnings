@@ -5,23 +5,30 @@
         private const decimal AgreedPriceMultiplier = 0.8m;
         private readonly DateTime _startDate;
         private readonly DateTime _endDate;
-        public decimal AdjustedPrice { get; }
+        public decimal OnProgramTotalAmount { get; }
         public decimal CompletionPayment { get; }
+        public decimal CappedAgreedPrice { get; set; }
 
-        public ApprenticeshipFunding(decimal agreedPrice, DateTime startDate, DateTime endDate)
+        public ApprenticeshipFunding(decimal agreedPrice, DateTime startDate, DateTime endDate, decimal fundingBandMaximum)
         {
             _startDate = startDate;
             _endDate = endDate;
-            AdjustedPrice = CalculateAdjustedPrice(agreedPrice);
-            CompletionPayment = CalculateCompletionPayment(agreedPrice);
+            CappedAgreedPrice = CalculateCappedAgreedPrice(fundingBandMaximum, agreedPrice);
+            OnProgramTotalAmount = CalculateOnProgramTotalAmount(CappedAgreedPrice);
+            CompletionPayment = CalculateCompletionPayment(CappedAgreedPrice);
+        }
+
+        private decimal CalculateCappedAgreedPrice(decimal fundingBandMaximum, decimal agreedPrice)
+        {
+            return Math.Min(fundingBandMaximum, agreedPrice);
         }
 
         private decimal CalculateCompletionPayment(decimal agreedPrice)
         {
-            return agreedPrice - AdjustedPrice;
+            return agreedPrice - OnProgramTotalAmount;
         }
 
-        private decimal CalculateAdjustedPrice(decimal agreedPrice)
+        private decimal CalculateOnProgramTotalAmount(decimal agreedPrice)
         {
             return agreedPrice * AgreedPriceMultiplier;
         }
@@ -29,7 +36,7 @@
         public List<Earning> GenerateEarnings()
         {
             var instalmentGenerator = new InstalmentsGenerator();
-            var earnings = instalmentGenerator.Generate(AdjustedPrice, _startDate, _endDate);
+            var earnings = instalmentGenerator.Generate(OnProgramTotalAmount, _startDate, _endDate);
             return earnings;
         }
     }

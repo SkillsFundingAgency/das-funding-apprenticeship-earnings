@@ -19,6 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
         [JsonProperty] public string TrainingCode { get; set; }
         [JsonProperty] public long? FundingEmployerAccountId { get; set; }
         [JsonProperty] public FundingType FundingType { get; set; }
+        [JsonProperty] public decimal FundingBandMaximum { get; set; }
 
         [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; }
     }
