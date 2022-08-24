@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 [assembly: FunctionsStartup(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Startup))]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 
+[ExcludeFromCodeCoverage]
 public class Startup : FunctionsStartup
 {
     public IConfiguration Configuration { get; set; }
