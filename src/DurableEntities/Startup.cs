@@ -1,17 +1,22 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Startup))]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 
+[ExcludeFromCodeCoverage]
 public class Startup : FunctionsStartup
 {
     public IConfiguration Configuration { get; set; }
@@ -51,11 +56,10 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddNServiceBus(applicationSettings);
 
-        builder.Services.AddSingleton<IOnProgramTotalPriceCalculator, OnProgramTotalPriceCalculator>();
-        builder.Services.AddSingleton<IInstallmentsGenerator, InstallmentsGenerator>();
-        builder.Services.AddSingleton<IEarningsProfileGenerator, EarningsProfileGenerator>();
+        builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
-        builder.Services.AddSingleton<IAdjustedPriceCalculator, AdjustedPriceCalculator>();
+        builder.Services.AddScoped<ICreateApprenticeshipCommandHandler, CreateApprenticeshipCommandHandler>();
+        builder.Services.AddScoped<IApprenticeshipFactory, ApprenticeshipFactory>();
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)

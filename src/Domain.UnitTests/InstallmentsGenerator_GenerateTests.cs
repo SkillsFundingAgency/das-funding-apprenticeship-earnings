@@ -7,12 +7,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
 public class InstallmentsGenerator_GenerateTests
 {
-    private InstallmentsGenerator _sut;
+    private InstalmentsGenerator _sut;
 
     [SetUp]
     public void SetUp()
     {
-        _sut = new InstallmentsGenerator();
+        _sut = new InstalmentsGenerator();
     }
 
     [TestCase(12000, 2010, 01, 05, 2011, 12, 04, 24)]

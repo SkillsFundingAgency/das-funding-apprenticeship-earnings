@@ -1,43 +1,33 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class ApprenticeshipEntity
     {
-        [JsonProperty] public Guid ApprenticeshipKey { get; set; }
-        [JsonProperty] public long ApprovalsApprenticeshipId { get; set; }
+        [JsonProperty] public ApprenticeshipEntityModel Model { get; set; }
 
-        [JsonProperty] public long Uln { get; set; }
-        [JsonProperty] public long UKPRN { get; set; }
-        [JsonProperty] public long EmployerAccountId { get; set; }
-        [JsonProperty] public string LegalEntityName { get; set; }
-        [JsonProperty] public DateTime? ActualStartDate { get; set; }
-        [JsonProperty] public DateTime? PlannedEndDate { get; set; }
-        [JsonProperty] public decimal AgreedPrice { get; set; }
-        [JsonProperty] public string TrainingCode { get; set; }
-        [JsonProperty] public long? FundingEmployerAccountId { get; set; }
-        [JsonProperty] public FundingType FundingType { get; set; }
+        private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
 
-        [JsonProperty] public EarningsProfile EarningsProfile { get; set; }
-
-        private readonly IEarningsProfileGenerator _earningsProfileGenerator;
-
-        public ApprenticeshipEntity(IEarningsProfileGenerator earningsProfileGenerator)
+        public ApprenticeshipEntity(ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler)
         {
-            _earningsProfileGenerator = earningsProfileGenerator;
+            _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
         }
 
         public async Task HandleApprenticeshipLearnerEvent(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
             MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
-            await _earningsProfileGenerator.GenerateEarnings(apprenticeshipCreatedEvent);
+            var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
+            Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
         }
 
         [FunctionName(nameof(ApprenticeshipEntity))]
@@ -45,18 +35,42 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 
         private void MapApprenticeshipLearnerEventProperties(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
-            ApprenticeshipKey = apprenticeshipCreatedEvent.ApprenticeshipKey;
-            Uln = long.Parse(apprenticeshipCreatedEvent.Uln);
-            UKPRN = apprenticeshipCreatedEvent.UKPRN;
-            EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId;
-            ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate;
-            PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate;
-            AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice;
-            TrainingCode = apprenticeshipCreatedEvent.TrainingCode;
-            FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId;
-            FundingType = apprenticeshipCreatedEvent.FundingType;
-            ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId;
-            LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName;
+            Model = new ApprenticeshipEntityModel
+            {
+                ApprenticeshipKey = apprenticeshipCreatedEvent.ApprenticeshipKey,
+                Uln = apprenticeshipCreatedEvent.Uln,
+                UKPRN = apprenticeshipCreatedEvent.UKPRN,
+                EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
+                ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
+                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
+                AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
+                TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
+                FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
+                FundingType = apprenticeshipCreatedEvent.FundingType,
+                ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
+                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
+                FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum
+            };
+        }
+
+        private EarningsProfileEntityModel MapEarningsProfileToModel(EarningsProfile earningsProfile)
+        {
+            return new EarningsProfileEntityModel
+            {
+                AdjustedPrice = earningsProfile.OnProgramTotal,
+                CompletionPayment = earningsProfile.CompletionPayment,
+                Instalments = MapInstalmentsToModel(earningsProfile.Instalments),
+            };
+        }
+
+        private List<InstalmentEntityModel> MapInstalmentsToModel(List<Instalment> instalments)
+        {
+            return instalments.Select(x => new InstalmentEntityModel
+            {
+                AcademicYear = x.AcademicYear,
+                DeliveryPeriod = x.DeliveryPeriod,
+                Amount = x.Amount
+            }).ToList();
         }
     }
 }

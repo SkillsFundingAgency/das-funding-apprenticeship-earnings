@@ -2,7 +2,7 @@
 
 public class FundingPeriod
 {
-    public long Uln { get; set; }
+    public string Uln { get; set; }
     public long CommitmentId { get; set; }
     public long EmployerId { get; set; }
     public long ProviderId { get; set; }

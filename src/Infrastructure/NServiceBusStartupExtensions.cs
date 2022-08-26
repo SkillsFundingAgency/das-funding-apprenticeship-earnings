@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
@@ -11,6 +12,7 @@ using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public static class NServiceBusStartupExtensions
 {
     public static IServiceCollection AddNServiceBus(
