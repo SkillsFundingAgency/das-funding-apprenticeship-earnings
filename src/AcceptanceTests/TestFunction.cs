@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
@@ -81,6 +82,11 @@ public class TestFunction : IDisposable
                 .AddAzureStorageCoreServices()
                 .ConfigureServices(s =>
                 {
+                    builder.Services.AddLogging(options =>
+                    {
+                        options.SetMinimumLevel(LogLevel.Trace);
+                        options.AddConsole();
+                    });
                     s.Configure<ApplicationSettings>(a =>
                     {
                         a.AzureWebJobsStorage = appConfig["AzureWebJobsStorage"];

@@ -21,7 +21,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     {
         _sut = new EarningsGeneratedEventBuilder();
         _fixture = new Fixture();
-        
+
         _apprenticeship = new Apprenticeship.Apprenticeship(
             Guid.NewGuid(),
             _fixture.Create<long>(),
@@ -35,6 +35,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
             _fixture.Create<string>(),
             null,
             FundingType.NonLevy,
+            20001,
             _fixture.Create<int>());
         _apprenticeship.CalculateEarnings();
 

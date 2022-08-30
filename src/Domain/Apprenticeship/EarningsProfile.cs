@@ -2,14 +2,14 @@
 {
     public class EarningsProfile
     {
-        public EarningsProfile(decimal adjustedPrice, List<Instalment> instalments, decimal completionPayment)
+        public EarningsProfile(decimal onProgramTotal, List<Instalment> instalments, decimal completionPayment)
         {
-            AdjustedPrice = adjustedPrice;
+            OnProgramTotal = onProgramTotal;
             Instalments = instalments;
             CompletionPayment = completionPayment;
         }
 
-        public decimal AdjustedPrice { get; }
+        public decimal OnProgramTotal { get; }
         public List<Instalment> Instalments { get; }
         public decimal CompletionPayment { get; }
     }

@@ -77,8 +77,9 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
+	    FundingBandMaximum = 15000,
             AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship
-        };
+		};
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;
@@ -98,6 +99,30 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         entity.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.AgreedPrice * .2m);
     }
 
+    [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
+    public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
+    {
+        await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
+        {
+            AgreedPrice = 35000,
+            ActualStartDate = new DateTime(2019, 01, 01),
+            ApprenticeshipKey = Guid.NewGuid(),
+            EmployerAccountId = 114,
+            FundingType = FundingType.Levy,
+            PlannedEndDate = new DateTime(2020, 12, 31),
+            UKPRN = 116,
+            TrainingCode = "AbleSeafarer",
+            FundingEmployerAccountId = null,
+            Uln = "118",
+            LegalEntityName = "MyTrawler",
+            ApprovalsApprenticeshipId = 120,
+            FundingBandMaximum = 30000
+        });
+
+        _scenarioContext["expectedDeliveryPeriodCount"] = 24;
+        _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 1000;
+    }
+    
     [Then(@"the funding line type 16-18 must be used in the calculation")]
     public async Task ThenThe16To18FundingLineTypeIsUsed()
     {

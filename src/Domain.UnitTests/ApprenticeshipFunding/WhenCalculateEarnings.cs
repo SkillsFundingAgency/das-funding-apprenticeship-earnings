@@ -16,6 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         public void SetUp()
         {
             _fixture = new Fixture();
+            var agreedPrice = _fixture.Create<decimal>();
             _sut = new Apprenticeship.Apprenticeship(
                 Guid.NewGuid(),
                 _fixture.Create<long>(),
@@ -25,18 +26,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
                 _fixture.Create<string>(),
                 new DateTime(2021, 1, 15),
                 new DateTime(2022, 1, 15),
-                _fixture.Create<decimal>(),
+                agreedPrice,
                 _fixture.Create<string>(),
                 null,
                 _fixture.Create<FundingType>(),
+                agreedPrice + 1,
                 _fixture.Create<int>());
         }
 
         [Test]
-        public void ThenTheAdjustedPriceIsCalculated()
+        public void ThenTheOnProgramTotalIsCalculated()
         {
             _sut.CalculateEarnings();
-            _sut.EarningsProfile.AdjustedPrice.Should().Be(_sut.AgreedPrice * .8m);
+            _sut.EarningsProfile.OnProgramTotal.Should().Be(_sut.AgreedPrice * .8m);
         }
 
         [Test]
@@ -52,7 +54,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
             _sut.CalculateEarnings();
 
             _sut.EarningsProfile.Instalments.Count.Should().Be(13);
-            _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(_sut.EarningsProfile.AdjustedPrice / 13m));
+            _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(_sut.EarningsProfile.OnProgramTotal / 13m));
         }
     }
 }

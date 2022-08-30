@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration
 {
+    [ExcludeFromCodeCoverage]
     public class ApplicationSettings
     {
         public string AzureWebJobsStorage { get; set; }

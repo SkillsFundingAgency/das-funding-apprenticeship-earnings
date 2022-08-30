@@ -17,21 +17,47 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         }
 
         [Test]
-        public void ThenTheAdjustedPriceIs80PercentOfTheAgreedPrice()
+        public void WhenAgreedPriceLessThenFundingBandMaximumThenTheTotalOnProgrammeAmountIs80PercentOfTheAdjustedPrice()
         {
             var agreedPrice = _fixture.Create<decimal>();
-            var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(),_fixture.Create<DateTime>());
+            var fundingBandMaximum = agreedPrice + 1;
+            var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(),_fixture.Create<DateTime>(), fundingBandMaximum);
 
-            apprenticeshipFunding.AdjustedPrice.Should().Be(agreedPrice * 0.8m);
+            apprenticeshipFunding.CappedAgreedPrice.Should().Be(agreedPrice);
+            apprenticeshipFunding.OnProgramTotal.Should().Be(agreedPrice * 0.8m);
         }
 
         [Test]
-        public void ThenTheCompletionPaymentIs20PercentOfTheAgreedPrice()
+        public void WhenAgreedPriceLessThenFundingBandMaximumThenTheCompletionPaymentIs20PercentOfTheAdjustedPrice()
+        {
+            var agreedPrice = _fixture.Create<decimal>(); 
+            var fundingBandMaximum = agreedPrice + 1;
+            var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(), _fixture.Create<DateTime>(), fundingBandMaximum);
+
+            apprenticeshipFunding.CappedAgreedPrice.Should().Be(agreedPrice);
+            apprenticeshipFunding.CompletionPayment.Should().Be(agreedPrice * 0.2m);
+        }
+
+        [Test]
+        public void WhenAgreedPriceMoreThenFundingBandMaximumThenTheTotalOnProgrammeAmountIs80PercentOfTheAdjustedPrice()
         {
             var agreedPrice = _fixture.Create<decimal>();
-            var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(), _fixture.Create<DateTime>());
+            var fundingBandMaximum = agreedPrice - 1000;
+            var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(), _fixture.Create<DateTime>(), fundingBandMaximum);
 
-            apprenticeshipFunding.CompletionPayment.Should().Be(agreedPrice * 0.2m);
+            apprenticeshipFunding.CappedAgreedPrice.Should().Be(fundingBandMaximum);
+            apprenticeshipFunding.OnProgramTotal.Should().Be(fundingBandMaximum * 0.8m);
+        }
+
+        [Test]
+        public void WhenAgreedPriceMoreThenFundingBandMaximumThenTheCompletionPaymentIs20PercentOfTheAdjustedPrice()
+        {
+            var agreedPrice = _fixture.Create<decimal>();
+            var fundingBandMaximum = agreedPrice - 1000;
+            var apprenticeshipFunding = new Domain.ApprenticeshipFunding.ApprenticeshipFunding(agreedPrice, _fixture.Create<DateTime>(), _fixture.Create<DateTime>(), fundingBandMaximum);
+
+            apprenticeshipFunding.CappedAgreedPrice.Should().Be(fundingBandMaximum);
+            apprenticeshipFunding.CompletionPayment.Should().Be(fundingBandMaximum * 0.2m);
         }
     }
 }

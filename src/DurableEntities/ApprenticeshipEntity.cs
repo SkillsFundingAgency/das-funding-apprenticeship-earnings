@@ -49,6 +49,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 FundingType = apprenticeshipCreatedEvent.FundingType,
                 ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
                 LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
+                FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum,
                 AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship
             };
         }
@@ -57,7 +58,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         {
             return new EarningsProfileEntityModel
             {
-                AdjustedPrice = earningsProfile.AdjustedPrice,
+                AdjustedPrice = earningsProfile.OnProgramTotal,
                 CompletionPayment = earningsProfile.CompletionPayment,
                 Instalments = MapInstalmentsToModel(earningsProfile.Instalments),
             };
