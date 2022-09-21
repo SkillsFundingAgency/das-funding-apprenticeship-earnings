@@ -77,7 +77,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-	    FundingBandMaximum = 15000,
+	        FundingBandMaximum = 15000,
             AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship
 		};
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
