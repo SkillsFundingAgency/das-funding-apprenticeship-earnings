@@ -36,6 +36,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             Assert.AreEqual(apprenticeshipEntityModel.ApprovalsApprenticeshipId, apprenticeship.ApprovalsApprenticeshipId);
             Assert.AreEqual(apprenticeshipEntityModel.Uln, apprenticeship.Uln);
             Assert.AreEqual(apprenticeshipEntityModel.FundingBandMaximum, apprenticeship.FundingBandMaximum);
+            Assert.AreEqual(apprenticeshipEntityModel.AgeAtStartOfApprenticeship, apprenticeship.AgeAtStartOfApprenticeship);
         }
     }
 }

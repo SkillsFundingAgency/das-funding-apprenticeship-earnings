@@ -12,30 +12,30 @@ public interface IEarningsGeneratedEventBuilder
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 {
-    public EarningsGeneratedEvent Build(Apprenticeship apprenticeshipLearnerEvent)
+    public EarningsGeneratedEvent Build(Apprenticeship apprenticeship)
     {
         return new EarningsGeneratedEvent
         {
-            ApprenticeshipKey = apprenticeshipLearnerEvent.ApprenticeshipKey,
+            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             FundingPeriods = new List<FundingPeriod>
             {
                 new()
                 {
-                    Uln = apprenticeshipLearnerEvent.Uln,
-                    EmployerId = apprenticeshipLearnerEvent.EmployerAccountId,
-                    ProviderId = apprenticeshipLearnerEvent.UKPRN,
-                    TransferSenderEmployerId = apprenticeshipLearnerEvent.FundingEmployerAccountId,
-                    AgreedPrice = apprenticeshipLearnerEvent.AgreedPrice,
-                    StartDate = apprenticeshipLearnerEvent.ActualStartDate,
-                    TrainingCode = apprenticeshipLearnerEvent.TrainingCode,
-                    EmployerType = apprenticeshipLearnerEvent.FundingType.ToOutboundEventEmployerType(),
-                    DeliveryPeriods = BuildDeliveryPeriods(apprenticeshipLearnerEvent.EarningsProfile)
+                    Uln = apprenticeship.Uln,
+                    EmployerId = apprenticeship.EmployerAccountId,
+                    ProviderId = apprenticeship.UKPRN,
+                    TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
+                    AgreedPrice = apprenticeship.AgreedPrice,
+                    StartDate = apprenticeship.ActualStartDate,
+                    TrainingCode = apprenticeship.TrainingCode,
+                    EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
+                    DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType)
                 }
             }
         };
     }
 
-    private static List<DeliveryPeriod> BuildDeliveryPeriods(EarningsProfile earningsProfile)
+    private static List<DeliveryPeriod> BuildDeliveryPeriods(EarningsProfile earningsProfile, string fundingLineType)
     {
         return earningsProfile.Instalments.Select(instalment => new DeliveryPeriod
             {
@@ -43,7 +43,8 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
                 CalendarMonth = instalment.DeliveryPeriod.ToCalendarMonth(),
                 CalenderYear = instalment.AcademicYear.ToCalendarYear(instalment.DeliveryPeriod),
                 AcademicYear = instalment.AcademicYear,
-                LearningAmount = instalment.Amount
+                LearningAmount = instalment.Amount,
+                FundingLineType = fundingLineType
             })
             .ToList();
     }

@@ -30,7 +30,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
                 _fixture.Create<string>(),
                 null,
                 _fixture.Create<FundingType>(),
-                agreedPrice + 1);
+                agreedPrice + 1,
+                _fixture.Create<int>());
         }
 
         [Test]

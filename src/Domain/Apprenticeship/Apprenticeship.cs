@@ -4,7 +4,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
     public class Apprenticeship
     {
-        public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType, decimal fundingBandMaximum)
+        public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType, decimal fundingBandMaximum, int ageAtStartOfApprenticeship)
         {
             ApprenticeshipKey = apprenticeshipKey;
             ApprovalsApprenticeshipId = approvalsApprenticeshipId;
@@ -19,6 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             FundingEmployerAccountId = fundingEmployerAccountId;
             FundingType = fundingType;
             FundingBandMaximum = fundingBandMaximum;
+            AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
         }
 
         public Guid ApprenticeshipKey { get; }
@@ -34,7 +35,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public long? FundingEmployerAccountId { get; }
         public FundingType FundingType { get; }
         public decimal FundingBandMaximum { get; }
+        public int AgeAtStartOfApprenticeship { get; }
         public EarningsProfile EarningsProfile { get; private set; }
+
+        public string FundingLineType =>
+            AgeAtStartOfApprenticeship < 19
+                ? "16-18 Apprenticeship (Employer on App Service)"
+                : "19+ Apprenticeship (Employer on App Service)";
 
         public void CalculateEarnings()
         {

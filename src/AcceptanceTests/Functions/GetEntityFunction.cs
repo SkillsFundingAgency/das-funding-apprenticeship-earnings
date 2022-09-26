@@ -23,7 +23,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Functions
             var entityResponse = await client.ReadEntityStateAsync<ApprenticeshipEntity>(new EntityId(entityType, entityKey));
             while (!entityResponse.EntityExists && !cts.IsCancellationRequested)
             {
-                await Task.Delay(100);
+                await Task.Delay(200);
                 entityResponse = await client.ReadEntityStateAsync<ApprenticeshipEntity>(new EntityId(entityType, entityKey));
             }
             _orchestrationData.Entity = entityResponse.EntityState;
