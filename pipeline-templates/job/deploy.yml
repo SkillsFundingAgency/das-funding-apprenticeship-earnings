@@ -50,6 +50,8 @@ jobs:
             StorageAccountResourceGroup: $(SharedEnvResourceGroup)
             TargetFileName: '*.schema.json'
             TableName: Configuration
+            ConfigurationSecrets:
+              NServiceBusLicense: $(NServiceBusLicense)             
         - template: azure-pipelines-templates/deploy/step/sql-dacpac-deploy.yml@das-platform-building-blocks
           parameters:
             AzureSubscription: ${{ parameters.ServiceConnection }}
