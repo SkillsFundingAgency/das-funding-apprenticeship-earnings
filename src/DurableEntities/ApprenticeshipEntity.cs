@@ -50,7 +50,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
                 LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
                 FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum,
-                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship
+                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
             };
         }
 
