@@ -3,7 +3,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Handlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.Types.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -22,7 +21,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     public static async Task StartEndpoint()
     {
         _endpointInstance = await EndpointHelper
-            .StartEndpoint(QueueNames.EarningsGenerated, false, new[] { typeof(EarningsGeneratedEvent) });
+            .StartEndpoint("Test.Funding.ApprenticeshipEarnings", false, new[] { typeof(EarningsGeneratedEvent) });
     }
 
     [AfterTestRun]
