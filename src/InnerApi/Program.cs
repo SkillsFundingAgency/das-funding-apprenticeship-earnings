@@ -18,8 +18,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApprenticeshipEarningsDataContext>();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+app.MapHealthChecks("/ping");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
