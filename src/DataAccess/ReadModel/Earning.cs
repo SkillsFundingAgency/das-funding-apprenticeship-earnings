@@ -1,8 +1,9 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table("query.Earning")]
+    [Table("Earning", Schema = "Query")]
     public class Earning
     {
         public Guid Id { get; set; }
