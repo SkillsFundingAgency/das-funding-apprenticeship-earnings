@@ -36,36 +36,5 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 throw;
             }
         }
-        
-        [FunctionName("IncentivePaymentOrchestrator_HttpStart")]
-        public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/IncentivePaymentOrchestrator")] HttpRequestMessage req,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
-        {
-            var apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
-            {
-                ActualStartDate = DateTime.Now,
-                AgeAtStartOfApprenticeship = 21,
-                AgreedPrice = 10000,
-                ApprenticeshipKey = Guid.NewGuid(),
-                ApprovalsApprenticeshipId = 3245465,
-                DateOfBirth = DateTime.Now.AddYears(-21),
-                EmployerAccountId = 4325,
-                FundingBandMaximum = 40000,
-                FundingEmployerAccountId = null,
-                FundingType = FundingType.Levy,
-                LegalEntityName = "Test=",
-                PlannedEndDate = DateTime.Now.AddYears(2),
-                TrainingCode = "ABC123",
-                UKPRN = 43985743,
-                Uln = "34754536"
-            };
-            var entityId = new EntityId(nameof(ApprenticeshipEntity), apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
-
-            await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent), apprenticeshipCreatedEvent);
-
-            return new HttpResponseMessage(HttpStatusCode.Accepted);
-        }
     }
 }
