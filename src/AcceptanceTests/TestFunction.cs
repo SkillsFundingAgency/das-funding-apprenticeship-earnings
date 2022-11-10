@@ -53,7 +53,8 @@ public class TestFunction : IDisposable
             { "NServiceBusConnectionString", settings.NServiceBusConnectionString ?? "UseLearningEndpoint=true" },
             { "TopicPath", settings.TopicPath },
             { "QueueName", settings.QueueName },
-            { "ConnectionStrings:ApprenticeshipEarningsDatabase", testContext.SqlDatabase?.DatabaseInfo.ConnectionString! }
+            { "ConnectionStrings:ApprenticeshipEarningsDatabase", testContext.SqlDatabase?.DatabaseInfo.ConnectionString! },
+            { "ApplicationSettings:LogLevel", "DEBUG" }
         };
 
         _testContext = testContext;
