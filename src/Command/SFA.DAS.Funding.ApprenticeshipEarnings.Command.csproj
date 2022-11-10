@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataAccess\SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.csproj" />
     <ProjectReference Include="..\Domain\SFA.DAS.Funding.ApprenticeshipEarnings.Domain.csproj" />
     <ProjectReference Include="..\DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj" />
   </ItemGroup>

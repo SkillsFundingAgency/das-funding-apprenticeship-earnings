@@ -56,6 +56,8 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddNServiceBus(applicationSettings);
 
+        builder.Services.AddCommandServices().AddEventServices();
+
         builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
         builder.Services.AddScoped<ICreateApprenticeshipCommandHandler, CreateApprenticeshipCommandHandler>();

@@ -1,8 +1,9 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
-    public class Apprenticeship
+    public class Apprenticeship : AggregateRoot
     {
         public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType, decimal fundingBandMaximum, int ageAtStartOfApprenticeship)
         {
@@ -48,6 +49,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
             var earnings = apprenticeshipFunding.GenerateEarnings();
             EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment);
+            AddEvent(new EarningsCalculatedEvent(this));
         }
     }
 }

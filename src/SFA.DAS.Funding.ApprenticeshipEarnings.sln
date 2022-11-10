@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Types", "Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj", "{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models", "DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj", "{35B906E7-90BD-406B-80D6-5B8F9684B5E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models", "DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj", "{35B906E7-90BD-406B-80D6-5B8F9684B5E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
