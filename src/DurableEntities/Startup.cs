@@ -56,7 +56,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
-        builder.Services.AddDbContext<ApprenticeshipEarningsDataContext>();
+        builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotAcceptanceTests(configuration));
         builder.Services.AddCommandServices().AddEventServices();
 
         builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
@@ -69,5 +69,10 @@ public class Startup : FunctionsStartup
     {
         if (string.IsNullOrWhiteSpace(applicationSettings.NServiceBusConnectionString))
             throw new Exception("NServiceBusConnectionString in ApplicationSettings should not be null.");
+    }
+
+    private static bool NotAcceptanceTests(IConfiguration configuration)
+    {
+        return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
     }
 }

@@ -53,8 +53,8 @@ public class TestFunction : IDisposable
             { "NServiceBusConnectionString", settings.NServiceBusConnectionString ?? "UseLearningEndpoint=true" },
             { "TopicPath", settings.TopicPath },
             { "QueueName", settings.QueueName },
-            { "ConnectionStrings:ApprenticeshipEarningsDatabase", testContext.SqlDatabase?.DatabaseInfo.ConnectionString! },
-            { "ApplicationSettings:LogLevel", "DEBUG" }
+            { "ApplicationSettings:LogLevel", "DEBUG" },
+            { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString! }
         };
 
         _testContext = testContext;
@@ -95,6 +95,7 @@ public class TestFunction : IDisposable
                         a.QueueName = appConfig["QueueName"];
                         a.TopicPath = appConfig["TopicPath"];
                         a.ServiceBusConnectionString = appConfig["NServiceBusConnectionString"];
+                        a.DbConnectionString = appConfig["DbConnectionString"];
                     });
 
                     new Startup().Configure(builder);
