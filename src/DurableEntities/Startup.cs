@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
@@ -55,7 +56,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
-
+        builder.Services.AddDbContext<ApprenticeshipEarningsDataContext>();
         builder.Services.AddCommandServices().AddEventServices();
 
         builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();

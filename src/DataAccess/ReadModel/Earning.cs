@@ -2,6 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
 {
+    [System.ComponentModel.DataAnnotations.Schema.Table("query.Earning")]
     public class Earning
     {
         public Guid Id { get; set; }

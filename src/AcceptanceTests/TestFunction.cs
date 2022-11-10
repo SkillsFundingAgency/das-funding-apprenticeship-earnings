@@ -52,7 +52,8 @@ public class TestFunction : IDisposable
             { "AzureWebJobsStorage", settings.AzureWebJobsStorage },
             { "NServiceBusConnectionString", settings.NServiceBusConnectionString ?? "UseLearningEndpoint=true" },
             { "TopicPath", settings.TopicPath },
-            { "QueueName", settings.QueueName }
+            { "QueueName", settings.QueueName },
+            { "ConnectionStrings:ApprenticeshipEarningsDatabase", testContext.SqlDatabase?.DatabaseInfo.ConnectionString! }
         };
 
         _testContext = testContext;
