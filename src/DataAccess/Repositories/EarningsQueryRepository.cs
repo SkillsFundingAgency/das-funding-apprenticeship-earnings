@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 
@@ -19,6 +20,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             var earningsReadModels = apprenticeship.ToEarningsReadModels();
             await DbContext.AddRangeAsync(earningsReadModels);
             await DbContext.SaveChangesAsync();
+        }
+
+        public Task<ProviderEarningsSummary> GetProviderSummary(string ukprn)
+        {
+            throw new NotImplementedException();
         }
     }
 }

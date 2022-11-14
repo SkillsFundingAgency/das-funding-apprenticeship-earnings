@@ -16,10 +16,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccess\SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
+    <ProjectReference Include="..\Queries\SFA.DAS.Funding.ApprenticeshipEarnings.Queries.csproj" />
   </ItemGroup>
 
 </Project>
