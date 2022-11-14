@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
+﻿using Microsoft.EntityFrameworkCore;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -22,9 +23,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             await DbContext.SaveChangesAsync();
         }
 
-        public Task<ProviderEarningsSummary> GetProviderSummary(string ukprn)
+        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn)
         {
-            throw new NotImplementedException();
+            var summary = new ProviderEarningsSummary()
+            {
+                TotalEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn).SumAsync(x => x.Amount)
+            };
+
+            return summary;
         }
     }
 }

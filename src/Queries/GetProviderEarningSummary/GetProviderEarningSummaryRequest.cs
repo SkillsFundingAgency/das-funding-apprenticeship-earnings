@@ -4,9 +4,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSumma
 {
     public class GetProviderEarningSummaryRequest : IQuery
     {
-        public string Ukprn { get; }
+        public long Ukprn { get; }
 
-        public GetProviderEarningSummaryRequest(string ukprn)
+        public GetProviderEarningSummaryRequest(long ukprn)
         {
             Ukprn = ukprn;
         }

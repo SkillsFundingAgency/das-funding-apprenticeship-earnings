@@ -29,7 +29,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetProviderEa
             var query = _fixture.Create<GetProviderEarningSummaryRequest>();
             var expectedResult = _fixture.Create<ProviderEarningsSummary>();
 
-            _earningsQueryRepository.Setup(x => x.GetProviderSummary(It.Is<string>(y => y == query.Ukprn))).ReturnsAsync(expectedResult);
+            _earningsQueryRepository.Setup(x => x.GetProviderSummary(It.Is<long>(y => y == query.Ukprn))).ReturnsAsync(expectedResult);
 
             var actualResult = await _sut.Handle(query);
 

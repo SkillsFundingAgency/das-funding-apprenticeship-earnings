@@ -27,7 +27,7 @@ namespace SFA.DAS.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.Provider
         [Test]
         public async Task ThenTheProviderSummaryIsReturned()
         {
-            var ukprn = _fixture.Create<string>();
+            var ukprn = _fixture.Create<long>();
             var expectedResult = _fixture.Create<GetProviderEarningSummaryResponse>();
 
             _queryDispatcher.Setup(x => x.Send<GetProviderEarningSummaryRequest, GetProviderEarningSummaryResponse>(It.Is<GetProviderEarningSummaryRequest>(r => r.Ukprn == ukprn))).ReturnsAsync(expectedResult);

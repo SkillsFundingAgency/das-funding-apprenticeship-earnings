@@ -16,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
 
         [Route("summary")]
         [HttpGet]
-        public async Task<IActionResult> Summary(string ukprn)
+        public async Task<IActionResult> Summary(long ukprn)
         {
             var request = new GetProviderEarningSummaryRequest(ukprn);
             var response = await _queryDispatcher.Send<GetProviderEarningSummaryRequest, GetProviderEarningSummaryResponse>(request);
