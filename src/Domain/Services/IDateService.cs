@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services
 {
-    internal interface IDateService
+    public interface IDateService
     {
         DateTime Today { get; }
     }
