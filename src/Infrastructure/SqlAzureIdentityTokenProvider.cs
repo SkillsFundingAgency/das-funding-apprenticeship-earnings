@@ -17,18 +17,12 @@ public class SqlAzureIdentityTokenProvider : ISqlAzureIdentityTokenProvider
     public async Task<string> GetAccessTokenAsync()
     {
         var token = await _azureServiceTokenProvider.GetAccessTokenAsync("https://database.windows.net/");
-
-        _logger.LogInformation("Generated SQL AccessToken");
-
         return token;
     }
 
     public string GetAccessToken()
     {
         var token = _azureServiceTokenProvider.GetAccessTokenAsync("https://database.windows.net/").GetAwaiter().GetResult();
-
-        _logger.LogInformation("Generated SQL AccessToken");
-
         return token;
     }
 }
