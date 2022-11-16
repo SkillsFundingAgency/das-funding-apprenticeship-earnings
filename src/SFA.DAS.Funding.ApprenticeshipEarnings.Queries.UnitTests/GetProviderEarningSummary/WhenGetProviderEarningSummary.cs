@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSummary;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetProviderEarningSummary
@@ -13,6 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetProviderEa
     {
         private Fixture _fixture;
         private Mock<IEarningsQueryRepository> _earningsQueryRepository;
+        private Mock<IAcademicYearService> _academicYearService;
         private GetProviderEarningSummaryQueryHandler _sut;
 
         [SetUp]
@@ -20,7 +22,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetProviderEa
         {
             _fixture = new Fixture();
             _earningsQueryRepository = new Mock<IEarningsQueryRepository>();
-            _sut = new GetProviderEarningSummaryQueryHandler(_earningsQueryRepository.Object);
+            _academicYearService = new Mock<IAcademicYearService>();
+            _sut = new GetProviderEarningSummaryQueryHandler(_earningsQueryRepository.Object, _academicYearService.Object);
         }
 
         [Test]
@@ -28,8 +31,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetProviderEa
         {
             var query = _fixture.Create<GetProviderEarningSummaryRequest>();
             var expectedResult = _fixture.Create<ProviderEarningsSummary>();
+            short currentAcademicYear = 2223;
 
-            _earningsQueryRepository.Setup(x => x.GetProviderSummary(It.Is<long>(y => y == query.Ukprn))).ReturnsAsync(expectedResult);
+            _academicYearService.Setup(x => x.CurrentAcademicYear).Returns(currentAcademicYear);
+            _earningsQueryRepository.Setup(x => x.GetProviderSummary(query.Ukprn, currentAcademicYear)).ReturnsAsync(expectedResult);
 
             var actualResult = await _sut.Handle(query);
 

@@ -5,6 +5,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories
     public interface IEarningsQueryRepository
     {
         Task Add(Apprenticeship.Apprenticeship apprenticeship);
-        Task<ProviderEarningsSummary> GetProviderSummary(long ukprn);
+        Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short currentAcademicYear);
     }
 }

@@ -23,11 +23,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn)
+        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short currentAcademicYear)
         {
-            var summary = new ProviderEarningsSummary()
+            var summary = new ProviderEarningsSummary
             {
-                TotalEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn).SumAsync(x => x.Amount)
+                TotalEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear).SumAsync(x => x.Amount)
             };
 
             return summary;
