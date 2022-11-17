@@ -35,11 +35,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
 
             var earnings = new Earning[]
             {
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1000).Create(), //Include
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2000).Create(), //Include
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1000).Create(), //Exclude - wrong academic year
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2000).Create(), //Include
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1000).Create() //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1001).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2010).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1100).Create(), //Exclude - wrong academic year
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2500).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).Create() //Exclude - wrong provider
             };
 
             await _dbContext.AddRangeAsync(earnings);
@@ -49,7 +49,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             var result = await _sut.GetProviderSummary(providerId, currentAcademicYear);
 
             // Assert
-            result.TotalEarningsForCurrentAcademicYear.Should().Be(5000);
+            result.TotalEarningsForCurrentAcademicYear.Should().Be(5511);
         }
     }
 }
