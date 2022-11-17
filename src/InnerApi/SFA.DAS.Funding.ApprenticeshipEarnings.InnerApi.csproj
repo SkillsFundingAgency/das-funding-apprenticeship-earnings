@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Queries\SFA.DAS.Funding.ApprenticeshipEarnings.Queries.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

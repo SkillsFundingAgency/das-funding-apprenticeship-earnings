@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSummary;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
 {
+    [ApiController]
     [Route("{ukprn}")]
     public class ProviderEarningsController : ControllerBase
     {
