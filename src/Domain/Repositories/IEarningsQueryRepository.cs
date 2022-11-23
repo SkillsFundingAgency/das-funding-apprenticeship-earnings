@@ -6,5 +6,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories
     {
         Task Add(Apprenticeship.Apprenticeship apprenticeship);
         Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short currentAcademicYear);
+        Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short currentAcademicYear);
     }
 }

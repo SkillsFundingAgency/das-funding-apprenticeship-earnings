@@ -36,5 +36,27 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
 
             return summary;
         }
+
+        public async Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short currentAcademicYear)
+        {
+            var earnings = DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear).GroupBy(x => x.Uln);
+            var result = new AcademicYearEarnings
+            {
+                Learners = await earnings.Select(x => new Learner
+                {
+                    Uln = x.Key,
+                    FundingType = x.First().FundingType,
+                    OnProgrammeEarnings = x.Select(y => new OnProgrammeEarning
+                    {
+                        AcademicYear = y.AcademicYear,
+                        DeliveryPeriod = y.DeliveryPeriod,
+                        Amount = y.Amount
+                    }).ToList(),
+                    TotalOnProgrammeEarnings = x.Sum(y => y.Amount)
+                }).ToListAsync()
+            };
+
+            return result;
+        }
     }
 }
