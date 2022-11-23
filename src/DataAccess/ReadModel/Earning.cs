@@ -13,6 +13,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
         public long UKPRN { get; set; }
         public long EmployerAccountId { get; set; }
         public long? FundingEmployerAccountId { get; set; }
+        [Column(TypeName = "nvarchar(50)")]
         public FundingType FundingType { get; set; }
         public short AcademicYear { get; set; }
         public byte DeliveryPeriod { get; set; }
