@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetAcademicYearEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSummary;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
@@ -23,6 +24,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
             var response = await _queryDispatcher.Send<GetProviderEarningSummaryRequest, GetProviderEarningSummaryResponse>(request);
 
             return Ok(response.ProviderEarningsSummary);
+        }
+
+        [Route("")]
+        [HttpGet]
+        public async Task<IActionResult> Detail(long ukprn)
+        {
+            var request = new GetAcademicYearEarningsRequest(ukprn);
+            var response = await _queryDispatcher.Send<GetAcademicYearEarningsRequest, GetAcademicYearEarningsResponse>(request);
+
+            return Ok(response.AcademicYearEarnings);
         }
     }
 }
