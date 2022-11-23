@@ -24,12 +24,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short currentAcademicYear)
+        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short academicYear)
         {
             var summary = new ProviderEarningsSummary
             {
-                TotalLevyEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
-                TotalNonLevyEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
+                TotalLevyEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
+                TotalNonLevyEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
             };
 
             summary.TotalEarningsForCurrentAcademicYear = summary.TotalLevyEarningsForCurrentAcademicYear + summary.TotalNonLevyEarningsForCurrentAcademicYear;
@@ -37,9 +37,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             return summary;
         }
 
-        public async Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short currentAcademicYear)
+        public async Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short academicYear)
         {
-            var earnings = DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear).GroupBy(x => x.Uln);
+            var earnings = DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear).GroupBy(x => x.Uln);
             var result = new AcademicYearEarnings
             {
                 Learners = await earnings.Select(x => new Learner
