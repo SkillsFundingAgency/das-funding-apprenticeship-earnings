@@ -26,8 +26,11 @@ builder.Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
 builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLocal(builder.Configuration));
 builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.AddCommandServices().AddEventServices().AddQueryServices();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+app.MapHealthChecks("/ping");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
