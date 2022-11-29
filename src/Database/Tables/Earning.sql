@@ -13,4 +13,4 @@
     [Amount] DECIMAL(9, 2) NOT NULL
 )
 GO
-CREATE INDEX IX_Earnings_Provider ON [query].[Earning] (Ukprn)
+CREATE INDEX IX_Earnings_ProviderAcademicYearFundingType ON [query].[Earning] (Ukprn, AcademicYear, FundingType) INCLUDE (Amount)
