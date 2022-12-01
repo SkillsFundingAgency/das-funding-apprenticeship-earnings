@@ -78,12 +78,38 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
 	        FundingBandMaximum = 15000,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship
+            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+            IsOnFlexiPaymentPilot = true
 		};
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;
         _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 500;
+    }
+
+    [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
+    public async Task PublishNonPilotApprenticeshipCreatedEvent()
+    {
+        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
+        {
+            AgreedPrice = 15000,
+            ActualStartDate = _startDate,
+            ApprenticeshipKey = Guid.NewGuid(),
+            EmployerAccountId = 114,
+            FundingType = FundingType.Levy,
+            PlannedEndDate = new DateTime(2020, 12, 31),
+            UKPRN = 116,
+            TrainingCode = "AbleSeafarer",
+            FundingEmployerAccountId = null,
+            Uln = "118",
+            LegalEntityName = "MyTrawler",
+            ApprovalsApprenticeshipId = 120,
+            DateOfBirth = _dateOfBirth,
+            FundingBandMaximum = 15000,
+            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+            IsOnFlexiPaymentPilot = false
+        };
+        await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
     }
 
     [When(@"the adjusted price has been calculated")]
@@ -116,7 +142,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             Uln = "118",
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
-            FundingBandMaximum = 30000
+            FundingBandMaximum = 30000,
+            IsOnFlexiPaymentPilot = true
         });
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;
