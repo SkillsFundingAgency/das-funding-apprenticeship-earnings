@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
@@ -55,6 +56,8 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
+        builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotAcceptanceTests(configuration));
+        builder.Services.AddCommandServices().AddEventServices();
 
         builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
@@ -66,5 +69,10 @@ public class Startup : FunctionsStartup
     {
         if (string.IsNullOrWhiteSpace(applicationSettings.NServiceBusConnectionString))
             throw new Exception("NServiceBusConnectionString in ApplicationSettings should not be null.");
+    }
+
+    private static bool NotAcceptanceTests(IConfiguration configuration)
+    {
+        return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
     }
 }

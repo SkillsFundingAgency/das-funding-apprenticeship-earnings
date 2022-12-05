@@ -9,11 +9,13 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NServiceBus" Version="7.7.4" />
+    <PackageReference Include="Scrutor" Version="4.2.0" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects\SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 

@@ -14,7 +14,7 @@ public class HostingStepDefinitions
         _featureContext = featureContext;
     }
 
-    [BeforeScenario]
+    [BeforeScenario(Order = 3)]
     public async Task CreateConfig()
     {
         var stopwatch = new Stopwatch();
@@ -25,7 +25,7 @@ public class HostingStepDefinitions
         Console.WriteLine($"Time it took to spin up Azure Functions Host: {stopwatch.Elapsed.Milliseconds} milliseconds for hub {_testContext.TestFunction.HubName}");
     }
 
-    [AfterScenario]
+    [AfterScenario(Order = 101)]
     public async Task CleanupAfterTestHarness()
     {
         var stopwatch = new Stopwatch();
