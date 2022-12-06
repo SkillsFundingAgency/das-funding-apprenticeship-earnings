@@ -5,7 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Handlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using QueueNames = SFA.DAS.Apprenticeships.Types.QueueNames;
+using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
