@@ -3,6 +3,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding
 {
@@ -55,6 +56,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 
             _sut.EarningsProfile.Instalments.Count.Should().Be(13);
             _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(_sut.EarningsProfile.OnProgramTotal / 13m));
+        }
+
+        [Test]
+        public void ThenEarningsCalculatedEventIsCreated()
+        {
+            _sut.CalculateEarnings();
+
+            var events = _sut.FlushEvents();
+            events.Should().ContainSingle(x => x.GetType() == typeof(EarningsCalculatedEvent));
         }
     }
 }

@@ -1,21 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 {
     public class ApprenticeshipEarningsDataContext : DbContext
     {
-        private readonly string _connectionString;
-
-        public ApprenticeshipEarningsDataContext(IConfiguration configuration)
+        public ApprenticeshipEarningsDataContext(DbContextOptions<ApprenticeshipEarningsDataContext> options) : base(options)
         {
-            _connectionString = configuration.GetConnectionString("ApprenticeshipEarningsDatabase");
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_connectionString);
         }
 
         public virtual DbSet<Earning> Earning { get; set; }

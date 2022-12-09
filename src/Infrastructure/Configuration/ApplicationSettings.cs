@@ -11,5 +11,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration
         public string TopicPath { get; set; }
         public string NServiceBusConnectionString { get; set; }
         public string NServiceBusLicense { get; set; }
+        public string DbConnectionString { get; set; }
     }
 }

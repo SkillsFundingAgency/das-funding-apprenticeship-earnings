@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -6,7 +7,9 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
 {
@@ -15,6 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         private ApprenticeshipEntity _sut;
         private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
         private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
+        private Mock<IDomainEventDispatcher> _domainEventDispatcher;
         private Fixture _fixture;
         private Apprenticeship _apprenticeship;
 
@@ -58,7 +62,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
             _apprenticeship.CalculateEarnings();
 
             _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
-            _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object);
+            _domainEventDispatcher = new Mock<IDomainEventDispatcher>();
+            _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _domainEventDispatcher.Object);
 
             _createApprenticeshipCommandHandler.Setup(x => x.Create(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
 
@@ -154,6 +159,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         {
             _createApprenticeshipCommandHandler.Verify(x => x.Create(It.Is<CreateApprenticeshipCommand>(y => y.ApprenticeshipEntity == _sut.Model)));
         }
-        
+
+        [Test]
+        public void ShouldPublishEvents()
+        {
+            _domainEventDispatcher.Verify(x => x.Send(It.IsAny<EarningsCalculatedEvent>(), It.IsAny<CancellationToken>()));
+        }
     }
 }

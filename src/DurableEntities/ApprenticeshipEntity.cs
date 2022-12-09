@@ -8,6 +8,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -17,10 +18,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         [JsonProperty] public ApprenticeshipEntityModel Model { get; set; }
 
         private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
+        private readonly IDomainEventDispatcher _domainEventDispatcher;
 
-        public ApprenticeshipEntity(ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler)
+        public ApprenticeshipEntity(ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler, IDomainEventDispatcher domainEventDispatcher)
         {
             _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
+            _domainEventDispatcher = domainEventDispatcher;
         }
 
         public async Task HandleApprenticeshipLearnerEvent(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
@@ -28,6 +31,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
             var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
             Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+            foreach (dynamic domainEvent in apprenticeship.FlushEvents())
+            {
+                await _domainEventDispatcher.Send(domainEvent);
+            }
         }
 
         [FunctionName(nameof(ApprenticeshipEntity))]

@@ -3,7 +3,11 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities

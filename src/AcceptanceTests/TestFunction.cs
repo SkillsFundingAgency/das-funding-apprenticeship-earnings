@@ -52,7 +52,9 @@ public class TestFunction : IDisposable
             { "AzureWebJobsStorage", settings.AzureWebJobsStorage },
             { "NServiceBusConnectionString", settings.NServiceBusConnectionString ?? "UseLearningEndpoint=true" },
             { "TopicPath", settings.TopicPath },
-            { "QueueName", settings.QueueName }
+            { "QueueName", settings.QueueName },
+            { "ApplicationSettings:LogLevel", "DEBUG" },
+            { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString! }
         };
 
         _testContext = testContext;
@@ -93,6 +95,7 @@ public class TestFunction : IDisposable
                         a.QueueName = appConfig["QueueName"];
                         a.TopicPath = appConfig["TopicPath"];
                         a.ServiceBusConnectionString = appConfig["NServiceBusConnectionString"];
+                        a.DbConnectionString = appConfig["DbConnectionString"];
                     });
 
                     new Startup().Configure(builder);
