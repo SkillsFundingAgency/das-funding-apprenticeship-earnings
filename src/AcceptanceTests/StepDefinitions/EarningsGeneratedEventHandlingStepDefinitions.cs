@@ -37,6 +37,12 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         await WaitHelper.WaitForIt(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(EventMatchesExpectation), "Failed to find published EarningsGenerated event");
     }
 
+    [Then(@"Earnings are not generated for that apprenticeship")]
+    public async Task AssertNoEarningsGeneratedEvent()
+    {
+        await WaitHelper.WaitForUnexpected(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(), "Found published EarningsGenerated event when expecting no earnings to be generated");
+    }
+
     private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent)
     {
         return earningsGeneratedEvent.FundingPeriods.Count == 1 
