@@ -24,6 +24,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             {
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
 
+                if(!apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot.GetValueOrDefault())
+                {
+                    log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {apprenticeshipCreatedEvent.ApprenticeshipKey}");
+                    return;
+                }
+
                 var entityId = new EntityId(nameof(ApprenticeshipEntity), apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
 
                 await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent), apprenticeshipCreatedEvent);
