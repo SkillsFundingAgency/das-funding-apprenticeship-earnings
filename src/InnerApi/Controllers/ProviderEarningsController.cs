@@ -26,9 +26,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
             return Ok(response.ProviderEarningsSummary);
         }
 
-        [Route("")]
+        [Route("GenerateCSV")]
         [HttpGet]
-        public async Task<IActionResult> Detail(long ukprn)
+        public async Task<IActionResult> GenerateCSV(long ukprn)
         {
             var request = new GetAcademicYearEarningsRequest(ukprn);
             var response = await _queryDispatcher.Send<GetAcademicYearEarningsRequest, GetAcademicYearEarningsResponse>(request);

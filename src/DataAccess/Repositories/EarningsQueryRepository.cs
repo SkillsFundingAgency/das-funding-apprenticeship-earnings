@@ -30,7 +30,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             {
                 TotalLevyEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
                 TotalNonLevyEarningsForCurrentAcademicYear = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
-            };
+                Ukprn =  DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear).Select(x => x.UKPRN).FirstOrDefault(),
+        };
 
             summary.TotalEarningsForCurrentAcademicYear = summary.TotalLevyEarningsForCurrentAcademicYear + summary.TotalNonLevyEarningsForCurrentAcademicYear;
 
