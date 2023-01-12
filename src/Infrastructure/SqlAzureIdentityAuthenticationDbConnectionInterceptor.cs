@@ -30,10 +30,6 @@ public class SqlAzureIdentityAuthenticationDbConnectionInterceptor : DbConnectio
             var token = _tokenProvider.GetAccessToken();
             sqlConnection.AccessToken = token;
         }
-        else
-        {
-            _logger.LogWarning($"Skipping GetAccessToken because ConnectionNeedsAccessToken is {_connectionNeedsAccessToken}");
-        }
 
         return base.ConnectionOpening(connection, eventData, result);
     }
@@ -52,10 +48,6 @@ public class SqlAzureIdentityAuthenticationDbConnectionInterceptor : DbConnectio
             var token = await _tokenProvider.GetAccessTokenAsync();
 
             sqlConnection.AccessToken = token;
-        }
-        else
-        {
-            _logger.LogWarning($"Skipping GetAccessToken Async because ConnectionNeedsAccessToken is {_connectionNeedsAccessToken}");
         }
 
         return await base.ConnectionOpeningAsync(connection, eventData, result, cancellationToken);

@@ -22,3 +22,7 @@ Scenario: As a Finance Officer I want to know the funding line type for earnings
 	Given the apprenticeship learner is 19 plus at the start of the apprenticeship
 	When the apprenticeship commitment is approved 
 	Then the funding line type 19 plus must be used in the calculation 
+
+Scenario: Non Pilot Apprenticeship
+	Given An apprenticeship not on the pilot has been created as part of the approvals journey
+	Then Earnings are not generated for that apprenticeship
