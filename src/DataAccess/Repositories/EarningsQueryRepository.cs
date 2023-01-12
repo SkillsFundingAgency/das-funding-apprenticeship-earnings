@@ -28,9 +28,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
         {
             var dbResponse = new
             {
-                levyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
-                nonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
-                transferEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.Transfer).SumAsync(x => x.Amount)
+                levyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
+                nonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
+                transferEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Transfer).SumAsync(x => x.Amount)
             };
 
             var summary = new ProviderEarningsSummary
