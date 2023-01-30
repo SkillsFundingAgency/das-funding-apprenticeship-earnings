@@ -12,6 +12,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
         private readonly Lazy<ApprenticeshipEarningsDataContext> _lazyContext;
         private ApprenticeshipEarningsDataContext DbContext => _lazyContext.Value;
 
+        private const decimal GovernmentContribution = 0.95m;
+        private const decimal EmployerContribution = 0.05m;
+
         public EarningsQueryRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext)
         {
             _lazyContext = dbContext;
@@ -40,6 +43,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             };
 
             summary.TotalEarningsForCurrentAcademicYear = summary.TotalLevyEarningsForCurrentAcademicYear + summary.TotalNonLevyEarningsForCurrentAcademicYear;
+            summary.TotalNonLevyEarningsForCurrentAcademicYearGovernment = summary.TotalNonLevyEarningsForCurrentAcademicYear * GovernmentContribution;
+            summary.TotalNonLevyEarningsForCurrentAcademicYearEmployer = summary.TotalNonLevyEarningsForCurrentAcademicYear * EmployerContribution;
 
             return summary;
         }
