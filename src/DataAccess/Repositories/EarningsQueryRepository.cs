@@ -24,13 +24,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short currentAcademicYear)
+        public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short academicYear)
         {
             var dbResponse = new
             {
-                levyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
-                nonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
-                transferEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == currentAcademicYear && x.FundingType == FundingType.Transfer).SumAsync(x => x.Amount)
+                levyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
+                nonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
+                transferEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Transfer).SumAsync(x => x.Amount)
             };
 
             var summary = new ProviderEarningsSummary
@@ -42,6 +42,28 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             summary.TotalEarningsForCurrentAcademicYear = summary.TotalLevyEarningsForCurrentAcademicYear + summary.TotalNonLevyEarningsForCurrentAcademicYear;
 
             return summary;
+        }
+
+        public async Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short academicYear)
+        {
+            var earnings = DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear).GroupBy(x => x.Uln);
+            var result = new AcademicYearEarnings
+            {
+                Learners = await earnings.Select(x => new Learner
+                {
+                    Uln = x.Key,
+                    FundingType = x.First().FundingType,
+                    OnProgrammeEarnings = x.Select(y => new OnProgrammeEarning
+                    {
+                        AcademicYear = y.AcademicYear,
+                        DeliveryPeriod = y.DeliveryPeriod,
+                        Amount = y.Amount
+                    }).ToList(),
+                    TotalOnProgrammeEarnings = x.Sum(y => y.Amount)
+                }).ToListAsync()
+            };
+
+            return result;
         }
     }
 }
