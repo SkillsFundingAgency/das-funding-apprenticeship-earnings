@@ -2,6 +2,7 @@
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 
@@ -11,9 +12,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
     {
         private readonly Lazy<ApprenticeshipEarningsDataContext> _lazyContext;
         private ApprenticeshipEarningsDataContext DbContext => _lazyContext.Value;
-
-        private const decimal GovernmentContribution = 0.95m;
-        private const decimal EmployerContribution = 0.05m;
 
         public EarningsQueryRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext)
         {
@@ -43,8 +41,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             };
 
             summary.TotalEarningsForCurrentAcademicYear = summary.TotalLevyEarningsForCurrentAcademicYear + summary.TotalNonLevyEarningsForCurrentAcademicYear;
-            summary.TotalNonLevyEarningsForCurrentAcademicYearGovernment = summary.TotalNonLevyEarningsForCurrentAcademicYear * GovernmentContribution;
-            summary.TotalNonLevyEarningsForCurrentAcademicYearEmployer = summary.TotalNonLevyEarningsForCurrentAcademicYear * EmployerContribution;
+            summary.TotalNonLevyEarningsForCurrentAcademicYearGovernment = summary.TotalNonLevyEarningsForCurrentAcademicYear * Constants.GovernmentContribution;
+            summary.TotalNonLevyEarningsForCurrentAcademicYearEmployer = summary.TotalNonLevyEarningsForCurrentAcademicYear * Constants.EmployerContribution;
 
             return summary;
         }
