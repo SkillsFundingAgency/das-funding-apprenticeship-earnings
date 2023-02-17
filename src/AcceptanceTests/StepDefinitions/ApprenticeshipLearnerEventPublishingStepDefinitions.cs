@@ -58,8 +58,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     }
 
     [Given(@"An apprenticeship has been created as part of the approvals journey")]
-	[Given(@"the apprenticeship commitment is approved")]
-    [When (@"the apprenticeship commitment is approved")]
+    [Given(@"the apprenticeship commitment is approved")]
+    [When(@"the apprenticeship commitment is approved")]
     public async Task PublishApprenticeshipCreatedEvent()
     {
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
@@ -77,10 +77,10 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-	        FundingBandMaximum = 15000,
+            FundingBandMaximum = 15000,
             AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-            IsOnFlexiPaymentPilot = true
-		};
+            FundingPlatform = FundingPlatform.DAS
+        };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;
@@ -107,7 +107,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             FundingBandMaximum = 15000,
             AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-            IsOnFlexiPaymentPilot = false
+            FundingPlatform = FundingPlatform.SLD
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
     }
@@ -115,7 +115,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [When(@"the adjusted price has been calculated")]
     public void WhenTheAdjustedPriceHasBeenCalculated()
     {
-
     }
 
     [Then(@"the total completion payment amount of 20% of the adjusted price must be calculated")]
@@ -143,13 +142,13 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             FundingBandMaximum = 30000,
-            IsOnFlexiPaymentPilot = true
+            FundingPlatform = FundingPlatform.DAS
         });
 
         _scenarioContext["expectedDeliveryPeriodCount"] = 24;
         _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 1000;
     }
-    
+
     [Then(@"the funding line type 16-18 must be used in the calculation")]
     public async Task ThenThe16To18FundingLineTypeIsUsed()
     {
