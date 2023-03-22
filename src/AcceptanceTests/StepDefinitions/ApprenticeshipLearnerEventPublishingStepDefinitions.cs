@@ -69,7 +69,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             ApprenticeshipKey = Guid.NewGuid(),
             EmployerAccountId = 114,
             FundingType = FundingType.Levy,
-            PlannedEndDate = new DateTime(2020, 12, 31),
+            PlannedEndDate = new DateTime(2021, 1, 1),
             UKPRN = 116,
             TrainingCode = "AbleSeafarer",
             FundingEmployerAccountId = null,
