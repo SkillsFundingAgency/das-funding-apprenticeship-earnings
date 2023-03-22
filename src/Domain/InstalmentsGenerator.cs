@@ -14,7 +14,7 @@ public class InstalmentsGenerator : IInstalmentsGenerator
         var installments = new List<Earning>();
 
         var startDateMonth = new DateTime(startDate.Year, startDate.Month, 1);
-        var endDateMonth = new DateTime(endDate.Year, endDate.Month, 1);
+        var endDateMonth = GetLastPaymentMonth(endDate);
 
         while (startDateMonth <= endDateMonth)
         {
@@ -34,5 +34,13 @@ public class InstalmentsGenerator : IInstalmentsGenerator
         }
 
         return installments;
+    }
+
+    private DateTime GetLastPaymentMonth(DateTime endDate)
+    {
+        if (endDate.Day == DateTime.DaysInMonth(endDate.Year, endDate.Month))
+            return new DateTime(endDate.Year, endDate.Month, 1);
+
+        return new DateTime(endDate.Year, endDate.Month, 1).AddMonths(-1);
     }
 }
