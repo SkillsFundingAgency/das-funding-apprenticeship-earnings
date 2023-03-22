@@ -20,6 +20,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     private DateTime _startDate = new DateTime(2019, 01, 01);
     private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
     private int _ageAtStartOfApprenticeship = 21;
+    private Random _random = new();
 
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
@@ -73,7 +74,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             UKPRN = 116,
             TrainingCode = "AbleSeafarer",
             FundingEmployerAccountId = null,
-            Uln = "118",
+            Uln = _random.Next().ToString(),
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
@@ -83,8 +84,9 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
-        _scenarioContext["expectedDeliveryPeriodCount"] = 24;
-        _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 500;
+        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
+        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 500;
+        _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
     }
 
     [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
@@ -101,7 +103,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             UKPRN = 116,
             TrainingCode = "AbleSeafarer",
             FundingEmployerAccountId = null,
-            Uln = "118",
+            Uln = _random.Next().ToString(),
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
@@ -110,6 +112,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             FundingPlatform = FundingPlatform.SLD
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
+
+        _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
     }
 
     [When(@"the adjusted price has been calculated")]
@@ -127,7 +131,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
     public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
     {
-        await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
+        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             AgreedPrice = 35000,
             ActualStartDate = new DateTime(2019, 01, 01),
@@ -138,31 +142,16 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             UKPRN = 116,
             TrainingCode = "AbleSeafarer",
             FundingEmployerAccountId = null,
-            Uln = "118",
+            Uln = _random.Next().ToString(),
             LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             FundingBandMaximum = 30000,
             FundingPlatform = FundingPlatform.DAS
-        });
+        };
+        await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
-        _scenarioContext["expectedDeliveryPeriodCount"] = 24;
-        _scenarioContext["expectedDeliveryPeriodLearningAmount"] = 1000;
-    }
-
-    [Then(@"the funding line type 16-18 must be used in the calculation")]
-    public async Task ThenThe16To18FundingLineTypeIsUsed()
-    {
-        await WaitHelper.WaitForIt(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(x => EventMatchesExpectation(x, "16-18 Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
-    }
-
-    [Then(@"the funding line type 19 plus must be used in the calculation")]
-    public async Task ThenThe19AndOverFundingLineTypeIsUsed()
-    {
-        await WaitHelper.WaitForIt(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(x => EventMatchesExpectation(x, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
-    }
-
-    private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent, string expectedFundingLineType)
-    {
-        return earningsGeneratedEvent.FundingPeriods.All(x => x.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType));
+        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
+        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
+        _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
     }
 }
