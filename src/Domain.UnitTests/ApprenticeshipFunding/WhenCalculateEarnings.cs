@@ -26,7 +26,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
                 _fixture.Create<long>(),
                 _fixture.Create<string>(),
                 new DateTime(2021, 1, 15),
-                new DateTime(2022, 1, 15),
+                new DateTime(2021, 12, 31),
                 agreedPrice,
                 _fixture.Create<string>(),
                 null,
@@ -54,8 +54,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         {
             _sut.CalculateEarnings();
 
-            _sut.EarningsProfile.Instalments.Count.Should().Be(13);
-            _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(_sut.EarningsProfile.OnProgramTotal / 13m));
+            _sut.EarningsProfile.Instalments.Count.Should().Be(12);
+            _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(_sut.EarningsProfile.OnProgramTotal / 12m));
         }
 
         [Test]
