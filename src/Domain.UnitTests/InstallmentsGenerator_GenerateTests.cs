@@ -15,8 +15,9 @@ public class InstallmentsGenerator_GenerateTests
         _sut = new InstalmentsGenerator();
     }
 
-    [TestCase(12000, 2010, 01, 05, 2011, 12, 04, 24)]
-    [TestCase(12000, 2010, 01, 05, 2011, 12, 06, 24)]
+    [TestCase(12000, 2010, 01, 05, 2012, 01, 04, 24)]
+    [TestCase(12000, 2010, 01, 05, 2011, 12, 31, 24)]
+    [TestCase(12000, 2010, 01, 05, 2011, 12, 30, 23)]
     public void ShouldGenerateCorrectNumberOfInstallments(decimal total, int startYear, int startMonth, int startDay,
         int endYear, int endMonth, int endDay, int expectedNumberOfInstallments)
     {
@@ -28,7 +29,8 @@ public class InstallmentsGenerator_GenerateTests
         actualInstallments.Should().HaveCount(expectedNumberOfInstallments);
     }
 
-    [TestCase(12000, 2010, 01, 05, 2011, 12, 04, 500)]
+    [TestCase(12000, 2010, 01, 05, 2011, 12, 31, 500)]
+    [TestCase(12000, 2010, 01, 05, 2011, 12, 30, 521.73913)]
     public void ShouldGenerateCorrectMonthlyInstallmentAmount(decimal total, int startYear, int startMonth,
         int startDay, int endYear, int endMonth, int endDay, decimal expectedInstallmentAmount)
     {
@@ -37,7 +39,7 @@ public class InstallmentsGenerator_GenerateTests
 
         var actualInstallments = _sut.Generate(total, startDate, endDate);
 
-        actualInstallments.Should().OnlyContain(x => x.Amount == expectedInstallmentAmount);
+        actualInstallments.Should().OnlyContain(x => decimal.Round(x.Amount, 5) == expectedInstallmentAmount);
     }
 
     [Test]
@@ -55,8 +57,7 @@ public class InstallmentsGenerator_GenerateTests
             (1819,2),
             (1819,3),
             (1819,4),
-            (1819,5),
-            (1819,6)
+            (1819,5)
         };
 
         foreach (var expectedDeliveryPeriod in expectedDeliveryPeriods)
