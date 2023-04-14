@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
@@ -30,7 +31,7 @@ public class InstalmentsGenerator : IInstalmentsGenerator
 
         foreach (var installment in installments)
         {
-            installment.Amount = installmentAmount;
+            installment.Amount = decimal.Round(installmentAmount, 5);
         }
 
         return installments;
