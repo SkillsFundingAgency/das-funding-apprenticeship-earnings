@@ -39,7 +39,7 @@ public class InstallmentsGenerator_GenerateTests
 
         var actualInstallments = _sut.Generate(total, startDate, endDate);
 
-        actualInstallments.Should().OnlyContain(x => decimal.Round(x.Amount, 5) == expectedInstallmentAmount);
+        actualInstallments.Should().OnlyContain(x => x.Amount == expectedInstallmentAmount);
     }
 
     [Test]

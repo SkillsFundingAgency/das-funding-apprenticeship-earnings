@@ -50,12 +50,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         }
 
         [Test]
-        public void ThenTheInstalmentsAreGenerated()
+        public void ThenTheInstalmentsAreGeneratedWithAmountsTo5dp()
         {
             _sut.CalculateEarnings();
 
             _sut.EarningsProfile.Instalments.Count.Should().Be(12);
-            _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(_sut.EarningsProfile.OnProgramTotal / 12m));
+            _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(decimal.Round(_sut.EarningsProfile.OnProgramTotal / 12m, 5)));
         }
 
         [Test]
