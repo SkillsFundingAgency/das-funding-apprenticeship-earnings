@@ -17,21 +17,15 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
         return new EarningsGeneratedEvent
         {
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
-            FundingPeriods = new List<FundingPeriod>
-            {
-                new()
-                {
-                    Uln = apprenticeship.Uln,
-                    EmployerId = apprenticeship.EmployerAccountId,
-                    ProviderId = apprenticeship.UKPRN,
-                    TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
-                    AgreedPrice = apprenticeship.AgreedPrice,
-                    StartDate = apprenticeship.ActualStartDate,
-                    TrainingCode = apprenticeship.TrainingCode,
-                    EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
-                    DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType)
-                }
-            }
+            Uln = apprenticeship.Uln,
+            EmployerId = apprenticeship.EmployerAccountId,
+            ProviderId = apprenticeship.UKPRN,
+            TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
+            AgreedPrice = apprenticeship.AgreedPrice,
+            StartDate = apprenticeship.ActualStartDate,
+            TrainingCode = apprenticeship.TrainingCode,
+            EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
+            DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType)
         };
     }
 

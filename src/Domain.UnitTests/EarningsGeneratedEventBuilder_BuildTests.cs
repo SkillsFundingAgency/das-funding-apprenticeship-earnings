@@ -51,126 +51,126 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateTheUlnCorrectly()
     {
-        _result.FundingPeriods.First().Uln.Should().Be(_apprenticeship.Uln);
+        _result.Uln.Should().Be(_apprenticeship.Uln);
     }
 
     [Test]
     public void ShouldPopulateTheEmployerIdCorrectly()
     {
-        _result.FundingPeriods.First().EmployerId.Should().Be(_apprenticeship.EmployerAccountId);
+        _result.EmployerId.Should().Be(_apprenticeship.EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateTheProviderIdCorrectly()
     {
-        _result.FundingPeriods.First().ProviderId.Should().Be(_apprenticeship.UKPRN);
+        _result.ProviderId.Should().Be(_apprenticeship.UKPRN);
     }
 
     [Test]
     public void ShouldPopulateTheTransferSenderEmployerIdCorrectly()
     {
-        _result.FundingPeriods.First().TransferSenderEmployerId.Should().Be(_apprenticeship.FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.FundingEmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateTheAgreedPriceCorrectly()
     {
-        _result.FundingPeriods.First().AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
+        _result.AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
     }
 
     [Test]
     public void ShouldPopulateTheStartDateCorrectly()
     {
-        _result.FundingPeriods.First().StartDate.Should().Be(_apprenticeship.ActualStartDate);
+        _result.StartDate.Should().Be(_apprenticeship.ActualStartDate);
     }
 
     [Test]
     public void ShouldPopulateTheTrainingCodeCorrectly()
     {
-        _result.FundingPeriods.First().TrainingCode.Should().Be(_apprenticeship.TrainingCode);
+        _result.TrainingCode.Should().Be(_apprenticeship.TrainingCode);
     }
 
     [Test]
     public void ShouldPopulateTheEmployerTypeCorrectly()
     {
-        _result.FundingPeriods.First().EmployerType.Should().Be(EmployerType.NonLevy);
+        _result.EmployerType.Should().Be(EmployerType.NonLevy);
     }
 
     [Test]
     public void ShouldBuildTheRightNumberOfDeliveryPeriods()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.Count.Should().Be(2);
+        _result.DeliveryPeriods.Count.Should().Be(2);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
+        _result.DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
+        _result.DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodCalendarMonthCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).CalendarMonth.Should().Be(8);
+        _result.DeliveryPeriods.First(x => x.Period == 1).CalendarMonth.Should().Be(8);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodCalendarMonthCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).CalendarMonth.Should().Be(9);
+        _result.DeliveryPeriods.First(x => x.Period == 2).CalendarMonth.Should().Be(9);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodCalendarYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).CalenderYear.Should().Be(2022);
+        _result.DeliveryPeriods.First(x => x.Period == 1).CalenderYear.Should().Be(2022);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodCalendarYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).CalenderYear.Should().Be(2022);
+        _result.DeliveryPeriods.First(x => x.Period == 2).CalenderYear.Should().Be(2022);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodAcademicYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).AcademicYear.Should().Be(2223);
+        _result.DeliveryPeriods.First(x => x.Period == 1).AcademicYear.Should().Be(2223);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodAcademicYearCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).AcademicYear.Should().Be(2223);
+        _result.DeliveryPeriods.First(x => x.Period == 2).AcademicYear.Should().Be(2223);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodLearningAmountCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).LearningAmount.Should().Be(8000);
+        _result.DeliveryPeriods.First(x => x.Period == 1).LearningAmount.Should().Be(8000);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodLearningAmountCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
+        _result.DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
     }
 
     [Test]
     public void ShouldPopulateTheFirstDeliveryPeriodFundingLineTypeCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+        _result.DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
     }
 
     [Test]
     public void ShouldPopulateTheSecondDeliveryPeriodFundingLineTypeCorrectly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+        _result.DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
     }
 }
