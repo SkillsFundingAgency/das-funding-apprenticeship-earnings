@@ -1,6 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -25,7 +24,8 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             StartDate = apprenticeship.ActualStartDate,
             TrainingCode = apprenticeship.TrainingCode,
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
-            DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType)
+            DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType),
+            EmployerAccountId = apprenticeship.EmployerAccountId,
         };
     }
 

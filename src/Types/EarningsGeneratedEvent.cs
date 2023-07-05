@@ -17,4 +17,5 @@ public class EarningsGeneratedEvent
     public TrainingStatus TrainingStatus { get; set; }
     public decimal CoInvestmentPercentage { get; set; }
     public List<DeliveryPeriod> DeliveryPeriods { get; set; }
+    public long EmployerAccountId { get; set; }
 }
