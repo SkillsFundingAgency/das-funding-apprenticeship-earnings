@@ -18,4 +18,5 @@ public class EarningsGeneratedEvent
     public decimal CoInvestmentPercentage { get; set; }
     public List<DeliveryPeriod> DeliveryPeriods { get; set; }
     public long EmployerAccountId { get; set; }
+    public DateTime PlannedEndDate { get; set; }
 }
