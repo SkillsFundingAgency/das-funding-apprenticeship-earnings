@@ -19,4 +19,5 @@ public class EarningsGeneratedEvent
     public List<DeliveryPeriod> DeliveryPeriods { get; set; }
     public long EmployerAccountId { get; set; }
     public DateTime PlannedEndDate { get; set; }
+    public long ApprovalsApprenticeshipId { get; set; }
 }

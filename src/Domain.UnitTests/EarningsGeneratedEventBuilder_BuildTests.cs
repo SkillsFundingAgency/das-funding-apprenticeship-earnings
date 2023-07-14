@@ -185,4 +185,10 @@ public class EarningsGeneratedEventBuilder_BuildTests
     {
         _result.PlannedEndDate.Should().Be(_apprenticeship.PlannedEndDate);
     }
+
+    [Test]
+    public void ShouldPopulateThe_ApprovalsApprenticeshipId_Correctly()
+    {
+        _result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
+    }
 }

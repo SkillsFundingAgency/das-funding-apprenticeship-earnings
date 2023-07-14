@@ -26,7 +26,8 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType),
             EmployerAccountId = apprenticeship.EmployerAccountId,
-            PlannedEndDate = apprenticeship.PlannedEndDate
+            PlannedEndDate = apprenticeship.PlannedEndDate,
+            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId
         };
     }
 
