@@ -1,4 +1,5 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+#pragma warning disable CS8618
 
 public class EarningsGeneratedEvent
 {
@@ -21,3 +22,4 @@ public class EarningsGeneratedEvent
     public DateTime PlannedEndDate { get; set; }
     public long ApprovalsApprenticeshipId { get; set; }
 }
+#pragma warning restore CS8618
