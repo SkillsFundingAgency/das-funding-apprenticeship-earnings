@@ -19,8 +19,8 @@ public class SqlAzureIdentityTokenProvider : ISqlAzureIdentityTokenProvider
     public string GetAccessToken()
     {
         var tokenCredential = new DefaultAzureCredential();
-        var token = tokenCredential.GetTokenAsync(
-            new TokenRequestContext(scopes: new[] { "https://database.windows.net" + "/.default" })).GetAwaiter().GetResult();
+        var token = tokenCredential.GetToken(
+            new TokenRequestContext(scopes: new[] { "https://database.windows.net" + "/.default" }));
         
         return token.Token;
     }
