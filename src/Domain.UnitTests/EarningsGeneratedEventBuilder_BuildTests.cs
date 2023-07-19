@@ -43,134 +43,152 @@ public class EarningsGeneratedEventBuilder_BuildTests
     }
 
     [Test]
-    public void ShouldPopulateTheApprenticeshipKeyCorrectly()
+    public void ShouldPopulateThe_ApprenticeshipKey_Correctly()
     {
         _result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
     }
 
     [Test]
-    public void ShouldPopulateTheUlnCorrectly()
+    public void ShouldPopulateThe_Uln_Correctly()
     {
-        _result.FundingPeriods.First().Uln.Should().Be(_apprenticeship.Uln);
+        _result.Uln.Should().Be(_apprenticeship.Uln);
     }
 
     [Test]
-    public void ShouldPopulateTheEmployerIdCorrectly()
+    public void ShouldPopulateThe_EmployerId_Correctly()
     {
-        _result.FundingPeriods.First().EmployerId.Should().Be(_apprenticeship.EmployerAccountId);
+        _result.EmployerId.Should().Be(_apprenticeship.EmployerAccountId);
     }
 
     [Test]
-    public void ShouldPopulateTheProviderIdCorrectly()
+    public void ShouldPopulateThe_ProviderId_Correctly()
     {
-        _result.FundingPeriods.First().ProviderId.Should().Be(_apprenticeship.UKPRN);
+        _result.ProviderId.Should().Be(_apprenticeship.UKPRN);
     }
 
     [Test]
-    public void ShouldPopulateTheTransferSenderEmployerIdCorrectly()
+    public void ShouldPopulateThe_TransferSenderEmployerId_Correctly()
     {
-        _result.FundingPeriods.First().TransferSenderEmployerId.Should().Be(_apprenticeship.FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.FundingEmployerAccountId);
     }
 
     [Test]
-    public void ShouldPopulateTheAgreedPriceCorrectly()
+    public void ShouldPopulateThe_AgreedPrice_Correctly()
     {
-        _result.FundingPeriods.First().AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
+        _result.AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
     }
 
     [Test]
-    public void ShouldPopulateTheStartDateCorrectly()
+    public void ShouldPopulateThe_StartDate_Correctly()
     {
-        _result.FundingPeriods.First().StartDate.Should().Be(_apprenticeship.ActualStartDate);
+        _result.StartDate.Should().Be(_apprenticeship.ActualStartDate);
     }
 
     [Test]
-    public void ShouldPopulateTheTrainingCodeCorrectly()
+    public void ShouldPopulateThe_TrainingCode_Correctly()
     {
-        _result.FundingPeriods.First().TrainingCode.Should().Be(_apprenticeship.TrainingCode);
+        _result.TrainingCode.Should().Be(_apprenticeship.TrainingCode);
     }
 
     [Test]
-    public void ShouldPopulateTheEmployerTypeCorrectly()
+    public void ShouldPopulateThe_EmployerType_Correctly()
     {
-        _result.FundingPeriods.First().EmployerType.Should().Be(EmployerType.NonLevy);
+        _result.EmployerType.Should().Be(EmployerType.NonLevy);
     }
 
     [Test]
     public void ShouldBuildTheRightNumberOfDeliveryPeriods()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.Count.Should().Be(2);
+        _result.DeliveryPeriods.Count.Should().Be(2);
     }
 
     [Test]
-    public void ShouldPopulateTheFirstDeliveryPeriodCorrectly()
+    public void ShouldPopulateThe_FirstDeliveryPeriod_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
+        _result.DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
     }
 
     [Test]
-    public void ShouldPopulateTheSecondDeliveryPeriodCorrectly()
+    public void ShouldPopulateThe_SecondDeliveryPeriod_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
+        _result.DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
     }
 
     [Test]
-    public void ShouldPopulateTheFirstDeliveryPeriodCalendarMonthCorrectly()
+    public void ShouldPopulateThe_FirstDeliveryPeriodCalendarMonth_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).CalendarMonth.Should().Be(8);
+        _result.DeliveryPeriods.First(x => x.Period == 1).CalendarMonth.Should().Be(8);
     }
 
     [Test]
-    public void ShouldPopulateTheSecondDeliveryPeriodCalendarMonthCorrectly()
+    public void ShouldPopulateThe_SecondDeliveryPeriodCalendarMonth_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).CalendarMonth.Should().Be(9);
+        _result.DeliveryPeriods.First(x => x.Period == 2).CalendarMonth.Should().Be(9);
     }
 
     [Test]
-    public void ShouldPopulateTheFirstDeliveryPeriodCalendarYearCorrectly()
+    public void ShouldPopulateThe_FirstDeliveryPeriodCalendarYear_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).CalenderYear.Should().Be(2022);
+        _result.DeliveryPeriods.First(x => x.Period == 1).CalenderYear.Should().Be(2022);
     }
 
     [Test]
-    public void ShouldPopulateTheSecondDeliveryPeriodCalendarYearCorrectly()
+    public void ShouldPopulateThe_SecondDeliveryPeriodCalendarYear_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).CalenderYear.Should().Be(2022);
+        _result.DeliveryPeriods.First(x => x.Period == 2).CalenderYear.Should().Be(2022);
     }
 
     [Test]
-    public void ShouldPopulateTheFirstDeliveryPeriodAcademicYearCorrectly()
+    public void ShouldPopulateThe_FirstDeliveryPeriodAcademicYear_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).AcademicYear.Should().Be(2223);
+        _result.DeliveryPeriods.First(x => x.Period == 1).AcademicYear.Should().Be(2223);
     }
 
     [Test]
-    public void ShouldPopulateTheSecondDeliveryPeriodAcademicYearCorrectly()
+    public void ShouldPopulateThe_SecondDeliveryPeriodAcademicYear_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).AcademicYear.Should().Be(2223);
+        _result.DeliveryPeriods.First(x => x.Period == 2).AcademicYear.Should().Be(2223);
     }
 
     [Test]
-    public void ShouldPopulateTheFirstDeliveryPeriodLearningAmountCorrectly()
+    public void ShouldPopulateThe_FirstDeliveryPeriodLearningAmount_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).LearningAmount.Should().Be(8000);
+        _result.DeliveryPeriods.First(x => x.Period == 1).LearningAmount.Should().Be(8000);
     }
 
     [Test]
-    public void ShouldPopulateTheSecondDeliveryPeriodLearningAmountCorrectly()
+    public void ShouldPopulateThe_SecondDeliveryPeriodLearningAmount_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
+        _result.DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
     }
 
     [Test]
-    public void ShouldPopulateTheFirstDeliveryPeriodFundingLineTypeCorrectly()
+    public void ShouldPopulateThe_FirstDeliveryPeriodFundingLineType_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+        _result.DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
     }
 
     [Test]
-    public void ShouldPopulateTheSecondDeliveryPeriodFundingLineTypeCorrectly()
+    public void ShouldPopulateThe_SecondDeliveryPeriodFundingLineType_Correctly()
     {
-        _result.FundingPeriods.First().DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+        _result.DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+    }
+
+    [Test]
+    public void ShouldPopulateThe_EmployerAccountId_Correctly()
+    {
+        _result.EmployerAccountId.Should().Be(_apprenticeship.EmployerAccountId);
+    }
+
+    [Test]
+    public void ShouldPopulateThe_PlannedEndDate_Correctly()
+    {
+        _result.PlannedEndDate.Should().Be(_apprenticeship.PlannedEndDate);
+    }
+
+    [Test]
+    public void ShouldPopulateThe_ApprovalsApprenticeshipId_Correctly()
+    {
+        _result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
     }
 }

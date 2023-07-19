@@ -40,7 +40,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [Then(@"Earnings are not generated for that apprenticeship")]
     public async Task AssertNoEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForUnexpected(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(x => x.FundingPeriods.Any(period => period.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString())), "Found published EarningsGenerated event when expecting no earnings to be generated");
+        await WaitHelper.WaitForUnexpected(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(x => x.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString()), "Found published EarningsGenerated event when expecting no earnings to be generated");
     }
 
     [Then(@"the funding line type 16-18 must be used in the calculation")]
@@ -57,14 +57,13 @@ public class EarningsGeneratedEventHandlingStepDefinitions
 
     private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent)
     {
-        return earningsGeneratedEvent.FundingPeriods.Count == 1 
-               && earningsGeneratedEvent.FundingPeriods.First().DeliveryPeriods.Count == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount]
-               && earningsGeneratedEvent.FundingPeriods.First().DeliveryPeriods.All(x => x.LearningAmount == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount]
-               && earningsGeneratedEvent.FundingPeriods.All(period => period.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString()));
+        return earningsGeneratedEvent.DeliveryPeriods.Count == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount]
+               && earningsGeneratedEvent.DeliveryPeriods.All(x => x.LearningAmount == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount]
+               && earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString());
     }
 
     private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent, string expectedFundingLineType)
     {
-        return earningsGeneratedEvent.FundingPeriods.All(x => x.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) && x.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString());
+        return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) && earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString();
     }
 }

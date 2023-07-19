@@ -1,28 +1,27 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Core;
+using Azure.Identity;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
+[ExcludeFromCodeCoverage]
 public class SqlAzureIdentityTokenProvider : ISqlAzureIdentityTokenProvider
 {
-    private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-    private readonly ILogger<SqlAzureIdentityTokenProvider> _logger;
-
-    public SqlAzureIdentityTokenProvider(AzureServiceTokenProvider azureServiceTokenProvider, ILogger<SqlAzureIdentityTokenProvider> logger)
-    {
-        _azureServiceTokenProvider = azureServiceTokenProvider;
-        _logger = logger;
-    }
-
     public async Task<string> GetAccessTokenAsync()
     {
-        var token = await _azureServiceTokenProvider.GetAccessTokenAsync("https://database.windows.net/");
-        return token;
+        var tokenCredential = new DefaultAzureCredential();
+        var token = await tokenCredential.GetTokenAsync(
+            new TokenRequestContext(scopes: new[] { "https://database.windows.net" + "/.default" }));
+
+        return token.Token;
     }
 
     public string GetAccessToken()
     {
-        var token = _azureServiceTokenProvider.GetAccessTokenAsync("https://database.windows.net/").GetAwaiter().GetResult();
-        return token;
+        var tokenCredential = new DefaultAzureCredential();
+        var token = tokenCredential.GetToken(
+            new TokenRequestContext(scopes: new[] { "https://database.windows.net" + "/.default" }));
+        
+        return token.Token;
     }
 }

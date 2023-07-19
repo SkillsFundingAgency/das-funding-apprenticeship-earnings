@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
@@ -52,30 +51,10 @@ public static class NServiceBusStartupExtensions
             endpointConfiguration.License(applicationSettings.NServiceBusLicense);
         }
 
-        ExcludeTestAssemblies(endpointConfiguration.AssemblyScanner());
-
         var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
         endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
         serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
 
         return serviceCollection;
-    }
-
-    private static void ExcludeTestAssemblies(AssemblyScannerConfiguration scanner)
-    {
-        var excludeRegexs = new List<string>
-        {
-            @"nunit.*.dll"
-        };
-
-        var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        foreach (var fileName in Directory.EnumerateFiles(baseDirectory, "*.dll")
-                     .Select(Path.GetFileName))
-        {
-            if (fileName != null && excludeRegexs.Any(pattern => Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase)))
-            {
-                scanner.ExcludeAssemblies(fileName);
-            }
-        }
     }
 }
