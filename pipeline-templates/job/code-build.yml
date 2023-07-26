@@ -26,11 +26,11 @@ jobs:
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
 
-    - task: CmdLine@2
-      displayName: 'Install MsSqlLocalDb'
-      inputs:
-        script: 'choco install sqllocaldb -y && refreshenv && sqllocaldb start mssqllocaldb'
-        failOnStderr: true
+  - task: CmdLine@2
+    displayName: 'Install MsSqlLocalDb'
+    inputs:
+      script: 'choco install sqllocaldb -y && refreshenv && sqllocaldb start mssqllocaldb'
+      failOnStderr: true
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
