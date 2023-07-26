@@ -11,11 +11,18 @@ jobs:
   variables:
   - group: BUILD Management Resources
   steps:
+
+  - bash: |
+      sudo npm install -g azurite
+      sudo mkdir azurite
+      sudo azurite --silent --location azurite --debug azurite\debug.log &
+    displayName: 'Install and Run Azurite'
+
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
-      RunAcceptanceTests: false
+      RunAcceptanceTests: true
 
   - task: DotNetCoreCLI@2
     displayName: Publish - dotnet publish Inner Api
@@ -50,7 +57,7 @@ jobs:
     inputs:
       targetPath: $(build.artifactstagingdirectory)/publish
       artifactName: ${{ parameters.SolutionBaseName }}
-  
+
   - template: azure-pipelines-templates/build/step/nuget-pack.yml@das-platform-building-blocks
     parameters:
       DotNetStandardPackagesToPack: |
