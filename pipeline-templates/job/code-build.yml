@@ -18,6 +18,20 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
+  - task: VSBuild@1
+    displayName: 'Build DACPAC'
+    inputs:
+      solution: 'src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj'
+      platform: 'anycpu'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+
+    - task: CmdLine@2
+      displayName: 'Install MsSqlLocalDb'
+      inputs:
+        script: 'choco install sqllocaldb -y && refreshenv && sqllocaldb start mssqllocaldb'
+        failOnStderr: true
+
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
