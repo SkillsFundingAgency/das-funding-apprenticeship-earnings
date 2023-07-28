@@ -13,17 +13,29 @@ public class CreateApprenticeshipCommandHandlerTests
     private readonly IEarningsGeneratedEventBuilder _earningsGeneratedEventBuilder = new EarningsGeneratedEventBuilder();
     private readonly Fixture _fixture = new();
 
-    [SetUp]
-    public void Setup()
+    private async Task<(Apprenticeship actual, Apprenticeship expected)> SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand()
     {
+        // Arrange
         _sut = new CreateApprenticeshipCommandHandler(_apprenticeshipFactoryMock.Object,
             _messageSessionMock.Object, _earningsGeneratedEventBuilder);
+        _messageSessionMock.Reset();
+
+        var input = _fixture.Create<CreateApprenticeshipCommand.CreateApprenticeshipCommand>();
+        input.ApprenticeshipEntity.PlannedEndDate = input.ApprenticeshipEntity.ActualStartDate.AddMonths(12);
+        var apprenticeship = new ApprenticeshipFactory().CreateNew(input.ApprenticeshipEntity);
+        apprenticeship.CalculateEarnings();
+        _apprenticeshipFactoryMock.Setup(_ => _.CreateNew(input.ApprenticeshipEntity)).Returns(apprenticeship);
+
+        // Act
+        var result = await _sut.Handle(input);
+
+        return (result, apprenticeship);
     }
 
     [Test]
     public async Task Handle_creates_Apprenticeship_domain_model()
     {
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         result.actual.Should().BeEquivalentTo(result.expected);
@@ -33,7 +45,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ApprenticeshipKey()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -47,7 +59,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_Uln()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -61,7 +73,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmployerId()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -75,7 +87,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ProviderId()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -89,7 +101,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_TransferSenderEmployerId()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -103,7 +115,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_AgreedPrice()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -117,7 +129,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_StartDate()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -131,7 +143,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_TrainingCode()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -145,7 +157,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_DeliveryPeriods()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -160,7 +172,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmployerAccountId()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -174,7 +186,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_PlannedEndDate()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -188,7 +200,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ApprovalsApprenticeshipId()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -202,7 +214,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmployerType()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -216,7 +228,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ActualEndDate()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -230,7 +242,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_CommitmentId()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -244,7 +256,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmploymentStatus()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -258,7 +270,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_TrainingStatus()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -272,7 +284,7 @@ public class CreateApprenticeshipCommandHandlerTests
     public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_CoInvestmentPercentage()
     {
         // Arrange
-        var result = await ArrangeAndAct();
+        var result = await SetupSubjectOfTestCreateMocksAndDomainModelAndHandleApprenticeshipCreatedCommand();
 
         // Assert
         var expected = _earningsGeneratedEventBuilder.Build(result.actual);
@@ -280,22 +292,5 @@ public class CreateApprenticeshipCommandHandlerTests
                 It.Is<EarningsGeneratedEvent>(actual => actual.CoInvestmentPercentage == expected.CoInvestmentPercentage),
                 It.IsAny<PublishOptions>()),
             Times.Once);
-    }
-
-    private async Task<(Apprenticeship actual, Apprenticeship expected)> ArrangeAndAct()
-    {
-        // Arrange
-        _messageSessionMock.Reset();
-
-        var input = _fixture.Create<CreateApprenticeshipCommand.CreateApprenticeshipCommand>();
-        input.ApprenticeshipEntity.PlannedEndDate = input.ApprenticeshipEntity.ActualStartDate.AddMonths(12);
-        var apprenticeship = new ApprenticeshipFactory().CreateNew(input.ApprenticeshipEntity);
-        apprenticeship.CalculateEarnings();
-        _apprenticeshipFactoryMock.Setup(_ => _.CreateNew(input.ApprenticeshipEntity)).Returns(apprenticeship);
-
-        // Act
-        var result = await _sut.Handle(input);
-
-        return (result, apprenticeship);
     }
 }
