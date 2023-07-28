@@ -4,6 +4,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
 {
     public interface ICreateApprenticeshipCommandHandler
     {
-        Task<Apprenticeship> Create(CreateApprenticeshipCommand command);
+        Task<Apprenticeship> Handle(CreateApprenticeshipCommand command);
     }
 }

@@ -29,7 +29,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         public async Task HandleApprenticeshipLearnerEvent(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
             MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
-            var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
+            var apprenticeship = await _createApprenticeshipCommandHandler.Handle(new CreateApprenticeshipCommand(Model));
             Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
             foreach (dynamic domainEvent in apprenticeship.FlushEvents())
             {

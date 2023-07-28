@@ -21,7 +21,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_creates_Apprenticeship_domain_model()
+    public async Task Handle_creates_Apprenticeship_domain_model()
     {
         var result = await ArrangeAndAct();
 
@@ -30,7 +30,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_ApprenticeshipKey()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ApprenticeshipKey()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -44,7 +44,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_Uln()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_Uln()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -57,22 +57,8 @@ public class CreateApprenticeshipCommandHandlerTests
             Times.Once);
     }
 
-    [Test, Ignore("Not mapped")]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_CommitmentId()
-    {
-        // Arrange
-        var result = await ArrangeAndAct();
-
-        // Assert
-        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
-        _messageSessionMock.Verify(ms => ms.Publish(
-            It.Is<EarningsGeneratedEvent>(actual => actual.CommitmentId == expected.CommitmentId),
-            It.IsAny<PublishOptions>()),
-            Times.Once);
-    }
-
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_EmployerId()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmployerId()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -86,7 +72,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_ProviderId()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ProviderId()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -100,7 +86,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_TransferSenderEmployerId()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_TransferSenderEmployerId()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -114,7 +100,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_AgreedPrice()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_AgreedPrice()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -128,7 +114,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_StartDate()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_StartDate()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -141,22 +127,8 @@ public class CreateApprenticeshipCommandHandlerTests
             Times.Once);
     }
 
-    [Test, Ignore("Not mapped")]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_ActualEndDate()
-    {
-        // Arrange
-        var result = await ArrangeAndAct();
-
-        // Assert
-        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
-        _messageSessionMock.Verify(ms => ms.Publish(
-            It.Is<EarningsGeneratedEvent>(actual => actual.ActualEndDate == expected.ActualEndDate),
-            It.IsAny<PublishOptions>()),
-            Times.Once);
-    }
-
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_TrainingCode()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_TrainingCode()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -169,64 +141,8 @@ public class CreateApprenticeshipCommandHandlerTests
             Times.Once);
     }
 
-    [Test, Ignore("Not mapped")]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_EmployerType()
-    {
-        // Arrange
-        var result = await ArrangeAndAct();
-
-        // Assert
-        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
-        _messageSessionMock.Verify(ms => ms.Publish(
-            It.Is<EarningsGeneratedEvent>(actual => actual.EmployerType == expected.EmployerType),
-            It.IsAny<PublishOptions>()),
-            Times.Once);
-    }
-
-    [Test, Ignore("Not mapped")]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_EmploymentStatus()
-    {
-        // Arrange
-        var result = await ArrangeAndAct();
-
-        // Assert
-        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
-        _messageSessionMock.Verify(ms => ms.Publish(
-            It.Is<EarningsGeneratedEvent>(actual => actual.EmploymentStatus == expected.EmploymentStatus),
-            It.IsAny<PublishOptions>()),
-            Times.Once);
-    }
-
-    [Test, Ignore("Not mapped")]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_TrainingStatus()
-    {
-        // Arrange
-        var result = await ArrangeAndAct();
-
-        // Assert
-        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
-        _messageSessionMock.Verify(ms => ms.Publish(
-            It.Is<EarningsGeneratedEvent>(actual => actual.TrainingStatus == expected.TrainingStatus),
-            It.IsAny<PublishOptions>()),
-            Times.Once);
-    }
-
-    [Test, Ignore("Not mapped")]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_CoInvestmentPercentage()
-    {
-        // Arrange
-        var result = await ArrangeAndAct();
-
-        // Assert
-        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
-        _messageSessionMock.Verify(ms => ms.Publish(
-            It.Is<EarningsGeneratedEvent>(actual => actual.CoInvestmentPercentage == expected.CoInvestmentPercentage),
-            It.IsAny<PublishOptions>()),
-            Times.Once);
-    }
-
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_DeliveryPeriods()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_DeliveryPeriods()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -241,7 +157,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_EmployerAccountId()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmployerAccountId()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -255,7 +171,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_PlannedEndDate()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_PlannedEndDate()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -269,7 +185,7 @@ public class CreateApprenticeshipCommandHandlerTests
     }
 
     [Test]
-    public async Task Create_publishes_EarningsGeneratedEvent_with_correct_ApprovalsApprenticeshipId()
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ApprovalsApprenticeshipId()
     {
         // Arrange
         var result = await ArrangeAndAct();
@@ -282,9 +198,95 @@ public class CreateApprenticeshipCommandHandlerTests
             Times.Once);
     }
 
+    [Test]
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmployerType()
+    {
+        // Arrange
+        var result = await ArrangeAndAct();
+
+        // Assert
+        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
+        _messageSessionMock.Verify(ms => ms.Publish(
+                It.Is<EarningsGeneratedEvent>(actual => actual.EmployerType == expected.EmployerType),
+                It.IsAny<PublishOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_ActualEndDate()
+    {
+        // Arrange
+        var result = await ArrangeAndAct();
+
+        // Assert
+        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
+        _messageSessionMock.Verify(ms => ms.Publish(
+                It.Is<EarningsGeneratedEvent>(actual => actual.ActualEndDate == expected.ActualEndDate),
+                It.IsAny<PublishOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_CommitmentId()
+    {
+        // Arrange
+        var result = await ArrangeAndAct();
+
+        // Assert
+        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
+        _messageSessionMock.Verify(ms => ms.Publish(
+                It.Is<EarningsGeneratedEvent>(actual => actual.CommitmentId == expected.CommitmentId),
+                It.IsAny<PublishOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_EmploymentStatus()
+    {
+        // Arrange
+        var result = await ArrangeAndAct();
+
+        // Assert
+        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
+        _messageSessionMock.Verify(ms => ms.Publish(
+                It.Is<EarningsGeneratedEvent>(actual => actual.EmploymentStatus == expected.EmploymentStatus),
+                It.IsAny<PublishOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_TrainingStatus()
+    {
+        // Arrange
+        var result = await ArrangeAndAct();
+
+        // Assert
+        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
+        _messageSessionMock.Verify(ms => ms.Publish(
+                It.Is<EarningsGeneratedEvent>(actual => actual.TrainingStatus == expected.TrainingStatus),
+                It.IsAny<PublishOptions>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_publishes_EarningsGeneratedEvent_with_correct_CoInvestmentPercentage()
+    {
+        // Arrange
+        var result = await ArrangeAndAct();
+
+        // Assert
+        var expected = _earningsGeneratedEventBuilder.Build(result.actual);
+        _messageSessionMock.Verify(ms => ms.Publish(
+                It.Is<EarningsGeneratedEvent>(actual => actual.CoInvestmentPercentage == expected.CoInvestmentPercentage),
+                It.IsAny<PublishOptions>()),
+            Times.Once);
+    }
+
     private async Task<(Apprenticeship actual, Apprenticeship expected)> ArrangeAndAct()
     {
         // Arrange
+        _messageSessionMock.Reset();
+
         var input = _fixture.Create<CreateApprenticeshipCommand.CreateApprenticeshipCommand>();
         input.ApprenticeshipEntity.PlannedEndDate = input.ApprenticeshipEntity.ActualStartDate.AddMonths(12);
         var apprenticeship = new ApprenticeshipFactory().CreateNew(input.ApprenticeshipEntity);
@@ -292,7 +294,7 @@ public class CreateApprenticeshipCommandHandlerTests
         _apprenticeshipFactoryMock.Setup(_ => _.CreateNew(input.ApprenticeshipEntity)).Returns(apprenticeship);
 
         // Act
-        var result = await _sut.Create(input);
+        var result = await _sut.Handle(input);
 
         return (result, apprenticeship);
     }
