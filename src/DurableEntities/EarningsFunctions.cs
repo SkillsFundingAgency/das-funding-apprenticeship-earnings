@@ -1,10 +1,12 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
-using SFA.DAS.Apprenticeships.Types;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -19,6 +21,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             try
             {
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
+
+                log.LogInformation("ApprenticeshipKey: {0} Received ApprenticeshipCreatedEvent: {1}",
+                    apprenticeshipCreatedEvent.ApprenticeshipKey,
+                    JsonSerializer.Serialize(apprenticeshipCreatedEvent, new JsonSerializerOptions { WriteIndented = true }));
 
                 if (!(apprenticeshipCreatedEvent.FundingPlatform.HasValue && apprenticeshipCreatedEvent.FundingPlatform.Value == FundingPlatform.DAS))
                 {
