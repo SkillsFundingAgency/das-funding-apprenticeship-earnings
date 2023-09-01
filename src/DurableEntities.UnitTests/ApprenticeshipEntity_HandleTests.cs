@@ -65,7 +65,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
             _domainEventDispatcher = new Mock<IDomainEventDispatcher>();
             _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _domainEventDispatcher.Object);
 
-            _createApprenticeshipCommandHandler.Setup(x => x.Create(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
+            _createApprenticeshipCommandHandler.Setup(x => x.Handle(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
 
             await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipCreatedEvent);
         }
@@ -157,7 +157,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         [Test]
         public void ShouldCallGenerateEarnings()
         {
-            _createApprenticeshipCommandHandler.Verify(x => x.Create(It.Is<CreateApprenticeshipCommand>(y => y.ApprenticeshipEntity == _sut.Model)));
+            _createApprenticeshipCommandHandler.Verify(x => x.Handle(It.Is<CreateApprenticeshipCommand>(y => y.ApprenticeshipEntity == _sut.Model)));
         }
 
         [Test]

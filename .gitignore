@@ -358,3 +358,4 @@ local.settings.json
 #learning transport folder
 .learningtransport/
 **.ncrunchsolution
+**.ncrunchproject

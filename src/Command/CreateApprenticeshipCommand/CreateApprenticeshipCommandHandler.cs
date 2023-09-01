@@ -17,7 +17,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
             _earningsGeneratedEventBuilder = earningsGeneratedEventBuilder;
         }
 
-        public async Task<Apprenticeship> Create(CreateApprenticeshipCommand command)
+        public async Task<Apprenticeship> Handle(CreateApprenticeshipCommand command)
         {
             var apprenticeship = _apprenticeshipFactory.CreateNew(command.ApprenticeshipEntity);
             apprenticeship.CalculateEarnings();
