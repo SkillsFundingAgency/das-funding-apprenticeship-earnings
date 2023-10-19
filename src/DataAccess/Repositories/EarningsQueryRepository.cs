@@ -25,6 +25,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             await DbContext.SaveChangesAsync();
         }
 
+        public async Task Replace(Apprenticeship apprenticeship)
+        {
+            var earningsToBeRemoved = await DbContext.Earning.Where(x => x.ApprenticeshipKey == apprenticeship.ApprenticeshipKey).ToListAsync();
+            DbContext.RemoveRange(earningsToBeRemoved);
+            await Add(apprenticeship);
+        }
+
         public async Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short academicYear)
         {
             var dbResponse = new
@@ -68,5 +75,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
 
             return result;
         }
+
+
     }
 }

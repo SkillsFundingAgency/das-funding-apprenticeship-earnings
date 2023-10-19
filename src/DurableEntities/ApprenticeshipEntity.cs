@@ -9,6 +9,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
+using System;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 {
@@ -18,11 +21,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         [JsonProperty] public ApprenticeshipEntityModel Model { get; set; }
 
         private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
+        private readonly IPriceChangeApprovedCommandHandler _priceChangeApprovedCommandHandler;
         private readonly IDomainEventDispatcher _domainEventDispatcher;
 
-        public ApprenticeshipEntity(ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler, IDomainEventDispatcher domainEventDispatcher)
+        public ApprenticeshipEntity(
+            ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler,
+            IPriceChangeApprovedCommandHandler priceChangeApprovedCommandHandler,
+            IDomainEventDispatcher domainEventDispatcher)
         {
             _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
+            _priceChangeApprovedCommandHandler = priceChangeApprovedCommandHandler;
             _domainEventDispatcher = domainEventDispatcher;
         }
 
@@ -30,7 +38,23 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         {
             MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
             var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
+            
             Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+
+            foreach (dynamic domainEvent in apprenticeship.FlushEvents())
+            {
+                await _domainEventDispatcher.Send(domainEvent);
+            }
+        }
+
+        public async Task HandleApprenticeshipPriceChangeApprovedEvent(PriceChangeApprovedEvent priceChangeApprovedEvent)
+        {
+            var priceChangeDetails = MapPriceChangeDetails(priceChangeApprovedEvent);
+            var apprenticeship = await _priceChangeApprovedCommandHandler.RecalculateEarnings(new PriceChangeApprovedCommand(Model, priceChangeDetails));
+            var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+
+            SuperseedEarningsProfile(newEarnings);
+
             foreach (dynamic domainEvent in apprenticeship.FlushEvents())
             {
                 await _domainEventDispatcher.Send(domainEvent);
@@ -71,6 +95,21 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             };
         }
 
+        private PriceChangeDetails MapPriceChangeDetails(PriceChangeApprovedEvent priceChangeApprovedEvent)
+        {
+            return new PriceChangeDetails
+            {
+                ApprenticeshipId = priceChangeApprovedEvent.ApprenticeshipId,
+                ApprovedBy = priceChangeApprovedEvent.ApprovedBy,
+                ApprovedDate = priceChangeApprovedEvent.ApprovedDate,
+                AssessmentPrice = priceChangeApprovedEvent.AssessmentPrice,
+                EffectiveFromDate = priceChangeApprovedEvent.EffectiveFromDate,
+                EmployerAccountId = priceChangeApprovedEvent.EmployerAccountId,
+                ProviderId = priceChangeApprovedEvent.ProviderId,
+                TrainingPrice = priceChangeApprovedEvent.TrainingPrice
+            };
+        }
+
         private List<InstalmentEntityModel> MapInstalmentsToModel(List<Instalment> instalments)
         {
             return instalments.Select(x => new InstalmentEntityModel
@@ -80,5 +119,21 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 Amount = x.Amount
             }).ToList();
         }
+
+        private void SuperseedEarningsProfile(EarningsProfileEntityModel earningsProfile)
+        {
+            if (Model.EarningsProfileHistory == null)
+            {
+                Model.EarningsProfileHistory = new List<HistoryRecord<EarningsProfileEntityModel>>();
+            }
+
+            Model.EarningsProfileHistory.Add(new HistoryRecord<EarningsProfileEntityModel>
+            {
+                Record = Model.EarningsProfile,
+                SupersededDate = DateTime.UtcNow
+            });
+
+            Model.EarningsProfile = earningsProfile;
+        }   
     }
 }

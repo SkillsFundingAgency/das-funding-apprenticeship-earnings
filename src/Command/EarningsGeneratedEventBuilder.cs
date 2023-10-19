@@ -24,24 +24,10 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             StartDate = apprenticeship.ActualStartDate,
             TrainingCode = apprenticeship.TrainingCode,
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
-            DeliveryPeriods = BuildDeliveryPeriods(apprenticeship.EarningsProfile, apprenticeship.FundingLineType),
+            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods(),
             EmployerAccountId = apprenticeship.EmployerAccountId,
             PlannedEndDate = apprenticeship.PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId
         };
-    }
-
-    private static List<DeliveryPeriod> BuildDeliveryPeriods(EarningsProfile earningsProfile, string fundingLineType)
-    {
-        return earningsProfile.Instalments.Select(instalment => new DeliveryPeriod
-            {
-                Period = instalment.DeliveryPeriod,
-                CalendarMonth = instalment.DeliveryPeriod.ToCalendarMonth(),
-                CalenderYear = instalment.AcademicYear.ToCalendarYear(instalment.DeliveryPeriod),
-                AcademicYear = instalment.AcademicYear,
-                LearningAmount = instalment.Amount,
-                FundingLineType = fundingLineType
-            })
-            .ToList();
     }
 }
