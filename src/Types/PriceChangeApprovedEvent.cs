@@ -3,7 +3,7 @@
 public class PriceChangeApprovedEvent
 {
     public Guid ApprenticeshipKey { get; set; }
-    public int ApprenticeshipId { get; set; }
+    public long ApprenticeshipId { get; set; }
 
     public decimal TrainingPrice { get; set; }
 
@@ -13,9 +13,9 @@ public class PriceChangeApprovedEvent
     public DateTime ApprovedDate { get; set; }
     public ApprovedBy ApprovedBy { get; set; }
 
-    public int EmployerAccountId { get; set; }
+    public long EmployerAccountId { get; set; }
 
-    public int ProviderId { get; set; }
+    public long ProviderId { get; set; }
 
 }
 

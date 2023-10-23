@@ -19,7 +19,7 @@ public class PriceChangeApprovedCommand
 
 public class PriceChangeDetails
 {
-    public int ApprenticeshipId { get; set; }
+    public long ApprenticeshipId { get; set; }
 
     public decimal TrainingPrice { get; set; }
 
@@ -29,8 +29,8 @@ public class PriceChangeDetails
     public DateTime ApprovedDate { get; set; }
     public ApprovedBy ApprovedBy { get; set; }
 
-    public int EmployerAccountId { get; set; }
+    public long EmployerAccountId { get; set; }
 
-    public int ProviderId { get; set; }
+    public long ProviderId { get; set; }
 
 }
