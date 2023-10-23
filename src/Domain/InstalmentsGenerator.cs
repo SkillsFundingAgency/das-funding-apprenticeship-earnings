@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 public interface IInstalmentsGenerator
 {
     public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate);
-    public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate, List<Earning> existingEarnings);
+    public List<Earning> Generate(decimal total, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings);
 }
 
 public class InstalmentsGenerator : IInstalmentsGenerator
@@ -39,10 +39,8 @@ public class InstalmentsGenerator : IInstalmentsGenerator
 
     public List<Earning> Generate(decimal total, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings)
     {
-        var installments = new List<Earning>();
-
         var lastPaidMonth = GetLastPaymentMonth(priceDateChange);
-        installments = existingEarnings.Where(x => x.AcademicYear.ToDateTime(x.DeliveryPeriod) <= lastPaidMonth).ToList();
+        var installments = existingEarnings.Where(x => x.AcademicYear.ToDateTime(x.DeliveryPeriod) <= lastPaidMonth).ToList();
 
         var totalExistingEarnings = installments.Sum(x => x.Amount);
         var amountLeftToPay = total - totalExistingEarnings;

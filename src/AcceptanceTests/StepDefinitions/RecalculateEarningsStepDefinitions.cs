@@ -1,11 +1,7 @@
-﻿using DurableTask.Core;
-using Microsoft.Azure.Amqp.Framing;
-using NServiceBus;
+﻿using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Handlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
@@ -45,7 +41,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPriceAboveBandMax = 26000;
 
     private List<InstalmentEntityModel>? _instalmentsBeforePriceChange;
-    private ApprenticeshipEntity _updatedApprenticeshipEntity;
+    private ApprenticeshipEntity? _updatedApprenticeshipEntity;
 
     #endregion
 
@@ -255,7 +251,7 @@ public class RecalculateEarningsStepDefinitions
 
     private async Task<ApprenticeshipEntity> GetApprenticeshipEntity()
     {
-        return await _testContext.TestFunction!.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
+        return await _testContext.TestFunction!.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent!.ApprenticeshipKey.ToString());
     }
 
     private async Task<bool> EnsureRecalulationHasHappened()

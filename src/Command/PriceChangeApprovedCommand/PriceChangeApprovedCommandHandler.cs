@@ -26,7 +26,7 @@ public class PriceChangeApprovedCommandHandler : IPriceChangeApprovedCommandHand
         return apprenticeship;
     }
 
-    private Apprenticeship Parse(PriceChangeApprovedCommand entityModel)
+    private static Apprenticeship Parse(PriceChangeApprovedCommand entityModel)
     {
         var newAgreedPrice = entityModel.PriceChangeDetails.TrainingPrice + entityModel.PriceChangeDetails.AssessmentPrice;
         return new Apprenticeship(
@@ -47,7 +47,7 @@ public class PriceChangeApprovedCommandHandler : IPriceChangeApprovedCommandHand
         );
     }
 
-    private EarningsProfile MapModelToEarningsProfile(EarningsProfileEntityModel model)
+    private static EarningsProfile MapModelToEarningsProfile(EarningsProfileEntityModel model)
     {
         var instalments = model.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList();
         return new EarningsProfile(model.AdjustedPrice, instalments, model.CompletionPayment);
