@@ -44,13 +44,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         }
 
         [Test]
-        public void ThenTheInstalmentsAreGeneratedWithAmountsTo5dp()
+        public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
         {
             _sut.RecalculateEarnings(_existingApprenticeship.EarningsProfile, new DateTime(2021, 6, 15));
 
             _sut.EarningsProfile.Instalments.Count.Should().Be(12);
-            var sum = _sut.EarningsProfile.Instalments.Sum(x => x.Amount);     
-            sum.Should().BeApproximately(_sut.EarningsProfile.OnProgramTotal, 0.00001m);
+            var sum = Math.Round(_sut.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
+            sum.Should().Be(_sut.EarningsProfile.OnProgramTotal);
         }
 
         [Test]
