@@ -1,4 +1,5 @@
 ﻿using DurableTask.Core;
+using Microsoft.Azure.Amqp.Framing;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
@@ -44,6 +45,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPriceAboveBandMax = 26000;
 
     private List<InstalmentEntityModel>? _instalmentsBeforePriceChange;
+    private ApprenticeshipEntity _updatedApprenticeshipEntity;
 
     #endregion
 
@@ -143,134 +145,100 @@ public class RecalculateEarningsStepDefinitions
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
         await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
         await _endpointInstance.Publish(_priceChangeApprovedEvent);
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalulationHasHappened(), "Failed to publish priceChange");
     }
 
     #endregion
 
     #region Assert
     [Then("the earnings are recalculated based on the new price")]
-    public async Task AssertEarningsRecalculated()
+    public void AssertEarningsRecalculated()
     {
-        await WaitHelper.WaitForItAsync(async() => 
+        var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
+        var actualTotal = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
+
+        if (expectedTotal != actualTotal)
         {
-            var apprenticeshipEntity = await GetApprenticeshipEntity();
-            var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
-            var actualTotal = apprenticeshipEntity.Model.EarningsProfile.AdjustedPrice + apprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
-
-            if (expectedTotal == actualTotal)
-            {
-                return true;
-            }
-            return false;
-
-        }, "Earnings not updated");
+            Assert.Fail("Earnings not updated");
+        }
     }
 
     [Then("the earnings are recalculated based on the lower of: the new total price and the funding band maximum")]
-    public async Task AssertEarningsRecalculatedBasedOnBandMaximum()
+    public void AssertEarningsRecalculatedBasedOnBandMaximum()
     {
-        await WaitHelper.WaitForItAsync(async () =>
+        var expectedTotal = _fundingBandMaximum;
+        var actualTotal = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
+
+        if (expectedTotal != actualTotal)
         {
-            var apprenticeshipEntity = await GetApprenticeshipEntity();
-            var expectedTotal = _fundingBandMaximum;
-            var actualTotal = apprenticeshipEntity.Model.EarningsProfile.AdjustedPrice + apprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
-
-            if (expectedTotal == actualTotal)
-            {
-                return true;
-            }
-            return false;
-
-        }, "Earnings not updated correctly");
+            Assert.Fail("Earnings not updated correctly");
+        }
     }
 
     [Then("the history of old and new earnings is maintained")]
-    public async Task AssertHistoryUpdated()
+    public void AssertHistoryUpdated()
     {
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
-
-        if (apprenticeshipEntity.Model.EarningsProfileHistory == null || !apprenticeshipEntity.Model.EarningsProfileHistory.Any())
+        if (_updatedApprenticeshipEntity.Model.EarningsProfileHistory == null || !_updatedApprenticeshipEntity.Model.EarningsProfileHistory.Any())
         {
             Assert.Fail("No earning history created");
         }
-
     }
 
     [Then("the earnings prior to the effective-from date are 'frozen' and do not change as part of this calculation")]
-    public async Task AssertEarningsFrozen()
+    public void AssertEarningsFrozen()
     {
-        await WaitHelper.WaitForItAsync(async () =>
+        var instalmentsToValidate = GetFrozenInstalments(_updatedApprenticeshipEntity);
+
+        foreach(var instalment in instalmentsToValidate)
         {
-            var apprenticeshipEntity = await GetApprenticeshipEntity();
+            var expectedInstalment = _instalmentsBeforePriceChange!.FirstOrDefault(x => 
+                x.AcademicYear == instalment.AcademicYear &&
+                x.DeliveryPeriod == instalment.DeliveryPeriod);
 
-            if(EnsureRecalulationHasHappened(apprenticeshipEntity)) return false;
-
-            var instalmentsToValidate = GetFrozenInstalments(apprenticeshipEntity);
-
-            foreach(var instalment in instalmentsToValidate)
+            if (expectedInstalment == null)
             {
-                var matchingInstalment = _instalmentsBeforePriceChange!.FirstOrDefault(x => 
-                    x.AcademicYear == instalment.AcademicYear &&
-                    x.DeliveryPeriod == instalment.DeliveryPeriod);
-
-                if (matchingInstalment == null)
-                {
-                    Assert.Fail("Regenerated instalments do not match delivery dates of the orginal calculations");
-                    return false;
-                }
-
-                if (matchingInstalment.Amount != instalment.Amount)
-                {
-                    return false;
-                }
+                Assert.Fail("Regenerated instalments do not match delivery dates of the orginal calculations");
+                return;
             }
 
-            return true;
-
-        }, "Instalments before pricechange date not frozen");
+            if (expectedInstalment.Amount != instalment.Amount)
+            {
+                Assert.Fail($"Frozen amount should be £{expectedInstalment.Amount} but was £{instalment.Amount} for academicYear{instalment.AcademicYear} period:{instalment.DeliveryPeriod}");
+            }
+        }
     }
 
     [Then("the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship")]
-    public async Task AssertNumberOfInstalments()
+    public void AssertNumberOfInstalments()
     {
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
-        var numberOfInstalments = apprenticeshipEntity.Model.EarningsProfile.Instalments.Count;
+        var numberOfInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments.Count;
 
         if (numberOfInstalments != _expectedNumberOfInstalments)
         {
             Assert.Fail($"Expected {_expectedNumberOfInstalments} but found {numberOfInstalments}");
         }
-
     }
 
     [Then("the amount of each instalment is determined as: newPriceLessCompletion - earningsBeforeTheEffectiveFromDate / numberOfInstalments")]
-    public async Task AssertRecalculatedInstamentAmounts()
+    public void AssertRecalculatedInstamentAmounts()
     {
-        await WaitHelper.WaitForItAsync(async () =>
+        var frozenInstalments = GetFrozenInstalments(_updatedApprenticeshipEntity);
+        var earningsBeforeTheEffectiveFromDate = frozenInstalments.Sum(x => x.Amount);
+
+        var numberOfRecalculatedInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments.Count - frozenInstalments.Count;
+        var newPriceLessCompletion = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice;
+
+        var expectedMonthlyPrice = Math.Round((newPriceLessCompletion - earningsBeforeTheEffectiveFromDate) / numberOfRecalculatedInstalments, 5);
+
+        var numberOfMatchingInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments
+            .Where(x => x.Amount == expectedMonthlyPrice)
+            .Count();
+
+        
+        if (numberOfMatchingInstalments != numberOfRecalculatedInstalments)
         {
-            var apprenticeshipEntity = await GetApprenticeshipEntity();
-            if (EnsureRecalulationHasHappened(apprenticeshipEntity)) return false;
-
-            var frozenInstalments = GetFrozenInstalments(apprenticeshipEntity);
-            var earningsBeforeTheEffectiveFromDate = frozenInstalments.Sum(x => x.Amount);
-
-            var numberOfRecalculatedInstalments = apprenticeshipEntity.Model.EarningsProfile.Instalments.Count - frozenInstalments.Count;
-            var newPriceLessCompletion = apprenticeshipEntity.Model.EarningsProfile.AdjustedPrice;
-
-            var expectedMonthlyPrice = (newPriceLessCompletion - earningsBeforeTheEffectiveFromDate) / numberOfRecalculatedInstalments;
-
-            var numberOfMatchingInstalments = apprenticeshipEntity.Model.EarningsProfile.Instalments
-                .Where(x => x.Amount == expectedMonthlyPrice)
-                .Count();
-
-            if (numberOfMatchingInstalments != numberOfRecalculatedInstalments)
-            {
-                Assert.Fail($"Expected to find {numberOfRecalculatedInstalments} instalments of £{expectedMonthlyPrice} but found {numberOfMatchingInstalments}");
-            }
-
-            return true;
-
-        }, "Instalments not recalulated");
+            Assert.Fail($"Expected to find {numberOfRecalculatedInstalments} instalments of £{expectedMonthlyPrice} but found {numberOfMatchingInstalments}");
+        }
     }
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
@@ -290,13 +258,16 @@ public class RecalculateEarningsStepDefinitions
         return await _testContext.TestFunction!.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
     }
 
-    private bool EnsureRecalulationHasHappened(ApprenticeshipEntity apprenticeshipEntity)
+    private async Task<bool> EnsureRecalulationHasHappened()
     {
+        var apprenticeshipEntity = await GetApprenticeshipEntity();
+
         if (apprenticeshipEntity.Model.EarningsProfileHistory == null)
         {
             return false;
         }
 
+        _updatedApprenticeshipEntity = apprenticeshipEntity;
         return true;
     }
 
@@ -305,7 +276,7 @@ public class RecalculateEarningsStepDefinitions
         return apprenticeshipEntity.Model.EarningsProfile.Instalments
             .Where(x => 
                 x.AcademicYear <= _effectiveFromDate.ToAcademicYear() && 
-                x.DeliveryPeriod <= _effectiveFromDate.ToDeliveryPeriod())
+                x.DeliveryPeriod < _effectiveFromDate.ToDeliveryPeriod())
             .ToList();
     }
 
