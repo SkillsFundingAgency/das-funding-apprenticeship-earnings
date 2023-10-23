@@ -273,11 +273,14 @@ public class RecalculateEarningsStepDefinitions
 
     private List<InstalmentEntityModel> GetFrozenInstalments(ApprenticeshipEntity apprenticeshipEntity)
     {
+        var fromYear = _effectiveFromDate.ToAcademicYear();
+        var fromPeriod = _effectiveFromDate.ToDeliveryPeriod();
+
         return apprenticeshipEntity.Model.EarningsProfile.Instalments
             .Where(x => 
-                x.AcademicYear <= _effectiveFromDate.ToAcademicYear() && 
-                x.DeliveryPeriod < _effectiveFromDate.ToDeliveryPeriod())
-            .ToList();
+                (x.AcademicYear == fromYear && x.DeliveryPeriod < fromPeriod) ||
+                x.AcademicYear < fromYear
+             ).ToList();
     }
 
     #endregion
