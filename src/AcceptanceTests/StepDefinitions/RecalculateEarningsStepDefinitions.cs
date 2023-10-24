@@ -151,7 +151,7 @@ public class RecalculateEarningsStepDefinitions
     public void AssertEarningsRecalculated()
     {
         var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
-        var actualTotal = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
+        var actualTotal = _updatedApprenticeshipEntity!.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
@@ -163,7 +163,7 @@ public class RecalculateEarningsStepDefinitions
     public void AssertEarningsRecalculatedBasedOnBandMaximum()
     {
         var expectedTotal = _fundingBandMaximum;
-        var actualTotal = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
+        var actualTotal = _updatedApprenticeshipEntity!.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
@@ -174,7 +174,7 @@ public class RecalculateEarningsStepDefinitions
     [Then("the history of old and new earnings is maintained")]
     public void AssertHistoryUpdated()
     {
-        if (_updatedApprenticeshipEntity.Model.EarningsProfileHistory == null || !_updatedApprenticeshipEntity.Model.EarningsProfileHistory.Any())
+        if (_updatedApprenticeshipEntity!.Model.EarningsProfileHistory == null || !_updatedApprenticeshipEntity.Model.EarningsProfileHistory.Any())
         {
             Assert.Fail("No earning history created");
         }
@@ -183,7 +183,7 @@ public class RecalculateEarningsStepDefinitions
     [Then("the earnings prior to the effective-from date are 'frozen' and do not change as part of this calculation")]
     public void AssertEarningsFrozen()
     {
-        var instalmentsToValidate = GetFrozenInstalments(_updatedApprenticeshipEntity);
+        var instalmentsToValidate = GetFrozenInstalments(_updatedApprenticeshipEntity!);
 
         foreach(var instalment in instalmentsToValidate)
         {
@@ -207,7 +207,7 @@ public class RecalculateEarningsStepDefinitions
     [Then("the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship")]
     public void AssertNumberOfInstalments()
     {
-        var numberOfInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments.Count;
+        var numberOfInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count;
 
         if (numberOfInstalments != _expectedNumberOfInstalments)
         {
@@ -218,10 +218,10 @@ public class RecalculateEarningsStepDefinitions
     [Then("the amount of each instalment is determined as: newPriceLessCompletion - earningsBeforeTheEffectiveFromDate / numberOfInstalments")]
     public void AssertRecalculatedInstamentAmounts()
     {
-        var frozenInstalments = GetFrozenInstalments(_updatedApprenticeshipEntity);
+        var frozenInstalments = GetFrozenInstalments(_updatedApprenticeshipEntity!);
         var earningsBeforeTheEffectiveFromDate = frozenInstalments.Sum(x => x.Amount);
 
-        var numberOfRecalculatedInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments.Count - frozenInstalments.Count;
+        var numberOfRecalculatedInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count - frozenInstalments.Count;
         var newPriceLessCompletion = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice;
 
         var expectedMonthlyPrice = Math.Round((newPriceLessCompletion - earningsBeforeTheEffectiveFromDate) / numberOfRecalculatedInstalments, 5);
