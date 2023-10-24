@@ -1,7 +1,5 @@
 ﻿using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
@@ -21,14 +19,14 @@ public class PriceChangeApprovedCommandHandler : IPriceChangeApprovedCommandHand
     {
         var apprenticeship = Parse(command);
         var existingEarnings = MapModelToEarningsProfile(command.ApprenticeshipEntity.EarningsProfile);
-        apprenticeship.RecalculateEarnings(existingEarnings, command.PriceChangeDetails.EffectiveFromDate);
+        apprenticeship.RecalculateEarnings(existingEarnings, command.PriceChangeApprovedEvent.EffectiveFromDate);
         await _messageSession.Publish(_eventBuilder.Build(apprenticeship));
         return apprenticeship;
     }
 
     private static Apprenticeship Parse(PriceChangeApprovedCommand entityModel)
     {
-        var newAgreedPrice = entityModel.PriceChangeDetails.TrainingPrice + entityModel.PriceChangeDetails.AssessmentPrice;
+        var newAgreedPrice = entityModel.PriceChangeApprovedEvent.TrainingPrice + entityModel.PriceChangeApprovedEvent.AssessmentPrice;
         return new Apprenticeship(
             entityModel.ApprenticeshipEntity.ApprenticeshipKey,
             entityModel.ApprenticeshipEntity.ApprovalsApprenticeshipId,

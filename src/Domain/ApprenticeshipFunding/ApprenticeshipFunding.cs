@@ -40,10 +40,10 @@
             return earnings;
         }
 
-        public List<Earning> GenerateEarnings(List<Earning> existingEarnings, DateTime effectivePriceChangeDate)
+        public List<Earning> RecalculateEarnings(List<Earning> existingEarnings, DateTime effectivePriceChangeDate)
         {
             var instalmentGenerator = new InstalmentsGenerator();
-            var earnings = instalmentGenerator.Generate(OnProgramTotal, effectivePriceChangeDate, _endDate, existingEarnings);
+            var earnings = instalmentGenerator.Recalculate(OnProgramTotal, effectivePriceChangeDate, _endDate, existingEarnings);
             return earnings;
         }
     }

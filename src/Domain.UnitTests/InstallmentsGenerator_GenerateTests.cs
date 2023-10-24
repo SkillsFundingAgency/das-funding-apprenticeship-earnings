@@ -73,15 +73,15 @@ public class InstallmentsGenerator_GenerateTests
     public void ShouldRegenerateCorrectNumberOfInstallments(string startDateString, string priceChangeDateString, string endDateString, int expectedNumberOfInstallments)
     {
         //  Arrange
-        var orignalPrice = 12000;
+        var originalPrice = 12000;
         var updatedPrice = 12000;
         var startDate = DateTime.Parse(startDateString);
         var endDate = DateTime.Parse(endDateString);
         var priceChangeDate = DateTime.Parse(priceChangeDateString);
-        var orginalInstalments = _sut.Generate(orignalPrice, startDate, endDate);
+        var originalInstalments = _sut.Generate(originalPrice, startDate, endDate);
 
         //  Act
-        var recalculatedInstallments = _sut.Generate(updatedPrice, priceChangeDate, endDate, orginalInstalments);
+        var recalculatedInstallments = _sut.Recalculate(updatedPrice, priceChangeDate, endDate, originalInstalments);
 
         //  Assert
         recalculatedInstallments.Should().HaveCount(expectedNumberOfInstallments);
@@ -106,7 +106,7 @@ public class InstallmentsGenerator_GenerateTests
         var orginalInstalments = _sut.Generate(totalBeforeChange, startDate, endDate);
 
         //  Act
-        var recalculatedInstallments = _sut.Generate(totalAfterChange, priceChangeDate, endDate, orginalInstalments);
+        var recalculatedInstallments = _sut.Recalculate(totalAfterChange, priceChangeDate, endDate, orginalInstalments);
 
         //  Assert
         foreach(var instalment in recalculatedInstallments)

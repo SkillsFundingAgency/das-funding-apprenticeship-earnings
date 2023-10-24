@@ -33,7 +33,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly DateTime _priceChangeRequestDate = new DateTime(2020, 1, 1);
     private readonly DateTime _effectiveFromDate = new DateTime(2020, 2, 1);
 
-    private readonly int _orginalPrice = 15000;
+    private readonly int _originalPrice = 15000;
     private readonly int _fundingBandMaximum = 25000;
 
     private readonly int _newTrainingPrice = 17000;
@@ -108,7 +108,7 @@ public class RecalculateEarningsStepDefinitions
     [Given("the total price is below or at the funding band maximum")]
     public void SetTotalBelowBandMaximum()
     {
-        _apprenticeshipCreatedEvent!.AgreedPrice = _orginalPrice;
+        _apprenticeshipCreatedEvent!.AgreedPrice = _originalPrice;
     }
 
     [Given("the price change request is for a new total price above the funding band maximum")]
@@ -141,7 +141,7 @@ public class RecalculateEarningsStepDefinitions
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
         await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
         await _endpointInstance.Publish(_priceChangeApprovedEvent);
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalulationHasHappened(), "Failed to publish priceChange");
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
     #endregion
@@ -193,7 +193,7 @@ public class RecalculateEarningsStepDefinitions
 
             if (expectedInstalment == null)
             {
-                Assert.Fail("Regenerated instalments do not match delivery dates of the orginal calculations");
+                Assert.Fail("Regenerated instalments do not match delivery dates of the original calculations");
                 return;
             }
 
@@ -254,7 +254,7 @@ public class RecalculateEarningsStepDefinitions
         return await _testContext.TestFunction!.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent!.ApprenticeshipKey.ToString());
     }
 
-    private async Task<bool> EnsureRecalulationHasHappened()
+    private async Task<bool> EnsureRecalculationHasHappened()
     {
         var apprenticeshipEntity = await GetApprenticeshipEntity();
 

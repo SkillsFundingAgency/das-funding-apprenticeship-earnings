@@ -14,7 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         private Fixture _fixture;
         private Apprenticeship.Apprenticeship? _existingApprenticeship; //represents the apprenticeship before the price change
         private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the price change
-        private decimal _orginalPrice;
+        private decimal _originalPrice;
         private decimal _updatedPrice;
 
         public WhenRecalculateEarnings()
@@ -25,9 +25,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         [SetUp]
         public void SetUp()
         {
-            _orginalPrice = _fixture.Create<decimal>();
+            _originalPrice = _fixture.Create<decimal>();
             _updatedPrice = _fixture.Create<decimal>();
-            _existingApprenticeship = CreateApprenticeship(_orginalPrice, new DateTime(2021, 1, 15), new DateTime(2021, 12, 31));
+            _existingApprenticeship = CreateApprenticeship(_originalPrice, new DateTime(2021, 1, 15), new DateTime(2021, 12, 31));
             _existingApprenticeship.CalculateEarnings();
             _sut = CreateUpdatedApprenticeship(_existingApprenticeship, _updatedPrice);
         }

@@ -5,32 +5,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedComm
 
 public class PriceChangeApprovedCommand
 {
-    public PriceChangeApprovedCommand(ApprenticeshipEntityModel apprenticeshipEntity, PriceChangeDetails priceChangeDetails)
+    public PriceChangeApprovedCommand(ApprenticeshipEntityModel apprenticeshipEntity, PriceChangeApprovedEvent priceChangeApprovedEvent)
     {
         ApprenticeshipEntity = apprenticeshipEntity;
-        PriceChangeDetails = priceChangeDetails;    
+        PriceChangeApprovedEvent = priceChangeApprovedEvent;    
     }
 
     public ApprenticeshipEntityModel ApprenticeshipEntity { get; }
-    public PriceChangeDetails PriceChangeDetails { get; }
-
-}
-
-
-public class PriceChangeDetails
-{
-    public long ApprenticeshipId { get; set; }
-
-    public decimal TrainingPrice { get; set; }
-
-    public decimal AssessmentPrice { get; set; }
-    public DateTime EffectiveFromDate { get; set; }
-
-    public DateTime ApprovedDate { get; set; }
-    public ApprovedBy ApprovedBy { get; set; }
-
-    public long EmployerAccountId { get; set; }
-
-    public long ProviderId { get; set; }
+    public PriceChangeApprovedEvent PriceChangeApprovedEvent { get; }
 
 }

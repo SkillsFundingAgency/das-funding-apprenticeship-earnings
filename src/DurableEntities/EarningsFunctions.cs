@@ -1,13 +1,10 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
-using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ILogger = Microsoft.Extensions.Logging.ILogger;

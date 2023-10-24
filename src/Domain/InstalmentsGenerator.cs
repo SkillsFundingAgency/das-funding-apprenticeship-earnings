@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 public interface IInstalmentsGenerator
 {
     public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate);
-    public List<Earning> Generate(decimal total, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings);
+    public List<Earning> Recalculate(decimal total, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings);
 }
 
 public class InstalmentsGenerator : IInstalmentsGenerator
@@ -37,17 +37,20 @@ public class InstalmentsGenerator : IInstalmentsGenerator
         return installments;
     }
 
-    public List<Earning> Generate(decimal total, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings)
+    public List<Earning> Recalculate(decimal total, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings)
     {
-        var lastPaidMonth = GetLastPaymentMonth(priceDateChange);
-        var installments = existingEarnings.Where(x => x.AcademicYear.ToDateTime(x.DeliveryPeriod) <= lastPaidMonth).ToList();
+        var installments = new List<Earning>();
 
-        var totalExistingEarnings = installments.Sum(x => x.Amount);
-        var amountLeftToPay = total - totalExistingEarnings;
+        var lastPaidMonth = GetLastPaymentMonth(priceDateChange);
+        var installmentsBeforePriceChangeDate = existingEarnings.Where(x => x.AcademicYear.ToDateTime(x.DeliveryPeriod) <= lastPaidMonth).ToList();
+
+        var TotalBeforePriceChangeDate = installmentsBeforePriceChangeDate.Sum(x => x.Amount);
+        var amountLeftToPay = total - TotalBeforePriceChangeDate;
         var nextPayMonth = lastPaidMonth.AddMonths(1);
 
         var newInstallments = Generate(amountLeftToPay, nextPayMonth, endDate);
 
+        installments.AddRange(installmentsBeforePriceChangeDate);
         installments.AddRange(newInstallments);
         return installments;
     }

@@ -49,11 +49,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
 
         public async Task HandleApprenticeshipPriceChangeApprovedEvent(PriceChangeApprovedEvent priceChangeApprovedEvent)
         {
-            var priceChangeDetails = MapPriceChangeDetails(priceChangeApprovedEvent);
-            var apprenticeship = await _priceChangeApprovedCommandHandler.RecalculateEarnings(new PriceChangeApprovedCommand(Model, priceChangeDetails));
+            var apprenticeship = await _priceChangeApprovedCommandHandler.RecalculateEarnings(new PriceChangeApprovedCommand(Model, priceChangeApprovedEvent));
             var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 
-            SuperseedEarningsProfile(newEarnings);
+            SupersedeEarningsProfile(newEarnings);
 
             foreach (dynamic domainEvent in apprenticeship.FlushEvents())
             {
@@ -95,21 +94,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             };
         }
 
-        private PriceChangeDetails MapPriceChangeDetails(PriceChangeApprovedEvent priceChangeApprovedEvent)
-        {
-            return new PriceChangeDetails
-            {
-                ApprenticeshipId = priceChangeApprovedEvent.ApprenticeshipId,
-                ApprovedBy = priceChangeApprovedEvent.ApprovedBy,
-                ApprovedDate = priceChangeApprovedEvent.ApprovedDate,
-                AssessmentPrice = priceChangeApprovedEvent.AssessmentPrice,
-                EffectiveFromDate = priceChangeApprovedEvent.EffectiveFromDate,
-                EmployerAccountId = priceChangeApprovedEvent.EmployerAccountId,
-                ProviderId = priceChangeApprovedEvent.ProviderId,
-                TrainingPrice = priceChangeApprovedEvent.TrainingPrice
-            };
-        }
-
         private List<InstalmentEntityModel> MapInstalmentsToModel(List<Instalment> instalments)
         {
             return instalments.Select(x => new InstalmentEntityModel
@@ -120,7 +104,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             }).ToList();
         }
 
-        private void SuperseedEarningsProfile(EarningsProfileEntityModel earningsProfile)
+        private void SupersedeEarningsProfile(EarningsProfileEntityModel earningsProfile)
         {
             if (Model.EarningsProfileHistory == null)
             {
