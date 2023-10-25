@@ -21,7 +21,7 @@ jobs:
   - task: VSBuild@1
     displayName: 'Build DACPAC'
     inputs:
-      solution: 'src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj'
+      solution: 'src/Database/${{ parameters.SolutionBaseName }}.Database.sqlproj'
       platform: 'anycpu'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
