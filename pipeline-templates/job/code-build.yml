@@ -13,10 +13,10 @@ jobs:
   steps:
 
   - bash: |
-    sudo npm install -g azurite
-    sudo mkdir azurite
-    sudo azurite --silent --location azurite --debug azurite\debug.log &
-  displayName: 'Install and Run Azurite'
+      sudo npm install -g azurite
+      sudo mkdir azurite
+      sudo azurite --silent --location azurite --debug azurite\debug.log &
+    displayName: 'Install and Run Azurite'
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
