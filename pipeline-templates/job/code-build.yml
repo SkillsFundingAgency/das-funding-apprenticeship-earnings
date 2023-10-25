@@ -18,11 +18,13 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
-  - task: DotNetCoreCLI@2
+  - task: VSBuild@1
+    displayName: Build DACPAC
     inputs:
-      command: 'build'
-      projects: '**/SFA.DAS.Funding.ApprenticeshipEarnings.Database.sqlproj'
-      arguments: '--configuration $(BuildConfiguration)'
+      solution: src/Database/SFA.DAS.Funding.ApprenticeshipEarnings.Database.sqlproj
+      platform: any cpu
+      configuration: release
+      msbuildArgs: /p:PackageLocation="$(build.artifactstagingdirectory)/publish"
 
   - task: CmdLine@2
     displayName: 'Install MsSqlLocalDb'
