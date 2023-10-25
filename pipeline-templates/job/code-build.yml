@@ -21,7 +21,7 @@ jobs:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
-      projects: '**/SFA.DAS.Funding.ApprenticeshipEarnings.Database.csproj'
+      projects: '**/SFA.DAS.Funding.ApprenticeshipEarnings.Database.sqlproj'
       arguments: '--configuration $(BuildConfiguration)'
 
   - task: CmdLine@2
