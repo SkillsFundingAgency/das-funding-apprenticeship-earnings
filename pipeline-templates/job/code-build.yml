@@ -36,18 +36,27 @@ jobs:
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
   - task: DownloadBuildArtifacts@1
-    displayName: Copy Dac For Acceptance Tests
+    displayName: Download Dacpac For Acceptance Tests
     inputs:
       buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
       downloadType: 'specific' # 'single' | 'specific'. Required. Download type. Default: single.
       downloadPath: '$(build.artifactstagingdirectory)/download'
 
   - task: CopyFiles@2
-    displayName: Copy Files to $(build.artifactstagingdirectory)/publish
+    displayName: Copy Dacpac For Acceptance Tests
     inputs:
       Contents: |
         $(build.artifactstagingdirectory)/download/src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
       TargetFolder: 'src/Database/bin/release'
+
+  - task: CmdLine@2
+        displayName: Debug List files
+        inputs:
+          script: |
+            echo "Pipeline.Workspace:" 
+            echo "$(Pipeline.Workspace)"
+            echo "Structure of the work Pipeline.Workspace of this pipeline:"
+            tree $(Pipeline.Workspace) /f
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
