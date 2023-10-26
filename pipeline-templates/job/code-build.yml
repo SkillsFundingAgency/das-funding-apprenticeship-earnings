@@ -50,7 +50,7 @@ jobs:
       TargetFolder: 'src/Database/bin/release'
 
   - powershell: |
-      tree "$(Pipeline.Workspace)" /F
+      tree \ /F
     displayName: '2 Treeview of Pipeline.Workspace'
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
