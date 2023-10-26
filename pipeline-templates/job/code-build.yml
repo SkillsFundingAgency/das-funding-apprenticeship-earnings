@@ -46,7 +46,7 @@ jobs:
     displayName: Copy Dacpac For Acceptance Tests
     inputs:
       Contents: |
-        $(build.artifactstagingdirectory)/download/src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
+        $(build.artifactstagingdirectory)/download/DacpacArtifact/src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
       TargetFolder: 'src/Database/bin/release'
 
   - powershell: |
