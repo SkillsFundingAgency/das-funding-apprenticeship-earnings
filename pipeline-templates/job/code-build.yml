@@ -4,6 +4,7 @@ parameters:
 
 jobs:
 - job: CodeBuild
+  dependsOn: DacpacBuild
   pool:
     name: DAS - Continuous Integration Agents
     workspace:
