@@ -67,13 +67,23 @@ jobs:
       modifyOutputPath: true
       zipAfterPublish: true
 
-  - task: CopyFiles@2
+  - task: DownloadBuildArtifacts@1
     displayName: Copy Files to $(build.artifactstagingdirectory)/publish
     inputs:
-      Contents: |
-        azure/**
-      TargetFolder: $(build.artifactstagingdirectory)/publish
-      OverWrite: true
+      buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
+      #project: # string. Required when buildType == specific. Project. 
+      #pipeline: # string. Alias: definition. Required when buildType == specific. Build pipeline. 
+      #specificBuildWithTriggering: false # boolean. Optional. Use when buildType == specific. When appropriate, download artifacts from the triggering build. Default: false.
+      #buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
+      #allowPartiallySucceededBuilds: false # boolean. Optional. Use when buildType == specific && buildVersionToDownload != specific. Download artifacts even from partially succeeded builds. Default: false.
+      #branchName: 'refs/heads/master' # string. Required when buildType == specific && buildVersionToDownload == latestFromBranch. Branch name. Default: refs/heads/master.
+      #buildId: # string. Required when buildType == specific && buildVersionToDownload == specific. Build. 
+      #tags: # string. Optional. Use when buildType == specific && buildVersionToDownload != specific. Build Tags. 
+      downloadType: 'specific' # 'single' | 'specific'. Required. Download type. Default: single.
+      artifactName: # string. Required when downloadType == single. Artifact name. 
+      itemPattern: '**.dacpac' # string. Matching pattern. Default: **.
+      downloadPath: '$(build.artifactstagingdirectory)/publish'
+
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Build Artifact
