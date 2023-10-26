@@ -50,13 +50,13 @@ jobs:
       TargetFolder: 'src/Database/bin/release'
 
   - task: CmdLine@2
-        displayName: Debug List files
-        inputs:
-          script: |
-            echo "Pipeline.Workspace:" 
-            echo "$(Pipeline.Workspace)"
-            echo "Structure of the work Pipeline.Workspace of this pipeline:"
-            tree $(Pipeline.Workspace) /f
+    displayName: Debug List files
+    inputs:
+      script: |
+        echo "Pipeline.Workspace:" 
+        echo "$(Pipeline.Workspace)"
+        echo "Structure of the work Pipeline.Workspace of this pipeline:"
+        tree $(Pipeline.Workspace) /f
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
