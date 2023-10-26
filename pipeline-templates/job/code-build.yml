@@ -45,9 +45,9 @@ jobs:
   - task: CopyFiles@2
     displayName: Copy Dacpac For Acceptance Tests
     inputs:
-      Contents: |
-        $(build.artifactstagingdirectory)/download/DacpacArtifact/src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
+      Contents: '**'
       TargetFolder: 'src/Database/bin/release'
+      flattenFolders : true
 
   - powershell: |
       Get-ChildItem -Path $(Build.ArtifactStagingDirectory) -Recurse -Name
