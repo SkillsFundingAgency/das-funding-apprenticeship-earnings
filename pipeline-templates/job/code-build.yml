@@ -40,7 +40,7 @@ jobs:
     inputs:
       buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
       downloadType: 'specific' # 'single' | 'specific'. Required. Download type. Default: single.
-      downloadPath: '/download'
+      downloadPath: '$(build.artifactstagingdirectory)/download'
 
   - task: CopyFiles@2
     displayName: Copy Dacpac For Acceptance Tests
@@ -48,6 +48,7 @@ jobs:
       Contents: '**'
       TargetFolder: 'src/Database/bin/release'
       flattenFolders : true
+      SourceFolder : '$(build.artifactstagingdirectory)/download'
 
   - powershell: |
       Get-ChildItem -Path $(Build.ArtifactStagingDirectory) -Recurse -Name
