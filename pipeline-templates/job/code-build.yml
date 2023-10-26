@@ -35,6 +35,13 @@ jobs:
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
+  - task: CopyFiles@2
+      displayName: Copy Dac For Acceptance Tests
+      inputs:
+        contents: |
+          src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
+        targetFolder: src/Database/bin/release
+
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
       RunAcceptanceTests: true
