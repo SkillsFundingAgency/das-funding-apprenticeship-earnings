@@ -40,7 +40,7 @@ jobs:
     inputs:
       buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
       downloadType: 'specific' # 'single' | 'specific'. Required. Download type. Default: single.
-      downloadPath: '$(build.artifactstagingdirectory)/download'
+      downloadPath: '/download'
 
   - task: CopyFiles@2
     displayName: Copy Dacpac For Acceptance Tests
