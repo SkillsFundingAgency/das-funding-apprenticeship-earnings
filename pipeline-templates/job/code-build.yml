@@ -39,7 +39,7 @@ jobs:
     displayName: Copy Dac For Acceptance Tests
     inputs:
       contents: |
-        $(Pipeline.Workspace)/DacpacArtifact/src/Database/bin/Output/${{ parameters.SolutionBaseName }}.Database.dacpac
+        $(Pipeline.Workspace)/DacpacArtifact/src/Database/bin/Output/**
       targetFolder: src/Database/bin/release
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
