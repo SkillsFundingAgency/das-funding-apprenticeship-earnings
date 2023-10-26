@@ -50,7 +50,7 @@ jobs:
       TargetFolder: 'src/Database/bin/release'
 
   - powershell: |
-      Get-ChildItem -Path $(Build.ArtifactStagingDirectory)
+      Get-ChildItem -Path $(Build.ArtifactStagingDirectory) -Recurse -Name
     displayName: 'List Folder Contents'
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
