@@ -46,12 +46,8 @@ jobs:
     displayName: Copy Files to $(build.artifactstagingdirectory)/publish
     inputs:
       Contents: |
-        $(build.artifactstagingdirectory)/download/DacpacArtifact/src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
+        $(build.artifactstagingdirectory)/download/src/Database/bin/Output/SFA.DAS.Funding.ApprenticeshipEarnings.Database.dacpac
       TargetFolder: 'src/Database/bin/release'
-
-  - powershell: |
-      tree \ /F
-    displayName: '2 Treeview of Pipeline.Workspace'
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
