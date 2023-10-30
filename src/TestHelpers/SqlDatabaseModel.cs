@@ -70,10 +70,10 @@ public static class SqlDatabaseModel
         _dacpacFileLocation = Path.Combine(
             Directory.GetCurrentDirectory().Substring(0,
                 Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)),
-            $"src\\Database\\bin\\{environment}\\{DatabaseProjectName}.dacpac");
+            "src", "Database", "bin", environment, $"{DatabaseProjectName}.dacpac");
 
         if (!File.Exists(_dacpacFileLocation))
-            throw new FileNotFoundException($"DACPAC file not found in: {_dacpacFileLocation}.  Rebuid the database project.");
+            throw new FileNotFoundException($"DACPAC file not found in: {_dacpacFileLocation}.  Rebuild the database project.");
     }
 
     private static void PublishModel()
