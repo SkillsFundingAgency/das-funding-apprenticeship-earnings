@@ -19,11 +19,18 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
-  - task: CmdLine@2
-    displayName: 'Install MsSqlLocalDb'
-    inputs:
-      script: 'choco install sqllocaldb -y && refreshenv && sqllocaldb start mssqllocaldb'
-      failOnStderr: true
+  - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+    SQLLOCALDB START $(dbInstance)
+    SQLLOCALDB SHARE $(dbInstance) $(dbShare)
+    SQLLOCALDB INFO $(dbInstance)
+
+  - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: 'Invoke-Sqlcmd -InputFile $(attachDb) -ConnectionString "Server=(localdb)\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=false;" -Verbose'
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
