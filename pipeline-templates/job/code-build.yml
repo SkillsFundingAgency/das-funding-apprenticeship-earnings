@@ -6,7 +6,7 @@ jobs:
 - job: CodeBuild
   dependsOn: DacpacBuild
   pool:
-    name: DAS - Continuous Integration Agents
+    name: DAS - Continuous Integration
     workspace:
       clean: all
   variables:
@@ -19,20 +19,20 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
-  - task: PowerShell@2
-    displayName: 'Install and LocalDb'
-    inputs:
-      targetType: 'inline'
-      script: |
-        SQLLOCALDB START $(dbInstance)
-        SQLLOCALDB SHARE $(dbInstance) $(dbShare)
-        SQLLOCALDB INFO $(dbInstance)
+  # - task: PowerShell@2
+  #   displayName: 'Install and LocalDb'
+  #   inputs:
+  #     targetType: 'inline'
+  #     script: |
+  #       SQLLOCALDB START $(dbInstance)
+  #       SQLLOCALDB SHARE $(dbInstance) $(dbShare)
+  #       SQLLOCALDB INFO $(dbInstance)
 
-  - task: PowerShell@2
-    displayName: 'Attach LocalDb'
-    inputs:
-      targetType: 'inline'
-      script: 'Invoke-Sqlcmd -InputFile $(attachDb) -ConnectionString "Server=(localdb)\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=false;" -Verbose'
+  # - task: PowerShell@2
+  #   displayName: 'Attach LocalDb'
+  #   inputs:
+  #     targetType: 'inline'
+  #     script: 'Invoke-Sqlcmd -InputFile $(attachDb) -ConnectionString "Server=(localdb)\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=false;" -Verbose'
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
