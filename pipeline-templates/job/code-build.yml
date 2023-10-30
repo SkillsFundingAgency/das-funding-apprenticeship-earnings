@@ -52,7 +52,11 @@ jobs:
 
   - powershell: |
       Get-ChildItem -Path $(Build.ArtifactStagingDirectory) -Recurse -Name
-    displayName: 'List Folder Contents'
+    displayName: 'List Folder Contents ArtifactStagingDirectory'
+
+  - powershell: |
+      Get-ChildItem -Path $(Build.SourcesDirectory) -Recurse -Name
+    displayName: 'List Folder Contents SourcesDirectory'
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
