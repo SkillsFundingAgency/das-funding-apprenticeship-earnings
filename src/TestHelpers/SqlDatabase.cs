@@ -7,7 +7,7 @@ public class SqlDatabase : IDisposable
 {
     private bool _isDisposed;
 
-#if !DEBUG
+#if DEBUG
     private bool _useLocalDb = true;
     private const string _source = "(localdb)\\MSSQLLocalDB";
     private const string _authentication = "Integrated Security=True";
