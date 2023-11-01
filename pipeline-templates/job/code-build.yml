@@ -13,16 +13,14 @@ jobs:
   - group: BUILD Management Resources
   steps:
 
-  - bash: |
-      sudo npm install -g azurite
-      sudo mkdir azurite
-      sudo azurite --silent --location azurite --debug azurite\debug.log &
-    displayName: 'Install and Run Azurite'
-
   - task: DockerInstaller@0
     inputs:
       dockerVersion: '17.09.0-ce'
     displayName: 'Install Docker'
+
+  - bash: |
+      sudo systemctl start docker
+    displayName: 'Start Docker'
 
   - task: Docker@2
     inputs:
@@ -33,6 +31,12 @@ jobs:
     inputs:
       command: 'run'
       arguments: '-e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P1peline" -p 1433:1433 --name sql_server_container -d mcr.microsoft.com/mssql/server'
+
+  - bash: |
+      sudo npm install -g azurite
+      sudo mkdir azurite
+      sudo azurite --silent --location azurite --debug azurite\debug.log &
+    displayName: 'Install and Run Azurite'
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
