@@ -13,25 +13,10 @@ jobs:
   - group: BUILD Management Resources
   steps:
 
-  # - task: DockerInstaller@0
-  #   displayName: 'Install Docker'
-
-  - bash: |
-      sudo apt-get update
-      sudo apt-get install docker
-      sudo docker pull mcr.microsoft.com/mssql/server
-    displayName: 'Start Docker'
-
-  - task: Docker@2
-    inputs:
-      command: 'pull'
-      arguments: 'mcr.microsoft.com/mssql/server'
-
-  - task: Docker@2
-    inputs:
-      command: 'run'
-      arguments: '-e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P1peline" -p 1433:1433 --name sql_server_container -d mcr.microsoft.com/mssql/server'
-
+  - script: |
+      docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=YourStrongPassword' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest
+    displayName: 'Run SQL Server Container'
+    
   - bash: |
       sudo npm install -g azurite
       sudo mkdir azurite
