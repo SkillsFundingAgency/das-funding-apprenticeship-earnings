@@ -19,7 +19,8 @@ jobs:
   - bash: |
       sudo apt-get update
       sudo apt-get install docker
-      sudo systemctl docker start
+      sudo update-alternatives --config iptables
+      sudo service docker start
     displayName: 'Start Docker'
 
   - task: Docker@2
