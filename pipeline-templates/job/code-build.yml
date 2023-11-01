@@ -11,12 +11,9 @@ jobs:
       clean: all
   variables:
   - group: BUILD Management Resources
+  container: sql_server_container
   steps:
 
-  - script: |
-      docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=YourStrongPassword' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest
-    displayName: 'Run SQL Server Container'
-    
   - bash: |
       sudo npm install -g azurite
       sudo mkdir azurite
