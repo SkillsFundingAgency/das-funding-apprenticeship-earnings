@@ -13,11 +13,12 @@ jobs:
   - group: BUILD Management Resources
   steps:
 
-  - task: DockerInstaller@0
-    displayName: 'Install Docker'
+  # - task: DockerInstaller@0
+  #   displayName: 'Install Docker'
 
   - bash: |
-      sudo service docker start
+      sudo apt-get install docker.io
+      sudo service docker.io start
     displayName: 'Start Docker'
 
   - task: Docker@2
