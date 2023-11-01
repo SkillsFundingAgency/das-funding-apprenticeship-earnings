@@ -6,7 +6,7 @@ jobs:
 - job: CodeBuild
   dependsOn: DacpacBuild
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-latest'
     #name: DAS - Continuous Integration Agents
     #workspace:
     #  clean: all
