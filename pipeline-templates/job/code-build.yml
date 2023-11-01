@@ -24,10 +24,15 @@ jobs:
       dockerVersion: '17.09.0-ce'
     displayName: 'Install Docker'
 
-  - bash: |
-      sudo docker pull mcr.microsoft.com/mssql/server
-      sudo docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P1peline" -p 1433:1433 --name sql_server_container -d mcr.microsoft.com/mssql/server
-    displayName: 'Pull and start sql server docker image'
+  - task: Docker@2
+    inputs:
+      command: 'pull'
+      arguments: 'mcr.microsoft.com/mssql/server'
+
+  - task: Docker@2
+    inputs:
+      command: 'run'
+      arguments: '-e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P1peline" -p 1433:1433 --name sql_server_container -d mcr.microsoft.com/mssql/server'
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
