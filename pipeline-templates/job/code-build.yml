@@ -9,6 +9,8 @@ jobs:
     name: DAS - Continuous Integration Agents
     workspace:
       clean: all
+  services:
+    localhostsqlserver: sql_server_container
   variables:
   - group: BUILD Management Resources
   steps:
