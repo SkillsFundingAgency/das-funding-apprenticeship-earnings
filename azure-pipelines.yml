@@ -34,6 +34,7 @@ resources:
     env:
       ACCEPT_EULA: 'Y'
       SA_PASSWORD: 'P1peline'
+    options: --user 0:0
   repositories:
   - repository: self
   - repository: das-platform-building-blocks
