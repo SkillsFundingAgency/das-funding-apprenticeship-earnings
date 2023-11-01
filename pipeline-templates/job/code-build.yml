@@ -17,8 +17,8 @@ jobs:
   #   displayName: 'Install Docker'
 
   - bash: |
-      sudo apt-get install docker.io
-      sudo service docker.io start
+      sudo apt-get install docker
+      sudo service docker start
     displayName: 'Start Docker'
 
   - task: Docker@2
