@@ -19,6 +19,11 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
+  - bash: |
+      docker pull mcr.microsoft.com/mssql/server
+      docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P1peline" -p 1433:1433 --name sql_server_container -d mcr.microsoft.com/mssql/server
+    displayName: 'Pull and start sql server docker image'
+
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
   - task: DownloadBuildArtifacts@1
@@ -36,11 +41,12 @@ jobs:
       flattenFolders : true
       SourceFolder : '$(build.artifactstagingdirectory)/download'
 
+
+
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
       RunAcceptanceTests: true
       ContinueOnVulnerablePackageScanError: true # TEMP - DO NOT APPROVE PR WITH THIS IN PLACE
-    container: sql_server_container
 
   - powershell: |
       Get-ChildItem -Path $(Build.SourcesDirectory) -Recurse -Name
