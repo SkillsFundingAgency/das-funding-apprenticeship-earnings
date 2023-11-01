@@ -19,7 +19,7 @@ jobs:
   - bash: |
       sudo apt-get update
       sudo apt-get install docker.io
-      sudo service docker start
+      sudo service docker.io start
     displayName: 'Start Docker'
 
   - task: Docker@2
