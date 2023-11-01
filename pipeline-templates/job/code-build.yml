@@ -19,7 +19,7 @@ jobs:
     displayName: 'Install Docker'
 
   - bash: |
-      sudo systemctl start docker
+      sudo service docker start
     displayName: 'Start Docker'
 
   - task: Docker@2
