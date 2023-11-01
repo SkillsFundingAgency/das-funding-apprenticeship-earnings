@@ -19,8 +19,7 @@ jobs:
   - bash: |
       sudo apt-get update
       sudo apt-get install docker
-      sudo update-alternatives --config iptables
-      sudo service docker start
+      sudo docker pull mcr.microsoft.com/mssql/server
     displayName: 'Start Docker'
 
   - task: Docker@2
