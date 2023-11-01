@@ -19,6 +19,11 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: '17.09.0-ce'
+    displayName: 'Install Docker'
+    
   - bash: |
       docker pull mcr.microsoft.com/mssql/server
       docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P1peline" -p 1433:1433 --name sql_server_container -d mcr.microsoft.com/mssql/server
