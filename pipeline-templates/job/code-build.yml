@@ -14,12 +14,10 @@ jobs:
   steps:
 
   - task: DockerInstaller@0
-    inputs:
-      dockerVersion: '17.09.0-ce'
     displayName: 'Install Docker'
 
   - bash: |
-      sudo service docker.io start
+      sudo service docker start
     displayName: 'Start Docker'
 
   - task: Docker@2
