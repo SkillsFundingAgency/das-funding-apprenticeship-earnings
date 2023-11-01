@@ -9,8 +9,6 @@ jobs:
     name: DAS - Continuous Integration Agents
     workspace:
       clean: all
-  services:
-    localhostsqlserver: sql_server_container
   variables:
   - group: BUILD Management Resources
   steps:
@@ -42,6 +40,7 @@ jobs:
     parameters:
       RunAcceptanceTests: true
       ContinueOnVulnerablePackageScanError: true # TEMP - DO NOT APPROVE PR WITH THIS IN PLACE
+    container: sql_server_container
 
   - powershell: |
       Get-ChildItem -Path $(Build.SourcesDirectory) -Recurse -Name
