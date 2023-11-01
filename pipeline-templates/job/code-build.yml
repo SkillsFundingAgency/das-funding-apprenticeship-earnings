@@ -6,9 +6,10 @@ jobs:
 - job: CodeBuild
   dependsOn: DacpacBuild
   pool:
-    name: DAS - Continuous Integration Agents
-    workspace:
-      clean: all
+    vmImage: 'ubuntu-16.04'
+    #name: DAS - Continuous Integration Agents
+    #workspace:
+    #  clean: all
   variables:
   - group: BUILD Management Resources
   container: sql_server_container
