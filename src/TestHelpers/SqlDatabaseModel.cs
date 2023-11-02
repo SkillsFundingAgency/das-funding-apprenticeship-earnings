@@ -6,7 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 public static class SqlDatabaseModel
 {
-#if !DEBUG
+#if DEBUG
     public const string ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True";
 #else
     public const string ConnectionString = @"Data Source=127.0.0.1\sql_server_container,1433;Initial Catalog=master;User Id=sa;Password=P1peline;TrustServerCertificate=True";
