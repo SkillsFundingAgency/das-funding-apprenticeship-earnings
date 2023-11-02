@@ -6,21 +6,20 @@ jobs:
 - job: CodeBuild
   dependsOn: DacpacBuild
   pool:
-    vmImage: 'ubuntu-latest'
-    #name: DAS - Continuous Integration Agents
-    #workspace:
-    #  clean: all
+    name: DAS - Continuous Integration
+    workspace:
+      clean: all
   variables:
   - group: BUILD Management Resources
-  container: sql_server_container
+  #container: sql_server_container
   steps:
 
-  - task: DockerInstaller@0
-  - bash: |
-      sudo npm install -g azurite
-      sudo mkdir azurite
-      sudo azurite --silent --location azurite --debug azurite\debug.log &
-    displayName: 'Install and Run Azurite'
+  #- task: DockerInstaller@0
+  #- bash: |
+  #    sudo npm install -g azurite
+  #    sudo mkdir azurite
+  #    sudo azurite --silent --location azurite --debug azurite\debug.log &
+  #  displayName: 'Install and Run Azurite'
 
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
