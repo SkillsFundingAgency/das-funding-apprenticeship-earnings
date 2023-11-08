@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
@@ -50,6 +51,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             var earnings = apprenticeshipFunding.GenerateEarnings();
             EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment);
             AddEvent(new EarningsCalculatedEvent(this));
+        }
+
+        public void RecalculateEarnings(EarningsProfile existingEarningsProfile, DateTime effectiveFromDate)
+        {
+            var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+            var existingEarnings = existingEarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
+            var earnings = apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate);
+            EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment);
+            AddEvent(new EarningsRecalculatedEvent(this));
         }
     }
 }

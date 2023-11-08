@@ -7,9 +7,11 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
 {
@@ -17,7 +19,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
     {
         private ApprenticeshipEntity _sut;
         private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
+        private PriceChangeApprovedEvent _priceChangeApprovedEvent;
         private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
+        private Mock<IPriceChangeApprovedCommandHandler> _priceChangeApprovedCommandHandler;
         private Mock<IDomainEventDispatcher> _domainEventDispatcher;
         private Fixture _fixture;
         private Apprenticeship _apprenticeship;
@@ -42,6 +46,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
                 AgeAtStartOfApprenticeship = 20
             };
 
+            _priceChangeApprovedEvent = new PriceChangeApprovedEvent
+            {
+                ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
+                ApprenticeshipId = 120,
+                TrainingPrice = 17000,
+                ApprovedBy = ApprovedBy.Provider,
+                ApprovedDate = new DateTime(2023, 2, 15),
+                EffectiveFromDate = new DateTime(2023, 1, 15),
+                EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
+                AssessmentPrice = 1000,
+                ProviderId = 123
+            };
+
             _fixture = new Fixture();
 
             _apprenticeship = new Apprenticeship(
@@ -62,12 +79,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
             _apprenticeship.CalculateEarnings();
 
             _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
+            _priceChangeApprovedCommandHandler = new Mock<IPriceChangeApprovedCommandHandler>();
             _domainEventDispatcher = new Mock<IDomainEventDispatcher>();
-            _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _domainEventDispatcher.Object);
+            _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _priceChangeApprovedCommandHandler.Object, _domainEventDispatcher.Object);
 
             _createApprenticeshipCommandHandler.Setup(x => x.Create(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
+            _priceChangeApprovedCommandHandler.Setup(x => x.RecalculateEarnings(It.IsAny<PriceChangeApprovedCommand>())).ReturnsAsync(_apprenticeship);
 
             await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipCreatedEvent);
+            await _sut.HandleApprenticeshipPriceChangeApprovedEvent(_priceChangeApprovedEvent);
         }
 
         [Test]
@@ -164,6 +184,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         public void ShouldPublishEvents()
         {
             _domainEventDispatcher.Verify(x => x.Send(It.IsAny<EarningsCalculatedEvent>(), It.IsAny<CancellationToken>()));
+        }
+
+        [Test]
+        public void ShouldCallRegenerateEarnings()
+        {
+            _priceChangeApprovedCommandHandler.Verify(x => x.RecalculateEarnings(It.Is<PriceChangeApprovedCommand>(y => y.ApprenticeshipEntity == _sut.Model)));
         }
     }
 }
