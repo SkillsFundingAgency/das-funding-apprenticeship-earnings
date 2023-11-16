@@ -1,4 +1,4 @@
-﻿CREATE TABLE [query].[Earning]
+﻿CREATE TABLE [Query].[Earning]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
     [ApprenticeshipKey] UNIQUEIDENTIFIER NOT NULL, 
