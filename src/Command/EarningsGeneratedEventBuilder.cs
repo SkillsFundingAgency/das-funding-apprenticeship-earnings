@@ -24,7 +24,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             StartDate = apprenticeship.ActualStartDate,
             TrainingCode = apprenticeship.TrainingCode,
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
-            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods(),
+            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = apprenticeship.EmployerAccountId,
             PlannedEndDate = apprenticeship.PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId

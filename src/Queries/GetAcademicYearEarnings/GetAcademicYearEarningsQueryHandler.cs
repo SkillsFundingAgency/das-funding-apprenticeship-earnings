@@ -24,7 +24,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetAcademicYearEarnings
 
             academicYearEarnings.Learners.ForEach(l => CalculateCoInvestmentAmounts(l));
 
-            var response = new GetAcademicYearEarningsResponse { AcademicYearEarnings = academicYearEarnings };
+            var response = new GetAcademicYearEarningsResponse(academicYearEarnings);
 
             return await Task.FromResult(response);
         }
