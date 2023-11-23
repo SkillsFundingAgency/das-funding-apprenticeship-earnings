@@ -21,5 +21,6 @@ public class EarningsGeneratedEvent
     public long EmployerAccountId { get; set; }
     public DateTime PlannedEndDate { get; set; }
     public long ApprovalsApprenticeshipId { get; set; }
+    public Guid EarningsProfileId { get; set; }
 }
 #pragma warning restore CS8618
