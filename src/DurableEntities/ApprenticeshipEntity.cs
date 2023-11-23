@@ -91,6 +91,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 AdjustedPrice = earningsProfile.OnProgramTotal,
                 CompletionPayment = earningsProfile.CompletionPayment,
                 Instalments = MapInstalmentsToModel(earningsProfile.Instalments),
+                EarningsProfileId = earningsProfile.EarningsProfileId
             };
         }
 
