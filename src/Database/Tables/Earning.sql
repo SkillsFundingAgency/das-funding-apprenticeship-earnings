@@ -1,4 +1,4 @@
-﻿CREATE TABLE [query].[Earning]
+﻿CREATE TABLE [Query].[Earning]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
     [ApprenticeshipKey] UNIQUEIDENTIFIER NOT NULL, 
@@ -13,4 +13,4 @@
     [Amount] DECIMAL(9, 2) NOT NULL
 )
 GO
-CREATE INDEX IX_Earnings_ProviderAcademicYearFundingType ON [query].[Earning] (Ukprn, AcademicYear, FundingType) INCLUDE (Amount)
+CREATE INDEX IX_Earnings_ProviderAcademicYearFundingType ON [Query].[Earning] (Ukprn, AcademicYear, FundingType) INCLUDE (Amount)

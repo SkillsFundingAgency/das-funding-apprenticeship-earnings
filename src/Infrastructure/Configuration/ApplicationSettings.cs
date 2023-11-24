@@ -5,12 +5,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration
     [ExcludeFromCodeCoverage]
     public class ApplicationSettings
     {
-        public string AzureWebJobsStorage { get; set; }
-        public string ServiceBusConnectionString { get; set; }
-        public string QueueName { get; set; }
-        public string TopicPath { get; set; }
-        public string NServiceBusConnectionString { get; set; }
-        public string NServiceBusLicense { get; set; }
-        public string DbConnectionString { get; set; }
+        public string AzureWebJobsStorage { get; set; } = null!;
+        public string ServiceBusConnectionString { get; set; } = null!;
+        public string QueueName { get; set; } = null!;
+        public string TopicPath { get; set; } = null!;
+        public string NServiceBusConnectionString { get; set; } = null!;
+        public string NServiceBusLicense { get; set; } = null!;
+        public string DbConnectionString { get; set; } = null!;
     }
 }
