@@ -27,3 +27,4 @@ Scenario: earnings and instalments calculation
 	Then the earnings prior to the effective-from date are 'frozen' and do not change as part of this calculation
 	And the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship
 	And the amount of each instalment is determined as: newPriceLessCompletion - earningsBeforeTheEffectiveFromDate / numberOfInstalments
+	And a new earnings profile id is set

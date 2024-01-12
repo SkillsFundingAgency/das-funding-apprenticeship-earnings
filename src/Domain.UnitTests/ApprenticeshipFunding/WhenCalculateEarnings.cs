@@ -70,5 +70,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
             var events = _sut.FlushEvents();
             events.Should().ContainSingle(x => x.GetType() == typeof(EarningsCalculatedEvent));
         }
+        
+        [Test]
+        public void ThenTheEarningsProfileIdIsGenerated()
+        {
+            _sut.CalculateEarnings();
+            _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+        }
     }
 }

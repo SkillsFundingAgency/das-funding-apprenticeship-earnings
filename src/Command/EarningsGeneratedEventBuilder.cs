@@ -27,7 +27,8 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = apprenticeship.EmployerAccountId,
             PlannedEndDate = apprenticeship.PlannedEndDate,
-            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId
+            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
+            EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId
         };
     }
 }

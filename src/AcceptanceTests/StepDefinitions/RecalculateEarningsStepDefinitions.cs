@@ -39,8 +39,8 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPrice = 17000;
     private readonly int _newAssessmentPrice = 3000;
     private readonly int _newTrainingPriceAboveBandMax = 26000;
-
-    private List<InstalmentEntityModel>? _instalmentsBeforePriceChange;
+    
+    private EarningsProfileEntityModel _earningsProfileBeforePriceChange;
     private ApprenticeshipEntity? _updatedApprenticeshipEntity;
 
     #endregion
@@ -187,7 +187,7 @@ public class RecalculateEarningsStepDefinitions
 
         foreach(var instalment in instalmentsToValidate)
         {
-            var expectedInstalment = _instalmentsBeforePriceChange!.FirstOrDefault(x => 
+            var expectedInstalment = _earningsProfileBeforePriceChange.Instalments.FirstOrDefault(x => 
                 x.AcademicYear == instalment.AcademicYear &&
                 x.DeliveryPeriod == instalment.DeliveryPeriod);
 
@@ -227,14 +227,20 @@ public class RecalculateEarningsStepDefinitions
         var expectedMonthlyPrice = Math.Round((newPriceLessCompletion - earningsBeforeTheEffectiveFromDate) / numberOfRecalculatedInstalments, 5);
 
         var numberOfMatchingInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments
-            .Where(x => x.Amount == expectedMonthlyPrice)
-            .Count();
+            .Count(x => x.Amount == expectedMonthlyPrice);
 
         
         if (numberOfMatchingInstalments != numberOfRecalculatedInstalments)
         {
             Assert.Fail($"Expected to find {numberOfRecalculatedInstalments} instalments of £{expectedMonthlyPrice} but found {numberOfMatchingInstalments}");
         }
+    }
+
+    [Then("a new earnings profile id is set")]
+    public void AssertEarningsProfileId()
+    {
+        Assert.That(_updatedApprenticeshipEntity!.Model.EarningsProfile.EarningsProfileId != Guid.Empty &&
+                    _updatedApprenticeshipEntity!.Model.EarningsProfile.EarningsProfileId != _earningsProfileBeforePriceChange.EarningsProfileId);
     }
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
@@ -245,7 +251,7 @@ public class RecalculateEarningsStepDefinitions
             return false;
         }
 
-        _instalmentsBeforePriceChange = apprenticeshipEntity.Model.EarningsProfile.Instalments;
+        _earningsProfileBeforePriceChange = apprenticeshipEntity.Model.EarningsProfile;
         return true;
     }
 
