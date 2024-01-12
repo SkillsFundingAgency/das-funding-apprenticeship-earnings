@@ -19,7 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSumma
         {
             var providerEarningsSummary = await _earningsQueryRepository.GetProviderSummary(query.Ukprn, _academicYearService.CurrentAcademicYear);
             
-            var response = new GetProviderEarningSummaryResponse { ProviderEarningsSummary = providerEarningsSummary };
+            var response = new GetProviderEarningSummaryResponse(providerEarningsSummary);
 
             return await Task.FromResult(response);
         }

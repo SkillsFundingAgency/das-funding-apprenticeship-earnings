@@ -38,7 +38,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public FundingType FundingType { get; }
         public decimal FundingBandMaximum { get; }
         public int AgeAtStartOfApprenticeship { get; }
-        public EarningsProfile EarningsProfile { get; private set; }
+        public EarningsProfile? EarningsProfile { get; private set; }
 
         public string FundingLineType =>
             AgeAtStartOfApprenticeship < 19

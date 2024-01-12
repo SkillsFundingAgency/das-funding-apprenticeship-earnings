@@ -5,9 +5,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers
 {
     internal static class ApprenticeshipMappers
     {
-        internal static IEnumerable<Earning> ToEarningsReadModels(this Apprenticeship apprenticeship)
+        internal static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
         {
-            return apprenticeship.EarningsProfile.Instalments.Select(x => new Earning
+            return apprenticeship.EarningsProfile?.Instalments.Select(x => new Earning
             {
                 Id = Guid.NewGuid(),
                 AcademicYear = x.AcademicYear,

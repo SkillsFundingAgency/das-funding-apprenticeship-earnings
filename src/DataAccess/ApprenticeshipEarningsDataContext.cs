@@ -9,6 +9,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         {
         }
 
-        public virtual DbSet<Earning> Earning { get; set; }
+        public virtual DbSet<Earning> Earning { get; set; } = null!;
     }
 }

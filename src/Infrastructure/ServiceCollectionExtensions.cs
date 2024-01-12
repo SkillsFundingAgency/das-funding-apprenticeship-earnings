@@ -26,7 +26,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
                 return new ApprenticeshipEarningsDataContext(options);
             });
 
-            return services.AddScoped(provider => new Lazy<ApprenticeshipEarningsDataContext>(provider.GetService<ApprenticeshipEarningsDataContext>));
+            return services.AddScoped(provider =>
+            {
+                var dataContext = provider.GetService<ApprenticeshipEarningsDataContext>() ?? throw new ArgumentNullException("ApprenticeshipEarningsDataContext");
+                return new Lazy<ApprenticeshipEarningsDataContext>(dataContext);
+            });
         }
     }
 }

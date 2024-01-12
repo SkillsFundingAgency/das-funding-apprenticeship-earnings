@@ -13,7 +13,7 @@ public class SqlAzureIdentityAuthenticationDbConnectionInterceptor : DbConnectio
     private readonly ISqlAzureIdentityTokenProvider _tokenProvider;
     private static bool _connectionNeedsAccessToken = true;
 
-    public SqlAzureIdentityAuthenticationDbConnectionInterceptor(ILogger<SqlAzureIdentityAuthenticationDbConnectionInterceptor> logger, ISqlAzureIdentityTokenProvider tokenProvider, bool connectionNeedsAccessToken)
+    public SqlAzureIdentityAuthenticationDbConnectionInterceptor(ILogger<SqlAzureIdentityAuthenticationDbConnectionInterceptor>? logger, ISqlAzureIdentityTokenProvider? tokenProvider, bool connectionNeedsAccessToken)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));

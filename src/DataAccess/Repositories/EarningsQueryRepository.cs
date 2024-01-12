@@ -21,8 +21,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
         public async Task Add(Apprenticeship apprenticeship)
         {
             var earningsReadModels = apprenticeship.ToEarningsReadModels();
-            await DbContext.AddRangeAsync(earningsReadModels);
-            await DbContext.SaveChangesAsync();
+            if (earningsReadModels != null)
+            {
+                await DbContext.AddRangeAsync(earningsReadModels);
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         public async Task Replace(Apprenticeship apprenticeship)
@@ -58,20 +61,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
         {
             var earnings = DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear).GroupBy(x => x.Uln);
             var result = new AcademicYearEarnings
-            {
-                Learners = await earnings.Select(x => new Learner
-                {
-                    Uln = x.Key,
-                    FundingType = x.First().FundingType,
-                    OnProgrammeEarnings = x.Select(y => new OnProgrammeEarning
+            (
+                await earnings.Select(x => new Learner
+                (
+                    x.Key,
+                    x.First().FundingType,
+                    x.Select(y => new OnProgrammeEarning
                     {
                         AcademicYear = y.AcademicYear,
                         DeliveryPeriod = y.DeliveryPeriod,
                         Amount = y.Amount
                     }).ToList(),
-                    TotalOnProgrammeEarnings = x.Sum(y => y.Amount)
-                }).ToListAsync()
-            };
+                    x.Sum(y => y.Amount)
+                )).ToListAsync()
+            );
 
             return result;
         }
