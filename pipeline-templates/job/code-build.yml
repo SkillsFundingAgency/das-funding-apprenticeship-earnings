@@ -6,7 +6,7 @@ jobs:
 - job: CodeBuild
   dependsOn: DacpacBuild
   pool:
-    name: DAS - Continuous Integration Agents
+    name: DAS - Continuous Integration Beta
     workspace:
       clean: all
   variables:

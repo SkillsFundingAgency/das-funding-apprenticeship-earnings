@@ -1,0 +1,48 @@
+parameters:
+  BuildConfiguration:
+  AcceptanceTestProjects: '**/*.AcceptanceTests.csproj'
+
+jobs:
+- job: RunAcceptanceTests
+  dependsOn: CodeBuild
+  pool:
+    name: DAS - Continuous Integration
+    workspace:
+      clean: all
+  variables:
+  - group: BUILD Management Resources
+  container: sql_server_container
+  steps:
+
+  # - task: DockerInstaller@0
+  # - bash: |
+  #     sudo npm install -g azurite
+  #     sudo mkdir azurite
+  #     sudo azurite --silent --location azurite --debug azurite\debug.log &
+  #   displayName: 'Install and Run Azurite'
+
+  # - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
+
+  - task: DownloadBuildArtifacts@1
+    displayName: Download Dacpac For Acceptance Tests
+    inputs:
+      buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
+      downloadType: 'specific' # 'single' | 'specific'. Required. Download type. Default: single.
+      downloadPath: '$(build.artifactstagingdirectory)/download'
+
+  - task: CopyFiles@2
+    displayName: Copy Dacpac For Acceptance Tests
+    inputs:
+      Contents: '**'
+      TargetFolder: 'src/Database/bin/release'
+      flattenFolders : true
+      SourceFolder : '$(build.artifactstagingdirectory)/download'
+
+  - task: DotNetCoreCLI@2
+    displayName: Acceptance Tests
+    condition: ${{ parameters.RunAcceptanceTests }}
+    inputs:
+      command: test
+      projects: ${{ parameters.AcceptanceTestProjects }}
+      publishTestResults: true
+      arguments: '--configuration $(buildConfiguration) --no-build  /p:CollectCoverage=true /p:CoverletOutput=$(Agent.TempDirectory)/CoverageResults/ /p:MergeWith=$(Agent.TempDirectory)/CoverageResults/coverage.json /p:CoverletOutputFormat="opencover%2cjson"'

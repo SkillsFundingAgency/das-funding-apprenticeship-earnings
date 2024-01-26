@@ -64,6 +64,9 @@ stages:
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildConfiguration: $(BuildConfiguration)
+  - template: pipeline-templates/job/acceptance-tests.yml
+    parameters:
+      BuildConfiguration: $(BuildConfiguration)
 
 
 - template: azure-pipelines-templates/deploy/stage/nuget-publish.yml@das-platform-building-blocks
