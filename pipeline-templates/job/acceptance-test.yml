@@ -21,8 +21,6 @@ jobs:
       sudo azurite --silent --location azurite --debug azurite\debug.log &
     displayName: 'Install and Run Azurite'
 
-  - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
-
   - task: DownloadBuildArtifacts@1
     displayName: Download Dacpac For Acceptance Tests
     inputs:
