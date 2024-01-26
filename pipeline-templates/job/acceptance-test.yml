@@ -11,7 +11,7 @@ jobs:
       clean: all
   variables:
   - group: BUILD Management Resources
-  container: sql_server_container
+  #container: sql_server_container
   steps:
 
   # - task: DockerInstaller@0
