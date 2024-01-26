@@ -1,6 +1,7 @@
 parameters:
   BuildConfiguration:
   AcceptanceTestProjects: '**/*.AcceptanceTests.csproj'
+  TargetProjects: 'src/**/*.csproj'
 
 jobs:
 - job: RunAcceptanceTests
