@@ -64,7 +64,7 @@ stages:
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildConfiguration: $(BuildConfiguration)
-  - template: pipeline-templates/job/acceptance-tests.yml
+  - template: pipeline-templates/job/acceptance-test.yml
     parameters:
       BuildConfiguration: $(BuildConfiguration)
 
