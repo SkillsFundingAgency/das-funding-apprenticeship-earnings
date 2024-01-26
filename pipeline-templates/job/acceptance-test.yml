@@ -44,17 +44,17 @@ jobs:
       SourceFolder : '$(build.artifactstagingdirectory)/download'
 
   - task: DotNetCoreCLI@2
-    displayName: Build
-    inputs:
-      projects:  ${{ parameters.TargetProjects }}
-      arguments: '--configuration $(buildConfiguration) --no-restore'
-
-  - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
       command: restore
       projects: ${{ parameters.TargetProjects }}
       noCache: true
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  ${{ parameters.TargetProjects }}
+      arguments: '--configuration $(buildConfiguration) --no-restore'
 
   - task: DotNetCoreCLI@2
     displayName: Acceptance Tests
