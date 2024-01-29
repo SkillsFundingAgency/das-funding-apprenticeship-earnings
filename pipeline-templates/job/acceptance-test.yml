@@ -7,26 +7,26 @@ jobs:
 - job: RunAcceptanceTests
   dependsOn: CodeBuild
   pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: 'windows-latest'
     workspace:
       clean: all
   variables:
   - group: BUILD Management Resources
-  container: sql_server_container
+  # container: sql_server_container
   steps:
 
-  - task: UseDotNet@2
-    inputs:
-      packageType: 'sdk'
-      version: '6.x' 
-      installationPath: $(Agent.ToolsDirectory)/dotnet
+  # - task: UseDotNet@2
+  #   inputs:
+  #     packageType: 'sdk'
+  #     version: '6.x' 
+  #     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  - task: DockerInstaller@0
-  - bash: |
-      sudo npm install -g azurite
-      sudo mkdir azurite
-      sudo azurite --silent --location azurite --debug azurite\debug.log &
-    displayName: 'Install and Run Azurite'
+  # - task: DockerInstaller@0
+  # - bash: |
+  #     sudo npm install -g azurite
+  #     sudo mkdir azurite
+  #     sudo azurite --silent --location azurite --debug azurite\debug.log &
+  #   displayName: 'Install and Run Azurite'
 
   - task: DownloadBuildArtifacts@1
     displayName: Download Dacpac For Acceptance Tests
