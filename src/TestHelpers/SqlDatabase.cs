@@ -6,16 +6,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 public class SqlDatabase : IDisposable
 {
     private bool _isDisposed;
-
-//#if DEBUG
-    private bool _useLocalDb = true;
     private const string _source = "(localdb)\\MSSQLLocalDB";
     private const string _authentication = "Integrated Security=True";
-//#else
-//    private bool _useLocalDb = false;
-//    private const string _source = @"127.0.0.1\sql_server_container,1433";
-//    private const string _authentication = "User Id=sa;Password=P1peline;TrustServerCertificate=True";
-//#endif
 
     public DatabaseInfo DatabaseInfo { get; } = new DatabaseInfo();
 
@@ -36,19 +28,12 @@ public class SqlDatabase : IDisposable
         using var dbConn = new SqlConnection(masterConnectionString);
         try
         {
-            var sql = "";
-            if (_useLocalDb)
-            {
-                sql = @$"CREATE DATABASE [{DatabaseInfo.DatabaseName}] ON PRIMARY
+            var sql = @$"CREATE DATABASE [{DatabaseInfo.DatabaseName}] ON PRIMARY
                      (NAME = [{DatabaseInfo.DatabaseName}_Data],
                       FILENAME = 'C:\\temp\\{DatabaseInfo.DatabaseName}.mdf')
                       LOG ON (NAME = [{DatabaseInfo.DatabaseName}_Log],
                       FILENAME = 'C:\\temp\\{DatabaseInfo.DatabaseName}.ldf')";
-            }
-            else
-            {
-                sql = @$"CREATE DATABASE [{DatabaseInfo.DatabaseName}]";
-            }
+  
 
 
             using var cmd = new SqlCommand(sql, dbConn);

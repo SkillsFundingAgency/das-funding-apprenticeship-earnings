@@ -12,16 +12,8 @@ jobs:
       clean: all
   variables:
   - group: BUILD Management Resources
-  # container: sql_server_container
   steps:
 
-  # - task: UseDotNet@2
-  #   inputs:
-  #     packageType: 'sdk'
-  #     version: '6.x' 
-  #     installationPath: $(Agent.ToolsDirectory)/dotnet
-
-  # - task: DockerInstaller@0
   - bash: |
       npm install -g azurite
       mkdir azurite
