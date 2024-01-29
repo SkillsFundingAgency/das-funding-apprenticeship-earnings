@@ -21,7 +21,7 @@ jobs:
   #     version: '6.x' 
   #     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  # - task: DockerInstaller@0
+   - task: DockerInstaller@0
   # - bash: |
   #     sudo npm install -g azurite
   #     sudo mkdir azurite
