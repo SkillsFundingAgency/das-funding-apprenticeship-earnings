@@ -7,15 +7,15 @@ public class SqlDatabase : IDisposable
 {
     private bool _isDisposed;
 
-#if DEBUG
+//#if DEBUG
     private bool _useLocalDb = true;
     private const string _source = "(localdb)\\MSSQLLocalDB";
     private const string _authentication = "Integrated Security=True";
-#else
-    private bool _useLocalDb = false;
-    private const string _source = @"127.0.0.1\sql_server_container,1433";
-    private const string _authentication = "User Id=sa;Password=P1peline;TrustServerCertificate=True";
-#endif
+//#else
+//    private bool _useLocalDb = false;
+//    private const string _source = @"127.0.0.1\sql_server_container,1433";
+//    private const string _authentication = "User Id=sa;Password=P1peline;TrustServerCertificate=True";
+//#endif
 
     public DatabaseInfo DatabaseInfo { get; } = new DatabaseInfo();
 
