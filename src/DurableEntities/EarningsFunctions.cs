@@ -2,6 +2,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
 using System.Text.Json;
@@ -43,6 +44,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
                 log.LogError($"{nameof(ApprenticeshipEntity)} threw exception.", ex);
                 throw;
             }
+        }
+
+        [FunctionName(nameof(PriceChangeApprovedEventServiceBusTrigger))]
+        public async Task PriceChangeApprovedEventServiceBusTrigger(
+            [NServiceBusTrigger(Endpoint = QueueNames.PriceChangeApproved)] PriceChangeApprovedEvent priceChangeApprovedEvent,
+            [DurableClient] IDurableEntityClient client,
+            ILogger log)
+        {
+            log.LogInformation($"{nameof(PriceChangeApprovedEventServiceBusTrigger)} processing...");
+            log.LogInformation("ApprenticeshipKey: {0} Received PriceChangeApprovedEvent: {1}",
+                    priceChangeApprovedEvent.ApprenticeshipKey,
+                    JsonSerializer.Serialize(priceChangeApprovedEvent, new JsonSerializerOptions { WriteIndented = true }));
+
+
+            var entityId = new EntityId(nameof(ApprenticeshipEntity), priceChangeApprovedEvent.ApprenticeshipKey.ToString());
+            await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipPriceChangeApprovedEvent), priceChangeApprovedEvent);
         }
     }
 }

@@ -4,7 +4,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<WarningLevel>0</WarningLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Features\RecalculateEarningsFollowingPriceChange.feature" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="3.1.2">

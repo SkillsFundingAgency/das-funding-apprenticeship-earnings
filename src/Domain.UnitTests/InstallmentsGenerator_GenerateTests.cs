@@ -1,7 +1,8 @@
-using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -65,4 +66,78 @@ public class InstallmentsGenerator_GenerateTests
             actualInstallments.Should().Contain(x => x.AcademicYear == expectedDeliveryPeriod.academicYear && x.DeliveryPeriod == expectedDeliveryPeriod.deliveryPeriod);
         }
     }
+
+    [TestCase("2020-01-05", "2020-10-05", "2022-01-04", 24)]
+    [TestCase("2020-01-05", "2020-10-05", "2021-12-31", 24)]
+    [TestCase("2020-01-05", "2020-10-05", "2021-12-30", 23)]
+    public void ShouldRegenerateCorrectNumberOfInstallments(string startDateString, string priceChangeDateString, string endDateString, int expectedNumberOfInstallments)
+    {
+        //  Arrange
+        var originalPrice = 12000;
+        var updatedPrice = 12000;
+        var startDate = DateTime.Parse(startDateString);
+        var endDate = DateTime.Parse(endDateString);
+        var priceChangeDate = DateTime.Parse(priceChangeDateString);
+        var originalInstalments = _sut.Generate(originalPrice, startDate, endDate);
+
+        //  Act
+        var recalculatedInstallments = _sut.Recalculate(updatedPrice, priceChangeDate, endDate, originalInstalments);
+
+        //  Assert
+        recalculatedInstallments.Should().HaveCount(expectedNumberOfInstallments);
+    }
+
+    [TestCase(12000, 13600, "2023-08-23", "2023-09-23", "2025-4-23", 600, 684.21)]
+    [TestCase(12000, 14400, "2023-08-23", "2024-12-01", "2025-4-23", 600, 1200)]
+    [TestCase(12000, 6400, "2023-08-23", "2024-08-01", "2025-4-23", 600, -100)]
+    public void ShouldRegenerateCorrectMonthlyInstallmentAmount(
+        decimal totalBeforeChange,
+        decimal totalAfterChange,
+        string startDateString, 
+        string priceChangeDateString, 
+        string endDateString, 
+        decimal expectedMonthlyBeforeChange,
+        decimal expectedMonthlyAfterChange)
+    {
+        //  Arrange
+        var startDate = DateTime.Parse(startDateString);
+        var endDate = DateTime.Parse(endDateString);
+        var priceChangeDate = DateTime.Parse(priceChangeDateString);
+        var orginalInstalments = _sut.Generate(totalBeforeChange, startDate, endDate);
+
+        //  Act
+        var recalculatedInstallments = _sut.Recalculate(totalAfterChange, priceChangeDate, endDate, orginalInstalments);
+
+        //  Assert
+        foreach(var instalment in recalculatedInstallments)
+        {
+            if(IsBeforePriceChangeDate(instalment, priceChangeDate))
+            {
+                instalment.Amount.Should().BeApproximately(expectedMonthlyBeforeChange, 0.01m);
+            }
+            else
+            {
+                instalment.Amount.Should().BeApproximately(expectedMonthlyAfterChange, 0.01m);
+            }
+
+        }
+
+    }
+
+    private bool IsBeforePriceChangeDate(Earning instalment, DateTime priceChangeDate)
+    {
+        if (instalment.AcademicYear < priceChangeDate.ToAcademicYear())
+            return true;
+
+
+        if (instalment.AcademicYear > priceChangeDate.ToAcademicYear())
+            return false;
+
+
+        if (instalment.DeliveryPeriod < priceChangeDate.ToDeliveryPeriod())
+            return true;
+
+        return false;
+    }   
+
 }

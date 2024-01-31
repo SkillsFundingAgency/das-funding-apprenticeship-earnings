@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
@@ -37,7 +38,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public FundingType FundingType { get; }
         public decimal FundingBandMaximum { get; }
         public int AgeAtStartOfApprenticeship { get; }
-        public EarningsProfile EarningsProfile { get; private set; }
+        public EarningsProfile? EarningsProfile { get; private set; }
 
         public string FundingLineType =>
             AgeAtStartOfApprenticeship < 19
@@ -48,8 +49,17 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         {
             var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
             var earnings = apprenticeshipFunding.GenerateEarnings();
-            EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment);
+            EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
             AddEvent(new EarningsCalculatedEvent(this));
+        }
+
+        public void RecalculateEarnings(EarningsProfile existingEarningsProfile, DateTime effectiveFromDate)
+        {
+            var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+            var existingEarnings = existingEarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
+            var earnings = apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate);
+            EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
+            AddEvent(new EarningsRecalculatedEvent(this));
         }
     }
 }

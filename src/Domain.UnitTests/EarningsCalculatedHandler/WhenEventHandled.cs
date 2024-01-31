@@ -11,23 +11,25 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.EarningsCalcul
     public class WhenEventHandled
     {
         private Fixture _fixture;
-        private Apprenticeship.Events.EarningsCalculatedHandler _sut;
-        private Mock<IEarningsQueryRepository> _repository;
 
-        [SetUp]
-        public void SetUp()
+        public WhenEventHandled()
         {
             _fixture = new Fixture();
-            _repository = new Mock<IEarningsQueryRepository>();
-            _sut = new Apprenticeship.Events.EarningsCalculatedHandler(_repository.Object);
         }
 
         [Test]
         public async Task ThenRepositoryIsCalled()
         {
+            //  Arrange
+            var repository = new Mock<IEarningsQueryRepository>();
+            var sut = new Apprenticeship.Events.EarningsCalculatedHandler(repository.Object);
             var @event = _fixture.Create<EarningsCalculatedEvent>();
-            await _sut.Handle(@event);
-            _repository.Verify(x => x.Add(@event.Apprenticeship), Times.Once);
+
+            //  Act
+            await sut.Handle(@event);
+
+            //  Assert
+            repository.Verify(x => x.Add(@event.Apprenticeship), Times.Once);
         }
     }
 }

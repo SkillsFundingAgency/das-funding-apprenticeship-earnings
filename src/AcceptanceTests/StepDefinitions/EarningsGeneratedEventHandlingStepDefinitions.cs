@@ -64,6 +64,8 @@ public class EarningsGeneratedEventHandlingStepDefinitions
 
     private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent, string expectedFundingLineType)
     {
-        return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) && earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString();
+        return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) &&
+               earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString() &&
+               earningsGeneratedEvent.EarningsProfileId != Guid.Empty;
     }
 }

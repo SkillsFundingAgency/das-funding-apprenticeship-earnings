@@ -13,10 +13,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         private Fixture _fixture;
         private Apprenticeship.Apprenticeship _sut;
 
+        public WhenCalculateEarnings()
+        {
+            _fixture = new Fixture();
+        }
+
         [SetUp]
         public void SetUp()
         {
-            _fixture = new Fixture();
             var agreedPrice = _fixture.Create<decimal>();
             _sut = new Apprenticeship.Apprenticeship(
                 Guid.NewGuid(),
@@ -65,6 +69,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 
             var events = _sut.FlushEvents();
             events.Should().ContainSingle(x => x.GetType() == typeof(EarningsCalculatedEvent));
+        }
+        
+        [Test]
+        public void ThenTheEarningsProfileIdIsGenerated()
+        {
+            _sut.CalculateEarnings();
+            _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
         }
     }
 }

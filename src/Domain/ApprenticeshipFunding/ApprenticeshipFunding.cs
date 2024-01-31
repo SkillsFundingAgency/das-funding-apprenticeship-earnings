@@ -39,5 +39,12 @@
             var earnings = instalmentGenerator.Generate(OnProgramTotal, _startDate, _endDate);
             return earnings;
         }
+
+        public List<Earning> RecalculateEarnings(List<Earning> existingEarnings, DateTime effectivePriceChangeDate)
+        {
+            var instalmentGenerator = new InstalmentsGenerator();
+            var earnings = instalmentGenerator.Recalculate(OnProgramTotal, effectivePriceChangeDate, _endDate, existingEarnings);
+            return earnings;
+        }
     }
 }
