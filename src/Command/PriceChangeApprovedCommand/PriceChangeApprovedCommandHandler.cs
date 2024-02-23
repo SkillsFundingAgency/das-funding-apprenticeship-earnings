@@ -18,8 +18,8 @@ public class PriceChangeApprovedCommandHandler : IPriceChangeApprovedCommandHand
     public async Task<Apprenticeship> RecalculateEarnings(PriceChangeApprovedCommand command)
     {
         var apprenticeship = Parse(command);
-        var existingEarnings = MapModelToEarningsProfile(command.ApprenticeshipEntity.EarningsProfile);
-        apprenticeship.RecalculateEarnings(existingEarnings, command.PriceChangeApprovedEvent.EffectiveFromDate);
+        var agreedPrice = command.PriceChangeApprovedEvent.AssessmentPrice + command.PriceChangeApprovedEvent.TrainingPrice;
+        apprenticeship.RecalculateEarnings(agreedPrice, command.PriceChangeApprovedEvent.EffectiveFromDate);
         await _messageSession.Publish(_eventBuilder.Build(apprenticeship));
         return apprenticeship;
     }
@@ -36,12 +36,13 @@ public class PriceChangeApprovedCommandHandler : IPriceChangeApprovedCommandHand
             entityModel.ApprenticeshipEntity.LegalEntityName,
             entityModel.ApprenticeshipEntity.ActualStartDate,
             entityModel.ApprenticeshipEntity.PlannedEndDate,
-            newAgreedPrice,
+            entityModel.ApprenticeshipEntity.AgreedPrice,
             entityModel.ApprenticeshipEntity.TrainingCode,
             entityModel.ApprenticeshipEntity.FundingEmployerAccountId,
             entityModel.ApprenticeshipEntity.FundingType,
             entityModel.ApprenticeshipEntity.FundingBandMaximum,
-            entityModel.ApprenticeshipEntity.AgeAtStartOfApprenticeship
+            entityModel.ApprenticeshipEntity.AgeAtStartOfApprenticeship,
+            MapModelToEarningsProfile(entityModel.ApprenticeshipEntity.EarningsProfile)
         );
     }
 

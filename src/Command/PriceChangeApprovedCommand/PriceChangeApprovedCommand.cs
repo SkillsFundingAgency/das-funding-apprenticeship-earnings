@@ -1,5 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+﻿using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
 
