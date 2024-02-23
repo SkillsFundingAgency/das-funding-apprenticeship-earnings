@@ -131,7 +131,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests
         [Test]
         public void ShouldMapAgreedPriceToEntity()
         {
-            _sut.Model.AgreedPrice.Should().Be(_apprenticeshipCreatedEvent.AgreedPrice);
+            _sut.Model.AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
         }
 
         [Test]

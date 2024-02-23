@@ -51,6 +51,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
             var apprenticeship = await _priceChangeApprovedCommandHandler.RecalculateEarnings(new PriceChangeApprovedCommand(Model, priceChangeApprovedEvent));
             var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 
+            Model.AgreedPrice = apprenticeship.AgreedPrice;
+
             SupersedeEarningsProfile(newEarnings);
 
             foreach (dynamic domainEvent in apprenticeship.FlushEvents())
