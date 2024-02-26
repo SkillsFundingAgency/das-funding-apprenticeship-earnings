@@ -33,23 +33,30 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         }
 
         [Test]
+        public void ThenTheAgreedPriceIsUpdated()
+        {
+            _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
+            _sut.AgreedPrice.Should().Be(_updatedPrice);
+        }
+
+        [Test]
         public void ThenTheOnProgramTotalIsCalculated()
         {
-            _sut!.RecalculateEarnings(_existingApprenticeship!.EarningsProfile, new DateTime(2021, 6, 15));
+            _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
             _sut.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
         }
 
         [Test]
         public void ThenTheCompletionAmountIsCalculated()
         {
-            _sut!.RecalculateEarnings(_existingApprenticeship!.EarningsProfile, new DateTime(2021, 6, 15));
+            _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
             _sut.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
         }
 
         [Test]
         public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
         {
-            _sut!.RecalculateEarnings(_existingApprenticeship!.EarningsProfile, new DateTime(2021, 6, 15));
+            _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
 
             _sut.EarningsProfile.Instalments.Count.Should().Be(12);
             var sum = Math.Round(_sut.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
@@ -59,7 +66,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         [Test]
         public void ThenEarningsCalculatedEventIsCreated()
         {
-            _sut!.RecalculateEarnings(_existingApprenticeship!.EarningsProfile, new DateTime(2021, 6, 15));
+            _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
 
             var events = _sut.FlushEvents();
             events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
@@ -68,7 +75,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         [Test]
         public void ThenTheEarningsProfileIdIsGenerated()
         {
-            _sut!.RecalculateEarnings(_existingApprenticeship!.EarningsProfile, new DateTime(2021, 6, 15));
+            _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
             _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
         }
 
@@ -102,12 +109,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
                 apprenticeship.LegalEntityName,
                 apprenticeship.ActualStartDate,
                 apprenticeship.PlannedEndDate,
-                newPrice,
+                apprenticeship.AgreedPrice,
                 apprenticeship.TrainingCode,
                 apprenticeship.FundingEmployerAccountId,
                 apprenticeship.FundingType,
                 newPrice + 1,
-                apprenticeship.AgeAtStartOfApprenticeship);
+                apprenticeship.AgeAtStartOfApprenticeship,
+                apprenticeship.EarningsProfile);
         }
     }
 }

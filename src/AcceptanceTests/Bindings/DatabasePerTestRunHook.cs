@@ -8,6 +8,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Bindings
         [BeforeTestRun(Order = 1)]
         public static void RefreshDatabaseModel()
         {
+            Console.WriteLine($"[{nameof(DatabasePerTestRunHook)}] {nameof(RefreshDatabaseModel)}: Refreshing database model");
             SqlDatabaseModel.Update();
         }
     }

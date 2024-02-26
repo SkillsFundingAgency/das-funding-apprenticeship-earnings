@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SFA.DAS.Apprenticeships.Enums;
+using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.PriceChangeApprovedCommand
 {

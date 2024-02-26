@@ -9,7 +9,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
 using System;
 
@@ -51,6 +50,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
         {
             var apprenticeship = await _priceChangeApprovedCommandHandler.RecalculateEarnings(new PriceChangeApprovedCommand(Model, priceChangeApprovedEvent));
             var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+
+            Model.AgreedPrice = apprenticeship.AgreedPrice;
 
             SupersedeEarningsProfile(newEarnings);
 

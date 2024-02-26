@@ -1,5 +1,6 @@
 ﻿using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
@@ -8,6 +9,8 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using FundingPlatform = SFA.DAS.Apprenticeships.Types.FundingPlatform;
+using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
