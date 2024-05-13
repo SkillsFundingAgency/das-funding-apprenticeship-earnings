@@ -64,7 +64,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         }
 
         [Test]
-        public void ThenEarningsCalculatedEventIsCreated()
+        public void ThenEarningsRecalculatedEventIsCreated()
         {
             _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
 

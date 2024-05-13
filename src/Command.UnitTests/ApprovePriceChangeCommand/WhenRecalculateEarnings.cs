@@ -1,19 +1,14 @@
 ﻿using AutoFixture;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
+using SFA.DAS.Apprenticeships.Enums;
+using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SFA.DAS.Apprenticeships.Enums;
-using SFA.DAS.Apprenticeships.Types;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.PriceChangeApprovedCommand
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApprovePriceChangeCommand
 {
     [TestFixture]
     public class WhenRecalculateEarnings
@@ -42,7 +37,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.PriceChangeAp
         public async Task ThenTheEarningsAreRecalculated()
         {
             // Arrange
-            var sut = new PriceChangeApprovedCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object);
+            var sut = new ApprovePriceChangeCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object);
             var command = CreateCommand();
 
             // Act
@@ -52,7 +47,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.PriceChangeAp
             _mockEventBuilder.Verify(x => x.Build(It.IsAny<Apprenticeship>()), Times.Once);
         }
 
-        private Command.PriceChangeApprovedCommand.PriceChangeApprovedCommand CreateCommand()
+        private Command.ApprovePriceChangeCommand.ApprovePriceChangeCommand CreateCommand()
         {
 
             var apprenticeship = _fixture.Create<ApprenticeshipEntityModel>();
@@ -85,7 +80,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.PriceChangeAp
                 TrainingPrice = 3000
             };
 
-            var command = new Command.PriceChangeApprovedCommand.PriceChangeApprovedCommand(apprenticeship, priceChangeApprovedEvent);
+            var command = new Command.ApprovePriceChangeCommand.ApprovePriceChangeCommand(apprenticeship, priceChangeApprovedEvent);
 
             return command;
         }

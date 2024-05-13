@@ -8,7 +8,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using FundingPlatform = SFA.DAS.Apprenticeships.Types.FundingPlatform;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
