@@ -18,8 +18,9 @@ public class PriceChangeApprovedEventHandler
         ILogger log)
     {
         log.LogInformation($"{nameof(PriceChangeApprovedEventServiceBusTrigger)} processing...");
-        log.LogInformation("ApprenticeshipKey: {0} Received PriceChangeApprovedEvent: {1}",
+        log.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
             priceChangeApprovedEvent.ApprenticeshipKey,
+            nameof(PriceChangeApprovedEvent),
             JsonSerializer.Serialize(priceChangeApprovedEvent, new JsonSerializerOptions { WriteIndented = true }));
 
 
