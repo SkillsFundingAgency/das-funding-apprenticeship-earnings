@@ -13,7 +13,7 @@ public class StartDateChangedEventHandler
 {
     [FunctionName(nameof(StartDateChangedEventServiceBusTrigger))]
     public async Task StartDateChangedEventServiceBusTrigger(
-        [NServiceBusTrigger(Endpoint = QueueNames.PriceChangeApproved)] ApprenticeshipStartDateChangedEvent startDateChangedEvent,
+        [NServiceBusTrigger(Endpoint = QueueNames.StartDateChangeApproved)] ApprenticeshipStartDateChangedEvent startDateChangedEvent,
         [DurableClient] IDurableEntityClient client,
         ILogger log)
     {
@@ -24,6 +24,6 @@ public class StartDateChangedEventHandler
             JsonSerializer.Serialize(startDateChangedEvent, new JsonSerializerOptions { WriteIndented = true }));
 
         var entityId = new EntityId(nameof(ApprenticeshipEntity), startDateChangedEvent.ApprenticeshipKey.ToString());
-        await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipPriceChangeApprovedEvent), startDateChangedEvent);
+        await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipStartDateChangeApprovedEvent), startDateChangedEvent);
     }
 }
