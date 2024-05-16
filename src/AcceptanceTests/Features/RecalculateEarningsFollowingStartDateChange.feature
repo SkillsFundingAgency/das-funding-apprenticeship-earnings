@@ -1,14 +1,13 @@
-﻿Feature: Recalculate earnings following the approval of a price change
+﻿Feature: Recalculate earnings following the approval of a start date change
 
 
 
-Scenario: Price change approved in the year it was requested, below or at funding band max; recalc earnings
+Scenario: Start date moves earlier, stays in-year
 	Given earnings have been calculated for an apprenticeship in the pilot
-	And the total price is below or at the funding band maximum
-	And a price change request was sent before the end of R14 of the current academic year
-	And the price change request is for a new total price up to or at the funding band maximum
-	When the price change is approved by the other party before the end of year
-	Then the earnings are recalculated based on the new price
+	And a start date change request was sent before the end of R14 of the current academic year
+	And the price change request is for a new start date is earlier than the current start date
+	When the start date change is approved by the other party before the end of year
+	Then the earnings are recalculated based on the new start date
 	And the history of old and new earnings is maintained
 
 
@@ -16,7 +15,7 @@ Scenario: Price change approved in the year it was requested, above funding band
 	Given earnings have been calculated for an apprenticeship in the pilot 
 	And a price change request was sent before the end of R14 of the current academic year
 	And the price change request is for a new total price above the funding band maximum
-	When the price change is approved by the other party before the end of year
+	When the start date change is approved by the other party before the end of year
 	Then the earnings are recalculated based on the lower of: the new total price and the funding band maximum
 	And the history of old and new earnings is maintained
 

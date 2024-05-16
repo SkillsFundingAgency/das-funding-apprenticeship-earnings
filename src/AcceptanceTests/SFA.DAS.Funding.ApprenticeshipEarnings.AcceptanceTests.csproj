@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <SpecFlowObsoleteCodeBehindFiles Remove="Features\RecalculateEarningsFollowingPriceChange - Copy.feature.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <UpToDateCheckInput Remove="Features\RecalculateEarningsFollowingPriceChange.feature" />
   </ItemGroup>
 
@@ -37,6 +41,19 @@
     <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
     <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Features\RecalculateEarningsFollowingStartDateChange.feature.cs">
+      <DependentUpon>RecalculateEarningsFollowingStartDateChange.feature</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingStartDateChange.feature">
+      <Visible>$(UsingMicrosoftNETSdk)</Visible>
+      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
+    </SpecFlowFeatureFiles>
   </ItemGroup>
 
 </Project>

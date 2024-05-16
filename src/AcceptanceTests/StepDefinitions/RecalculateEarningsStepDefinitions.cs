@@ -23,6 +23,7 @@ public class RecalculateEarningsStepDefinitions
 
     private ApprenticeshipCreatedEvent? _apprenticeshipCreatedEvent;
     private PriceChangeApprovedEvent? _priceChangeApprovedEvent;
+    private ApprenticeshipStartDateChangedEvent _startDateChangedEvent;
 
     #region Test Values
     private readonly DateTime _dateOfBirth = new DateTime(2000, 1, 1);
@@ -32,7 +33,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly DateTime _endDate = new DateTime(2021, 1, 1);
     private readonly int _expectedNumberOfInstalments = 16;
 
-    private readonly DateTime _priceChangeRequestDate = new DateTime(2020, 1, 1);
+    private readonly DateTime _changeRequestDate = new DateTime(2020, 1, 1);
     private readonly DateTime _effectiveFromDate = new DateTime(2020, 2, 1);
 
     private readonly int _originalPrice = 15000;
@@ -41,8 +42,11 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPrice = 17000;
     private readonly int _newAssessmentPrice = 3000;
     private readonly int _newTrainingPriceAboveBandMax = 26000;
-    
-    private EarningsProfileEntityModel _earningsProfileBeforePriceChange;
+
+    private readonly DateTime _newStartDate = new DateTime(2019, 08, 15);
+    private readonly DateTime _newExpectedNumberOfInstalments = new DateTime(2019, 08, 15);
+
+	private EarningsProfileEntityModel _earningsProfileBeforePriceChange;
     private ApprenticeshipEntity? _updatedApprenticeshipEntity;
 
     #endregion
@@ -101,7 +105,7 @@ public class RecalculateEarningsStepDefinitions
             AssessmentPrice = 1500,
             EffectiveFromDate = _effectiveFromDate,
             ApprovedBy = ApprovedBy.Employer,
-            ApprovedDate = _priceChangeRequestDate,
+            ApprovedDate = _changeRequestDate,
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123
         };
@@ -123,7 +127,7 @@ public class RecalculateEarningsStepDefinitions
     [Given("a price change request was sent before the end of R14 of the current academic year")]
     public void SetPriceChangeApprovedDate()
     {
-        _priceChangeApprovedEvent!.ApprovedDate = _priceChangeRequestDate;
+        _priceChangeApprovedEvent!.ApprovedDate = _changeRequestDate;
     }
 
     [Given("the price change request is for a new total price up to or at the funding band maximum")]
@@ -133,10 +137,22 @@ public class RecalculateEarningsStepDefinitions
         _priceChangeApprovedEvent!.AssessmentPrice = _newAssessmentPrice;
     }
 
-    #endregion
+    [Given("a start date change request was sent before the end of R14 of the current academic year")]
+    public void SetStartDateChangeApprovedDate()
+    {
+	    _startDateChangedEvent!.ApprovedDate = _changeRequestDate;
+    }
 
-    #region Act
-    [When("the change is approved by the other party before the end of year")]
+    [Given("the price change request is for a new start date is earlier than the current start date")]
+    public void SetStartDateChange()
+    {
+	    _startDateChangedEvent!.ActualStartDate = _newStartDate;
+    }
+
+	#endregion
+
+	#region Act
+	[When("the price change is approved by the other party before the end of year")]
     [When("the earnings are calculated")]
     public async Task PublishEvents()
     {
@@ -146,10 +162,19 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
-    #endregion
+	[When("the start date change is approved by the other party before the end of year")]
+	public async Task PublishStartDateChangeEvents()
+	{
+		await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
+		await WaitHelper.WaitForItAsync(async () => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
+		await _endpointInstance.Publish(_startDateChangedEvent);
+		await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
+	}
 
-    #region Assert
-    [Then("the earnings are recalculated based on the new price")]
+	#endregion
+
+	#region Assert
+	[Then("the earnings are recalculated based on the new price")]
     public void AssertEarningsRecalculated()
     {
         var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
@@ -245,7 +270,19 @@ public class RecalculateEarningsStepDefinitions
                     _updatedApprenticeshipEntity!.Model.EarningsProfile.EarningsProfileId != _earningsProfileBeforePriceChange.EarningsProfileId);
     }
 
-    private async Task<bool> EnsureApprenticeshipEntityCreated()
+    [Then("the earnings are recalculated based on the new start date")]
+    public void AssertEarningsRecalculatedBasedOnNewStartDate()
+    {
+	    var expectedTotal = _originalPrice;
+	    var actualTotal = _updatedApprenticeshipEntity!.Model.EarningsProfile.AdjustedPrice + _updatedApprenticeshipEntity.Model.EarningsProfile.CompletionPayment;
+
+	    if (expectedTotal != actualTotal)
+	    {
+		    Assert.Fail("Earnings not updated");
+	    }
+    }
+
+	private async Task<bool> EnsureApprenticeshipEntityCreated()
     {
         var apprenticeshipEntity = await GetApprenticeshipEntity();
         if (apprenticeshipEntity == null)
