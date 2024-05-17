@@ -129,6 +129,11 @@ public class ApprenticeshipEntity
 
     private void SupersedeEarningsProfile(EarningsProfileEntityModel earningsProfile)
     {
+        if (Model.EarningsProfileHistory == null)
+        {
+            Model.EarningsProfileHistory = new List<HistoryRecord<EarningsProfileEntityModel>>();
+        }
+
         Model.EarningsProfileHistory.Add(new HistoryRecord<EarningsProfileEntityModel>
         {
             Record = Model.EarningsProfile,

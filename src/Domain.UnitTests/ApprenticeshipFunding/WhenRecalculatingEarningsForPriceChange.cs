@@ -9,7 +9,7 @@ using System.Linq;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding
 {
     [TestFixture]
-    public class WhenRecalculateEarnings
+    public class WhenRecalculatingEarningsForPriceChange
     {
         private Fixture _fixture;
         private Apprenticeship.Apprenticeship? _existingApprenticeship; //represents the apprenticeship before the price change
@@ -17,7 +17,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         private decimal _originalPrice;
         private decimal _updatedPrice;
 
-        public WhenRecalculateEarnings()
+        public WhenRecalculatingEarningsForPriceChange()
         {
             _fixture = new Fixture();
         }
