@@ -17,8 +17,7 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
 
     public async Task<Apprenticeship> RecalculateEarnings(ApproveStartDateChangeCommand command)
     {
-        var apprenticeshipDomainModel = GetDomainModel(command.ApprenticeshipEntity);
-        
+        var apprenticeshipDomainModel = command.ApprenticeshipEntity.GetDomainModel();
         var newStartDate = command.ApprenticeshipStartDateChangedEvent.ActualStartDate;
         apprenticeshipDomainModel.RecalculateEarnings(newStartDate);
         
@@ -26,33 +25,4 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
         
         return apprenticeshipDomainModel;
     }
-
-    //TODO two methods below should be in a shared place (currently duplicated)
-    private static Apprenticeship GetDomainModel(ApprenticeshipEntityModel entityModel)
-    {
-        return new Apprenticeship(
-            entityModel.ApprenticeshipKey,
-            entityModel.ApprovalsApprenticeshipId,
-            entityModel.Uln,
-            entityModel.UKPRN,
-            entityModel.EmployerAccountId,
-            entityModel.LegalEntityName,
-            entityModel.ActualStartDate,
-            entityModel.PlannedEndDate,
-            entityModel.AgreedPrice,
-            entityModel.TrainingCode,
-            entityModel.FundingEmployerAccountId,
-            entityModel.FundingType,
-            entityModel.FundingBandMaximum,
-            entityModel.AgeAtStartOfApprenticeship,
-            MapModelToEarningsProfile(entityModel.EarningsProfile)
-        );
-    }
-
-    private static EarningsProfile MapModelToEarningsProfile(EarningsProfileEntityModel model)
-    {
-        var instalments = model.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList();
-        return new EarningsProfile(model.AdjustedPrice, instalments, model.CompletionPayment, model.EarningsProfileId);
-    }
-
 }

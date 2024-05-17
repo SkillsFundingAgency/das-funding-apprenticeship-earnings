@@ -20,7 +20,6 @@ public class ApprenticeshipEntity
 {
     [JsonProperty] public ApprenticeshipEntityModel Model { get; set; }
 
-    //TODO remove need to inject multiple command handlers dependencies in the entity - mediatR
     private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
     private readonly IApprovePriceChangeCommandHandler _approvePriceChangeCommandHandler;
     private readonly IApproveStartDateChangeCommandHandler _startDateChangeApprovedCommandHandler;

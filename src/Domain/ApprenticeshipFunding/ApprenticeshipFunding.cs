@@ -33,8 +33,6 @@ public class ApprenticeshipFunding
         return agreedPrice * AgreedPriceMultiplier;
     }
 
-    //TODO currently have 5/6 different classes with a "RecalculateEarnings" method that don't actually do anything apart from pass the responsibility down to a lower layer
-    //- simplify the ApprenticeshipFunding & InstalmentsGenerator classes into one class?
     public List<Earning> GenerateEarnings()
     {
         var instalmentGenerator = new InstalmentsGenerator();

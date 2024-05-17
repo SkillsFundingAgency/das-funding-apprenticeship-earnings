@@ -64,7 +64,6 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    //TODO make the two methods below (and other recalc methods) more DRY? maybe something abstract to handle T-changeOfCircEvent
     public void RecalculateEarnings(decimal newAgreedPrice, DateTime effectiveFromDate)
     {
         AgreedPrice = newAgreedPrice;
