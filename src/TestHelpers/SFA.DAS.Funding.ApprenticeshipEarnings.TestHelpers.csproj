@@ -13,20 +13,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.18.0" />
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="Azure.Identity" Version="1.11.3" />
-    <PackageReference Include="coverlet.msbuild" Version="3.1.2">
+    <PackageReference Include="coverlet.msbuild" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.33" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.7.2" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
-    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.0.52" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.2.111" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="Polly" Version="7.2.3" />
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="NUnit" Version="4.1.0" />
+    <PackageReference Include="Polly" Version="8.4.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
   </ItemGroup>
 

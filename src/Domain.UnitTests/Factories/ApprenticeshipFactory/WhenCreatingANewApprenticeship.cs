@@ -24,19 +24,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
 
             var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
 
-            Assert.AreEqual(apprenticeshipEntityModel.ActualStartDate, apprenticeship.ActualStartDate);
-            Assert.AreEqual(apprenticeshipEntityModel.AgreedPrice, apprenticeship.AgreedPrice);
-            Assert.AreEqual(apprenticeshipEntityModel.EmployerAccountId, apprenticeship.EmployerAccountId);
-            Assert.AreEqual(apprenticeshipEntityModel.FundingEmployerAccountId, apprenticeship.FundingEmployerAccountId); 
-            Assert.AreEqual(apprenticeshipEntityModel.LegalEntityName, apprenticeship.LegalEntityName);
-            Assert.AreEqual(apprenticeshipEntityModel.PlannedEndDate, apprenticeship.PlannedEndDate);
-            Assert.AreEqual(apprenticeshipEntityModel.TrainingCode, apprenticeship.TrainingCode);
-            Assert.AreEqual(apprenticeshipEntityModel.UKPRN, apprenticeship.UKPRN);
-            Assert.AreEqual(apprenticeshipEntityModel.ApprenticeshipKey, apprenticeship.ApprenticeshipKey);
-            Assert.AreEqual(apprenticeshipEntityModel.ApprovalsApprenticeshipId, apprenticeship.ApprovalsApprenticeshipId);
-            Assert.AreEqual(apprenticeshipEntityModel.Uln, apprenticeship.Uln);
-            Assert.AreEqual(apprenticeshipEntityModel.FundingBandMaximum, apprenticeship.FundingBandMaximum);
-            Assert.AreEqual(apprenticeshipEntityModel.AgeAtStartOfApprenticeship, apprenticeship.AgeAtStartOfApprenticeship);
+            Assert.That(apprenticeshipEntityModel.ActualStartDate, Is.EqualTo(apprenticeship.ActualStartDate));
+            Assert.That(apprenticeshipEntityModel.AgreedPrice, Is.EqualTo(apprenticeship.AgreedPrice));
+            Assert.That(apprenticeshipEntityModel.EmployerAccountId, Is.EqualTo(apprenticeship.EmployerAccountId));
+            Assert.That(apprenticeshipEntityModel.FundingEmployerAccountId, Is.EqualTo(apprenticeship.FundingEmployerAccountId)); 
+            Assert.That(apprenticeshipEntityModel.LegalEntityName, Is.EqualTo(apprenticeship.LegalEntityName));
+            Assert.That(apprenticeshipEntityModel.PlannedEndDate, Is.EqualTo(apprenticeship.PlannedEndDate));
+            Assert.That(apprenticeshipEntityModel.TrainingCode, Is.EqualTo(apprenticeship.TrainingCode));
+            Assert.That(apprenticeshipEntityModel.UKPRN, Is.EqualTo(apprenticeship.UKPRN));
+            Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
+            Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
+            Assert.That(apprenticeshipEntityModel.Uln, Is.EqualTo(apprenticeship.Uln));
+            Assert.That(apprenticeshipEntityModel.FundingBandMaximum, Is.EqualTo(apprenticeship.FundingBandMaximum));
+            Assert.That(apprenticeshipEntityModel.AgeAtStartOfApprenticeship, Is.EqualTo(apprenticeship.AgeAtStartOfApprenticeship));
         }
     }
 }
