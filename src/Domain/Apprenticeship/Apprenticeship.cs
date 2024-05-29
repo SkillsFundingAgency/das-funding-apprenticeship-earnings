@@ -48,7 +48,7 @@ public class Apprenticeship : AggregateRoot
     public long? FundingEmployerAccountId { get; }
     public FundingType FundingType { get; }
     public decimal FundingBandMaximum { get; }
-    public int AgeAtStartOfApprenticeship { get; }
+    public int AgeAtStartOfApprenticeship { get; private set; }
     public EarningsProfile? EarningsProfile { get; private set; }
 
     public string FundingLineType =>
@@ -74,9 +74,10 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(DateTime newStartDate)
+    public void RecalculateEarnings(DateTime newStartDate, int ageAtStartOfApprenticeship)
     {
         ActualStartDate = newStartDate;
+        AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
         var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, newStartDate, PlannedEndDate, FundingBandMaximum);
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(newStartDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());

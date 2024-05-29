@@ -57,6 +57,7 @@ public class ApprenticeshipEntity
         var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
             
         Model.ActualStartDate = apprenticeship.ActualStartDate;
+        Model.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
 
         SupersedeEarningsProfile(newEarnings);
 

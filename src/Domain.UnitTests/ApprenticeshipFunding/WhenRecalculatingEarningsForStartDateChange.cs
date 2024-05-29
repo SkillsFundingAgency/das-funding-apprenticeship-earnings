@@ -15,6 +15,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     private Apprenticeship.Apprenticeship? _apprenticeshipBeforeStartDateChange; //represents the apprenticeship before the start date change
     private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the start date change
     private DateTime _updatedStartDate;
+    private int _updatedAgeAtApprenticeshipStart;
 
     public WhenRecalculatingEarningsForStartDateChange()
     {
@@ -25,22 +26,24 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void SetUp()
     {
         _updatedStartDate = new DateTime(2021, 3, 15);
+        _updatedAgeAtApprenticeshipStart = _fixture.Create<int>();
         _apprenticeshipBeforeStartDateChange = CreateApprenticeship(_fixture.Create<decimal>(), new DateTime(2021, 1, 15), new DateTime(2021, 12, 31));
         _apprenticeshipBeforeStartDateChange.CalculateEarnings();
         _sut = CreateUpdatedApprenticeship(_apprenticeshipBeforeStartDateChange, _updatedStartDate);
     }
 
     [Test]
-    public void ThenTheActualStartDateIsUpdated()
+    public void ThenTheActualStartDateAndAgeAreUpdated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate);
+        _sut!.RecalculateEarnings(_updatedStartDate, _updatedAgeAtApprenticeshipStart);
         _sut.ActualStartDate.Should().Be(_updatedStartDate);
+        _sut.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
     }
 
     [Test]
     public void ThenTheEarningsProfileIsCalculated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate);
+        _sut!.RecalculateEarnings(_updatedStartDate, _updatedAgeAtApprenticeshipStart);
         _sut.EarningsProfile.OnProgramTotal.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.OnProgramTotal);
         _sut.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.CompletionPayment);
         _sut.EarningsProfile.EarningsProfileId.Should().NotBe(_apprenticeshipBeforeStartDateChange.EarningsProfile.EarningsProfileId);
@@ -53,7 +56,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     [Test]
     public void ThenEarningsRecalculatedEventIsCreated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate);
+        _sut!.RecalculateEarnings(_updatedStartDate, _updatedAgeAtApprenticeshipStart);
 
         var events = _sut.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
@@ -62,7 +65,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     [Test]
     public void ThenTheEarningsProfileIdIsGenerated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate);
+        _sut!.RecalculateEarnings(_updatedStartDate, _updatedAgeAtApprenticeshipStart);
         _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 

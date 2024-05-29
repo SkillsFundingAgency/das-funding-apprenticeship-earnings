@@ -69,6 +69,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
             ActualStartDate = _apprenticeship.ActualStartDate.AddMonths(3),
+            AgeAtStartOfApprenticeship = _fixture.Create<int>(),
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,
             ApprovedDate = new DateTime(2023, 2, 15),
@@ -76,7 +77,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             EmployerApprovedBy = "",
             Initiator = ""
         };
-        _apprenticeship.RecalculateEarnings(_startDateChangedEvent.ActualStartDate);
+        _apprenticeship.RecalculateEarnings(_startDateChangedEvent.ActualStartDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault());
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();
@@ -99,6 +100,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
         _sut.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeship.EarningsProfile.CompletionPayment);
         _sut.Model.EarningsProfile.EarningsProfileId.Should().Be(_apprenticeship.EarningsProfile.EarningsProfileId);
         _sut.Model.EarningsProfile.Instalments.Should().BeEquivalentTo(_apprenticeship.EarningsProfile.Instalments);
+        _sut.Model.AgeAtStartOfApprenticeship.Should().Be(_startDateChangedEvent.AgeAtStartOfApprenticeship);
     }
 
     [Test]

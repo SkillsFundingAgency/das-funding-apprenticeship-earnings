@@ -17,7 +17,8 @@ public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEar
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId,
-            StartDate = apprenticeship.ActualStartDate
+            StartDate = apprenticeship.ActualStartDate,
+            AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship
         };
     }
 }
