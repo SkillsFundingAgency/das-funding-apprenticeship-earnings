@@ -195,7 +195,6 @@ public class RecalculateEarningsStepDefinitions
     {
         var startDate = _apprenticeshipCreatedEvent!.ActualStartDate;
         var endDate = startDate.Value.AddMonths(months);
-        _apprenticeshipCreatedEvent.ActualStartDate = startDate.Value;
         _apprenticeshipCreatedEvent.PlannedEndDate = endDate;
 
         //  These values may get updated in the 'And' clauses
