@@ -127,6 +127,7 @@ public class RecalculateEarningsStepDefinitions
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
             ActualStartDate = _startDate,
+            PlannedEndDate = _endDate,
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,
             ApprovedDate = _changeRequestDate,
@@ -187,12 +188,40 @@ public class RecalculateEarningsStepDefinitions
     {
         _startDateChangedEvent!.ActualStartDate = _startDateInNextAcademicYearToOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear;
-    } 
+    }
 
-	#endregion
+    [Given(@"there are (.*) earnings")]
+    public void SetAgreedPriceAndDuration(int months)
+    {
+        var startDate = _apprenticeshipCreatedEvent!.ActualStartDate;
+        var endDate = startDate.Value.AddMonths(months);
+        _apprenticeshipCreatedEvent.ActualStartDate = startDate.Value;
+        _apprenticeshipCreatedEvent.PlannedEndDate = endDate;
 
-	#region Act
-	[When("the price change is approved by the other party before the end of year")]
+        //  These values may get updated in the 'And' clauses
+        _startDateChangedEvent!.ActualStartDate = startDate.Value;
+        _startDateChangedEvent!.PlannedEndDate = endDate;
+    }
+
+    [Given(@"the (.*) date has been moved (.*) months (.*)")]
+    public void AdjustDate(string field, int months, string action)
+    {
+        var monthChange = action == "earlier" ? -months : months;
+        switch(field)
+        {
+            case "start":
+                _startDateChangedEvent!.ActualStartDate = _apprenticeshipCreatedEvent!.ActualStartDate.Value.AddMonths(monthChange);
+                break;
+            case "end":
+                _startDateChangedEvent!.PlannedEndDate = _apprenticeshipCreatedEvent!.PlannedEndDate.Value.AddMonths(monthChange);
+                break;
+        }
+    }
+
+    #endregion
+
+    #region Act
+    [When("the price change is approved by the other party before the end of year")]
     [When("the earnings are calculated")]
     public async Task PublishEvents()
     {
@@ -343,6 +372,18 @@ public class RecalculateEarningsStepDefinitions
     {
         //Left empty on purpose
     }
+
+    [Then(@"the there are (.*) earnings")]
+    public void AssertExpectedNumberOfEarnings(int expectedNumberOfEarnings)
+    {
+        var matchingInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count();
+
+        if(matchingInstalments != expectedNumberOfEarnings)
+        {
+            Assert.Fail($"Expected to find {expectedNumberOfEarnings} instalments but found {matchingInstalments}");
+        }
+    }
+
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
     {

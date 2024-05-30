@@ -69,6 +69,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
             ActualStartDate = _apprenticeship.ActualStartDate.AddMonths(3),
+            PlannedEndDate = _apprenticeship.PlannedEndDate,
             AgeAtStartOfApprenticeship = _fixture.Create<int>(),
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,
@@ -77,7 +78,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             EmployerApprovedBy = "",
             Initiator = ""
         };
-        _apprenticeship.RecalculateEarnings(_startDateChangedEvent.ActualStartDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault());
+        _apprenticeship.RecalculateEarnings(_startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault());
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();
