@@ -42,7 +42,7 @@ public class Apprenticeship : AggregateRoot
     public long EmployerAccountId { get; }
     public string LegalEntityName { get; }
     public DateTime ActualStartDate { get; private set; }
-    public DateTime PlannedEndDate { get; }
+    public DateTime PlannedEndDate { get; private set; }
     public decimal AgreedPrice { get; private set; }
     public string TrainingCode { get; }
     public long? FundingEmployerAccountId { get; }
@@ -77,6 +77,7 @@ public class Apprenticeship : AggregateRoot
     public void RecalculateEarnings(DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
     {
         ActualStartDate = newStartDate;
+        PlannedEndDate = newEndDate;
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
         var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, newStartDate, newEndDate, FundingBandMaximum);
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(newStartDate);
