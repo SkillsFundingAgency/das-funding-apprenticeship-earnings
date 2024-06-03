@@ -32,3 +32,26 @@ Scenario: New start date in the next academic year
 	And the amount of each instalment is determined as: totalPriceLessCompletion / newNumberOfInstalments
 	And a new earnings profile id is set
 	And the history of old and new earnings is maintained
+
+Scenario: A new start and end date are earlier than orginal start date
+	Given earnings have been calculated for an apprenticeship in the pilot
+	And there are 20 earnings
+	And the start date has been moved 2 months earlier
+	And the end date has been moved 2 months earlier
+	When the start date change is approved
+	Then the there are 20 earnings
+
+Scenario: A new start is earlier than orginal start date but the end date remains the same
+	Given earnings have been calculated for an apprenticeship in the pilot
+	And there are 20 earnings
+	And the start date has been moved 2 months earlier
+	When the start date change is approved
+	Then the there are 22 earnings
+
+Scenario: A new earlier start and later end date
+	Given earnings have been calculated for an apprenticeship in the pilot
+	And there are 20 earnings
+	And the start date has been moved 2 months earlier
+	And the end date has been moved 2 months later
+	When the start date change is approved
+	Then the there are 24 earnings

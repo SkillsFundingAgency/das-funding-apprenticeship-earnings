@@ -70,6 +70,7 @@ public class WhenApproveStartDateChangeCommandHandled
             ApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             ActualStartDate = new DateTime(2019, 10, 1),
+            PlannedEndDate = apprenticeship.PlannedEndDate,
             EmployerAccountId = apprenticeship.EmployerAccountId,
             ProviderId = 123,
             ApprovedDate = new DateTime(2019, 12, 1),
