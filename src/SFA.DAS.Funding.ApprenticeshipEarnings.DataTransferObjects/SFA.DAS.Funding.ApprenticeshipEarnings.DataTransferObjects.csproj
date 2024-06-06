@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="1.1.7-prerelease-28" />
+    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="6.8.3-prerelease-38" />
   </ItemGroup>
 
 </Project>

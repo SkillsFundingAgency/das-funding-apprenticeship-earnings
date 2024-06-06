@@ -1,11 +1,11 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.PriceChangeApprovedCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
 
-public class PriceChangeApprovedCommand
+public class ApprovePriceChangeCommand
 {
-    public PriceChangeApprovedCommand(ApprenticeshipEntityModel apprenticeshipEntity, PriceChangeApprovedEvent priceChangeApprovedEvent)
+    public ApprovePriceChangeCommand(ApprenticeshipEntityModel apprenticeshipEntity, PriceChangeApprovedEvent priceChangeApprovedEvent)
     {
         ApprenticeshipEntity = apprenticeshipEntity;
         PriceChangeApprovedEvent = priceChangeApprovedEvent;    
@@ -13,5 +13,4 @@ public class PriceChangeApprovedCommand
 
     public ApprenticeshipEntityModel ApprenticeshipEntity { get; }
     public PriceChangeApprovedEvent PriceChangeApprovedEvent { get; }
-
 }

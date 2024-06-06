@@ -8,7 +8,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using FundingPlatform = SFA.DAS.Apprenticeships.Types.FundingPlatform;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
@@ -24,16 +23,24 @@ public class RecalculateEarningsStepDefinitions
 
     private ApprenticeshipCreatedEvent? _apprenticeshipCreatedEvent;
     private PriceChangeApprovedEvent? _priceChangeApprovedEvent;
+    private ApprenticeshipStartDateChangedEvent? _startDateChangedEvent;
 
     #region Test Values
     private readonly DateTime _dateOfBirth = new DateTime(2000, 1, 1);
     private readonly int _ageAtStartOfApprenticeship = 21;
 
     private readonly DateTime _startDate = new DateTime(2019, 09, 01);
-    private readonly DateTime _endDate = new DateTime(2021, 1, 1);
-    private readonly int _expectedNumberOfInstalments = 16;
+    private readonly DateTime _endDate = new DateTime(2022, 1, 1);
+    private int _expectedNumberOfInstalments = 28;
 
-    private readonly DateTime _priceChangeRequestDate = new DateTime(2020, 1, 1);
+    private readonly DateTime _startDateEarlierThanOriginal = new DateTime(2019, 08, 15);
+    private readonly int _newExpectedNumberOfInstalmentsForEarlierStartDate = 29;
+    private readonly DateTime _startDateLaterThanOriginal = new DateTime(2020, 01, 08);
+    private readonly int _newExpectedNumberOfInstalmentsForLaterStartDate = 24;
+    private readonly DateTime _startDateInNextAcademicYearToOriginal = new DateTime(2021, 12, 30);
+    private readonly int _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear = 1;
+
+    private readonly DateTime _changeRequestDate = new DateTime(2020, 1, 1);
     private readonly DateTime _effectiveFromDate = new DateTime(2020, 2, 1);
 
     private readonly int _originalPrice = 15000;
@@ -42,8 +49,9 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPrice = 17000;
     private readonly int _newAssessmentPrice = 3000;
     private readonly int _newTrainingPriceAboveBandMax = 26000;
-    
-    private EarningsProfileEntityModel _earningsProfileBeforePriceChange;
+
+
+	private EarningsProfileEntityModel _originalEarningsProfile;
     private ApprenticeshipEntity? _updatedApprenticeshipEntity;
 
     #endregion
@@ -58,7 +66,13 @@ public class RecalculateEarningsStepDefinitions
     public static async Task StartEndpoint()
     {
         _endpointInstance = await EndpointHelper
-            .StartEndpoint("Test.Funding.ApprenticeshipEarnings", true, new[] { typeof(ApprenticeshipCreatedEvent), typeof(PriceChangeApprovedEvent), typeof(EarningsRecalculatedEvent) });
+            .StartEndpoint("Test.Funding.ApprenticeshipEarnings", true, new[]
+            {
+                typeof(ApprenticeshipCreatedEvent), 
+                typeof(PriceChangeApprovedEvent), 
+                typeof(ApprenticeshipStartDateChangedEvent), 
+                typeof(EarningsRecalculatedEvent)
+            });
     }
 
     [AfterTestRun]
@@ -71,7 +85,8 @@ public class RecalculateEarningsStepDefinitions
     #region Arrange
     [Given("earnings have been calculated for an apprenticeship in the pilot")]
     [Given("new earnings are to be calculated following a price change")]
-    public void EventCreated()
+    [Given("new earnings are to be calculated following a start date change")]
+    public void ApprenticeshipCreated()
     {
         //  Gets published in the when clause just before the price change request to allow for any 'And' clauses to be added
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
@@ -102,9 +117,23 @@ public class RecalculateEarningsStepDefinitions
             AssessmentPrice = 1500,
             EffectiveFromDate = _effectiveFromDate,
             ApprovedBy = ApprovedBy.Employer,
-            ApprovedDate = _priceChangeRequestDate,
+            ApprovedDate = _changeRequestDate,
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123
+        };
+
+        _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
+        {
+            ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
+            ApprenticeshipId = 123,
+            ActualStartDate = _startDate,
+            PlannedEndDate = _endDate,
+            EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
+            ProviderId = 123,
+            ApprovedDate = _changeRequestDate,
+            ProviderApprovedBy = "",
+            EmployerApprovedBy = "",
+            Initiator = ""
         };
     }
 
@@ -124,7 +153,7 @@ public class RecalculateEarningsStepDefinitions
     [Given("a price change request was sent before the end of R14 of the current academic year")]
     public void SetPriceChangeApprovedDate()
     {
-        _priceChangeApprovedEvent!.ApprovedDate = _priceChangeRequestDate;
+        _priceChangeApprovedEvent!.ApprovedDate = _changeRequestDate;
     }
 
     [Given("the price change request is for a new total price up to or at the funding band maximum")]
@@ -134,10 +163,64 @@ public class RecalculateEarningsStepDefinitions
         _priceChangeApprovedEvent!.AssessmentPrice = _newAssessmentPrice;
     }
 
+    [Given("a start date change request was sent before the end of R14 of the current academic year")]
+    public void SetStartDateChangeApprovedDate()
+    {
+	    _startDateChangedEvent!.ApprovedDate = _changeRequestDate;
+    }
+
+    [Given("the new start date is earlier than, and in the same academic year, as the current start date")]
+    public void SetEarlierStartDateChange()
+    {
+	    _startDateChangedEvent!.ActualStartDate = _startDateEarlierThanOriginal;
+        _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForEarlierStartDate;
+    }
+
+    [Given("the new start date is later than, and in the same academic year, as the current start date")]
+    public void SetLaterStartDateChangeInSameAcademicYear()
+    {
+        _startDateChangedEvent!.ActualStartDate = _startDateLaterThanOriginal;
+        _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForLaterStartDate;
+    }
+
+    [Given("the new start date is in the next academic year to the current start date")]
+    public void SetLaterStartDateChangeInNextAcademicYear()
+    {
+        _startDateChangedEvent!.ActualStartDate = _startDateInNextAcademicYearToOriginal;
+        _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear;
+    }
+
+    [Given(@"there are (.*) earnings")]
+    public void SetAgreedPriceAndDuration(int months)
+    {
+        var startDate = _apprenticeshipCreatedEvent!.ActualStartDate;
+        var endDate = startDate.Value.AddMonths(months);
+        _apprenticeshipCreatedEvent.PlannedEndDate = endDate;
+
+        //  These values may get updated in the 'And' clauses
+        _startDateChangedEvent!.ActualStartDate = startDate.Value;
+        _startDateChangedEvent!.PlannedEndDate = endDate;
+    }
+
+    [Given(@"the (.*) date has been moved (.*) months (.*)")]
+    public void AdjustDate(string field, int months, string action)
+    {
+        var monthChange = action == "earlier" ? -months : months;
+        switch(field)
+        {
+            case "start":
+                _startDateChangedEvent!.ActualStartDate = _apprenticeshipCreatedEvent!.ActualStartDate.Value.AddMonths(monthChange);
+                break;
+            case "end":
+                _startDateChangedEvent!.PlannedEndDate = _apprenticeshipCreatedEvent!.PlannedEndDate.Value.AddMonths(monthChange);
+                break;
+        }
+    }
+
     #endregion
 
     #region Act
-    [When("the change is approved by the other party before the end of year")]
+    [When("the price change is approved by the other party before the end of year")]
     [When("the earnings are calculated")]
     public async Task PublishEvents()
     {
@@ -147,10 +230,19 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
-    #endregion
+	[When("the start date change is approved")]
+	public async Task PublishStartDateChangeEvents()
+	{
+		await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
+		await WaitHelper.WaitForItAsync(async () => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
+		await _endpointInstance.Publish(_startDateChangedEvent);
+		await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
+	}
 
-    #region Assert
-    [Then("the earnings are recalculated based on the new price")]
+	#endregion
+
+	#region Assert
+	[Then("the earnings are recalculated based on the new price")]
     public void AssertEarningsRecalculated()
     {
         var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
@@ -190,7 +282,7 @@ public class RecalculateEarningsStepDefinitions
 
         foreach(var instalment in instalmentsToValidate)
         {
-            var expectedInstalment = _earningsProfileBeforePriceChange.Instalments.FirstOrDefault(x => 
+            var expectedInstalment = _originalEarningsProfile.Instalments.FirstOrDefault(x => 
                 x.AcademicYear == instalment.AcademicYear &&
                 x.DeliveryPeriod == instalment.DeliveryPeriod);
 
@@ -208,7 +300,18 @@ public class RecalculateEarningsStepDefinitions
     }
 
     [Then("the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship")]
-    public void AssertNumberOfInstalments()
+    public void AssertNumberOfInstalmentsForPriceChange()
+    {
+        var numberOfInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count;
+
+        if (numberOfInstalments != _expectedNumberOfInstalments)
+        {
+            Assert.Fail($"Expected {_expectedNumberOfInstalments} but found {numberOfInstalments}");
+        }
+    }
+
+    [Then("the number of instalments is determined by the number of census dates passed between the new start date and the planned end date of the apprenticeship")]
+    public void AssertNumberOfInstalmentsForStartDateChange()
     {
         var numberOfInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count;
 
@@ -219,7 +322,7 @@ public class RecalculateEarningsStepDefinitions
     }
 
     [Then("the amount of each instalment is determined as: newPriceLessCompletion - earningsBeforeTheEffectiveFromDate / numberOfInstalments")]
-    public void AssertRecalculatedInstamentAmounts()
+    public void AssertRecalculatedInstamentAmountsAfterPriceChange()
     {
         var frozenInstalments = GetFrozenInstalments(_updatedApprenticeshipEntity!);
         var earningsBeforeTheEffectiveFromDate = frozenInstalments.Sum(x => x.Amount);
@@ -239,12 +342,47 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
+    [Then("the amount of each instalment is determined as: totalPriceLessCompletion / newNumberOfInstalments")]
+    public void AssertRecalculatedInstalmentAmountsAfterStartDateChange()
+    {
+        var numberOfRecalculatedInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count;
+        var totalPriceLessCompletion = _updatedApprenticeshipEntity.Model.EarningsProfile.AdjustedPrice;
+
+        var expectedMonthlyPrice = Math.Round(totalPriceLessCompletion / numberOfRecalculatedInstalments, 5);
+
+        var numberOfMatchingInstalments = _updatedApprenticeshipEntity.Model.EarningsProfile.Instalments
+            .Count(x => x.Amount == expectedMonthlyPrice);
+        
+        if (numberOfMatchingInstalments != numberOfRecalculatedInstalments)
+        {
+            Assert.Fail($"Expected to find {numberOfRecalculatedInstalments} instalments of £{expectedMonthlyPrice} but found {numberOfMatchingInstalments}");
+        }
+    }
+
     [Then("a new earnings profile id is set")]
     public void AssertEarningsProfileId()
     {
         Assert.That(_updatedApprenticeshipEntity!.Model.EarningsProfile.EarningsProfileId != Guid.Empty &&
-                    _updatedApprenticeshipEntity!.Model.EarningsProfile.EarningsProfileId != _earningsProfileBeforePriceChange.EarningsProfileId);
+                    _updatedApprenticeshipEntity!.Model.EarningsProfile.EarningsProfileId != _originalEarningsProfile.EarningsProfileId);
     }
+
+    [Then("the earnings are recalculated based on the new start date")]
+    public void AssertEarningsRecalculatedBasedOnNewStartDate()
+    {
+        //Left empty on purpose
+    }
+
+    [Then(@"the there are (.*) earnings")]
+    public void AssertExpectedNumberOfEarnings(int expectedNumberOfEarnings)
+    {
+        var matchingInstalments = _updatedApprenticeshipEntity!.Model.EarningsProfile.Instalments.Count();
+
+        if(matchingInstalments != expectedNumberOfEarnings)
+        {
+            Assert.Fail($"Expected to find {expectedNumberOfEarnings} instalments but found {matchingInstalments}");
+        }
+    }
+
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
     {
@@ -254,7 +392,7 @@ public class RecalculateEarningsStepDefinitions
             return false;
         }
 
-        _earningsProfileBeforePriceChange = apprenticeshipEntity.Model.EarningsProfile;
+        _originalEarningsProfile = apprenticeshipEntity.Model.EarningsProfile;
         return true;
     }
 
