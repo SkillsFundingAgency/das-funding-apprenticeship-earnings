@@ -24,12 +24,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
 
             var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
 
-            Assert.That(apprenticeshipEntityModel.ActualStartDate, Is.EqualTo(apprenticeship.ActualStartDate));
             Assert.That(apprenticeshipEntityModel.AgreedPrice, Is.EqualTo(apprenticeship.AgreedPrice));
-            Assert.That(apprenticeshipEntityModel.EmployerAccountId, Is.EqualTo(apprenticeship.EmployerAccountId));
             Assert.That(apprenticeshipEntityModel.FundingEmployerAccountId, Is.EqualTo(apprenticeship.FundingEmployerAccountId)); 
             Assert.That(apprenticeshipEntityModel.LegalEntityName, Is.EqualTo(apprenticeship.LegalEntityName));
-            Assert.That(apprenticeshipEntityModel.PlannedEndDate, Is.EqualTo(apprenticeship.PlannedEndDate));
             Assert.That(apprenticeshipEntityModel.TrainingCode, Is.EqualTo(apprenticeship.TrainingCode));
             Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
             Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
@@ -39,7 +36,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
 
             foreach(var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
             {
-                Assert.That(apprenticeship.ApprenticeshipEpisodes, Has.One.Matches<Apprenticeship.ApprenticeshipEpisode>(x => x.UKPRN == apprenticeshipEpisode.UKPRN));
+                Assert.That(apprenticeship.ApprenticeshipEpisodes, Has.One.Matches<Apprenticeship.ApprenticeshipEpisode>(x => 
+                    x.UKPRN == apprenticeshipEpisode.UKPRN &&
+                    x.EmployerAccountId == apprenticeshipEpisode.EmployerAccountId &&
+                    x.ActualStartDate == apprenticeshipEpisode.ActualStartDate &&
+                    x.PlannedEndDate == apprenticeshipEpisode.PlannedEndDate));
             }
         }
     }

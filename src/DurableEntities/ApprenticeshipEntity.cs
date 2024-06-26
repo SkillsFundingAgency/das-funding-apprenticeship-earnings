@@ -92,9 +92,8 @@ public class ApprenticeshipEntity
         {
             ApprenticeshipKey = apprenticeshipCreatedEvent.ApprenticeshipKey,
             Uln = apprenticeshipCreatedEvent.Uln,
-            EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
-            ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
-            PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
+            ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,// DO NOT APPROVE PR WITH THESE HERE
+            PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,// DO NOT APPROVE PR WITH THESE HERE
             AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
             TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
             FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
@@ -105,6 +104,9 @@ public class ApprenticeshipEntity
             ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel> { new ApprenticeshipEpisodeModel
             {
                 UKPRN = apprenticeshipCreatedEvent.UKPRN,
+                EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
+                ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
+                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value
             }},
             AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
         };

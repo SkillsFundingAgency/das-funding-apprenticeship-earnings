@@ -7,6 +7,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using Moq;
+using Microsoft.Extensions.Internal;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -16,21 +19,22 @@ public class EarningsGeneratedEventBuilder_BuildTests
     private EarningsGeneratedEvent _result;
     private Fixture _fixture;
     private Apprenticeship.Apprenticeship _apprenticeship;
+    private Mock<ISystemClock> _mockSystemClock;
 
     [SetUp]
     public void SetUp()
     {
-        _sut = new EarningsGeneratedEventBuilder();
+        _mockSystemClock = new Mock<ISystemClock>();
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2022, 8, 30));
+        _sut = new EarningsGeneratedEventBuilder(_mockSystemClock.Object);
         _fixture = new Fixture();
 
-        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeshipEntityModel.ActualStartDate = new DateTime(2022, 8, 1);
-        apprenticeshipEntityModel.PlannedEndDate = new DateTime(2022, 9, 30);
-        apprenticeshipEntityModel.AgreedPrice = 20000;
-        apprenticeshipEntityModel.FundingType = FundingType.NonLevy;
-        apprenticeshipEntityModel.FundingBandMaximum = 20001;
+        _apprenticeship = _fixture.CreateApprenticeship(
+            startDate: new DateTime(2022, 8, 1),
+            endDate: new DateTime(2022, 9, 30),
+            agreedPrice: 20000,
+            fundingType: FundingType.NonLevy);
 
-        _apprenticeship = new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
         _apprenticeship.CalculateEarnings();
 
         _result = _sut.Build(_apprenticeship);
@@ -51,13 +55,13 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateThe_EmployerId_Correctly()
     {
-        _result.EmployerId.Should().Be(_apprenticeship.EmployerAccountId);
+        _result.EmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_ProviderId_Correctly()
     {
-        _result.ProviderId.Should().Be(_apprenticeship.UKPRN);
+        _result.ProviderId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().UKPRN);
     }
 
     [Test]
@@ -171,7 +175,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateThe_EmployerAccountId_Correctly()
     {
-        _result.EmployerAccountId.Should().Be(_apprenticeship.EmployerAccountId);
+        _result.EmployerAccountId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
     }
 
     [Test]

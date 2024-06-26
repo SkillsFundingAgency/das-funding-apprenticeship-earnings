@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Internal;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
@@ -60,6 +61,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotAcceptanceTests(configuration));
         builder.Services.AddCommandServices().AddEventServices();
 
+        builder.Services.AddSingleton<ISystemClock, SystemClock>();
         builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
         builder.Services.AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>();

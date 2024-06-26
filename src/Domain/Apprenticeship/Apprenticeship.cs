@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -13,10 +14,9 @@ public class Apprenticeship : AggregateRoot
         ApprenticeshipKey = apprenticeshipEntityModel.ApprenticeshipKey;
         ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
         Uln = apprenticeshipEntityModel.Uln;
-        EmployerAccountId = apprenticeshipEntityModel.EmployerAccountId;
         LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
-        ActualStartDate = apprenticeshipEntityModel.ActualStartDate;
-        PlannedEndDate = apprenticeshipEntityModel.PlannedEndDate;
+        ActualStartDate = apprenticeshipEntityModel.ActualStartDate; //DO NOT APPROVE PR WITH THESE HERE
+        PlannedEndDate = apprenticeshipEntityModel.PlannedEndDate; //DO NOT APPROVE PR WITH THESE HERE
         AgreedPrice = apprenticeshipEntityModel.AgreedPrice;
         TrainingCode = apprenticeshipEntityModel.TrainingCode;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
@@ -32,11 +32,13 @@ public class Apprenticeship : AggregateRoot
     public Guid ApprenticeshipKey { get; }
     public long ApprovalsApprenticeshipId { get; }
     public string Uln { get; }
-    public long UKPRN { get; }
-    public long EmployerAccountId { get; }
     public string LegalEntityName { get; }
-    public DateTime ActualStartDate { get; private set; }
-    public DateTime PlannedEndDate { get; private set; }
+
+
+    public DateTime ActualStartDate { get; private set; } //DO NOT APPROVE PR WITH THESE HERE
+    public DateTime PlannedEndDate { get; private set; } //DO NOT APPROVE PR WITH THESE HERE
+
+
     public decimal AgreedPrice { get; private set; }
     public string TrainingCode { get; }
     public long? FundingEmployerAccountId { get; }
@@ -78,5 +80,18 @@ public class Apprenticeship : AggregateRoot
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(newStartDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsRecalculatedEvent(this));
+    }
+}
+
+public static class ApprenticeshipExtensions
+{
+    public static ApprenticeshipEpisode GetCurrentEpisode(this Apprenticeship apprenticeship, ISystemClock systemClock)
+    {
+        var episode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(x => x.ActualStartDate <= systemClock.UtcNow && x.PlannedEndDate >= systemClock.UtcNow);
+        
+        if(episode == null)
+            throw new InvalidOperationException("No current episode found");
+
+        return episode!;
     }
 }

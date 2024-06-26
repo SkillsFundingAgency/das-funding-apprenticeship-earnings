@@ -30,7 +30,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _originalPrice = _fixture.Create<decimal>();
         _updatedPrice = _fixture.Create<decimal>();
-        _existingApprenticeship = CreateApprenticeship(_originalPrice, new DateTime(2021, 1, 15), new DateTime(2021, 12, 31));
+        _existingApprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2021, 12, 31), _originalPrice);
         _existingApprenticeship.CalculateEarnings();
         _sut = _fixture.CreateUpdatedApprenticeship(_existingApprenticeship, newPrice: _updatedPrice);
     }
@@ -81,18 +81,4 @@ public class WhenRecalculatingEarningsForPriceChange
         _sut!.RecalculateEarnings(_updatedPrice, new DateTime(2021, 6, 15));
         _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
-
-    private Apprenticeship.Apprenticeship CreateApprenticeship(decimal agreedPrice, DateTime startDate, DateTime endDate)
-    {
-        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeshipEntityModel.ActualStartDate = startDate;
-        apprenticeshipEntityModel.PlannedEndDate = endDate;
-        apprenticeshipEntityModel.AgreedPrice = agreedPrice;
-        apprenticeshipEntityModel.FundingBandMaximum = agreedPrice + 1;
-        apprenticeshipEntityModel.FundingEmployerAccountId = null;
-
-        return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
-    }
- 
-
 }

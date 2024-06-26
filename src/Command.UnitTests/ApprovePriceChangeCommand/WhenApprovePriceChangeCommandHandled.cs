@@ -1,9 +1,11 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Internal;
 using Moq;
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -49,23 +51,8 @@ public class WhenApprovePriceChangeCommandHandled
 
     private Command.ApprovePriceChangeCommand.ApprovePriceChangeCommand CreateCommand()
     {
-
-        var apprenticeship = _fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeship.ActualStartDate = new DateTime(2019, 09, 01);
-        apprenticeship.PlannedEndDate = new DateTime(2020, 1, 1);
-        apprenticeship.AgeAtStartOfApprenticeship = 21;
-        apprenticeship.AgreedPrice = 10000;
-        apprenticeship.FundingBandMaximum = 20000;
-
-        apprenticeship.EarningsProfile.AdjustedPrice = 10000;
-        apprenticeship.EarningsProfile.CompletionPayment = 4000;
-        apprenticeship.EarningsProfile.Instalments = new List<InstalmentEntityModel>
-        {
-            new() { AcademicYear = 1920, DeliveryPeriod = 2, Amount = 2500},
-            new() { AcademicYear = 1920, DeliveryPeriod = 3, Amount = 2500},
-            new() { AcademicYear = 1920, DeliveryPeriod = 4, Amount = 2500},
-            new() { AcademicYear = 1920, DeliveryPeriod = 5, Amount = 2500}
-        };
+        var apprenticeship = _fixture.CreateApprenticeshipEntityModel();
+        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.Single();
 
         var priceChangeApprovedEvent = new PriceChangeApprovedEvent
         {
@@ -75,7 +62,7 @@ public class WhenApprovePriceChangeCommandHandled
             ApprovedDate = new DateTime(2019, 12, 1),
             AssessmentPrice = 17000,
             EffectiveFromDate = new DateTime(2019, 11, 1),
-            EmployerAccountId = apprenticeship.EmployerAccountId,
+            EmployerAccountId = currentEpisode.EmployerAccountId,
             ProviderId = 123,
             TrainingPrice = 3000
         };

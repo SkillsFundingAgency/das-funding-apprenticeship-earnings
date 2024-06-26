@@ -12,14 +12,14 @@ public class ApprenticeshipEpisodeModel
 
     //ApprenticeshipEpisodeID
     [JsonProperty] public long UKPRN { get; set; }
-    //EmployerAccountId
+    [JsonProperty] public long EmployerAccountId { get; set; }
     //LegalEntityName
     //TrainingCode
     //FundingEmployerAccountId
     //FundingType
     //Prices[]
-    //ActualStartDate
-    //PlannedEndDate
+    [JsonProperty] public DateTime ActualStartDate { get; set; }
+    [JsonProperty] public DateTime PlannedEndDate { get; set; }
     //AgreedPrice
     //FundingBandMaximum
     //EarningsProfile

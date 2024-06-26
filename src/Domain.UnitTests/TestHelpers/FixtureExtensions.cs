@@ -1,4 +1,6 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
@@ -11,17 +13,37 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
 internal static class FixtureExtensions
 {
+    internal static Apprenticeship.Apprenticeship CreateApprenticeship(this Fixture fixture, 
+        DateTime startDate, DateTime endDate, decimal agreedPrice, FundingType? fundingType = null)
+    {
+        var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
+        apprenticeshipEntityModel.ActualStartDate = startDate; // DO NOT APPROVE PR WITH THESE HERE
+        apprenticeshipEntityModel.PlannedEndDate = endDate; // DO NOT APPROVE PR WITH THESE HERE
+        apprenticeshipEntityModel.AgreedPrice = agreedPrice;
+
+        if(fundingType != null)
+        {
+            apprenticeshipEntityModel.FundingType = fundingType.Value;
+        }
+
+        apprenticeshipEntityModel.FundingBandMaximum = agreedPrice + 1;
+
+        apprenticeshipEntityModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel>
+        {
+            new() { UKPRN = 10000001, EmployerAccountId = 10000001, ActualStartDate = startDate, PlannedEndDate = endDate }
+        };
+
+        return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
+    }
+
+
     internal static Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(this Fixture fixture, Apprenticeship.Apprenticeship apprenticeship, decimal? newPrice = null, DateTime? newStartDate = null)
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
 
-
-
         apprenticeshipEntityModel.ApprenticeshipKey = apprenticeship.ApprenticeshipKey;
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
-        apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel { UKPRN = x.UKPRN }).ToList();
-        apprenticeshipEntityModel.EmployerAccountId = apprenticeship.EmployerAccountId;
         apprenticeshipEntityModel.LegalEntityName = apprenticeship.LegalEntityName;
         apprenticeshipEntityModel.ActualStartDate = newStartDate == null ? apprenticeship.ActualStartDate : newStartDate.Value;
         apprenticeshipEntityModel.PlannedEndDate = apprenticeship.PlannedEndDate;
@@ -32,6 +54,13 @@ internal static class FixtureExtensions
         apprenticeshipEntityModel.FundingBandMaximum = newPrice == null ? apprenticeship.AgreedPrice + 1 : newPrice.Value + 1;
         apprenticeshipEntityModel.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
 
+        apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
+        {
+            UKPRN = x.UKPRN,
+            EmployerAccountId = x.EmployerAccountId,
+            ActualStartDate = x.ActualStartDate,
+            PlannedEndDate = x.PlannedEndDate,
+        }).ToList();
 
         apprenticeshipEntityModel.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 

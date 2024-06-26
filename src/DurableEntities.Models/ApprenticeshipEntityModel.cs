@@ -10,15 +10,18 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
         [JsonProperty] public long ApprovalsApprenticeshipId { get; set; }
 
         [JsonProperty] public string Uln { get; set; } = null!;
-
-        [JsonProperty] public long EmployerAccountId { get; set; }
         [JsonProperty] public string LegalEntityName { get; set; } = null!;
-        [JsonProperty] public DateTime ActualStartDate { get; set; }
-        [JsonProperty] public DateTime PlannedEndDate { get; set; }
+
         [JsonProperty] public decimal AgreedPrice { get; set; }
         [JsonProperty] public string TrainingCode { get; set; } = null!;
         [JsonProperty] public long? FundingEmployerAccountId { get; set; }
         [JsonProperty] public FundingType FundingType { get; set; }
+
+
+        [JsonProperty] public DateTime ActualStartDate { get; set; } // DO NOT APPROVE PR WITH THESE HERE
+        [JsonProperty] public DateTime PlannedEndDate { get; set; } // DO NOT APPROVE PR WITH THESE HERE
+
+
 
         [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; } = null!;
         [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; } = null!;

@@ -76,12 +76,6 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     {
         _sut.Model.ApprenticeshipKey.Should().Be(_apprenticeshipCreatedEvent.ApprenticeshipKey);
         _sut.Model.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
-
-        _sut.Model.ApprenticeshipEpisodes.Any(x=>x.UKPRN == _apprenticeshipCreatedEvent.UKPRN).Should().BeTrue();
-
-        _sut.Model.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
-        _sut.Model.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
-        _sut.Model.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);
         _sut.Model.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
         _sut.Model.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
         _sut.Model.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
@@ -94,6 +88,13 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         _sut.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeship.EarningsProfile.CompletionPayment);
         _sut.Model.EarningsProfile.EarningsProfileId.Should().Be(_apprenticeship.EarningsProfile.EarningsProfileId);
         _sut.Model.EarningsProfile.Instalments.Should().BeEquivalentTo(_apprenticeship.EarningsProfile.Instalments);
+
+        _sut.Model.ApprenticeshipEpisodes.Should().HaveCount(1);
+        var apprenticeshipEpisode = _sut.Model.ApprenticeshipEpisodes.First();
+        apprenticeshipEpisode.UKPRN.Should().Be(_apprenticeshipCreatedEvent.UKPRN);
+        apprenticeshipEpisode.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
+        apprenticeshipEpisode.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
+        apprenticeshipEpisode.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);
     }
 
     [Test]

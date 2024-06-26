@@ -7,6 +7,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers
     {
         internal static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
         {
+            var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, NEED TO RESOLVE CURRENT EPISODE BASED ON DATE
+
             return apprenticeship.EarningsProfile?.Instalments.Select(x => new Earning
             {
                 Id = Guid.NewGuid(),
@@ -15,10 +17,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers
                 DeliveryPeriod = x.DeliveryPeriod,
                 ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
                 ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-                EmployerAccountId = apprenticeship.EmployerAccountId,
+                EmployerAccountId = currentEpisode.EmployerAccountId,
                 FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId,
                 FundingType = apprenticeship.FundingType,
-                UKPRN = apprenticeship.UKPRN,
+                UKPRN = currentEpisode.UKPRN,
                 Uln = apprenticeship.Uln
             });
         }

@@ -24,10 +24,4 @@ internal static class ApprenticeshipExtensions
     {
         return new Apprenticeship(entityModel);
     }
-
-    internal static EarningsProfile MapModelToEarningsProfile(EarningsProfileEntityModel model)
-    {
-        var instalments = model.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList();
-        return new EarningsProfile(model.AdjustedPrice, instalments, model.CompletionPayment, model.EarningsProfileId);
-    }
 }
