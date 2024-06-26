@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -12,6 +13,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests;
@@ -50,21 +52,12 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 
         _fixture = new Fixture();
 
-        _apprenticeship = new Apprenticeship(
-            Guid.NewGuid(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            _fixture.Create<long>(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            new DateTime(2021, 1, 15),
-            new DateTime(2022, 1, 15),
-            _fixture.Create<decimal>(),
-            _fixture.Create<string>(),
-            null,
-            _fixture.Create<FundingType>(),
-            _fixture.Create<decimal>(),
-            _fixture.Create<int>());
+        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+        apprenticeshipEntityModel.ActualStartDate = new DateTime(2021, 1, 15);
+        apprenticeshipEntityModel.ActualStartDate = new DateTime(2022, 1, 15);
+        apprenticeshipEntityModel.FundingEmployerAccountId = null;
+
+        _apprenticeship = new Apprenticeship(apprenticeshipEntityModel);
         _apprenticeship.CalculateEarnings();
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
@@ -83,7 +76,9 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     {
         _sut.Model.ApprenticeshipKey.Should().Be(_apprenticeshipCreatedEvent.ApprenticeshipKey);
         _sut.Model.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
-        _sut.Model.UKPRN.Should().Be(_apprenticeshipCreatedEvent.UKPRN);
+
+        _sut.Model.ApprenticeshipEpisodes.Any(x=>x.UKPRN == _apprenticeshipCreatedEvent.UKPRN).Should().BeTrue();
+
         _sut.Model.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
         _sut.Model.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
         _sut.Model.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);

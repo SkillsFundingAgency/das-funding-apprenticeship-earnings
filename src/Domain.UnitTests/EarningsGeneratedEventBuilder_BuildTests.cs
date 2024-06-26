@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -22,21 +23,14 @@ public class EarningsGeneratedEventBuilder_BuildTests
         _sut = new EarningsGeneratedEventBuilder();
         _fixture = new Fixture();
 
-        _apprenticeship = new Apprenticeship.Apprenticeship(
-            Guid.NewGuid(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            _fixture.Create<long>(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            new DateTime(2022, 8, 1),
-            new DateTime(2022, 9, 30),
-            20000,
-            _fixture.Create<string>(),
-            null,
-            FundingType.NonLevy,
-            20001,
-            _fixture.Create<int>());
+        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+        apprenticeshipEntityModel.ActualStartDate = new DateTime(2022, 8, 1);
+        apprenticeshipEntityModel.PlannedEndDate = new DateTime(2022, 9, 30);
+        apprenticeshipEntityModel.AgreedPrice = 20000;
+        apprenticeshipEntityModel.FundingType = FundingType.NonLevy;
+        apprenticeshipEntityModel.FundingBandMaximum = 20001;
+
+        _apprenticeship = new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
         _apprenticeship.CalculateEarnings();
 
         _result = _sut.Build(_apprenticeship);

@@ -31,12 +31,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             Assert.That(apprenticeshipEntityModel.LegalEntityName, Is.EqualTo(apprenticeship.LegalEntityName));
             Assert.That(apprenticeshipEntityModel.PlannedEndDate, Is.EqualTo(apprenticeship.PlannedEndDate));
             Assert.That(apprenticeshipEntityModel.TrainingCode, Is.EqualTo(apprenticeship.TrainingCode));
-            Assert.That(apprenticeshipEntityModel.UKPRN, Is.EqualTo(apprenticeship.UKPRN));
             Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
             Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
             Assert.That(apprenticeshipEntityModel.Uln, Is.EqualTo(apprenticeship.Uln));
             Assert.That(apprenticeshipEntityModel.FundingBandMaximum, Is.EqualTo(apprenticeship.FundingBandMaximum));
             Assert.That(apprenticeshipEntityModel.AgeAtStartOfApprenticeship, Is.EqualTo(apprenticeship.AgeAtStartOfApprenticeship));
+
+            foreach(var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
+            {
+                Assert.That(apprenticeship.ApprenticeshipEpisodes, Has.One.Matches<Apprenticeship.ApprenticeshipEpisode>(x => x.UKPRN == apprenticeshipEpisode.UKPRN));
+            }
         }
     }
 }

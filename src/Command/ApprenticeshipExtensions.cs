@@ -22,23 +22,7 @@ internal static class ApprenticeshipExtensions
 
     internal static Apprenticeship GetDomainModel(this ApprenticeshipEntityModel entityModel)
     {
-        return new Apprenticeship(
-            entityModel.ApprenticeshipKey,
-            entityModel.ApprovalsApprenticeshipId,
-            entityModel.Uln,
-            entityModel.UKPRN,
-            entityModel.EmployerAccountId,
-            entityModel.LegalEntityName,
-            entityModel.ActualStartDate,
-            entityModel.PlannedEndDate,
-            entityModel.AgreedPrice,
-            entityModel.TrainingCode,
-            entityModel.FundingEmployerAccountId,
-            entityModel.FundingType,
-            entityModel.FundingBandMaximum,
-            entityModel.AgeAtStartOfApprenticeship,
-            MapModelToEarningsProfile(entityModel.EarningsProfile)
-        );
+        return new Apprenticeship(entityModel);
     }
 
     internal static EarningsProfile MapModelToEarningsProfile(EarningsProfileEntityModel model)

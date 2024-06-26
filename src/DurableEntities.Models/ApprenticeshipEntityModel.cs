@@ -10,7 +10,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
         [JsonProperty] public long ApprovalsApprenticeshipId { get; set; }
 
         [JsonProperty] public string Uln { get; set; } = null!;
-        [JsonProperty] public long UKPRN { get; set; }
+
         [JsonProperty] public long EmployerAccountId { get; set; }
         [JsonProperty] public string LegalEntityName { get; set; } = null!;
         [JsonProperty] public DateTime ActualStartDate { get; set; }
@@ -23,6 +23,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
         [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; } = null!;
         [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; } = null!;
         [JsonProperty] public decimal FundingBandMaximum { get; set; }
+        [JsonProperty] public List<ApprenticeshipEpisodeModel> ApprenticeshipEpisodes { get; set; } = null!;
         [JsonProperty] public int AgeAtStartOfApprenticeship { get; set; }
     }
 

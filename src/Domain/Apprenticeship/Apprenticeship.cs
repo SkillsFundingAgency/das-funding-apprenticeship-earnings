@@ -1,39 +1,33 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using System.Reflection;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn, long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType, decimal fundingBandMaximum, int ageAtStartOfApprenticeship)
+    public Apprenticeship(ApprenticeshipEntityModel apprenticeshipEntityModel)
     {
-        ApprenticeshipKey = apprenticeshipKey;
-        ApprovalsApprenticeshipId = approvalsApprenticeshipId;
-        Uln = uln;
-        UKPRN = ukprn;
-        EmployerAccountId = employerAccountId;
-        LegalEntityName = legalEntityName;
-        ActualStartDate = actualStartDate;
-        PlannedEndDate = plannedEndDate;
-        AgreedPrice = agreedPrice;
-        TrainingCode = trainingCode;
-        FundingEmployerAccountId = fundingEmployerAccountId;
-        FundingType = fundingType;
-        FundingBandMaximum = fundingBandMaximum;
-        AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
+        ApprenticeshipKey = apprenticeshipEntityModel.ApprenticeshipKey;
+        ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
+        Uln = apprenticeshipEntityModel.Uln;
+        EmployerAccountId = apprenticeshipEntityModel.EmployerAccountId;
+        LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
+        ActualStartDate = apprenticeshipEntityModel.ActualStartDate;
+        PlannedEndDate = apprenticeshipEntityModel.PlannedEndDate;
+        AgreedPrice = apprenticeshipEntityModel.AgreedPrice;
+        TrainingCode = apprenticeshipEntityModel.TrainingCode;
+        FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
+        FundingType = apprenticeshipEntityModel.FundingType;
+        FundingBandMaximum = apprenticeshipEntityModel.FundingBandMaximum;
+        AgeAtStartOfApprenticeship = apprenticeshipEntityModel.AgeAtStartOfApprenticeship;
+
+        ApprenticeshipEpisodes = apprenticeshipEntityModel.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisode(x)).ToList();
+        EarningsProfile = apprenticeshipEntityModel.EarningsProfile != null ? new EarningsProfile(apprenticeshipEntityModel.EarningsProfile) : null;
     }
 
-    public Apprenticeship(Guid apprenticeshipKey, long approvalsApprenticeshipId, string uln, long ukprn,
-        long employerAccountId, string legalEntityName, DateTime actualStartDate, DateTime plannedEndDate,
-        decimal agreedPrice, string trainingCode, long? fundingEmployerAccountId, FundingType fundingType,
-        decimal fundingBandMaximum, int ageAtStartOfApprenticeship, EarningsProfile earningsProfile)
-        : this(apprenticeshipKey, approvalsApprenticeshipId, uln, ukprn, employerAccountId, legalEntityName,
-            actualStartDate, plannedEndDate, agreedPrice, trainingCode, fundingEmployerAccountId, fundingType,
-            fundingBandMaximum, ageAtStartOfApprenticeship)
-    {
-        EarningsProfile = earningsProfile;
-    }
 
     public Guid ApprenticeshipKey { get; }
     public long ApprovalsApprenticeshipId { get; }
@@ -48,6 +42,7 @@ public class Apprenticeship : AggregateRoot
     public long? FundingEmployerAccountId { get; }
     public FundingType FundingType { get; }
     public decimal FundingBandMaximum { get; }
+    public List<ApprenticeshipEpisode> ApprenticeshipEpisodes { get; }
     public int AgeAtStartOfApprenticeship { get; private set; }
     public EarningsProfile? EarningsProfile { get; private set; }
 

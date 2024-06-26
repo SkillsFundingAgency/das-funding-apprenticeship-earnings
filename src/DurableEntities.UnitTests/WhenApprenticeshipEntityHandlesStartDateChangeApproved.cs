@@ -12,6 +12,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests;
@@ -49,21 +50,13 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             LegalEntityName = "MyTrawler",
             AgeAtStartOfApprenticeship = 20
         };
-        _apprenticeship = new Apprenticeship(
-            Guid.NewGuid(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            _fixture.Create<long>(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            new DateTime(2021, 1, 15),
-            new DateTime(2022, 1, 15),
-            _fixture.Create<decimal>(),
-            _fixture.Create<string>(),
-            null,
-            _fixture.Create<FundingType>(),
-            _fixture.Create<decimal>(),
-            _fixture.Create<int>());
+
+        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+        apprenticeshipEntityModel.ActualStartDate = new DateTime(2021, 1, 15);
+        apprenticeshipEntityModel.PlannedEndDate = new DateTime(2022, 1, 15);
+        apprenticeshipEntityModel.FundingEmployerAccountId = null;
+
+        _apprenticeship = new Apprenticeship(apprenticeshipEntityModel);
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
         {
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,

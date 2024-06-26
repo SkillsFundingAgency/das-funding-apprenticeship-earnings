@@ -2,7 +2,9 @@
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
 using System.Linq;
 
@@ -73,40 +75,56 @@ public class WhenRecalculatingEarningsForStartDateChange
 
     private Apprenticeship.Apprenticeship CreateApprenticeship(decimal agreedPrice, DateTime startDate, DateTime endDate)
     {
-        return new Apprenticeship.Apprenticeship(
-            Guid.NewGuid(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            _fixture.Create<long>(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            startDate,
-            endDate,
-            agreedPrice,
-            _fixture.Create<string>(),
-            null,
-            _fixture.Create<FundingType>(),
-            agreedPrice + 1,
-            _fixture.Create<int>());
+        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+        apprenticeshipEntityModel.ActualStartDate = startDate;
+        apprenticeshipEntityModel.PlannedEndDate = endDate;
+        apprenticeshipEntityModel.AgreedPrice = agreedPrice;
+        apprenticeshipEntityModel.FundingBandMaximum = agreedPrice + 1;
+        apprenticeshipEntityModel.FundingEmployerAccountId = null;
+
+        return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
     }
  
     private Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(Apprenticeship.Apprenticeship apprenticeship, DateTime newStartDate)
     {
-        return new Apprenticeship.Apprenticeship(
-            apprenticeship.ApprenticeshipKey,
-            apprenticeship.ApprovalsApprenticeshipId,
-            apprenticeship.Uln,
-            apprenticeship.UKPRN,
-            apprenticeship.EmployerAccountId,
-            apprenticeship.LegalEntityName,
-            newStartDate,
-            apprenticeship.PlannedEndDate,
-            apprenticeship.AgreedPrice,
-            apprenticeship.TrainingCode,
-            apprenticeship.FundingEmployerAccountId,
-            apprenticeship.FundingType,
-            apprenticeship.AgreedPrice + 1,
-            apprenticeship.AgeAtStartOfApprenticeship,
-            apprenticeship.EarningsProfile);
+        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+
+        apprenticeshipEntityModel.ApprenticeshipKey = apprenticeship.ApprenticeshipKey;
+        apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
+        apprenticeshipEntityModel.Uln = apprenticeship.Uln;
+        apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel { UKPRN = x.UKPRN }).ToList();
+        apprenticeshipEntityModel.EmployerAccountId = apprenticeship.EmployerAccountId;
+        apprenticeshipEntityModel.LegalEntityName = apprenticeship.LegalEntityName;
+        apprenticeshipEntityModel.ActualStartDate = newStartDate;
+        apprenticeshipEntityModel.PlannedEndDate = apprenticeship.PlannedEndDate;
+        apprenticeshipEntityModel.AgreedPrice = apprenticeship.AgreedPrice;
+        apprenticeshipEntityModel.TrainingCode = apprenticeship.TrainingCode;
+        apprenticeshipEntityModel.FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId;
+        apprenticeshipEntityModel.FundingType = apprenticeship.FundingType;
+        apprenticeshipEntityModel.FundingBandMaximum = apprenticeship.AgreedPrice + 1;
+        apprenticeshipEntityModel.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
+
+        apprenticeshipEntityModel.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+
+        return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
     }
+
+    internal static EarningsProfileEntityModel MapEarningsProfileToModel(EarningsProfile earningsProfile)
+    {
+        var instalments = earningsProfile.Instalments.Select(i => new InstalmentEntityModel
+        {
+            AcademicYear = i.AcademicYear,
+            DeliveryPeriod = i.DeliveryPeriod,
+            Amount = i.Amount
+        }).ToList();
+
+        return new EarningsProfileEntityModel
+        {
+            AdjustedPrice = earningsProfile.OnProgramTotal,
+            Instalments = instalments,
+            CompletionPayment = earningsProfile.CompletionPayment,
+            EarningsProfileId = earningsProfile.EarningsProfileId
+        };
+    }
+
 }

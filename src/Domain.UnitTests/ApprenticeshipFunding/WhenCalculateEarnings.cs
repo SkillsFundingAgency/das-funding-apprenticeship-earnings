@@ -4,6 +4,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding
 {
@@ -22,21 +23,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
         public void SetUp()
         {
             var agreedPrice = _fixture.Create<decimal>();
-            _sut = new Apprenticeship.Apprenticeship(
-                Guid.NewGuid(),
-                _fixture.Create<long>(),
-                _fixture.Create<string>(),
-                _fixture.Create<long>(),
-                _fixture.Create<long>(),
-                _fixture.Create<string>(),
-                new DateTime(2021, 1, 15),
-                new DateTime(2021, 12, 31),
-                agreedPrice,
-                _fixture.Create<string>(),
-                null,
-                _fixture.Create<FundingType>(),
-                agreedPrice + 1,
-                _fixture.Create<int>());
+
+            var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+            apprenticeshipEntityModel.ActualStartDate = new DateTime(2021, 1, 15);
+            apprenticeshipEntityModel.PlannedEndDate = new DateTime(2021, 12, 31);
+            apprenticeshipEntityModel.AgreedPrice = agreedPrice;
+            apprenticeshipEntityModel.FundingBandMaximum = agreedPrice + 1;
+            apprenticeshipEntityModel.FundingEmployerAccountId = null;
+
+            _sut = new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
         }
 
         [Test]
