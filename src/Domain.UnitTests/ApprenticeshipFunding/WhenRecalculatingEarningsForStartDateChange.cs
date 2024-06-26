@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
 using System.Linq;
@@ -33,7 +34,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _updatedAgeAtApprenticeshipStart = _fixture.Create<int>();
         _apprenticeshipBeforeStartDateChange = CreateApprenticeship(_fixture.Create<decimal>(), _orginalStartDate, _orginalEndDate);
         _apprenticeshipBeforeStartDateChange.CalculateEarnings();
-        _sut = CreateUpdatedApprenticeship(_apprenticeshipBeforeStartDateChange, _updatedStartDate);
+        _sut = _fixture.CreateUpdatedApprenticeship(_apprenticeshipBeforeStartDateChange, newStartDate: _updatedStartDate);
     }
 
     [Test]
@@ -83,48 +84,6 @@ public class WhenRecalculatingEarningsForStartDateChange
         apprenticeshipEntityModel.FundingEmployerAccountId = null;
 
         return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
-    }
- 
-    private Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(Apprenticeship.Apprenticeship apprenticeship, DateTime newStartDate)
-    {
-        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
-
-        apprenticeshipEntityModel.ApprenticeshipKey = apprenticeship.ApprenticeshipKey;
-        apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
-        apprenticeshipEntityModel.Uln = apprenticeship.Uln;
-        apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel { UKPRN = x.UKPRN }).ToList();
-        apprenticeshipEntityModel.EmployerAccountId = apprenticeship.EmployerAccountId;
-        apprenticeshipEntityModel.LegalEntityName = apprenticeship.LegalEntityName;
-        apprenticeshipEntityModel.ActualStartDate = newStartDate;
-        apprenticeshipEntityModel.PlannedEndDate = apprenticeship.PlannedEndDate;
-        apprenticeshipEntityModel.AgreedPrice = apprenticeship.AgreedPrice;
-        apprenticeshipEntityModel.TrainingCode = apprenticeship.TrainingCode;
-        apprenticeshipEntityModel.FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId;
-        apprenticeshipEntityModel.FundingType = apprenticeship.FundingType;
-        apprenticeshipEntityModel.FundingBandMaximum = apprenticeship.AgreedPrice + 1;
-        apprenticeshipEntityModel.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
-
-        apprenticeshipEntityModel.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
-
-        return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
-    }
-
-    internal static EarningsProfileEntityModel MapEarningsProfileToModel(EarningsProfile earningsProfile)
-    {
-        var instalments = earningsProfile.Instalments.Select(i => new InstalmentEntityModel
-        {
-            AcademicYear = i.AcademicYear,
-            DeliveryPeriod = i.DeliveryPeriod,
-            Amount = i.Amount
-        }).ToList();
-
-        return new EarningsProfileEntityModel
-        {
-            AdjustedPrice = earningsProfile.OnProgramTotal,
-            Instalments = instalments,
-            CompletionPayment = earningsProfile.CompletionPayment,
-            EarningsProfileId = earningsProfile.EarningsProfileId
-        };
     }
 
 }
