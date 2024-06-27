@@ -73,7 +73,7 @@ public class ApprenticeshipEntity
         var apprenticeship = await _approvePriceChangeCommandHandler.RecalculateEarnings(new ApprovePriceChangeCommand(Model, priceChangeApprovedEvent));
         var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 
-        Model.AgreedPrice = apprenticeship.AgreedPrice;
+        UpdateEpisodes(apprenticeship);
 
         SupersedeEarningsProfile(newEarnings);
 
@@ -94,7 +94,6 @@ public class ApprenticeshipEntity
             Uln = apprenticeshipCreatedEvent.Uln,
             ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,// DO NOT APPROVE PR WITH THESE HERE
             PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,// DO NOT APPROVE PR WITH THESE HERE
-            AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
             TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
             FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
             FundingType = apprenticeshipCreatedEvent.FundingType,
@@ -106,7 +105,8 @@ public class ApprenticeshipEntity
                 UKPRN = apprenticeshipCreatedEvent.UKPRN,
                 EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
                 ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
-                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value
+                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
+                AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice
             }},
             AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
         };
@@ -148,4 +148,16 @@ public class ApprenticeshipEntity
 
         Model.EarningsProfile = earningsProfile;
     }   
+
+    private void UpdateEpisodes(Apprenticeship apprenticeship)
+    {
+        Model.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
+        {
+            UKPRN = x.UKPRN,
+            EmployerAccountId = x.EmployerAccountId,
+            ActualStartDate = x.ActualStartDate,
+            PlannedEndDate = x.PlannedEndDate,
+            AgreedPrice = x.AgreedPrice
+        }).ToList();
+    }
 }

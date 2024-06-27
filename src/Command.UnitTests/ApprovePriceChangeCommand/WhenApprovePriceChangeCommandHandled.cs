@@ -18,12 +18,15 @@ public class WhenApprovePriceChangeCommandHandled
     private readonly Fixture _fixture;
     private readonly Mock<IMessageSession> _mockMessageSession;
     private readonly Mock<IApprenticeshipEarningsRecalculatedEventBuilder> _mockEventBuilder;
+    private Mock<ISystemClock> _mockSystemClock;
 
     public WhenApprovePriceChangeCommandHandled()
     {
         _fixture = new Fixture();
         _mockMessageSession = new Mock<IMessageSession>();
         _mockEventBuilder = new Mock<IApprenticeshipEarningsRecalculatedEventBuilder>();
+        _mockSystemClock = new Mock<ISystemClock>();
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2019, 12, 1));
     }
 
     [SetUp]
@@ -39,7 +42,7 @@ public class WhenApprovePriceChangeCommandHandled
     public async Task ThenTheEarningsAreRecalculated()
     {
         // Arrange
-        var sut = new ApprovePriceChangeCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object);
+        var sut = new ApprovePriceChangeCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object);
         var command = CreateCommand();
 
         // Act

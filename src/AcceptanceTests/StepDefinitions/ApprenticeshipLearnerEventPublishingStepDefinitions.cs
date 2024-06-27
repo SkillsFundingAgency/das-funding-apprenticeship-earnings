@@ -19,10 +19,13 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     private int _ageAtStartOfApprenticeship = 21;
     private Random _random = new();
 
+    private readonly DateTime _defaultCurrentDateTime = new DateTime(2020, 01, 01);
+
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
+        TestSystemClock.SetDateTime(_defaultCurrentDateTime);
     }
 
     [BeforeTestRun]
@@ -43,6 +46,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public void GivenTheApprenticeshipIsUnder19()
     {
         _startDate = new DateTime(2020, 8, 1);
+        TestSystemClock.SetDateTime(new DateTime(2020, 09, 01));
         _dateOfBirth = new DateTime(2002, 9, 1);
         _ageAtStartOfApprenticeship = 18;
     }
@@ -51,6 +55,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public void GivenTheApprenticeshipIsOver19()
     {
         _startDate = new DateTime(2020, 8, 1);
+        TestSystemClock.SetDateTime(new DateTime(2020, 09, 01));
         _dateOfBirth = new DateTime(2000, 9, 1);
         _ageAtStartOfApprenticeship = 19;
     }

@@ -35,7 +35,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
             agreedPrice: 20000,
             fundingType: FundingType.NonLevy);
 
-        _apprenticeship.CalculateEarnings();
+        _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
 
         _result = _sut.Build(_apprenticeship);
     }
@@ -73,7 +73,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateThe_AgreedPrice_Correctly()
     {
-        _result.AgreedPrice.Should().Be(_apprenticeship.AgreedPrice);
+        _result.AgreedPrice.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgreedPrice);
     }
 
     [Test]

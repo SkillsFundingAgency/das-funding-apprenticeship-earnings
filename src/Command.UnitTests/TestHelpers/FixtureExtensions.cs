@@ -16,7 +16,6 @@ internal static class FixtureExtensions
         apprenticeship.ActualStartDate = new DateTime(2019, 09, 01); // DO NOT APPROVE PR WITH THESE HERE
         apprenticeship.PlannedEndDate = new DateTime(2020, 1, 1); // DO NOT APPROVE PR WITH THESE HERE
         apprenticeship.AgeAtStartOfApprenticeship = 21;
-        apprenticeship.AgreedPrice = 10000;
         apprenticeship.FundingBandMaximum = 20000;
         apprenticeship.EarningsProfile.AdjustedPrice = 10000;
         apprenticeship.EarningsProfile.CompletionPayment = 4000;
@@ -29,7 +28,13 @@ internal static class FixtureExtensions
         };
         apprenticeship.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel>
         {
-            new() { UKPRN = 10000001, EmployerAccountId = 10000001, ActualStartDate = new DateTime(2019, 09, 01), PlannedEndDate = new DateTime(2020, 1, 1) }
+            new() { 
+                UKPRN = 10000001, 
+                EmployerAccountId = 10000001, 
+                ActualStartDate = new DateTime(2019, 09, 01), 
+                PlannedEndDate = new DateTime(2020, 1, 1),
+                AgreedPrice = 10000
+            }
         };
 
         return apprenticeship;

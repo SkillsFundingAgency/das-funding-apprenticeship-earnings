@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
@@ -103,7 +104,9 @@ public class TestFunction : IDisposable
 
                     new Startup().Configure(builder);
 
+
                     s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
+                    s.AddSingleton<ISystemClock, TestSystemClock>();// override DI in Startup
                 })
             )
             .ConfigureServices(s =>

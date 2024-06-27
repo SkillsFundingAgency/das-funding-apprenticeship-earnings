@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Internal;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -15,6 +17,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenRecalculatingEarningsForStartDateChange
 {
     private Fixture _fixture;
+    private Mock<ISystemClock> _mockSystemClock;
     private Apprenticeship.Apprenticeship? _apprenticeshipBeforeStartDateChange; //represents the apprenticeship before the start date change
     private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the start date change
     private DateTime _updatedStartDate;
@@ -25,6 +28,8 @@ public class WhenRecalculatingEarningsForStartDateChange
     public WhenRecalculatingEarningsForStartDateChange()
     {
         _fixture = new Fixture();
+        _mockSystemClock = new Mock<ISystemClock>();
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
     }
 
     [SetUp]
@@ -33,14 +38,14 @@ public class WhenRecalculatingEarningsForStartDateChange
         _updatedStartDate = new DateTime(2021, 3, 15);
         _updatedAgeAtApprenticeshipStart = _fixture.Create<int>();
         _apprenticeshipBeforeStartDateChange = _fixture.CreateApprenticeship(_orginalStartDate, _orginalEndDate, _fixture.Create<decimal>());
-        _apprenticeshipBeforeStartDateChange.CalculateEarnings();
+        _apprenticeshipBeforeStartDateChange.CalculateEarnings(_mockSystemClock.Object);
         _sut = _fixture.CreateUpdatedApprenticeship(_apprenticeshipBeforeStartDateChange, newStartDate: _updatedStartDate);
     }
 
     [Test]
     public void ThenTheActualStartDateAndAgeAreUpdated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
+        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
         _sut.ActualStartDate.Should().Be(_updatedStartDate);
         _sut.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
     }
@@ -48,7 +53,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     [Test]
     public void ThenTheEarningsProfileIsCalculated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
+        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
         _sut.EarningsProfile.OnProgramTotal.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.OnProgramTotal);
         _sut.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.CompletionPayment);
         _sut.EarningsProfile.EarningsProfileId.Should().NotBe(_apprenticeshipBeforeStartDateChange.EarningsProfile.EarningsProfileId);
@@ -61,7 +66,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     [Test]
     public void ThenEarningsRecalculatedEventIsCreated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
+        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
 
         var events = _sut.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
@@ -70,7 +75,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     [Test]
     public void ThenTheEarningsProfileIdIsGenerated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
+        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
         _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 }

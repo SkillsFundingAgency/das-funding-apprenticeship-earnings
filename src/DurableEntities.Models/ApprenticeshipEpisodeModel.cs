@@ -20,7 +20,7 @@ public class ApprenticeshipEpisodeModel
     //Prices[]
     [JsonProperty] public DateTime ActualStartDate { get; set; }
     [JsonProperty] public DateTime PlannedEndDate { get; set; }
-    //AgreedPrice
+    [JsonProperty] public decimal AgreedPrice { get; set; }
     //FundingBandMaximum
     //EarningsProfile
     //EarningsProfileHistory[]

@@ -17,7 +17,6 @@ public class Apprenticeship : AggregateRoot
         LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
         ActualStartDate = apprenticeshipEntityModel.ActualStartDate; //DO NOT APPROVE PR WITH THESE HERE
         PlannedEndDate = apprenticeshipEntityModel.PlannedEndDate; //DO NOT APPROVE PR WITH THESE HERE
-        AgreedPrice = apprenticeshipEntityModel.AgreedPrice;
         TrainingCode = apprenticeshipEntityModel.TrainingCode;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
         FundingType = apprenticeshipEntityModel.FundingType;
@@ -39,7 +38,6 @@ public class Apprenticeship : AggregateRoot
     public DateTime PlannedEndDate { get; private set; } //DO NOT APPROVE PR WITH THESE HERE
 
 
-    public decimal AgreedPrice { get; private set; }
     public string TrainingCode { get; }
     public long? FundingEmployerAccountId { get; }
     public FundingType FundingType { get; }
@@ -53,30 +51,36 @@ public class Apprenticeship : AggregateRoot
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
-    public void CalculateEarnings()
+    public void CalculateEarnings(ISystemClock systemClock)
     {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
         var earnings = apprenticeshipFunding.GenerateEarnings();
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(decimal newAgreedPrice, DateTime effectiveFromDate)
+    public void RecalculateEarnings(ISystemClock systemClock, decimal newAgreedPrice, DateTime effectiveFromDate)
     {
-        AgreedPrice = newAgreedPrice;
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice);
+
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(newAgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
         var existingEarnings = EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
+    public void RecalculateEarnings(ISystemClock systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
     {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+
         ActualStartDate = newStartDate;
         PlannedEndDate = newEndDate;
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, newStartDate, newEndDate, FundingBandMaximum);
+
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, newStartDate, newEndDate, FundingBandMaximum);
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(newStartDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsRecalculatedEvent(this));

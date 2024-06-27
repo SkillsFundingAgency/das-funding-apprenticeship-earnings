@@ -21,7 +21,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 
     public EarningsGeneratedEvent Build(Apprenticeship apprenticeship)
     {
-        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, NEED TO RESOLVE CURRENT EPISODE BASED ON DATE
+        var currentEpisode = apprenticeship.GetCurrentEpisode(_systemClock);
 
         return new EarningsGeneratedEvent
         {
@@ -30,7 +30,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
-            AgreedPrice = apprenticeship.AgreedPrice,
+            AgreedPrice = currentEpisode.AgreedPrice,
             StartDate = apprenticeship.ActualStartDate,
             TrainingCode = apprenticeship.TrainingCode,
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),

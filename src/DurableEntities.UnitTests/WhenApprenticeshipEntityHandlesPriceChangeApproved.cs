@@ -12,6 +12,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests;
@@ -25,12 +26,16 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
     private Mock<IApprovePriceChangeCommandHandler> _approvePriceChangeCommandHandler;
     private Mock<IApproveStartDateChangeCommandHandler> _approveStartDateChangeCommandHandler;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
+    private Mock<Microsoft.Extensions.Internal.ISystemClock> _mockSystemClock;
     private Fixture _fixture;
     private Apprenticeship _apprenticeship;
 
     [SetUp]
     public async Task SetUp()
     {
+        _mockSystemClock = new Mock<Microsoft.Extensions.Internal.ISystemClock>();
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
+
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             FundingType = FundingType.NonLevy,
@@ -62,12 +67,8 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
         };
 
         _fixture = new Fixture();
-        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeshipEntityModel.ActualStartDate = new DateTime(2021, 1, 15);
-        apprenticeshipEntityModel.PlannedEndDate = new DateTime(2022, 1, 15);
-        apprenticeshipEntityModel.FundingEmployerAccountId = null;
-        _apprenticeship = new Apprenticeship(apprenticeshipEntityModel);
-        _apprenticeship.CalculateEarnings();
+        _apprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15),new DateTime(2022, 1, 15));
+        _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();
