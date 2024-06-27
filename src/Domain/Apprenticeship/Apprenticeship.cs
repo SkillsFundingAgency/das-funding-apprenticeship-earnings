@@ -12,7 +12,6 @@ public class Apprenticeship : AggregateRoot
         ApprenticeshipKey = apprenticeshipEntityModel.ApprenticeshipKey;
         ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
         Uln = apprenticeshipEntityModel.Uln;
-        LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
         AgeAtStartOfApprenticeship = apprenticeshipEntityModel.AgeAtStartOfApprenticeship;
 
@@ -24,7 +23,7 @@ public class Apprenticeship : AggregateRoot
     public Guid ApprenticeshipKey { get; }
     public long ApprovalsApprenticeshipId { get; }
     public string Uln { get; }
-    public string LegalEntityName { get; }
+
     public long? FundingEmployerAccountId { get; }
 
 

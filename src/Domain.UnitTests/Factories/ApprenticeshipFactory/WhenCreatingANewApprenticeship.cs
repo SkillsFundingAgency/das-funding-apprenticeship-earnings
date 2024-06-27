@@ -25,7 +25,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
 
             Assert.That(apprenticeshipEntityModel.FundingEmployerAccountId, Is.EqualTo(apprenticeship.FundingEmployerAccountId)); 
-            Assert.That(apprenticeshipEntityModel.LegalEntityName, Is.EqualTo(apprenticeship.LegalEntityName));
             Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
             Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
             Assert.That(apprenticeshipEntityModel.Uln, Is.EqualTo(apprenticeship.Uln));
@@ -40,7 +39,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
                     x.PlannedEndDate == apprenticeshipEpisode.PlannedEndDate &&
                     x.AgreedPrice == apprenticeshipEpisode.AgreedPrice &&
                     x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
-                    x.FundingBandMaximum == apprenticeshipEpisode.FundingBandMaximum));
+                    x.FundingBandMaximum == apprenticeshipEpisode.FundingBandMaximum &&
+                    x.LegalEntityName == apprenticeshipEpisode.LegalEntityName));
             }
         }
     }

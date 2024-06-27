@@ -14,6 +14,7 @@ public class ApprenticeshipEpisode
     public string TrainingCode { get; }
     public FundingType FundingType { get; }
     public decimal FundingBandMaximum { get; }
+    public string LegalEntityName { get; }
 
     public ApprenticeshipEpisode(ApprenticeshipEpisodeModel apprenticeshipEpisodeModel)
     {
@@ -25,6 +26,7 @@ public class ApprenticeshipEpisode
         TrainingCode = apprenticeshipEpisodeModel.TrainingCode;
         FundingType = apprenticeshipEpisodeModel.FundingType;
         FundingBandMaximum = apprenticeshipEpisodeModel.FundingBandMaximum;
+        LegalEntityName = apprenticeshipEpisodeModel.LegalEntityName;
     }
 
     public void UpdateAgreedPrice(ISystemClock systemClock, decimal agreedPrice)

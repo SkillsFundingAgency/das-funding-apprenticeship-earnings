@@ -81,10 +81,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         _sut.Model.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
         _sut.Model.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
         _sut.Model.ApprovalsApprenticeshipId.Should().Be(_apprenticeshipCreatedEvent.ApprovalsApprenticeshipId);
-        _sut.Model.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
-        
         _sut.Model.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship);
-
         _sut.Model.EarningsProfile.AdjustedPrice.Should().Be(_apprenticeship.EarningsProfile.OnProgramTotal);
         _sut.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeship.EarningsProfile.CompletionPayment);
         _sut.Model.EarningsProfile.EarningsProfileId.Should().Be(_apprenticeship.EarningsProfile.EarningsProfileId);
@@ -99,6 +96,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
         apprenticeshipEpisode.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
         apprenticeshipEpisode.FundingBandMaximum.Should().Be(_apprenticeshipCreatedEvent.FundingBandMaximum);
+        apprenticeshipEpisode.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
     }
 
     [Test]
