@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
 {
@@ -8,16 +7,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
     {
         [JsonProperty] public Guid ApprenticeshipKey { get; set; }
         [JsonProperty] public long ApprovalsApprenticeshipId { get; set; }
-
         [JsonProperty] public string Uln { get; set; } = null!;
         [JsonProperty] public string LegalEntityName { get; set; } = null!;
-
-
-
         [JsonProperty] public long? FundingEmployerAccountId { get; set; }
-        [JsonProperty] public FundingType FundingType { get; set; }
-
-
         [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; } = null!;
         [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; } = null!;
         [JsonProperty] public decimal FundingBandMaximum { get; set; }

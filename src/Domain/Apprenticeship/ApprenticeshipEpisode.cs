@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -11,6 +12,7 @@ public class ApprenticeshipEpisode
     public DateTime PlannedEndDate { get; private set; }
     public decimal AgreedPrice { get; private set; }
     public string TrainingCode { get; }
+    public FundingType FundingType { get; }
 
     public ApprenticeshipEpisode(ApprenticeshipEpisodeModel apprenticeshipEpisodeModel)
     {
@@ -20,6 +22,7 @@ public class ApprenticeshipEpisode
         PlannedEndDate = apprenticeshipEpisodeModel.PlannedEndDate;
         AgreedPrice = apprenticeshipEpisodeModel.AgreedPrice;
         TrainingCode = apprenticeshipEpisodeModel.TrainingCode;
+        FundingType = apprenticeshipEpisodeModel.FundingType;
     }
 
     public void UpdateAgreedPrice(ISystemClock systemClock, decimal agreedPrice)

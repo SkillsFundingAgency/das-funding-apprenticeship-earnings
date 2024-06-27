@@ -33,7 +33,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             AgreedPrice = currentEpisode.AgreedPrice,
             StartDate = currentEpisode.ActualStartDate,
             TrainingCode = currentEpisode.TrainingCode,
-            EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
+            EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
             PlannedEndDate = currentEpisode.PlannedEndDate,

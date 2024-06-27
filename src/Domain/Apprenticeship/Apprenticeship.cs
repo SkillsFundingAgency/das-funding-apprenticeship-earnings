@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
-using System.Reflection;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -16,7 +14,6 @@ public class Apprenticeship : AggregateRoot
         Uln = apprenticeshipEntityModel.Uln;
         LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
-        FundingType = apprenticeshipEntityModel.FundingType;
         FundingBandMaximum = apprenticeshipEntityModel.FundingBandMaximum;
         AgeAtStartOfApprenticeship = apprenticeshipEntityModel.AgeAtStartOfApprenticeship;
 
@@ -30,7 +27,7 @@ public class Apprenticeship : AggregateRoot
     public string Uln { get; }
     public string LegalEntityName { get; }
     public long? FundingEmployerAccountId { get; }
-    public FundingType FundingType { get; }
+
     public decimal FundingBandMaximum { get; }
     public List<ApprenticeshipEpisode> ApprenticeshipEpisodes { get; }
     public int AgeAtStartOfApprenticeship { get; private set; }
