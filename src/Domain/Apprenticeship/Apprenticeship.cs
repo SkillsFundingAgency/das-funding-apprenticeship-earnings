@@ -15,7 +15,6 @@ public class Apprenticeship : AggregateRoot
         ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
         Uln = apprenticeshipEntityModel.Uln;
         LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
-        TrainingCode = apprenticeshipEntityModel.TrainingCode;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
         FundingType = apprenticeshipEntityModel.FundingType;
         FundingBandMaximum = apprenticeshipEntityModel.FundingBandMaximum;
@@ -30,7 +29,6 @@ public class Apprenticeship : AggregateRoot
     public long ApprovalsApprenticeshipId { get; }
     public string Uln { get; }
     public string LegalEntityName { get; }
-    public string TrainingCode { get; }
     public long? FundingEmployerAccountId { get; }
     public FundingType FundingType { get; }
     public decimal FundingBandMaximum { get; }
@@ -92,7 +90,6 @@ public static class ApprenticeshipExtensions
 
         if (episode == null)
             throw new InvalidOperationException("No current episode found");
-
 
         return episode!;
     }

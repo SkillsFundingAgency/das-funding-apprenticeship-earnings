@@ -85,7 +85,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateThe_TrainingCode_Correctly()
     {
-        _result.TrainingCode.Should().Be(_apprenticeship.TrainingCode);
+        _result.TrainingCode.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().TrainingCode);
     }
 
     [Test]

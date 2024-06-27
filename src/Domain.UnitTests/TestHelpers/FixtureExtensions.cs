@@ -48,7 +48,6 @@ internal static class FixtureExtensions
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
         apprenticeshipEntityModel.LegalEntityName = apprenticeship.LegalEntityName;
-        apprenticeshipEntityModel.TrainingCode = apprenticeship.TrainingCode;
         apprenticeshipEntityModel.FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId;
         apprenticeshipEntityModel.FundingType = apprenticeship.FundingType;
         apprenticeshipEntityModel.FundingBandMaximum = newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().AgreedPrice + 1 : newPrice.Value + 1;
@@ -60,7 +59,8 @@ internal static class FixtureExtensions
             EmployerAccountId = x.EmployerAccountId,
             ActualStartDate = newStartDate == null ? x.ActualStartDate : newStartDate.Value,
             PlannedEndDate = x.PlannedEndDate,
-            AgreedPrice = x.AgreedPrice
+            AgreedPrice = x.AgreedPrice,
+            TrainingCode = x.TrainingCode
         }).ToList();
 
         apprenticeshipEntityModel.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);

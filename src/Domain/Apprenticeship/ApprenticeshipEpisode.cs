@@ -10,6 +10,7 @@ public class ApprenticeshipEpisode
     public DateTime ActualStartDate { get; private set; }
     public DateTime PlannedEndDate { get; private set; }
     public decimal AgreedPrice { get; private set; }
+    public string TrainingCode { get; }
 
     public ApprenticeshipEpisode(ApprenticeshipEpisodeModel apprenticeshipEpisodeModel)
     {
@@ -18,6 +19,7 @@ public class ApprenticeshipEpisode
         ActualStartDate = apprenticeshipEpisodeModel.ActualStartDate;
         PlannedEndDate = apprenticeshipEpisodeModel.PlannedEndDate;
         AgreedPrice = apprenticeshipEpisodeModel.AgreedPrice;
+        TrainingCode = apprenticeshipEpisodeModel.TrainingCode;
     }
 
     public void UpdateAgreedPrice(ISystemClock systemClock, decimal agreedPrice)

@@ -79,7 +79,6 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     {
         _sut.Model.ApprenticeshipKey.Should().Be(_apprenticeshipCreatedEvent.ApprenticeshipKey);
         _sut.Model.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
-        _sut.Model.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
         _sut.Model.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
         _sut.Model.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
         _sut.Model.ApprovalsApprenticeshipId.Should().Be(_apprenticeshipCreatedEvent.ApprovalsApprenticeshipId);
@@ -98,6 +97,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
         apprenticeshipEpisode.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
         apprenticeshipEpisode.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);
+        apprenticeshipEpisode.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
     }
 
     [Test]

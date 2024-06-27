@@ -32,7 +32,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
             AgreedPrice = currentEpisode.AgreedPrice,
             StartDate = currentEpisode.ActualStartDate,
-            TrainingCode = apprenticeship.TrainingCode,
+            TrainingCode = currentEpisode.TrainingCode,
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
