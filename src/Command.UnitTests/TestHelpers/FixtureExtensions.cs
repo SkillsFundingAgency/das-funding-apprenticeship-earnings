@@ -14,7 +14,6 @@ internal static class FixtureExtensions
     {
         var apprenticeship = fixture.Create<ApprenticeshipEntityModel>();
         apprenticeship.AgeAtStartOfApprenticeship = 21;
-        apprenticeship.FundingBandMaximum = 20000;
         apprenticeship.EarningsProfile.AdjustedPrice = 10000;
         apprenticeship.EarningsProfile.CompletionPayment = 4000;
         apprenticeship.EarningsProfile.Instalments = new List<InstalmentEntityModel>
@@ -31,7 +30,8 @@ internal static class FixtureExtensions
                 EmployerAccountId = 10000001, 
                 ActualStartDate = new DateTime(2019, 09, 01), 
                 PlannedEndDate = new DateTime(2020, 1, 1),
-                AgreedPrice = 10000
+                AgreedPrice = 10000,
+                FundingBandMaximum = 20000
             }
         };
 

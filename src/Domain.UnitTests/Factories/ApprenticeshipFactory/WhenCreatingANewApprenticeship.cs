@@ -29,7 +29,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
             Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
             Assert.That(apprenticeshipEntityModel.Uln, Is.EqualTo(apprenticeship.Uln));
-            Assert.That(apprenticeshipEntityModel.FundingBandMaximum, Is.EqualTo(apprenticeship.FundingBandMaximum));
             Assert.That(apprenticeshipEntityModel.AgeAtStartOfApprenticeship, Is.EqualTo(apprenticeship.AgeAtStartOfApprenticeship));
 
             foreach(var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
@@ -40,7 +39,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
                     x.ActualStartDate == apprenticeshipEpisode.ActualStartDate &&
                     x.PlannedEndDate == apprenticeshipEpisode.PlannedEndDate &&
                     x.AgreedPrice == apprenticeshipEpisode.AgreedPrice &&
-                    x.TrainingCode == apprenticeshipEpisode.TrainingCode));
+                    x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
+                    x.FundingBandMaximum == apprenticeshipEpisode.FundingBandMaximum));
             }
         }
     }

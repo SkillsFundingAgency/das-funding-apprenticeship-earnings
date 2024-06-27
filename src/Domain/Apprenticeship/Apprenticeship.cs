@@ -14,7 +14,6 @@ public class Apprenticeship : AggregateRoot
         Uln = apprenticeshipEntityModel.Uln;
         LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
-        FundingBandMaximum = apprenticeshipEntityModel.FundingBandMaximum;
         AgeAtStartOfApprenticeship = apprenticeshipEntityModel.AgeAtStartOfApprenticeship;
 
         ApprenticeshipEpisodes = apprenticeshipEntityModel.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisode(x)).ToList();
@@ -28,7 +27,7 @@ public class Apprenticeship : AggregateRoot
     public string LegalEntityName { get; }
     public long? FundingEmployerAccountId { get; }
 
-    public decimal FundingBandMaximum { get; }
+
     public List<ApprenticeshipEpisode> ApprenticeshipEpisodes { get; }
     public int AgeAtStartOfApprenticeship { get; private set; }
     public EarningsProfile? EarningsProfile { get; private set; }
@@ -41,7 +40,7 @@ public class Apprenticeship : AggregateRoot
     public void CalculateEarnings(ISystemClock systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, currentEpisode.ActualStartDate, currentEpisode.PlannedEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, currentEpisode.ActualStartDate, currentEpisode.PlannedEndDate, currentEpisode.FundingBandMaximum);
         var earnings = apprenticeshipFunding.GenerateEarnings();
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsCalculatedEvent(this));
@@ -52,7 +51,7 @@ public class Apprenticeship : AggregateRoot
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice);
 
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(newAgreedPrice, currentEpisode.ActualStartDate, currentEpisode.PlannedEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(newAgreedPrice, currentEpisode.ActualStartDate, currentEpisode.PlannedEndDate, currentEpisode.FundingBandMaximum);
         var existingEarnings = EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
@@ -66,7 +65,7 @@ public class Apprenticeship : AggregateRoot
 
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
 
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, newStartDate, newEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, newStartDate, newEndDate, currentEpisode.FundingBandMaximum);
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(newStartDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsRecalculatedEvent(this));

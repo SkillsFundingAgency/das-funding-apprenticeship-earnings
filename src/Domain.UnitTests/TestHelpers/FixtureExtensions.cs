@@ -18,8 +18,6 @@ internal static class FixtureExtensions
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
 
-        apprenticeshipEntityModel.FundingBandMaximum = agreedPrice + 1;
-
         apprenticeshipEntityModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel>
         {
             new() { 
@@ -28,7 +26,8 @@ internal static class FixtureExtensions
                 ActualStartDate = startDate, 
                 PlannedEndDate = endDate,
                 AgreedPrice = agreedPrice,
-                FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value
+                FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value,
+                FundingBandMaximum = agreedPrice + 1
             }
         };
 
@@ -45,7 +44,6 @@ internal static class FixtureExtensions
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
         apprenticeshipEntityModel.LegalEntityName = apprenticeship.LegalEntityName;
         apprenticeshipEntityModel.FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId;
-        apprenticeshipEntityModel.FundingBandMaximum = newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().AgreedPrice + 1 : newPrice.Value + 1;
         apprenticeshipEntityModel.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
 
         apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
@@ -56,7 +54,8 @@ internal static class FixtureExtensions
             PlannedEndDate = x.PlannedEndDate,
             AgreedPrice = x.AgreedPrice,
             TrainingCode = x.TrainingCode,
-            FundingType = x.FundingType
+            FundingType = x.FundingType,
+            FundingBandMaximum = newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().AgreedPrice + 1 : newPrice.Value + 1
         }).ToList();
 
         apprenticeshipEntityModel.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
