@@ -15,8 +15,6 @@ public class Apprenticeship : AggregateRoot
         ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
         Uln = apprenticeshipEntityModel.Uln;
         LegalEntityName = apprenticeshipEntityModel.LegalEntityName;
-        ActualStartDate = apprenticeshipEntityModel.ActualStartDate; //DO NOT APPROVE PR WITH THESE HERE
-        PlannedEndDate = apprenticeshipEntityModel.PlannedEndDate; //DO NOT APPROVE PR WITH THESE HERE
         TrainingCode = apprenticeshipEntityModel.TrainingCode;
         FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
         FundingType = apprenticeshipEntityModel.FundingType;
@@ -32,12 +30,6 @@ public class Apprenticeship : AggregateRoot
     public long ApprovalsApprenticeshipId { get; }
     public string Uln { get; }
     public string LegalEntityName { get; }
-
-
-    public DateTime ActualStartDate { get; private set; } //DO NOT APPROVE PR WITH THESE HERE
-    public DateTime PlannedEndDate { get; private set; } //DO NOT APPROVE PR WITH THESE HERE
-
-
     public string TrainingCode { get; }
     public long? FundingEmployerAccountId { get; }
     public FundingType FundingType { get; }
@@ -54,7 +46,7 @@ public class Apprenticeship : AggregateRoot
     public void CalculateEarnings(ISystemClock systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, currentEpisode.ActualStartDate, currentEpisode.PlannedEndDate, FundingBandMaximum);
         var earnings = apprenticeshipFunding.GenerateEarnings();
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
         AddEvent(new EarningsCalculatedEvent(this));
@@ -65,7 +57,7 @@ public class Apprenticeship : AggregateRoot
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice);
 
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(newAgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(newAgreedPrice, currentEpisode.ActualStartDate, currentEpisode.PlannedEndDate, FundingBandMaximum);
         var existingEarnings = EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
         var newEarnings = apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate);
         EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, newEarnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
@@ -75,9 +67,8 @@ public class Apprenticeship : AggregateRoot
     public void RecalculateEarnings(ISystemClock systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdateStartDate(newStartDate,newEndDate);
 
-        ActualStartDate = newStartDate;
-        PlannedEndDate = newEndDate;
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
 
         var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(currentEpisode.AgreedPrice, newStartDate, newEndDate, FundingBandMaximum);
@@ -94,7 +85,14 @@ public static class ApprenticeshipExtensions
         var episode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(x => x.ActualStartDate <= systemClock.UtcNow && x.PlannedEndDate >= systemClock.UtcNow);
         
         if(episode == null)
+        {
+            // if no episode is active for the current date, then there could be a episode for the apprenticeship that is yet to start
+            episode = apprenticeship.ApprenticeshipEpisodes.Single(x => x.ActualStartDate >= systemClock.UtcNow);
+        }
+
+        if (episode == null)
             throw new InvalidOperationException("No current episode found");
+
 
         return episode!;
     }

@@ -53,12 +53,11 @@ public class ApprenticeshipEntity
     public async Task HandleApprenticeshipStartDateChangeApprovedEvent(ApprenticeshipStartDateChangedEvent startDateChangedEvent)
     {
         var apprenticeship = await _startDateChangeApprovedCommandHandler.RecalculateEarnings(new ApproveStartDateChangeCommand(Model, startDateChangedEvent));
-            
+        UpdateEpisodes(apprenticeship);
+
         var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
             
-        Model.ActualStartDate = apprenticeship.ActualStartDate;
-        Model.PlannedEndDate = apprenticeship.PlannedEndDate;
-        Model.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
+        Model.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship; // DO NOT APPROVE PR IF THIS HAS NOT BEEN MOVED
 
         SupersedeEarningsProfile(newEarnings);
 
@@ -92,8 +91,6 @@ public class ApprenticeshipEntity
         {
             ApprenticeshipKey = apprenticeshipCreatedEvent.ApprenticeshipKey,
             Uln = apprenticeshipCreatedEvent.Uln,
-            ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,// DO NOT APPROVE PR WITH THESE HERE
-            PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,// DO NOT APPROVE PR WITH THESE HERE
             TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
             FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
             FundingType = apprenticeshipCreatedEvent.FundingType,

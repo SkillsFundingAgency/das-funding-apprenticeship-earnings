@@ -15,8 +15,6 @@ internal static class FixtureExtensions
     DateTime startDate, DateTime endDate)
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeshipEntityModel.ActualStartDate = startDate; // DO NOT APPROVE PR WITH THESE HERE
-        apprenticeshipEntityModel.PlannedEndDate = endDate; // DO NOT APPROVE PR WITH THESE HERE
         apprenticeshipEntityModel.FundingEmployerAccountId = null;
 
         apprenticeshipEntityModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel>

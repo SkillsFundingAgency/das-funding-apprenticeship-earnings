@@ -18,11 +18,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models
         [JsonProperty] public FundingType FundingType { get; set; }
 
 
-        [JsonProperty] public DateTime ActualStartDate { get; set; } // DO NOT APPROVE PR WITH THESE HERE
-        [JsonProperty] public DateTime PlannedEndDate { get; set; } // DO NOT APPROVE PR WITH THESE HERE
-
-
-
         [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; } = null!;
         [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; } = null!;
         [JsonProperty] public decimal FundingBandMaximum { get; set; }

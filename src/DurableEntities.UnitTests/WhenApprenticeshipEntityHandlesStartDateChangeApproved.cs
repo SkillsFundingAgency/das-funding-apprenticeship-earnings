@@ -56,14 +56,17 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             AgeAtStartOfApprenticeship = 20
         };
 
-        _apprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2022, 1, 15));
+        var apprenticeshipStartDate = new DateTime(2021, 1, 15);
+        var apprenticeshipEndDate = new DateTime(2022, 1, 15);
+
+        _apprenticeship = _fixture.CreateApprenticeship(apprenticeshipStartDate, apprenticeshipEndDate);
 
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
         {
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
-            ActualStartDate = _apprenticeship.ActualStartDate.AddMonths(3),
-            PlannedEndDate = _apprenticeship.PlannedEndDate,
+            ActualStartDate = apprenticeshipStartDate.AddMonths(3),
+            PlannedEndDate = apprenticeshipEndDate,
             AgeAtStartOfApprenticeship = _fixture.Create<int>(),
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,

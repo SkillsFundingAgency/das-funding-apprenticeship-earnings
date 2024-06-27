@@ -46,7 +46,8 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheActualStartDateAndAgeAreUpdated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
-        _sut.ActualStartDate.Should().Be(_updatedStartDate);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.ActualStartDate.Should().Be(_updatedStartDate);
         _sut.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
     }
 

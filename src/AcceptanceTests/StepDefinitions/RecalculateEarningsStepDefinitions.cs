@@ -40,7 +40,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly DateTime _startDateInNextAcademicYearToOriginal = new DateTime(2021, 12, 30);
     private readonly int _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear = 1;
 
-    private readonly DateTime _defaultCurrentDateTime = new DateTime(2020, 01, 01);
+    private readonly DateTime _defaultCurrentDateTime = new DateTime(2020, 02, 01);
 
     private readonly DateTime _changeRequestDate = new DateTime(2020, 1, 1);
     private readonly DateTime _effectiveFromDate = new DateTime(2020, 2, 1);

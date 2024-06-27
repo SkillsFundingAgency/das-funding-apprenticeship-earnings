@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -10,15 +11,24 @@ public interface IApprenticeshipEarningsRecalculatedEventBuilder
 
 public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEarningsRecalculatedEventBuilder
 {
+    private readonly ISystemClock _clock;
+
+    public ApprenticeshipEarningsRecalculatedEventBuilder(ISystemClock systemClock)
+    {
+        _clock = systemClock;
+    }
+
     public ApprenticeshipEarningsRecalculatedEvent Build(Apprenticeship apprenticeship)
     {
+        var currentEpisode = apprenticeship.GetCurrentEpisode(_clock);
+
         return new ApprenticeshipEarningsRecalculatedEvent
         {
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId,
-            StartDate = apprenticeship.ActualStartDate,
-            PlannedEndDate = apprenticeship.PlannedEndDate
+            StartDate = currentEpisode.ActualStartDate,
+            PlannedEndDate = currentEpisode.PlannedEndDate
         };
     }
 }

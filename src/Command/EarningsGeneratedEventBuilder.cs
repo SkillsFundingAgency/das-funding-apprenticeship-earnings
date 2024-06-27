@@ -31,12 +31,12 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
             AgreedPrice = currentEpisode.AgreedPrice,
-            StartDate = apprenticeship.ActualStartDate,
+            StartDate = currentEpisode.ActualStartDate,
             TrainingCode = apprenticeship.TrainingCode,
             EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
-            PlannedEndDate = apprenticeship.PlannedEndDate,
+            PlannedEndDate = currentEpisode.PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId
         };

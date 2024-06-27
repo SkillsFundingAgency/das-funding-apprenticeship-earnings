@@ -13,8 +13,6 @@ internal static class FixtureExtensions
     internal static ApprenticeshipEntityModel CreateApprenticeshipEntityModel(this Fixture fixture)
     {
         var apprenticeship = fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeship.ActualStartDate = new DateTime(2019, 09, 01); // DO NOT APPROVE PR WITH THESE HERE
-        apprenticeship.PlannedEndDate = new DateTime(2020, 1, 1); // DO NOT APPROVE PR WITH THESE HERE
         apprenticeship.AgeAtStartOfApprenticeship = 21;
         apprenticeship.FundingBandMaximum = 20000;
         apprenticeship.EarningsProfile.AdjustedPrice = 10000;

@@ -17,8 +17,6 @@ internal static class FixtureExtensions
         DateTime startDate, DateTime endDate, decimal agreedPrice, FundingType? fundingType = null)
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeshipEntityModel.ActualStartDate = startDate; // DO NOT APPROVE PR WITH THESE HERE
-        apprenticeshipEntityModel.PlannedEndDate = endDate; // DO NOT APPROVE PR WITH THESE HERE
 
         if(fundingType != null)
         {
@@ -50,8 +48,6 @@ internal static class FixtureExtensions
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
         apprenticeshipEntityModel.LegalEntityName = apprenticeship.LegalEntityName;
-        apprenticeshipEntityModel.ActualStartDate = newStartDate == null ? apprenticeship.ActualStartDate : newStartDate.Value;
-        apprenticeshipEntityModel.PlannedEndDate = apprenticeship.PlannedEndDate;
         apprenticeshipEntityModel.TrainingCode = apprenticeship.TrainingCode;
         apprenticeshipEntityModel.FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId;
         apprenticeshipEntityModel.FundingType = apprenticeship.FundingType;
@@ -62,7 +58,7 @@ internal static class FixtureExtensions
         {
             UKPRN = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
-            ActualStartDate = x.ActualStartDate,
+            ActualStartDate = newStartDate == null ? x.ActualStartDate : newStartDate.Value,
             PlannedEndDate = x.PlannedEndDate,
             AgreedPrice = x.AgreedPrice
         }).ToList();
