@@ -48,20 +48,24 @@ public class WhenRecalculatingEarningsForStartDateChange
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.ActualStartDate.Should().Be(_updatedStartDate);
-        _sut.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
+        currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
     }
 
     [Test]
     public void ThenTheEarningsProfileIsCalculated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
-        _sut.EarningsProfile.OnProgramTotal.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.OnProgramTotal);
-        _sut.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.CompletionPayment);
-        _sut.EarningsProfile.EarningsProfileId.Should().NotBe(_apprenticeshipBeforeStartDateChange.EarningsProfile.EarningsProfileId);
-        _sut.EarningsProfile.Instalments.Count.Should().Be(10);
+
+        var currentEpisode = _sut!.GetCurrentEpisode(_mockSystemClock.Object);
+        var expectedEpisode = _apprenticeshipBeforeStartDateChange!.GetCurrentEpisode(_mockSystemClock.Object);
+
+        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(expectedEpisode.EarningsProfile.OnProgramTotal);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile.CompletionPayment);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBe(expectedEpisode.EarningsProfile.EarningsProfileId);
+        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(10);
             
-        var sum = Math.Round(_sut.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
-        sum.Should().Be(_sut.EarningsProfile.OnProgramTotal);
+        var sum = Math.Round(currentEpisode.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
+        sum.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
     }
 
     [Test]
@@ -77,6 +81,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheEarningsProfileIdIsGenerated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
-        _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+        var currentEpisode = _sut!.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 }

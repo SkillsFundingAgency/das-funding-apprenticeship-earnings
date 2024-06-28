@@ -11,6 +11,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
     public class EarningsQueryRepository : IEarningsQueryRepository
     {
         private readonly Lazy<ApprenticeshipEarningsDataContext> _lazyContext;
+
         private ApprenticeshipEarningsDataContext DbContext => _lazyContext.Value;
 
         public EarningsQueryRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext)

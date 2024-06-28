@@ -7,9 +7,9 @@ internal static class ApprenticeshipMappers
 {
     internal static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
     {
-        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, NEED TO RESOLVE CURRENT EPISODE BASED ON DATE
+        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, USE ISYSTEM CLOCK
 
-        return apprenticeship.EarningsProfile?.Instalments.Select(x => new Earning
+        return currentEpisode.EarningsProfile?.Instalments.Select(x => new Earning
         {
             Id = Guid.NewGuid(),
             AcademicYear = x.AcademicYear,

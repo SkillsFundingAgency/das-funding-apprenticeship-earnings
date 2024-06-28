@@ -25,8 +25,8 @@ public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEar
         return new ApprenticeshipEarningsRecalculatedEvent
         {
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
-            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
-            EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId,
+            DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
+            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
             StartDate = currentEpisode.ActualStartDate,
             PlannedEndDate = currentEpisode.PlannedEndDate
         };

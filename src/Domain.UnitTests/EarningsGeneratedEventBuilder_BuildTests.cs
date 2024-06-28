@@ -10,6 +10,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using Moq;
 using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -163,13 +164,15 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateThe_FirstDeliveryPeriodFundingLineType_Correctly()
     {
-        _result.DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+        _result.DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(currentEpisode.FundingLineType);
     }
 
     [Test]
     public void ShouldPopulateThe_SecondDeliveryPeriodFundingLineType_Correctly()
     {
-        _result.DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(_apprenticeship.FundingLineType);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+        _result.DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(currentEpisode.FundingLineType);
     }
 
     [Test]

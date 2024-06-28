@@ -86,10 +86,13 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
     [Test]
     public void ShouldPopulateTheApprenticeshipEntityCorrectly()
     {
-        _sut.Model.EarningsProfile.AdjustedPrice.Should().Be(_apprenticeship.EarningsProfile.OnProgramTotal);
-        _sut.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeship.EarningsProfile.CompletionPayment);
-        _sut.Model.EarningsProfile.EarningsProfileId.Should().Be(_apprenticeship.EarningsProfile.EarningsProfileId);
-        _sut.Model.EarningsProfile.Instalments.Should().BeEquivalentTo(_apprenticeship.EarningsProfile.Instalments);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var expectedEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+
+        currentEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile.OnProgramTotal);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile.CompletionPayment);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedEpisode.EarningsProfile.EarningsProfileId);
+        currentEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile.Instalments);
     }
 
     [Test]

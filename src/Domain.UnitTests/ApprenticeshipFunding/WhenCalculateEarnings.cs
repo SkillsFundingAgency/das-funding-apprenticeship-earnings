@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -39,14 +40,16 @@ public class WhenCalculateEarnings
     public void ThenTheOnProgramTotalIsCalculated()
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
-        _sut.EarningsProfile.OnProgramTotal.Should().Be(_sut.ApprenticeshipEpisodes.Single().AgreedPrice * .8m);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_sut.ApprenticeshipEpisodes.Single().AgreedPrice * .8m);
     }
 
     [Test]
     public void ThenTheCompletionAmountIsCalculated()
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
-        _sut.EarningsProfile.CompletionPayment.Should().Be(_sut.ApprenticeshipEpisodes.Single().AgreedPrice * .2m);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_sut.ApprenticeshipEpisodes.Single().AgreedPrice * .2m);
     }
 
     [Test]
@@ -54,8 +57,9 @@ public class WhenCalculateEarnings
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
 
-        _sut.EarningsProfile.Instalments.Count.Should().Be(12);
-        _sut.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(decimal.Round(_sut.EarningsProfile.OnProgramTotal / 12m, 5)));
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
+        currentEpisode.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(decimal.Round(currentEpisode.EarningsProfile.OnProgramTotal / 12m, 5)));
     }
 
     [Test]
@@ -71,6 +75,7 @@ public class WhenCalculateEarnings
     public void ThenTheEarningsProfileIdIsGenerated()
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
-        _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 }

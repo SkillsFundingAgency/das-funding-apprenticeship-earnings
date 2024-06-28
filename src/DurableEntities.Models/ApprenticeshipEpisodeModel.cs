@@ -16,9 +16,10 @@ public class ApprenticeshipEpisodeModel
     //Prices[]
     [JsonProperty] public DateTime ActualStartDate { get; set; }
     [JsonProperty] public DateTime PlannedEndDate { get; set; }
+    [JsonProperty] public int AgeAtStartOfApprenticeship { get; set; }
     [JsonProperty] public decimal AgreedPrice { get; set; }
     [JsonProperty] public decimal FundingBandMaximum { get; set; }
-    //EarningsProfile
-    //EarningsProfileHistory[]
+    [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; } = null!;
+    [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; } = null!;
 
 }

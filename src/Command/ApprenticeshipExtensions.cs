@@ -7,16 +7,17 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 internal static class ApprenticeshipExtensions
 {
-    internal static List<DeliveryPeriod>? BuildDeliveryPeriods(this Apprenticeship apprenticeship)
+    internal static List<DeliveryPeriod>? BuildDeliveryPeriods(this ApprenticeshipEpisode currentEpisode)
     {
-        return apprenticeship.EarningsProfile?.Instalments.Select(instalment => new DeliveryPeriod
+
+        return currentEpisode.EarningsProfile?.Instalments.Select(instalment => new DeliveryPeriod
         (
             instalment.DeliveryPeriod.ToCalendarMonth(),
             instalment.AcademicYear.ToCalendarYear(instalment.DeliveryPeriod),
             instalment.DeliveryPeriod,
             instalment.AcademicYear,
             instalment.Amount,
-            apprenticeship.FundingLineType
+            currentEpisode.FundingLineType
         )).ToList();
     }
 

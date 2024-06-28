@@ -94,11 +94,14 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
     [Test]
     public void ShouldPopulateTheApprenticeshipEntityCorrectly()
     {
-        _sut.Model.EarningsProfile.AdjustedPrice.Should().Be(_apprenticeship.EarningsProfile.OnProgramTotal);
-        _sut.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeship.EarningsProfile.CompletionPayment);
-        _sut.Model.EarningsProfile.EarningsProfileId.Should().Be(_apprenticeship.EarningsProfile.EarningsProfileId);
-        _sut.Model.EarningsProfile.Instalments.Should().BeEquivalentTo(_apprenticeship.EarningsProfile.Instalments);
-        _sut.Model.AgeAtStartOfApprenticeship.Should().Be(_startDateChangedEvent.AgeAtStartOfApprenticeship);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var expectedCurrentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+
+        currentEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedCurrentEpisode.EarningsProfile.OnProgramTotal);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedCurrentEpisode.EarningsProfile.CompletionPayment);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedCurrentEpisode.EarningsProfile.EarningsProfileId);
+        currentEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedCurrentEpisode.EarningsProfile.Instalments);
+        currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_startDateChangedEvent.AgeAtStartOfApprenticeship);
     }
 
     [Test]

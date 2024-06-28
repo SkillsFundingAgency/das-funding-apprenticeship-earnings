@@ -17,4 +17,9 @@ public class TestSystemClock : ISystemClock
     {
         _testTime = dateTime;
     }
+
+    public static ISystemClock Instance()
+    {
+        return new TestSystemClock();
+    }
 }

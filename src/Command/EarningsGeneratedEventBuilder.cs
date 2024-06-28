@@ -34,11 +34,11 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             StartDate = currentEpisode.ActualStartDate,
             TrainingCode = currentEpisode.TrainingCode,
             EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
-            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
+            DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
             PlannedEndDate = currentEpisode.PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId
+            EarningsProfileId = currentEpisode.EarningsProfile.EarningsProfileId
         };
     }
 }

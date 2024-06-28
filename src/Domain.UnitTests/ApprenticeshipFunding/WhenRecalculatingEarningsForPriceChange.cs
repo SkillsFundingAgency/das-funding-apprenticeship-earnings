@@ -51,14 +51,16 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheOnProgramTotalIsCalculated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
-        _sut.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
 
     [Test]
     public void ThenTheCompletionAmountIsCalculated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
-        _sut.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
 
     [Test]
@@ -66,9 +68,10 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
 
-        _sut.EarningsProfile.Instalments.Count.Should().Be(12);
-        var sum = Math.Round(_sut.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
-        sum.Should().Be(_sut.EarningsProfile.OnProgramTotal);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
+        var sum = Math.Round(currentEpisode.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
+        sum.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
     }
 
     [Test]
@@ -84,6 +87,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheEarningsProfileIdIsGenerated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
-        _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 }

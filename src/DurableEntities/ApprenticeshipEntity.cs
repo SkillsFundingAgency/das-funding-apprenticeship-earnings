@@ -41,8 +41,8 @@ public class ApprenticeshipEntity
     {
         MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
         var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
-            
-        Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+
+        UpdateEpisodes(apprenticeship);
 
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
@@ -54,13 +54,7 @@ public class ApprenticeshipEntity
     {
         var apprenticeship = await _startDateChangeApprovedCommandHandler.RecalculateEarnings(new ApproveStartDateChangeCommand(Model, startDateChangedEvent));
         UpdateEpisodes(apprenticeship);
-
-        var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
             
-        Model.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship; // DO NOT APPROVE PR IF THIS HAS NOT BEEN MOVED
-
-        SupersedeEarningsProfile(newEarnings);
-
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
             await _domainEventDispatcher.Send(domainEvent);
@@ -70,11 +64,8 @@ public class ApprenticeshipEntity
     public async Task HandleApprenticeshipPriceChangeApprovedEvent(PriceChangeApprovedEvent priceChangeApprovedEvent)
     {
         var apprenticeship = await _approvePriceChangeCommandHandler.RecalculateEarnings(new ApprovePriceChangeCommand(Model, priceChangeApprovedEvent));
-        var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 
         UpdateEpisodes(apprenticeship);
-
-        SupersedeEarningsProfile(newEarnings);
 
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
@@ -103,9 +94,9 @@ public class ApprenticeshipEntity
                 TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
                 FundingType = apprenticeshipCreatedEvent.FundingType,
                 FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum,
-                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName
+                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
+                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
             }},
-            AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
         };
     }
 
@@ -130,22 +121,6 @@ public class ApprenticeshipEntity
         }).ToList();
     }
 
-    private void SupersedeEarningsProfile(EarningsProfileEntityModel earningsProfile)
-    {
-        if (Model.EarningsProfileHistory == null)
-        {
-            Model.EarningsProfileHistory = new List<HistoryRecord<EarningsProfileEntityModel>>();
-        }
-
-        Model.EarningsProfileHistory.Add(new HistoryRecord<EarningsProfileEntityModel>
-        {
-            Record = Model.EarningsProfile,
-            SupersededDate = DateTime.UtcNow
-        });
-
-        Model.EarningsProfile = earningsProfile;
-    }   
-
     private void UpdateEpisodes(Apprenticeship apprenticeship)
     {
         Model.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
@@ -154,7 +129,14 @@ public class ApprenticeshipEntity
             EmployerAccountId = x.EmployerAccountId,
             ActualStartDate = x.ActualStartDate,
             PlannedEndDate = x.PlannedEndDate,
-            AgreedPrice = x.AgreedPrice
+            AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
+            AgreedPrice = x.AgreedPrice,
+            EarningsProfile = MapEarningsProfileToModel(x.EarningsProfile),
+            EarningsProfileHistory = x.EarningsProfileHistory.Select(ep => new Models.HistoryRecord<EarningsProfileEntityModel> 
+            { 
+                Record = MapEarningsProfileToModel(ep.Record),
+                SupersededDate = ep.SupersededDate
+            }).ToList()
         }).ToList();
     }
 }

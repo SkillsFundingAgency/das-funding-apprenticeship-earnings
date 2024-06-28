@@ -43,7 +43,6 @@ internal static class FixtureExtensions
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
         apprenticeshipEntityModel.FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId;
-        apprenticeshipEntityModel.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
 
         apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
         {
@@ -51,14 +50,14 @@ internal static class FixtureExtensions
             EmployerAccountId = x.EmployerAccountId,
             ActualStartDate = newStartDate == null ? x.ActualStartDate : newStartDate.Value,
             PlannedEndDate = x.PlannedEndDate,
+            AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
             AgreedPrice = x.AgreedPrice,
             TrainingCode = x.TrainingCode,
             FundingType = x.FundingType,
             FundingBandMaximum = newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().AgreedPrice + 1 : newPrice.Value + 1,
-            LegalEntityName = x.LegalEntityName
+            LegalEntityName = x.LegalEntityName,
+            EarningsProfile = MapEarningsProfileToModel(x.EarningsProfile)
         }).ToList();
-
-        apprenticeshipEntityModel.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 
         return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
     }
