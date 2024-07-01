@@ -41,26 +41,27 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         _mockSystemClock = new Mock<Microsoft.Extensions.Internal.ISystemClock>();
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
 
-        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
-        {
-            FundingType = FundingType.NonLevy,
-            ActualStartDate = new DateTime(2022, 8, 1),
-            ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            PlannedEndDate = new DateTime(2024, 7, 31),
-            UKPRN = 116,
-            TrainingCode = "able-seafarer",
-            FundingEmployerAccountId = 118,
-            Uln = "900000118",
-            AgreedPrice = 15000,
-            ApprovalsApprenticeshipId = 120,
-            LegalEntityName = "MyTrawler",
-            AgeAtStartOfApprenticeship = 20
-        };
-
         _fixture = new Fixture();
 
         _apprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2022, 1, 15));
+
+        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
+        {
+            FundingType = _apprenticeship.ApprenticeshipEpisodes.First().FundingType,
+            ActualStartDate = _apprenticeship.ApprenticeshipEpisodes.First().ActualStartDate,
+            ApprenticeshipKey = _apprenticeship.ApprenticeshipKey,
+            EmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().EmployerAccountId,
+            PlannedEndDate = _apprenticeship.ApprenticeshipEpisodes.First().PlannedEndDate,
+            UKPRN = _apprenticeship.ApprenticeshipEpisodes.First().UKPRN,
+            TrainingCode = _apprenticeship.ApprenticeshipEpisodes.First().TrainingCode,
+            FundingEmployerAccountId = _apprenticeship.FundingEmployerAccountId, //todo should this be on the episode?
+            Uln = _apprenticeship.Uln,
+            AgreedPrice = _apprenticeship.ApprenticeshipEpisodes.First().AgreedPrice,
+            ApprovalsApprenticeshipId = _apprenticeship.ApprovalsApprenticeshipId,
+            LegalEntityName = _apprenticeship.ApprenticeshipEpisodes.First().LegalEntityName,
+            AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship //todo I think this should be on the apprenticeship
+        };
+
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
