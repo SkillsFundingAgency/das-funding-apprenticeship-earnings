@@ -1,13 +1,10 @@
 ﻿using AutoFixture;
-using Microsoft.Extensions.Internal;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -23,11 +20,14 @@ internal static class FixtureExtensions
             new() { 
                 UKPRN = 10000001, 
                 EmployerAccountId = 10000001, 
-                ActualStartDate = startDate, 
-                PlannedEndDate = endDate,
-                AgreedPrice = agreedPrice,
                 FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value,
-                FundingBandMaximum = agreedPrice + 1
+                Prices = new List<PriceModel>{ new()
+                {
+                    ActualStartDate = startDate,
+                    PlannedEndDate = endDate,
+                    AgreedPrice = agreedPrice,
+                    FundingBandMaximum = agreedPrice + 1
+                }}
             }
         };
 
@@ -47,16 +47,13 @@ internal static class FixtureExtensions
         {
             UKPRN = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
-            ActualStartDate = newStartDate == null ? x.ActualStartDate : newStartDate.Value,
-            PlannedEndDate = x.PlannedEndDate,
             AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
-            AgreedPrice = x.AgreedPrice,
             TrainingCode = x.TrainingCode,
             FundingType = x.FundingType,
-            FundingBandMaximum = newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().AgreedPrice + 1 : newPrice.Value + 1,
             LegalEntityName = x.LegalEntityName,
             EarningsProfile = MapEarningsProfileToModel(x.EarningsProfile),
-            FundingEmployerAccountId = x.FundingEmployerAccountId
+            FundingEmployerAccountId = x.FundingEmployerAccountId,
+            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.First().AgreedPrice + 1 : newPrice.Value + 1, newStartDate) //todo is .First() right here?
         }).ToList();
 
         return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
@@ -78,5 +75,16 @@ internal static class FixtureExtensions
             CompletionPayment = earningsProfile.CompletionPayment,
             EarningsProfileId = earningsProfile.EarningsProfileId
         };
+    }
+
+    internal static List<PriceModel>? MapPricesToModel(List<Price>? prices, decimal fundingBandMaximum, DateTime? newStartDate)
+    {
+        return prices?.Select(x => new PriceModel
+        {
+            FundingBandMaximum = fundingBandMaximum,
+            ActualStartDate = newStartDate ?? x.ActualStartDate,
+            AgreedPrice = x.AgreedPrice,
+            PlannedEndDate = x.PlannedEndDate
+        }).ToList();
     }
 }

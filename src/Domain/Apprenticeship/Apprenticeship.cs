@@ -55,12 +55,12 @@ public static class ApprenticeshipExtensions
 {
     public static ApprenticeshipEpisode GetCurrentEpisode(this Apprenticeship apprenticeship, ISystemClock systemClock)
     {
-        var episode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(x => x.ActualStartDate <= systemClock.UtcNow && x.PlannedEndDate >= systemClock.UtcNow);
+        var episode = apprenticeship.ApprenticeshipEpisodes.Find(x => x.Prices != null && x.Prices.Exists(price => price.ActualStartDate <= systemClock.UtcNow && price.PlannedEndDate >= systemClock.UtcNow));
         
         if(episode == null)
         {
-            // if no episode is active for the current date, then there could be a episode for the apprenticeship that is yet to start
-            episode = apprenticeship.ApprenticeshipEpisodes.Single(x => x.ActualStartDate >= systemClock.UtcNow);
+            // if no episode is active for the current date, then there could be an episode for the apprenticeship that is yet to start
+            episode = apprenticeship.ApprenticeshipEpisodes.Single(x => x.Prices != null && x.Prices.Exists(price => price.ActualStartDate >= systemClock.UtcNow));
         }
 
         if (episode == null)

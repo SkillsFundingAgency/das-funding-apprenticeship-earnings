@@ -3,11 +3,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Internal;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
 using System.Linq;
 
@@ -47,7 +45,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.ActualStartDate.Should().Be(_updatedStartDate);
+        currentEpisode.Prices.Single().ActualStartDate.Should().Be(_updatedStartDate);
         currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
     }
 

@@ -9,7 +9,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using System;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 
@@ -87,15 +86,21 @@ public class ApprenticeshipEntity
             {
                 UKPRN = apprenticeshipCreatedEvent.UKPRN,
                 EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
-                ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
-                PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
-                AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
                 TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
                 FundingType = apprenticeshipCreatedEvent.FundingType,
-                FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum,
                 LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
                 AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
-                FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId
+                FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
+                Prices = new List<PriceModel>
+                {
+                    new()
+                    {
+                        ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
+                        PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
+                        AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
+                        FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum
+                    }
+                }
             }},
         };
     }
@@ -121,22 +126,31 @@ public class ApprenticeshipEntity
         }).ToList();
     }
 
+    private PriceModel MapPricesToModel(Price price)
+    {
+        return new PriceModel
+        {
+            FundingBandMaximum = price.FundingBandMaximum,
+            ActualStartDate = price.ActualStartDate,
+            AgreedPrice = price.AgreedPrice,
+            PlannedEndDate = price.PlannedEndDate
+        };
+    }
+
     private void UpdateEpisodes(Apprenticeship apprenticeship)
     {
         Model.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
         {
             UKPRN = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
-            ActualStartDate = x.ActualStartDate,
-            PlannedEndDate = x.PlannedEndDate,
             AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
-            AgreedPrice = x.AgreedPrice,
             EarningsProfile = MapEarningsProfileToModel(x.EarningsProfile),
             EarningsProfileHistory = x.EarningsProfileHistory.Select(ep => new Models.HistoryRecord<EarningsProfileEntityModel> 
             { 
                 Record = MapEarningsProfileToModel(ep.Record),
                 SupersededDate = ep.SupersededDate
-            }).ToList()
+            }).ToList(),
+            Prices = x.Prices == null ? new List<PriceModel>() : x.Prices.Select(MapPricesToModel).ToList()
         }).ToList();
     }
 }

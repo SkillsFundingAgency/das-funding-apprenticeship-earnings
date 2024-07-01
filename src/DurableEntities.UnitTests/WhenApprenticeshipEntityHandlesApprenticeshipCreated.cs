@@ -48,18 +48,19 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             FundingType = _apprenticeship.ApprenticeshipEpisodes.First().FundingType,
-            ActualStartDate = _apprenticeship.ApprenticeshipEpisodes.First().ActualStartDate,
+            ActualStartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().ActualStartDate,
             ApprenticeshipKey = _apprenticeship.ApprenticeshipKey,
             EmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().EmployerAccountId,
-            PlannedEndDate = _apprenticeship.ApprenticeshipEpisodes.First().PlannedEndDate,
+            PlannedEndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().PlannedEndDate,
             UKPRN = _apprenticeship.ApprenticeshipEpisodes.First().UKPRN,
             TrainingCode = _apprenticeship.ApprenticeshipEpisodes.First().TrainingCode,
             FundingEmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().FundingEmployerAccountId,
             Uln = _apprenticeship.Uln,
-            AgreedPrice = _apprenticeship.ApprenticeshipEpisodes.First().AgreedPrice,
+            AgreedPrice = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice,
             ApprovalsApprenticeshipId = _apprenticeship.ApprovalsApprenticeshipId,
             LegalEntityName = _apprenticeship.ApprenticeshipEpisodes.First().LegalEntityName,
-            AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship //todo I think this should be on the apprenticeship
+            AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship, //todo I think this should be on the apprenticeship
+            FundingBandMaximum = (int)_apprenticeship.ApprenticeshipEpisodes.First().Prices.First().FundingBandMaximum
         };
 
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
@@ -87,11 +88,8 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         var apprenticeshipEpisode = _sut.Model.ApprenticeshipEpisodes.First();
         apprenticeshipEpisode.UKPRN.Should().Be(_apprenticeshipCreatedEvent.UKPRN);
         apprenticeshipEpisode.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
-        apprenticeshipEpisode.ActualStartDate.Should().Be(_apprenticeshipCreatedEvent.ActualStartDate);
-        apprenticeshipEpisode.PlannedEndDate.Should().Be(_apprenticeshipCreatedEvent.PlannedEndDate);
         apprenticeshipEpisode.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
         apprenticeshipEpisode.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
-        apprenticeshipEpisode.FundingBandMaximum.Should().Be(_apprenticeshipCreatedEvent.FundingBandMaximum);
         apprenticeshipEpisode.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
         apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship);
         apprenticeshipEpisode.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
@@ -101,6 +99,12 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile.CompletionPayment);
         apprenticeshipEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedEpisode.EarningsProfile.EarningsProfileId);
         apprenticeshipEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile.Instalments);
+
+        apprenticeshipEpisode.Prices.Should().ContainSingle(x =>
+            x.ActualStartDate == _apprenticeshipCreatedEvent.ActualStartDate
+            && x.AgreedPrice == _apprenticeshipCreatedEvent.AgreedPrice
+            && x.FundingBandMaximum == _apprenticeshipCreatedEvent.FundingBandMaximum
+            && x.PlannedEndDate == _apprenticeshipCreatedEvent.PlannedEndDate);
     }
 
     [Test]

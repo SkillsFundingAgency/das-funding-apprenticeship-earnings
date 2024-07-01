@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System.Linq;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -31,17 +32,24 @@ public class WhenCreatingANewApprenticeship
 
         foreach (var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
         {
-            apprenticeship.ApprenticeshipEpisodes.Should().ContainSingle(x =>
+            var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
                 x.UKPRN == apprenticeshipEpisode.UKPRN &&
                 x.EmployerAccountId == apprenticeshipEpisode.EmployerAccountId &&
-                x.ActualStartDate == apprenticeshipEpisode.ActualStartDate &&
-                x.PlannedEndDate == apprenticeshipEpisode.PlannedEndDate &&
-                x.AgreedPrice == apprenticeshipEpisode.AgreedPrice &&
                 x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
-                x.FundingBandMaximum == apprenticeshipEpisode.FundingBandMaximum &&
                 x.LegalEntityName == apprenticeshipEpisode.LegalEntityName &&
                 x.AgeAtStartOfApprenticeship == apprenticeshipEpisode.AgeAtStartOfApprenticeship &&
                 x.FundingEmployerAccountId == apprenticeshipEpisode.FundingEmployerAccountId);
+
+            episode.Should().NotBeNull();
+
+            foreach (var price in apprenticeshipEpisode.Prices)
+            {
+                episode.Prices.Should().ContainSingle(x =>
+                    x.ActualStartDate == price.ActualStartDate &&
+                    x.PlannedEndDate == price.PlannedEndDate &&
+                    x.AgreedPrice == price.AgreedPrice &&
+                    x.FundingBandMaximum == price.FundingBandMaximum);
+            }
         }
 
     }

@@ -30,13 +30,13 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
-            AgreedPrice = currentEpisode.AgreedPrice,
-            StartDate = currentEpisode.ActualStartDate,
+            AgreedPrice = currentEpisode.Prices.First().AgreedPrice, //todo again prices.First() will need revisiting here when we introduce the concept of multiple price records
+            StartDate = currentEpisode.Prices.First().ActualStartDate,
             TrainingCode = currentEpisode.TrainingCode,
             EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
-            PlannedEndDate = currentEpisode.PlannedEndDate,
+            PlannedEndDate = currentEpisode.Prices.First().PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EarningsProfileId = currentEpisode.EarningsProfile.EarningsProfileId
         };

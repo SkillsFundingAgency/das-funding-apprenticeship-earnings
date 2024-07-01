@@ -3,9 +3,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 
@@ -21,10 +18,16 @@ internal static class FixtureExtensions
             new() {
                 UKPRN = 10000001,
                 EmployerAccountId = 10000001,
-                ActualStartDate = startDate,
-                PlannedEndDate = endDate,
-                AgreedPrice = fixture.Create<decimal>(),
-                FundingEmployerAccountId = null
+                FundingEmployerAccountId = null,
+                Prices = new List<PriceModel>
+                {
+                    new()
+                    {
+                        ActualStartDate = startDate,
+                        PlannedEndDate = endDate,
+                        AgreedPrice = fixture.Create<decimal>()
+                    }
+                }
             }
         };
 

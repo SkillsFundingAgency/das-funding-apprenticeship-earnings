@@ -11,16 +11,13 @@ public class ApprenticeshipEpisode
 {
     public long UKPRN { get; }
     public long EmployerAccountId { get; }
-    public DateTime ActualStartDate { get; private set; }
-    public DateTime PlannedEndDate { get; private set; }
-    public decimal AgreedPrice { get; private set; }
     public int AgeAtStartOfApprenticeship { get; private set; }
     public string TrainingCode { get; }
     public FundingType FundingType { get; }
-    public decimal FundingBandMaximum { get; }
     public string LegalEntityName { get; }
     public long? FundingEmployerAccountId { get; set; }
     public EarningsProfile? EarningsProfile { get; private set; }
+    public List<Price>? Prices { get; private set; }
     public List<HistoryRecord<EarningsProfile>> EarningsProfileHistory { get; private set; }
 
     public string FundingLineType =>
@@ -32,16 +29,12 @@ public class ApprenticeshipEpisode
     {
         UKPRN = model.UKPRN;
         EmployerAccountId = model.EmployerAccountId;
-        ActualStartDate = model.ActualStartDate;
-        PlannedEndDate = model.PlannedEndDate;
-        AgeAtStartOfApprenticeship = model.AgeAtStartOfApprenticeship;
-        AgreedPrice = model.AgreedPrice;
         TrainingCode = model.TrainingCode;
         FundingType = model.FundingType;
-        FundingBandMaximum = model.FundingBandMaximum;
         LegalEntityName = model.LegalEntityName;
         EarningsProfile = model.EarningsProfile != null ? new EarningsProfile(model.EarningsProfile) : null;
         FundingEmployerAccountId = model.FundingEmployerAccountId;
+        AgeAtStartOfApprenticeship = model.AgeAtStartOfApprenticeship;
 
         if(model.EarningsProfileHistory != null)
         {
@@ -52,32 +45,34 @@ public class ApprenticeshipEpisode
             EarningsProfileHistory = new List<HistoryRecord<EarningsProfile>>();
         }
 
+        Prices = model.Prices != null ? model.Prices.Select(x => new Price(x)).ToList() : new List<Price>();
     }
 
     public void CalculateEarnings()
     {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices.First().AgreedPrice, Prices.First().ActualStartDate, Prices.First().PlannedEndDate, Prices.First().FundingBandMaximum);
         var earnings = apprenticeshipFunding.GenerateEarnings();
         UpdateEarningsProfile(apprenticeshipFunding, earnings, null);
     }
 
     public void RecalculateEarnings(ISystemClock systemClock, Func<ApprenticeshipFunding.ApprenticeshipFunding, List<Earning>> recalculate)
     {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(AgreedPrice, ActualStartDate, PlannedEndDate, FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices.First().AgreedPrice, Prices.First().ActualStartDate, Prices.First().PlannedEndDate, Prices.First().FundingBandMaximum);
         var newEarnings = recalculate(apprenticeshipFunding);
         UpdateEarningsProfile(apprenticeshipFunding, newEarnings, systemClock);
     }
 
     public void UpdateAgreedPrice(ISystemClock systemClock, decimal newAgreedPrice)
     {
-        AgreedPrice = newAgreedPrice;
+        // todo update correct Price based on logic in design AgreedPrice = newAgreedPrice;
         // PlannedEndDate = systemClock.UtcNow.DateTime; // TO BE COMPLETED IN SUBTASK FLP-800
     }
 
     public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship) 
-    { 
-        ActualStartDate = startDate;
-        PlannedEndDate = endDate;
+    {
+        // todo update correct Price with start date changes based on logic in design
+        //ActualStartDate = startDate;
+        //PlannedEndDate = endDate;
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
         // THIS HANDLING MAY NEED TO BE REFINED IN SUBTASK FLP-801
     }

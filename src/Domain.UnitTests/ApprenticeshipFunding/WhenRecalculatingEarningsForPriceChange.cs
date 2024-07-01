@@ -3,11 +3,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Internal;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
 using System.Linq;
 
@@ -44,7 +42,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheAgreedPriceIsUpdated()
     {
         _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
-        _sut.ApprenticeshipEpisodes.Single().AgreedPrice.Should().Be(_updatedPrice);
+        _sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice.Should().Be(_updatedPrice);
     }
 
     [Test]

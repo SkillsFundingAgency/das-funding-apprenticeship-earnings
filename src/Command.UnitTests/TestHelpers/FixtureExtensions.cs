@@ -1,10 +1,5 @@
 ﻿using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.TestHelpers;
 
@@ -19,11 +14,17 @@ internal static class FixtureExtensions
             new() { 
                 UKPRN = 10000001, 
                 EmployerAccountId = 10000001, 
-                ActualStartDate = new DateTime(2019, 09, 01), 
-                PlannedEndDate = new DateTime(2020, 1, 1),
                 AgeAtStartOfApprenticeship = 21,
-                AgreedPrice = 10000,
-                FundingBandMaximum = 20000,
+                Prices = new List<PriceModel>()
+                {
+                    new()
+                    {
+                        ActualStartDate = new DateTime(2019, 09, 01),
+                        PlannedEndDate = new DateTime(2020, 1, 1),
+                        AgreedPrice = 10000,
+                        FundingBandMaximum = 20000
+                    }
+                },
                 EarningsProfile = new EarningsProfileEntityModel
                 {
                     EarningsProfileId = fixture.Create<Guid>(),
