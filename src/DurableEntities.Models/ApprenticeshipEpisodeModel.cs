@@ -11,7 +11,7 @@ public class ApprenticeshipEpisodeModel
     [JsonProperty] public long EmployerAccountId { get; set; }
     [JsonProperty] public string LegalEntityName { get; set; } = null!;
     [JsonProperty] public string TrainingCode { get; set; } = null!;
-    //FundingEmployerAccountId
+    [JsonProperty] public long? FundingEmployerAccountId { get; set; }
     [JsonProperty] public FundingType FundingType { get; set; }
     //Prices[]
     [JsonProperty] public DateTime ActualStartDate { get; set; }

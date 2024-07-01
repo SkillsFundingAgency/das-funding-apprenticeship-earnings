@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
@@ -24,14 +25,13 @@ public class WhenCreatingANewApprenticeship
 
         var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
 
-        Assert.That(apprenticeshipEntityModel.FundingEmployerAccountId, Is.EqualTo(apprenticeship.FundingEmployerAccountId)); 
-        Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
-        Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
-        Assert.That(apprenticeshipEntityModel.Uln, Is.EqualTo(apprenticeship.Uln));
+        apprenticeshipEntityModel.ApprenticeshipKey.Should().Be(apprenticeship.ApprenticeshipKey);
+        apprenticeshipEntityModel.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
+        apprenticeshipEntityModel.Uln.Should().Be(apprenticeship.Uln);
 
-        foreach(var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
+        foreach (var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
         {
-            Assert.That(apprenticeship.ApprenticeshipEpisodes, Has.One.Matches<Apprenticeship.ApprenticeshipEpisode>(x => 
+            apprenticeship.ApprenticeshipEpisodes.Should().ContainSingle(x =>
                 x.UKPRN == apprenticeshipEpisode.UKPRN &&
                 x.EmployerAccountId == apprenticeshipEpisode.EmployerAccountId &&
                 x.ActualStartDate == apprenticeshipEpisode.ActualStartDate &&
@@ -40,7 +40,9 @@ public class WhenCreatingANewApprenticeship
                 x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
                 x.FundingBandMaximum == apprenticeshipEpisode.FundingBandMaximum &&
                 x.LegalEntityName == apprenticeshipEpisode.LegalEntityName &&
-                x.AgeAtStartOfApprenticeship == apprenticeshipEpisode.AgeAtStartOfApprenticeship));
+                x.AgeAtStartOfApprenticeship == apprenticeshipEpisode.AgeAtStartOfApprenticeship &&
+                x.FundingEmployerAccountId == apprenticeshipEpisode.FundingEmployerAccountId);
         }
+
     }
 }

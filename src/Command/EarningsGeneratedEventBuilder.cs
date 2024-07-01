@@ -29,7 +29,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             Uln = apprenticeship.Uln,
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
-            TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
+            TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
             AgreedPrice = currentEpisode.AgreedPrice,
             StartDate = currentEpisode.ActualStartDate,
             TrainingCode = currentEpisode.TrainingCode,

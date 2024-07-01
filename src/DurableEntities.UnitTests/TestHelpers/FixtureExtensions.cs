@@ -15,7 +15,6 @@ internal static class FixtureExtensions
     DateTime startDate, DateTime endDate)
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
-        apprenticeshipEntityModel.FundingEmployerAccountId = null;
 
         apprenticeshipEntityModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel>
         {
@@ -24,7 +23,8 @@ internal static class FixtureExtensions
                 EmployerAccountId = 10000001,
                 ActualStartDate = startDate,
                 PlannedEndDate = endDate,
-                AgreedPrice = fixture.Create<decimal>()
+                AgreedPrice = fixture.Create<decimal>(),
+                FundingEmployerAccountId = null
             }
         };
 

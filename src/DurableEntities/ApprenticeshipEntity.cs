@@ -82,7 +82,6 @@ public class ApprenticeshipEntity
         {
             ApprenticeshipKey = apprenticeshipCreatedEvent.ApprenticeshipKey,
             Uln = apprenticeshipCreatedEvent.Uln,
-            FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
             ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
             ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel> { new ApprenticeshipEpisodeModel
             {
@@ -95,7 +94,8 @@ public class ApprenticeshipEntity
                 FundingType = apprenticeshipCreatedEvent.FundingType,
                 FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum,
                 LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
-                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
+                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
+                FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId
             }},
         };
     }

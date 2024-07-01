@@ -12,7 +12,6 @@ public class Apprenticeship : AggregateRoot
         ApprenticeshipKey = apprenticeshipEntityModel.ApprenticeshipKey;
         ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
         Uln = apprenticeshipEntityModel.Uln;
-        FundingEmployerAccountId = apprenticeshipEntityModel.FundingEmployerAccountId;
 
         ApprenticeshipEpisodes = apprenticeshipEntityModel.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisode(x)).ToList();
     }
@@ -21,9 +20,6 @@ public class Apprenticeship : AggregateRoot
     public Guid ApprenticeshipKey { get; }
     public long ApprovalsApprenticeshipId { get; }
     public string Uln { get; }
-
-    public long? FundingEmployerAccountId { get; }
-
 
     public List<ApprenticeshipEpisode> ApprenticeshipEpisodes { get; }
 

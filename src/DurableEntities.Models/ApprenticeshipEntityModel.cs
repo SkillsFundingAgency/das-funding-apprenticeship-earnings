@@ -8,7 +8,6 @@ public class ApprenticeshipEntityModel
     [JsonProperty] public Guid ApprenticeshipKey { get; set; }
     [JsonProperty] public long ApprovalsApprenticeshipId { get; set; }
     [JsonProperty] public string Uln { get; set; } = null!;
-    [JsonProperty] public long? FundingEmployerAccountId { get; set; }
     [JsonProperty] public List<ApprenticeshipEpisodeModel> ApprenticeshipEpisodes { get; set; } = null!;
 }
 

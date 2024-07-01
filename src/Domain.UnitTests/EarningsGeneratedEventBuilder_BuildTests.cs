@@ -6,7 +6,6 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using Moq;
 using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
@@ -68,7 +67,7 @@ public class EarningsGeneratedEventBuilder_BuildTests
     [Test]
     public void ShouldPopulateThe_TransferSenderEmployerId_Correctly()
     {
-        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
     }
 
     [Test]

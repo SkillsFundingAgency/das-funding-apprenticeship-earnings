@@ -54,7 +54,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
             PlannedEndDate = _apprenticeship.ApprenticeshipEpisodes.First().PlannedEndDate,
             UKPRN = _apprenticeship.ApprenticeshipEpisodes.First().UKPRN,
             TrainingCode = _apprenticeship.ApprenticeshipEpisodes.First().TrainingCode,
-            FundingEmployerAccountId = _apprenticeship.FundingEmployerAccountId, //todo should this be on the episode?
+            FundingEmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().FundingEmployerAccountId,
             Uln = _apprenticeship.Uln,
             AgreedPrice = _apprenticeship.ApprenticeshipEpisodes.First().AgreedPrice,
             ApprovalsApprenticeshipId = _apprenticeship.ApprovalsApprenticeshipId,
@@ -80,7 +80,6 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     {
         _sut.Model.ApprenticeshipKey.Should().Be(_apprenticeshipCreatedEvent.ApprenticeshipKey);
         _sut.Model.Uln.Should().Be(_apprenticeshipCreatedEvent.Uln);
-        _sut.Model.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
         _sut.Model.ApprovalsApprenticeshipId.Should().Be(_apprenticeshipCreatedEvent.ApprovalsApprenticeshipId);
 
 
@@ -95,6 +94,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.FundingBandMaximum.Should().Be(_apprenticeshipCreatedEvent.FundingBandMaximum);
         apprenticeshipEpisode.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
         apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship);
+        apprenticeshipEpisode.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
 
         var expectedEpisode = _apprenticeship.ApprenticeshipEpisodes.Single();
         apprenticeshipEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile.OnProgramTotal);

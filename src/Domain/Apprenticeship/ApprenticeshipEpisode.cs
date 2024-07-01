@@ -19,6 +19,7 @@ public class ApprenticeshipEpisode
     public FundingType FundingType { get; }
     public decimal FundingBandMaximum { get; }
     public string LegalEntityName { get; }
+    public long? FundingEmployerAccountId { get; set; }
     public EarningsProfile? EarningsProfile { get; private set; }
     public List<HistoryRecord<EarningsProfile>> EarningsProfileHistory { get; private set; }
 
@@ -40,6 +41,7 @@ public class ApprenticeshipEpisode
         FundingBandMaximum = model.FundingBandMaximum;
         LegalEntityName = model.LegalEntityName;
         EarningsProfile = model.EarningsProfile != null ? new EarningsProfile(model.EarningsProfile) : null;
+        FundingEmployerAccountId = model.FundingEmployerAccountId;
 
         if(model.EarningsProfileHistory != null)
         {

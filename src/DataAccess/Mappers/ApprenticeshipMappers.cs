@@ -18,10 +18,11 @@ internal static class ApprenticeshipMappers
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EmployerAccountId = currentEpisode.EmployerAccountId,
-            FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId,
             FundingType = currentEpisode.FundingType,
             UKPRN = currentEpisode.UKPRN,
             Uln = apprenticeship.Uln
         });
     }
+
+    //todo do we need an episodes version of this?
 }
