@@ -3,9 +3,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
 
-internal static class ApprenticeshipMappers
+public static class ApprenticeshipMappers
 {
-    internal static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
+    public static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
     {
         //todo fix this in FLP-800
         var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, USE ISYSTEM CLOCK
@@ -21,7 +21,8 @@ internal static class ApprenticeshipMappers
             EmployerAccountId = currentEpisode.EmployerAccountId,
             FundingType = currentEpisode.FundingType,
             UKPRN = currentEpisode.UKPRN,
-            Uln = apprenticeship.Uln
+            Uln = apprenticeship.Uln,
+            ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey
         });
     }
 }
