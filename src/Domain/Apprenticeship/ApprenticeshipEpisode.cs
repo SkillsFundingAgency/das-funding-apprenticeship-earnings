@@ -9,6 +9,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class ApprenticeshipEpisode
 {
+    public Guid ApprenticeshipEpisodeKey { get; }
     public long UKPRN { get; }
     public long EmployerAccountId { get; }
     public int AgeAtStartOfApprenticeship { get; private set; }
@@ -27,6 +28,7 @@ public class ApprenticeshipEpisode
 
     public ApprenticeshipEpisode(ApprenticeshipEpisodeModel model)
     {
+        ApprenticeshipEpisodeKey = model.ApprenticeshipEpisodeKey;
         UKPRN = model.UKPRN;
         EmployerAccountId = model.EmployerAccountId;
         TrainingCode = model.TrainingCode;

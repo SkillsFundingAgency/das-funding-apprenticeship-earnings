@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -84,6 +85,7 @@ public class ApprenticeshipEntity
             ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
             ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel> { new ApprenticeshipEpisodeModel
             {
+                ApprenticeshipEpisodeKey = Guid.Empty, //todo this needs to be set when the event from das-apprenticeships is updated with the key
                 UKPRN = apprenticeshipCreatedEvent.UKPRN,
                 EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
                 TrainingCode = apprenticeshipCreatedEvent.TrainingCode,

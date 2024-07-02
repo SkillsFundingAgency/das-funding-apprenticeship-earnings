@@ -38,7 +38,8 @@ public class WhenCreatingANewApprenticeship
                 x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
                 x.LegalEntityName == apprenticeshipEpisode.LegalEntityName &&
                 x.AgeAtStartOfApprenticeship == apprenticeshipEpisode.AgeAtStartOfApprenticeship &&
-                x.FundingEmployerAccountId == apprenticeshipEpisode.FundingEmployerAccountId);
+                x.FundingEmployerAccountId == apprenticeshipEpisode.FundingEmployerAccountId &&
+                x.ApprenticeshipEpisodeKey == apprenticeshipEpisode.ApprenticeshipEpisodeKey);
 
             episode.Should().NotBeNull();
 
