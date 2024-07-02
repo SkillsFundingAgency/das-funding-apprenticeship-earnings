@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenRecalculatingEarningsForStartDateChange
 {
     private Fixture _fixture;
-    private Mock<ISystemClock> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock;
     private Apprenticeship.Apprenticeship? _apprenticeshipBeforeStartDateChange; //represents the apprenticeship before the start date change
     private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the start date change
     private DateTime _updatedStartDate;
@@ -26,7 +27,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public WhenRecalculatingEarningsForStartDateChange()
     {
         _fixture = new Fixture();
-        _mockSystemClock = new Mock<ISystemClock>();
+        _mockSystemClock = new Mock<ISystemClockService>();
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
     }
 

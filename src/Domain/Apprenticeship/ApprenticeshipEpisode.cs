@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -57,14 +58,14 @@ public class ApprenticeshipEpisode
         UpdateEarningsProfile(apprenticeshipFunding, earnings, null);
     }
 
-    public void RecalculateEarnings(ISystemClock systemClock, Func<ApprenticeshipFunding.ApprenticeshipFunding, List<Earning>> recalculate)
+    public void RecalculateEarnings(ISystemClockService systemClock, Func<ApprenticeshipFunding.ApprenticeshipFunding, List<Earning>> recalculate)
     {
         var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices.First().AgreedPrice, Prices.First().ActualStartDate, Prices.First().PlannedEndDate, Prices.First().FundingBandMaximum);
         var newEarnings = recalculate(apprenticeshipFunding);
         UpdateEarningsProfile(apprenticeshipFunding, newEarnings, systemClock);
     }
 
-    public void UpdateAgreedPrice(ISystemClock systemClock, decimal newAgreedPrice)
+    public void UpdateAgreedPrice(ISystemClockService systemClock, decimal newAgreedPrice)
     {
         // todo update correct Price based on logic in design AgreedPrice = newAgreedPrice;
         // PlannedEndDate = systemClock.UtcNow.DateTime; // TO BE COMPLETED IN SUBTASK FLP-800
@@ -79,7 +80,7 @@ public class ApprenticeshipEpisode
         // THIS HANDLING MAY NEED TO BE REFINED IN SUBTASK FLP-801
     }
 
-    private void UpdateEarningsProfile(ApprenticeshipFunding.ApprenticeshipFunding apprenticeshipFunding, List<Earning> earnings, ISystemClock? systemClock)
+    private void UpdateEarningsProfile(ApprenticeshipFunding.ApprenticeshipFunding apprenticeshipFunding, List<Earning> earnings, ISystemClockService? systemClock)
     {
         if (EarningsProfile != null) 
         {

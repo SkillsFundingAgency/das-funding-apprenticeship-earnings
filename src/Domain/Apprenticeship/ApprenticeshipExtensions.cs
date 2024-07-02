@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Internal;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public static class ApprenticeshipExtensions
 {
-    public static ApprenticeshipEpisode GetCurrentEpisode(this Apprenticeship apprenticeship, ISystemClock systemClock)
+    public static ApprenticeshipEpisode GetCurrentEpisode(this Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
         var episode = apprenticeship.ApprenticeshipEpisodes.Find(x => x.Prices != null && x.Prices.Exists(price => price.ActualStartDate <= systemClock.UtcNow && price.PlannedEndDate >= systemClock.UtcNow));
         

@@ -6,6 +6,7 @@ using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -17,14 +18,14 @@ public class WhenApproveStartDateChangeCommandHandled
     private readonly Fixture _fixture;
     private readonly Mock<IMessageSession> _mockMessageSession;
     private readonly Mock<IApprenticeshipEarningsRecalculatedEventBuilder> _mockEventBuilder;
-    private Mock<ISystemClock> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock;
 
     public WhenApproveStartDateChangeCommandHandled()
     {
         _fixture = new Fixture();
         _mockMessageSession = new Mock<IMessageSession>();
         _mockEventBuilder = new Mock<IApprenticeshipEarningsRecalculatedEventBuilder>();
-        _mockSystemClock = new Mock<ISystemClock>();
+        _mockSystemClock = new Mock<ISystemClockService>();
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2019, 12, 1));
     }
 

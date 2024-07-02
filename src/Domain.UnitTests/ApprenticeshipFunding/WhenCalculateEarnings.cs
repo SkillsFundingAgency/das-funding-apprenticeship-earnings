@@ -7,6 +7,7 @@ using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
@@ -17,7 +18,7 @@ public class WhenCalculateEarnings
 {
     private Fixture _fixture;
     private Apprenticeship.Apprenticeship _sut;
-    private Mock<Microsoft.Extensions.Internal.ISystemClock> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock;
 
     public WhenCalculateEarnings()
     {
@@ -27,7 +28,7 @@ public class WhenCalculateEarnings
     [SetUp]
     public void SetUp()
     {
-        _mockSystemClock = new Mock<Microsoft.Extensions.Internal.ISystemClock>();
+        _mockSystemClock = new Mock<ISystemClockService>();
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
 
         var agreedPrice = _fixture.Create<decimal>();

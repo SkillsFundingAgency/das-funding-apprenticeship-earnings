@@ -2,6 +2,7 @@
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
@@ -10,10 +11,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
         private readonly IApprenticeshipFactory _apprenticeshipFactory;
         private readonly IMessageSession _messageSession;
         private readonly IEarningsGeneratedEventBuilder _earningsGeneratedEventBuilder; 
-        private readonly ISystemClock _systemClock;
+        private readonly ISystemClockService _systemClock;
 
         public CreateApprenticeshipCommandHandler(
-            IApprenticeshipFactory apprenticeshipFactory, IMessageSession messageSession, IEarningsGeneratedEventBuilder earningsGeneratedEventBuilder, ISystemClock systemClock)
+            IApprenticeshipFactory apprenticeshipFactory, IMessageSession messageSession, IEarningsGeneratedEventBuilder earningsGeneratedEventBuilder, ISystemClockService systemClock)
         {
             _apprenticeshipFactory = apprenticeshipFactory;
             _messageSession = messageSession;

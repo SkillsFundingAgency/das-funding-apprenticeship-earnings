@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -12,9 +13,9 @@ public interface IEarningsGeneratedEventBuilder
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 {
-    private ISystemClock _systemClock;
+    private ISystemClockService _systemClock;
 
-    public EarningsGeneratedEventBuilder(ISystemClock systemClock)
+    public EarningsGeneratedEventBuilder(ISystemClockService systemClock)
     {
         _systemClock = systemClock;
     }

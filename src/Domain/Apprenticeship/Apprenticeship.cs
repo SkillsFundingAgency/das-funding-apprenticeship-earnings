@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -23,14 +24,14 @@ public class Apprenticeship : AggregateRoot
 
     public List<ApprenticeshipEpisode> ApprenticeshipEpisodes { get; }
 
-    public void CalculateEarnings(ISystemClock systemClock)
+    public void CalculateEarnings(ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.CalculateEarnings();
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(ISystemClock systemClock, decimal newAgreedPrice, DateTime effectiveFromDate)
+    public void RecalculateEarnings(ISystemClockService systemClock, decimal newAgreedPrice, DateTime effectiveFromDate)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
 
@@ -41,7 +42,7 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(ISystemClock systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
+    public void RecalculateEarnings(ISystemClockService systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateStartDate(newStartDate, newEndDate, ageAtStartOfApprenticeship);

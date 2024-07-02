@@ -15,6 +15,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
@@ -30,7 +31,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     private Mock<IApprovePriceChangeCommandHandler> _approvePriceChangeCommandHandler;
     private Mock<IApproveStartDateChangeCommandHandler> _approveStartDateChangeCommandHandler;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
-    private Mock<Microsoft.Extensions.Internal.ISystemClock> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock;
     private Fixture _fixture;
     private Apprenticeship _apprenticeship;
     
@@ -38,7 +39,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     [SetUp]
     public async Task SetUp()
     {
-        _mockSystemClock = new Mock<Microsoft.Extensions.Internal.ISystemClock>();
+        _mockSystemClock = new Mock<ISystemClockService>();
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
 
         _fixture = new Fixture();

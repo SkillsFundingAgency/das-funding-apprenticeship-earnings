@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
-public class TestSystemClock : ISystemClock
+public class TestSystemClock : ISystemClock, ISystemClockService
 {
     private static DateTime _testTime;
 
@@ -18,7 +19,7 @@ public class TestSystemClock : ISystemClock
         _testTime = dateTime;
     }
 
-    public static ISystemClock Instance()
+    public static ISystemClockService Instance()
     {
         return new TestSystemClock();
     }

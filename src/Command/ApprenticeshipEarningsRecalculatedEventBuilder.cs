@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -11,9 +12,9 @@ public interface IApprenticeshipEarningsRecalculatedEventBuilder
 
 public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEarningsRecalculatedEventBuilder
 {
-    private readonly ISystemClock _clock;
+    private readonly ISystemClockService _clock;
 
-    public ApprenticeshipEarningsRecalculatedEventBuilder(ISystemClock systemClock)
+    public ApprenticeshipEarningsRecalculatedEventBuilder(ISystemClockService systemClock)
     {
         _clock = systemClock;
     }

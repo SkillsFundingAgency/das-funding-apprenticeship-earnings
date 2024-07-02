@@ -10,6 +10,7 @@ using Moq;
 using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -19,12 +20,12 @@ public class EarningsGeneratedEventBuilder_BuildTests
     private EarningsGeneratedEvent _result;
     private Fixture _fixture;
     private Apprenticeship.Apprenticeship _apprenticeship;
-    private Mock<ISystemClock> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
     public void SetUp()
     {
-        _mockSystemClock = new Mock<ISystemClock>();
+        _mockSystemClock = new Mock<ISystemClockService>();
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2022, 8, 30));
         _sut = new EarningsGeneratedEventBuilder(_mockSystemClock.Object);
         _fixture = new Fixture();
