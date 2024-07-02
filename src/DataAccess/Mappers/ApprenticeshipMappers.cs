@@ -7,6 +7,7 @@ internal static class ApprenticeshipMappers
 {
     internal static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
     {
+        //todo fix this in FLP-800
         var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, USE ISYSTEM CLOCK
 
         return currentEpisode.EarningsProfile?.Instalments.Select(x => new Earning
@@ -23,6 +24,4 @@ internal static class ApprenticeshipMappers
             Uln = apprenticeship.Uln
         });
     }
-
-    //todo do we need an episodes version of this?
 }

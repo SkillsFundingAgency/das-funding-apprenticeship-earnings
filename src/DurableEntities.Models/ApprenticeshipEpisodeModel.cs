@@ -18,11 +18,3 @@ public class ApprenticeshipEpisodeModel
     [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; }
     [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; }
 }
-
-public class PriceModel
-{
-    [JsonProperty] public DateTime ActualStartDate { get; set; }
-    [JsonProperty] public DateTime PlannedEndDate { get; set; }
-    [JsonProperty] public decimal AgreedPrice { get; set; }
-    [JsonProperty] public decimal FundingBandMaximum { get; set; }
-}
