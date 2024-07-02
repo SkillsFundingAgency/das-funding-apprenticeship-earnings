@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -10,15 +12,24 @@ public interface IApprenticeshipEarningsRecalculatedEventBuilder
 
 public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEarningsRecalculatedEventBuilder
 {
+    private readonly ISystemClockService _clock;
+
+    public ApprenticeshipEarningsRecalculatedEventBuilder(ISystemClockService systemClock)
+    {
+        _clock = systemClock;
+    }
+
     public ApprenticeshipEarningsRecalculatedEvent Build(Apprenticeship apprenticeship)
     {
+        var currentEpisode = apprenticeship.GetCurrentEpisode(_clock);
+
         return new ApprenticeshipEarningsRecalculatedEvent
         {
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
-            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
-            EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId,
-            StartDate = apprenticeship.ActualStartDate,
-            PlannedEndDate = apprenticeship.PlannedEndDate
+            DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
+            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
+            StartDate = currentEpisode.Prices.First().ActualStartDate, //todo .First() will need updating when we introduce the concept of multiple prices
+            PlannedEndDate = currentEpisode.Prices.First().PlannedEndDate
         };
     }
 }

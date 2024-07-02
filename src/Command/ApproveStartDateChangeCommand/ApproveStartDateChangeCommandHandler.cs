@@ -1,5 +1,7 @@
-﻿using NServiceBus;
+﻿using Microsoft.Extensions.Internal;
+using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 
@@ -7,11 +9,14 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
 {
     private readonly IMessageSession _messageSession;
     private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
+    private readonly ISystemClockService _systemClock;
 
-    public ApproveStartDateChangeCommandHandler(IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder)
+    public ApproveStartDateChangeCommandHandler(
+        IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
     {
         _messageSession = messageSession;
         _eventBuilder = eventBuilder;
+        _systemClock = systemClock;
     }
 
     public async Task<Apprenticeship> RecalculateEarnings(ApproveStartDateChangeCommand command)
@@ -20,7 +25,7 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
         var newStartDate = command.ApprenticeshipStartDateChangedEvent.ActualStartDate;
         var newAgeAtStartOfApprenticeship = command.ApprenticeshipStartDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault();
         var newPlannedEndDate = command.ApprenticeshipStartDateChangedEvent.PlannedEndDate;
-        apprenticeshipDomainModel.RecalculateEarnings(newStartDate, newPlannedEndDate, newAgeAtStartOfApprenticeship);
+        apprenticeshipDomainModel.RecalculateEarnings(_systemClock, newStartDate, newPlannedEndDate, newAgeAtStartOfApprenticeship);
         
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
         

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -9,7 +10,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using System;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 
@@ -41,8 +41,8 @@ public class ApprenticeshipEntity
     {
         MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
         var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
-            
-        Model.EarningsProfile = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
+
+        UpdateEpisodes(apprenticeship);
 
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
@@ -53,15 +53,8 @@ public class ApprenticeshipEntity
     public async Task HandleApprenticeshipStartDateChangeApprovedEvent(ApprenticeshipStartDateChangedEvent startDateChangedEvent)
     {
         var apprenticeship = await _startDateChangeApprovedCommandHandler.RecalculateEarnings(new ApproveStartDateChangeCommand(Model, startDateChangedEvent));
+        UpdateEpisodes(apprenticeship);
             
-        var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
-            
-        Model.ActualStartDate = apprenticeship.ActualStartDate;
-        Model.PlannedEndDate = apprenticeship.PlannedEndDate;
-        Model.AgeAtStartOfApprenticeship = apprenticeship.AgeAtStartOfApprenticeship;
-
-        SupersedeEarningsProfile(newEarnings);
-
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
             await _domainEventDispatcher.Send(domainEvent);
@@ -71,11 +64,8 @@ public class ApprenticeshipEntity
     public async Task HandleApprenticeshipPriceChangeApprovedEvent(PriceChangeApprovedEvent priceChangeApprovedEvent)
     {
         var apprenticeship = await _approvePriceChangeCommandHandler.RecalculateEarnings(new ApprovePriceChangeCommand(Model, priceChangeApprovedEvent));
-        var newEarnings = MapEarningsProfileToModel(apprenticeship.EarningsProfile);
 
-        Model.AgreedPrice = apprenticeship.AgreedPrice;
-
-        SupersedeEarningsProfile(newEarnings);
+        UpdateEpisodes(apprenticeship);
 
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
@@ -92,18 +82,28 @@ public class ApprenticeshipEntity
         {
             ApprenticeshipKey = apprenticeshipCreatedEvent.ApprenticeshipKey,
             Uln = apprenticeshipCreatedEvent.Uln,
-            UKPRN = apprenticeshipCreatedEvent.UKPRN,
-            EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
-            ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
-            PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
-            AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
-            TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
-            FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
-            FundingType = apprenticeshipCreatedEvent.FundingType,
             ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
-            LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
-            FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum,
-            AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault() //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
+            ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel> { new ApprenticeshipEpisodeModel
+            {
+                ApprenticeshipEpisodeKey = Guid.Empty, //todo this needs to be set when the event from das-apprenticeships is updated with the key
+                UKPRN = apprenticeshipCreatedEvent.UKPRN,
+                EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
+                TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
+                FundingType = apprenticeshipCreatedEvent.FundingType,
+                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
+                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
+                FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
+                Prices = new List<PriceModel>
+                {
+                    new()
+                    {
+                        ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
+                        PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
+                        AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
+                        FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum
+                    }
+                }
+            }},
         };
     }
 
@@ -128,19 +128,31 @@ public class ApprenticeshipEntity
         }).ToList();
     }
 
-    private void SupersedeEarningsProfile(EarningsProfileEntityModel earningsProfile)
+    private PriceModel MapPricesToModel(Price price)
     {
-        if (Model.EarningsProfileHistory == null)
+        return new PriceModel
         {
-            Model.EarningsProfileHistory = new List<HistoryRecord<EarningsProfileEntityModel>>();
-        }
+            FundingBandMaximum = price.FundingBandMaximum,
+            ActualStartDate = price.ActualStartDate,
+            AgreedPrice = price.AgreedPrice,
+            PlannedEndDate = price.PlannedEndDate
+        };
+    }
 
-        Model.EarningsProfileHistory.Add(new HistoryRecord<EarningsProfileEntityModel>
+    private void UpdateEpisodes(Apprenticeship apprenticeship)
+    {
+        Model.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
         {
-            Record = Model.EarningsProfile,
-            SupersededDate = DateTime.UtcNow
-        });
-
-        Model.EarningsProfile = earningsProfile;
-    }   
+            UKPRN = x.UKPRN,
+            EmployerAccountId = x.EmployerAccountId,
+            AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
+            EarningsProfile = MapEarningsProfileToModel(x.EarningsProfile),
+            EarningsProfileHistory = x.EarningsProfileHistory.Select(ep => new Models.HistoryRecord<EarningsProfileEntityModel> 
+            { 
+                Record = MapEarningsProfileToModel(ep.Record),
+                SupersededDate = ep.SupersededDate
+            }).ToList(),
+            Prices = x.Prices == null ? new List<PriceModel>() : x.Prices.Select(MapPricesToModel).ToList()
+        }).ToList();
+    }
 }

@@ -12,6 +12,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests;
@@ -25,12 +28,16 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
     private Mock<IApprovePriceChangeCommandHandler> _approvePriceChangeCommandHandler;
     private Mock<IApproveStartDateChangeCommandHandler> _approveStartDateChangeCommandHandler;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
+    private Mock<ISystemClockService> _mockSystemClock;
     private Fixture _fixture;
     private Apprenticeship _apprenticeship;
 
     [SetUp]
     public async Task SetUp()
     {
+        _mockSystemClock = new Mock<ISystemClockService>();
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
+
         _fixture = new Fixture();
 
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
@@ -49,27 +56,18 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             LegalEntityName = "MyTrawler",
             AgeAtStartOfApprenticeship = 20
         };
-        _apprenticeship = new Apprenticeship(
-            Guid.NewGuid(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            _fixture.Create<long>(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            new DateTime(2021, 1, 15),
-            new DateTime(2022, 1, 15),
-            _fixture.Create<decimal>(),
-            _fixture.Create<string>(),
-            null,
-            _fixture.Create<FundingType>(),
-            _fixture.Create<decimal>(),
-            _fixture.Create<int>());
+
+        var apprenticeshipStartDate = new DateTime(2021, 1, 15);
+        var apprenticeshipEndDate = new DateTime(2022, 1, 15);
+
+        _apprenticeship = _fixture.CreateApprenticeship(apprenticeshipStartDate, apprenticeshipEndDate);
+
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
         {
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
-            ActualStartDate = _apprenticeship.ActualStartDate.AddMonths(3),
-            PlannedEndDate = _apprenticeship.PlannedEndDate,
+            ActualStartDate = apprenticeshipStartDate.AddMonths(3),
+            PlannedEndDate = apprenticeshipEndDate,
             AgeAtStartOfApprenticeship = _fixture.Create<int>(),
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,
@@ -78,7 +76,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             EmployerApprovedBy = "",
             Initiator = ""
         };
-        _apprenticeship.RecalculateEarnings(_startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault());
+        _apprenticeship.RecalculateEarnings(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault());
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();
@@ -97,11 +95,14 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
     [Test]
     public void ShouldPopulateTheApprenticeshipEntityCorrectly()
     {
-        _sut.Model.EarningsProfile.AdjustedPrice.Should().Be(_apprenticeship.EarningsProfile.OnProgramTotal);
-        _sut.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeship.EarningsProfile.CompletionPayment);
-        _sut.Model.EarningsProfile.EarningsProfileId.Should().Be(_apprenticeship.EarningsProfile.EarningsProfileId);
-        _sut.Model.EarningsProfile.Instalments.Should().BeEquivalentTo(_apprenticeship.EarningsProfile.Instalments);
-        _sut.Model.AgeAtStartOfApprenticeship.Should().Be(_startDateChangedEvent.AgeAtStartOfApprenticeship);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var expectedCurrentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+
+        currentEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedCurrentEpisode.EarningsProfile.OnProgramTotal);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedCurrentEpisode.EarningsProfile.CompletionPayment);
+        currentEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedCurrentEpisode.EarningsProfile.EarningsProfileId);
+        currentEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedCurrentEpisode.EarningsProfile.Instalments);
+        currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_startDateChangedEvent.AgeAtStartOfApprenticeship);
     }
 
     [Test]

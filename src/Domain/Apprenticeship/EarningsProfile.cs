@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
 {
     public class EarningsProfile
     {
@@ -8,6 +10,15 @@
             Instalments = instalments;
             CompletionPayment = completionPayment;
             EarningsProfileId = earningsProfileId;
+        }
+
+        public EarningsProfile(EarningsProfileEntityModel model)
+        {
+            var instalments = model.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList();
+            OnProgramTotal = model.AdjustedPrice;
+            Instalments = instalments;
+            CompletionPayment = model.CompletionPayment;
+            EarningsProfileId = model.EarningsProfileId;
         }
 
         public Guid EarningsProfileId { get; }
