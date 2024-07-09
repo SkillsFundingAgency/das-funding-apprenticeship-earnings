@@ -131,7 +131,7 @@ public class RecalculateEarningsStepDefinitions
             ProviderId = 123,
             PriceKey = _priceChangePriceKey,
             ApprenticeshipEpisodeKey = _episodeKey,
-            DeletedPriceKeys = new List<Guid>{ _priceKey }
+            DeletedPriceKeys = new List<Guid>()
         };
 
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent

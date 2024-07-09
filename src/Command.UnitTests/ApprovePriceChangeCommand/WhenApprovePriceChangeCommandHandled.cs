@@ -68,7 +68,10 @@ public class WhenApprovePriceChangeCommandHandled
             EffectiveFromDate = new DateTime(2019, 11, 1),
             EmployerAccountId = currentEpisode.EmployerAccountId,
             ProviderId = 123,
-            TrainingPrice = 3000
+            TrainingPrice = 3000,
+            PriceKey = Guid.NewGuid(),
+            ApprenticeshipEpisodeKey = Guid.NewGuid(),
+            DeletedPriceKeys = new List<Guid>()
         };
 
         var command = new Command.ApprovePriceChangeCommand.ApprovePriceChangeCommand(apprenticeship, priceChangeApprovedEvent);

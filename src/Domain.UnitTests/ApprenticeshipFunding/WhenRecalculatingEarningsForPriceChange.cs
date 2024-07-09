@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Internal;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -8,6 +7,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
@@ -42,14 +42,14 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheAgreedPriceIsUpdated()
     {
-        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
+        _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
         _sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice.Should().Be(_updatedPrice);
     }
 
     [Test]
     public void ThenTheOnProgramTotalIsCalculated()
     {
-        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
+        _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
@@ -57,7 +57,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheCompletionAmountIsCalculated()
     {
-        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
+        _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
@@ -65,7 +65,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
     {
-        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
+        _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
@@ -76,7 +76,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenEarningsRecalculatedEventIsCreated()
     {
-        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
+        _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
 
         var events = _sut.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
@@ -85,7 +85,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheEarningsProfileIdIsGenerated()
     {
-        _sut!.RecalculateEarnings(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15));
+        _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }

@@ -60,26 +60,34 @@ public class ApprenticeshipEpisode
 
     public void RecalculateEarnings(ISystemClockService systemClock, Func<ApprenticeshipFunding.ApprenticeshipFunding, List<Earning>> recalculate)
     {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices.First().AgreedPrice, Prices.First().ActualStartDate, Prices.First().PlannedEndDate, Prices.First().FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(
+            this.GetCurrentPrice(systemClock).AgreedPrice,
+            Prices!.OrderBy(x => x.ActualStartDate).First().ActualStartDate,
+            Prices!.OrderBy(x => x.PlannedEndDate).Last().PlannedEndDate,
+            this.GetCurrentPrice(systemClock).FundingBandMaximum);
         var newEarnings = recalculate(apprenticeshipFunding);
         UpdateEarningsProfile(apprenticeshipFunding, newEarnings, systemClock);
     }
 
     public void UpdateAgreedPrice(ISystemClockService systemClock, decimal newAgreedPrice, List<Guid> deletedPriceKeys, Guid newPriceKey)
     {
+        //build new price
+        var newPriceStartDate = systemClock.UtcNow.Date;
         var newPrice = new Price(
             newPriceKey,
-            Prices.OrderBy(x => x.ActualStartDate).First().ActualStartDate,
+            newPriceStartDate,
             Prices.OrderByDescending(x => x.PlannedEndDate).First().PlannedEndDate,
             newAgreedPrice,
             Prices.OrderBy(x => x.ActualStartDate).First().FundingBandMaximum);
 
+        //remove all deleted prices
         Prices.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
-        
-        Prices.Add(newPrice);
 
-        // todo update correct Price based on logic in design AgreedPrice = newAgreedPrice;
-        // PlannedEndDate = systemClock.UtcNow.DateTime; // TO BE COMPLETED IN SUBTASK FLP-800W
+        //close off remaining active price
+        Prices.SingleOrDefault()!.CloseOff(newPriceStartDate.AddDays(-1));
+        
+        //add new price
+        Prices.Add(newPrice);
     }
 
     public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
