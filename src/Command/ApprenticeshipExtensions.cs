@@ -5,9 +5,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
-internal static class ApprenticeshipExtensions
+public static class ApprenticeshipExtensions
 {
-    internal static List<DeliveryPeriod>? BuildDeliveryPeriods(this ApprenticeshipEpisode currentEpisode)
+    public static List<DeliveryPeriod>? BuildDeliveryPeriods(this ApprenticeshipEpisode currentEpisode)
     {
 
         return currentEpisode.EarningsProfile?.Instalments.Select(instalment => new DeliveryPeriod
@@ -21,7 +21,7 @@ internal static class ApprenticeshipExtensions
         )).ToList();
     }
 
-    internal static Apprenticeship GetDomainModel(this ApprenticeshipEntityModel entityModel)
+    public static Apprenticeship GetDomainModel(this ApprenticeshipEntityModel entityModel)
     {
         return new Apprenticeship(entityModel);
     }

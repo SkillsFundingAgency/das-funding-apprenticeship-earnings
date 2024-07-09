@@ -31,7 +31,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
-            AgreedPrice = currentEpisode.Prices.First().AgreedPrice, //todo again prices.First() will need revisiting here when we introduce the concept of multiple price records
+            AgreedPrice = currentEpisode.Prices.First().AgreedPrice,
             StartDate = currentEpisode.Prices.First().ActualStartDate,
             TrainingCode = currentEpisode.TrainingCode,
             EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),

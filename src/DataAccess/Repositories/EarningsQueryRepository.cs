@@ -5,23 +5,26 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
 {
     public class EarningsQueryRepository : IEarningsQueryRepository
     {
         private readonly Lazy<ApprenticeshipEarningsDataContext> _lazyContext;
+        private readonly ISystemClockService _systemClockService;
 
         private ApprenticeshipEarningsDataContext DbContext => _lazyContext.Value;
 
-        public EarningsQueryRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext)
+        public EarningsQueryRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext, ISystemClockService systemClockService)
         {
             _lazyContext = dbContext;
+            _systemClockService = systemClockService;
         }
 
         public async Task Add(Apprenticeship apprenticeship)
         {
-            var earningsReadModels = apprenticeship.ToEarningsReadModels();
+            var earningsReadModels = apprenticeship.ToEarningsReadModels(_systemClockService);
             if (earningsReadModels != null)
             {
                 await DbContext.AddRangeAsync(earningsReadModels);

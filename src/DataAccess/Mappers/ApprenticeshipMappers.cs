@@ -1,14 +1,14 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
 
 public static class ApprenticeshipMappers
 {
-    public static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
+    public static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship, ISystemClockService systemClockService)
     {
-        //todo fix this in FLP-800
-        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.FirstOrDefault(); // DO NOT COMMIT THIS LINE, USE ISYSTEM CLOCK
+        var currentEpisode = apprenticeship.GetCurrentEpisode(systemClockService);
 
         return currentEpisode.EarningsProfile?.Instalments.Select(x => new Earning
         {
