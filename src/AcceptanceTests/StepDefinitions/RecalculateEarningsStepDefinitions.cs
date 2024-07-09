@@ -52,6 +52,10 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newAssessmentPrice = 3000;
     private readonly int _newTrainingPriceAboveBandMax = 26000;
 
+    private readonly Guid _priceKey = Guid.NewGuid();
+    //private readonly Guid _changePriceKey = Guid.NewGuid();
+    private readonly Guid _episodeKey = Guid.NewGuid();
+
 
 	private EarningsProfileEntityModel _originalEarningsProfile;
     private ApprenticeshipEntity? _updatedApprenticeshipEntity;
@@ -109,7 +113,9 @@ public class RecalculateEarningsStepDefinitions
             DateOfBirth = _dateOfBirth,
             FundingBandMaximum = _fundingBandMaximum,
             AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-            FundingPlatform = FundingPlatform.DAS
+            FundingPlatform = FundingPlatform.DAS,
+            PriceKey = _priceKey,
+            ApprenticeshipEpisodeKey = _episodeKey
         };
 
         _priceChangeApprovedEvent = new PriceChangeApprovedEvent
@@ -122,7 +128,10 @@ public class RecalculateEarningsStepDefinitions
             ApprovedBy = ApprovedBy.Employer,
             ApprovedDate = _changeRequestDate,
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
-            ProviderId = 123
+            ProviderId = 123,
+            //PriceKey = _changePriceKey,
+            //ApprenticeshipEpisodeKey = _episodeKey,
+            //DeletedPriceKeys = new List<Guid>{ _initialPriceKey }
         };
 
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
@@ -136,7 +145,10 @@ public class RecalculateEarningsStepDefinitions
             ApprovedDate = _changeRequestDate,
             ProviderApprovedBy = "",
             EmployerApprovedBy = "",
-            Initiator = ""
+            Initiator = "",
+            PriceKey = _priceKey,
+            ApprenticeshipEpisodeKey = _episodeKey,
+            DeletedPriceKeys = new List<Guid>()
         };
     }
 
@@ -424,7 +436,7 @@ public class RecalculateEarningsStepDefinitions
         var apprenticeshipEntity = await GetApprenticeshipEntity();
 
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        if (currentEpisode.EarningsProfileHistory == null)
+        if (!currentEpisode.EarningsProfileHistory.Any())
         {
             return false;
         }

@@ -19,6 +19,7 @@ internal static class FixtureExtensions
                 {
                     new()
                     {
+                        PriceKey = Guid.NewGuid(),
                         ActualStartDate = new DateTime(2019, 09, 01),
                         PlannedEndDate = new DateTime(2020, 1, 1),
                         AgreedPrice = 10000,

@@ -23,6 +23,7 @@ internal static class FixtureExtensions
                 FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value,
                 Prices = new List<PriceModel>{ new()
                 {
+                    PriceKey = Guid.NewGuid(),
                     ActualStartDate = startDate,
                     PlannedEndDate = endDate,
                     AgreedPrice = agreedPrice,
@@ -82,6 +83,7 @@ internal static class FixtureExtensions
     {
         return prices?.Select(x => new PriceModel
         {
+            PriceKey = x.PriceKey,
             FundingBandMaximum = fundingBandMaximum,
             ActualStartDate = newStartDate ?? x.ActualStartDate,
             AgreedPrice = x.AgreedPrice,

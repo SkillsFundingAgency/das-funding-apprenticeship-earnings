@@ -85,7 +85,7 @@ public class ApprenticeshipEntity
             ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
             ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel> { new ApprenticeshipEpisodeModel
             {
-                ApprenticeshipEpisodeKey = Guid.Empty, //todo this needs to be set when the event from das-apprenticeships is updated with the key
+                ApprenticeshipEpisodeKey = apprenticeshipCreatedEvent.ApprenticeshipEpisodeKey,
                 UKPRN = apprenticeshipCreatedEvent.UKPRN,
                 EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
                 TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
@@ -97,6 +97,7 @@ public class ApprenticeshipEntity
                 {
                     new()
                     {
+                        PriceKey = apprenticeshipCreatedEvent.PriceKey,
                         ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
                         PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
                         AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
@@ -132,6 +133,7 @@ public class ApprenticeshipEntity
     {
         return new PriceModel
         {
+            PriceKey = price.PriceKey,
             FundingBandMaximum = price.FundingBandMaximum,
             ActualStartDate = price.ActualStartDate,
             AgreedPrice = price.AgreedPrice,
@@ -143,6 +145,7 @@ public class ApprenticeshipEntity
     {
         Model.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeModel
         {
+            ApprenticeshipEpisodeKey = x.ApprenticeshipEpisodeKey,
             UKPRN = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
             AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,

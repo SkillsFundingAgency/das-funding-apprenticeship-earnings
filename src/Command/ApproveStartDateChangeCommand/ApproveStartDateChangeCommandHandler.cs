@@ -25,7 +25,10 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
         var newStartDate = command.ApprenticeshipStartDateChangedEvent.ActualStartDate;
         var newAgeAtStartOfApprenticeship = command.ApprenticeshipStartDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault();
         var newPlannedEndDate = command.ApprenticeshipStartDateChangedEvent.PlannedEndDate;
-        apprenticeshipDomainModel.RecalculateEarnings(_systemClock, newStartDate, newPlannedEndDate, newAgeAtStartOfApprenticeship);
+        var deletedPriceKeys = command.ApprenticeshipStartDateChangedEvent.DeletedPriceKeys;
+        var changingPriceKey = command.ApprenticeshipStartDateChangedEvent.PriceKey;
+
+        apprenticeshipDomainModel.RecalculateEarningsStartDateChange(_systemClock, newStartDate, newPlannedEndDate, newAgeAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey);
         
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
         

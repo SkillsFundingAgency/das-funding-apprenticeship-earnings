@@ -31,21 +31,22 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(ISystemClockService systemClock, decimal newAgreedPrice, DateTime effectiveFromDate)
+    //todo consider naming these specifically - they are specific to types of changes
+    public void RecalculateEarningsPriceChange(ISystemClockService systemClock, decimal newAgreedPrice, DateTime effectiveFromDate, List<Guid> deletedPriceKeys, Guid newPriceKey)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
 
         var existingEarnings = currentEpisode.EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
-        currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice);
+        currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice, deletedPriceKeys, newPriceKey);
         currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate));
 
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(ISystemClockService systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship)
+    public void RecalculateEarningsStartDateChange(ISystemClockService systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateStartDate(newStartDate, newEndDate, ageAtStartOfApprenticeship);
+        currentEpisode.UpdateStartDate(newStartDate, newEndDate, ageAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey);
         currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(newStartDate));
 
         AddEvent(new EarningsRecalculatedEvent(this));

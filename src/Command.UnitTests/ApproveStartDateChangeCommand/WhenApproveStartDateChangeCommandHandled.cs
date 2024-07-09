@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using Microsoft.Extensions.Internal;
 using Moq;
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
@@ -7,7 +6,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeComma
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApproveStartDateChangeCommand;
@@ -68,7 +66,11 @@ public class WhenApproveStartDateChangeCommandHandled
             ApprovedDate = new DateTime(2019, 12, 1),
             ProviderApprovedBy = "",
             EmployerApprovedBy = "",
-            Initiator = ""
+            Initiator = "",
+            PriceKey = currentEpisode.Prices.Last().PriceKey,
+            ApprenticeshipEpisodeKey = Guid.NewGuid(),
+            AgeAtStartOfApprenticeship = 19,
+            DeletedPriceKeys = currentEpisode.Prices.Take(currentEpisode.Prices.Count - 1).Select(x => x.PriceKey).ToList()
         };
 
         var command = new Command.ApproveStartDateChangeCommand.ApproveStartDateChangeCommand(apprenticeship, apprenticeshipStartDateChangedEvent);

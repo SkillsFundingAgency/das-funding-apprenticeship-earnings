@@ -65,19 +65,30 @@ public class ApprenticeshipEpisode
         UpdateEarningsProfile(apprenticeshipFunding, newEarnings, systemClock);
     }
 
-    public void UpdateAgreedPrice(ISystemClockService systemClock, decimal newAgreedPrice)
+    public void UpdateAgreedPrice(ISystemClockService systemClock, decimal newAgreedPrice, List<Guid> deletedPriceKeys, Guid newPriceKey)
     {
+        //remove any prices in deleted array, needs to be passed in
+        Prices.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
+
+        var newPrice = new Price(
+            newPriceKey,
+            Prices.OrderBy(x => x.ActualStartDate).First().ActualStartDate,
+            Prices.OrderByDescending(x => x.PlannedEndDate).First().PlannedEndDate,
+            newAgreedPrice,
+            Prices.OrderBy(x => x.ActualStartDate).First().FundingBandMaximum);
+        //add a new price with new details
+        Prices.Add(newPrice);
+
         // todo update correct Price based on logic in design AgreedPrice = newAgreedPrice;
-        // PlannedEndDate = systemClock.UtcNow.DateTime; // TO BE COMPLETED IN SUBTASK FLP-800
+        // PlannedEndDate = systemClock.UtcNow.DateTime; // TO BE COMPLETED IN SUBTASK FLP-800W
     }
 
-    public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship) 
+    public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
     {
-        // todo update correct Price with start date changes based on logic in design
-        //ActualStartDate = startDate;
-        //PlannedEndDate = endDate;
+        Prices.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
+        Prices.Find(x => x.PriceKey == changingPriceKey).UpdateDates(startDate, endDate);
+        
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
-        // THIS HANDLING MAY NEED TO BE REFINED IN SUBTASK FLP-801
     }
 
     private void UpdateEarningsProfile(ApprenticeshipFunding.ApprenticeshipFunding apprenticeshipFunding, List<Earning> earnings, ISystemClockService? systemClock)

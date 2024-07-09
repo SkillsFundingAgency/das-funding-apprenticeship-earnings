@@ -46,6 +46,7 @@ public class WhenCreatingANewApprenticeship
             foreach (var price in apprenticeshipEpisode.Prices)
             {
                 episode.Prices.Should().ContainSingle(x =>
+                    x.PriceKey == price.PriceKey &&
                     x.ActualStartDate == price.ActualStartDate &&
                     x.PlannedEndDate == price.PlannedEndDate &&
                     x.AgreedPrice == price.AgreedPrice &&

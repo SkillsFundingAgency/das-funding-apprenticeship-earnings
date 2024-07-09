@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -76,7 +77,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             EmployerApprovedBy = "",
             Initiator = ""
         };
-        _apprenticeship.RecalculateEarnings(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault());
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), new List<Guid>(), Guid.Empty); //todo review this
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();
