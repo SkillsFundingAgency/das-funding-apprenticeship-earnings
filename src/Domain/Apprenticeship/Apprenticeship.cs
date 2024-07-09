@@ -31,7 +31,6 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    //todo consider naming these specifically - they are specific to types of changes
     public void RecalculateEarningsPriceChange(ISystemClockService systemClock, decimal newAgreedPrice, DateTime effectiveFromDate, List<Guid> deletedPriceKeys, Guid newPriceKey)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);

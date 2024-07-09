@@ -23,7 +23,7 @@ public class ApprovePriceChangeCommandHandler : IApprovePriceChangeCommandHandle
     {
         var apprenticeshipDomainModel = command.ApprenticeshipEntity.GetDomainModel();
         var agreedPrice = command.PriceChangeApprovedEvent.AssessmentPrice + command.PriceChangeApprovedEvent.TrainingPrice;
-        apprenticeshipDomainModel.RecalculateEarnings(_systemClock, agreedPrice, command.PriceChangeApprovedEvent.EffectiveFromDate);
+        apprenticeshipDomainModel.RecalculateEarningsPriceChange(_systemClock, agreedPrice, command.PriceChangeApprovedEvent.EffectiveFromDate, command.PriceChangeApprovedEvent.DeletedPriceKeys, command.PriceChangeApprovedEvent.PriceKey);
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
         return apprenticeshipDomainModel;
     }
