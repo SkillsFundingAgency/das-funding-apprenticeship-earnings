@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
-[TestFixture, Ignore("to be updated in FLP-800, ignoring to allow build to allow testers to see new data structure")]
+[TestFixture]
 public class WhenRecalculatingEarningsForPriceChange
 {
     private Fixture _fixture;
@@ -43,7 +43,8 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheAgreedPriceIsUpdated()
     {
         _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
-        _sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice.Should().Be(_updatedPrice);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.Prices.OrderBy(x => x.ActualStartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
     }
 
     [Test]
