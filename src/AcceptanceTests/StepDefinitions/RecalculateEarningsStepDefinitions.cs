@@ -53,7 +53,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPriceAboveBandMax = 26000;
 
     private readonly Guid _priceKey = Guid.NewGuid();
-    //private readonly Guid _changePriceKey = Guid.NewGuid();
+    private readonly Guid _priceChangePriceKey = Guid.NewGuid();
     private readonly Guid _episodeKey = Guid.NewGuid();
 
 
@@ -129,9 +129,9 @@ public class RecalculateEarningsStepDefinitions
             ApprovedDate = _changeRequestDate,
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,
-            //PriceKey = _changePriceKey,
-            //ApprenticeshipEpisodeKey = _episodeKey,
-            //DeletedPriceKeys = new List<Guid>{ _initialPriceKey }
+            PriceKey = _priceChangePriceKey,
+            ApprenticeshipEpisodeKey = _episodeKey,
+            DeletedPriceKeys = new List<Guid>{ _priceKey }
         };
 
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent

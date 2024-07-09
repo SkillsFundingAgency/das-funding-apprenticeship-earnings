@@ -1,5 +1,4 @@
-﻿@ignore
-Feature: Recalculate earnings following price change
+﻿Feature: Recalculate earnings following price change
 
 Scenario: Price change approved in the year it was requested, below or at funding band max; recalc earnings
 	Given earnings have been calculated for an apprenticeship in the pilot
