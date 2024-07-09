@@ -27,9 +27,7 @@ public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEar
         {
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
-            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
-            StartDate = currentEpisode.Prices.First().ActualStartDate, //todo .First() will need updating when we introduce the concept of multiple prices
-            PlannedEndDate = currentEpisode.Prices.First().PlannedEndDate
+            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId
         };
     }
 }
