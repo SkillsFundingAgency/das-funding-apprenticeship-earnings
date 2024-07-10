@@ -404,7 +404,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
-        var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count();
+        var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count;
 
         if(matchingInstalments != expectedNumberOfEarnings)
         {

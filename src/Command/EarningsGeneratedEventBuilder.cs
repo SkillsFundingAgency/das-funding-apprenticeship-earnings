@@ -13,7 +13,7 @@ public interface IEarningsGeneratedEventBuilder
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 {
-    private ISystemClockService _systemClock;
+    private readonly ISystemClockService _systemClock;
 
     public EarningsGeneratedEventBuilder(ISystemClockService systemClock)
     {
