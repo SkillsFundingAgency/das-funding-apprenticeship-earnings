@@ -15,8 +15,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 [TestFixture]
 public class WhenRecalculatingEarningsForPriceChange
 {
-    private Fixture _fixture;
-    private Mock<ISystemClockService> _mockSystemClock;
+    private readonly Fixture _fixture;
+    private readonly Mock<ISystemClockService> _mockSystemClock;
     private Apprenticeship.Apprenticeship? _existingApprenticeship; //represents the apprenticeship before the price change
     private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the price change
     private decimal _originalPrice;
@@ -89,5 +89,15 @@ public class WhenRecalculatingEarningsForPriceChange
         _sut!.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+    }
+
+    [Test]
+    public void ThenAnExceptionIsThrownIfNoEarningsProfileExistsForTheCurrentEpisode()
+    {
+        _sut = _fixture.CreateUpdatedApprenticeship(_existingApprenticeship, newPrice: _updatedPrice, null, true);
+        FluentActions
+            .Invoking(() => _sut.RecalculateEarningsPriceChange(_mockSystemClock.Object, _updatedPrice, new DateTime(2021, 6, 15), new List<Guid>(), Guid.Empty))
+            .Should()
+            .Throw<Exception>();
     }
 }

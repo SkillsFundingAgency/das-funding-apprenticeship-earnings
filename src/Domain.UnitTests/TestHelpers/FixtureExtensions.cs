@@ -36,7 +36,7 @@ internal static class FixtureExtensions
     }
 
 
-    internal static Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(this Fixture fixture, Apprenticeship.Apprenticeship apprenticeship, decimal? newPrice = null, DateTime? newStartDate = null)
+    internal static Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(this Fixture fixture, Apprenticeship.Apprenticeship apprenticeship, decimal? newPrice = null, DateTime? newStartDate = null, bool withMissingEarningsProfile = false)
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
 
@@ -52,7 +52,7 @@ internal static class FixtureExtensions
             TrainingCode = x.TrainingCode,
             FundingType = x.FundingType,
             LegalEntityName = x.LegalEntityName,
-            EarningsProfile = MapEarningsProfileToModel(x.EarningsProfile),
+            EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
             Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.First().AgreedPrice + 1 : newPrice.Value + 1, newStartDate), //todo is .First() right here?
             ApprenticeshipEpisodeKey = x.ApprenticeshipEpisodeKey

@@ -34,6 +34,9 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
 
+        if (currentEpisode.EarningsProfile == null)
+            throw new Exception($"No earnings profile for current episode on {systemClock.UtcNow}");
+
         var existingEarnings = currentEpisode.EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
         currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice, deletedPriceKeys, newPriceKey);
         currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate));
