@@ -6,7 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 public class ApprenticeshipEpisodeModel
 {
-    [JsonProperty] public Guid ApprenticeshipEpisodeKey { get; set; } //todo tech design says ID rather than Key but we can assume it will match the existing convention
+    [JsonProperty] public Guid ApprenticeshipEpisodeKey { get; set; }
     [JsonProperty] public long UKPRN { get; set; }
     [JsonProperty] public long EmployerAccountId { get; set; }
     [JsonProperty] public string LegalEntityName { get; set; } = null!;

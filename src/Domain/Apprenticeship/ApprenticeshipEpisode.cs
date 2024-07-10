@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Internal;
-using Newtonsoft.Json;
-using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -53,7 +50,7 @@ public class ApprenticeshipEpisode
 
     public void CalculateEarnings()
     {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices.First().AgreedPrice, Prices.First().ActualStartDate, Prices.First().PlannedEndDate, Prices.First().FundingBandMaximum);
+        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices![0].AgreedPrice, Prices[0].ActualStartDate, Prices[0].PlannedEndDate, Prices[0].FundingBandMaximum);
         var earnings = apprenticeshipFunding.GenerateEarnings();
         UpdateEarningsProfile(apprenticeshipFunding, earnings, null);
     }
@@ -76,12 +73,12 @@ public class ApprenticeshipEpisode
         var newPrice = new Price(
             newPriceKey,
             newPriceStartDate,
-            Prices.OrderByDescending(x => x.PlannedEndDate).First().PlannedEndDate,
+            Prices!.OrderByDescending(x => x.PlannedEndDate).First().PlannedEndDate,
             newAgreedPrice,
-            Prices.OrderBy(x => x.ActualStartDate).First().FundingBandMaximum);
+            Prices!.OrderBy(x => x.ActualStartDate).First().FundingBandMaximum);
 
         //remove all deleted prices
-        Prices.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
+        Prices!.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
 
         //close off remaining active price
         Prices.SingleOrDefault()!.CloseOff(newPriceStartDate.AddDays(-1));
