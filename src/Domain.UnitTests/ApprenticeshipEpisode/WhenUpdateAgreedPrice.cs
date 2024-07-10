@@ -13,13 +13,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 [TestFixture]
 public class WhenUpdateAgreedPrice
 {
-    private Fixture _fixture;
-    private Apprenticeship.ApprenticeshipEpisode _apprenticeshipEpisode;
-    private ApprenticeshipEpisodeModel _apprenticeshipEpisodeModel;
+    private Fixture? _fixture;
+    private Apprenticeship.ApprenticeshipEpisode? _apprenticeshipEpisode;
+    private ApprenticeshipEpisodeModel? _apprenticeshipEpisodeModel;
     private decimal _newAgreedPrice;
-    private List<Guid> _deletedPriceKeys;
+    private List<Guid>? _deletedPriceKeys;
     private Guid _newPriceKey;
-    private Mock<ISystemClockService> _clockService;
+    private Mock<ISystemClockService>? _clockService;
     private DateTime _expectedNow;
     private Guid _expectedClosedOffPriceKey;
 
