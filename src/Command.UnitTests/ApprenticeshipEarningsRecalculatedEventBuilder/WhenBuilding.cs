@@ -12,8 +12,8 @@ public class WhenBuilding
 {
     private Fixture _fixture;
     private Mock<ISystemClockService> _mockSystemClockService;
-    private Apprenticeship _apprenticeship;
-    private ApprenticeshipEntityModel _apprenticeshipEntityModel;
+    private Apprenticeship? _apprenticeship;
+    private ApprenticeshipEntityModel? _apprenticeshipEntityModel;
     private Command.ApprenticeshipEarningsRecalculatedEventBuilder _builder;
 
     [SetUp]

@@ -31,15 +31,15 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
-            AgreedPrice = currentEpisode.Prices.First().AgreedPrice,
-            StartDate = currentEpisode.Prices.First().ActualStartDate,
+            AgreedPrice = currentEpisode.Prices![0].AgreedPrice,
+            StartDate = currentEpisode.Prices![0].ActualStartDate,
             TrainingCode = currentEpisode.TrainingCode,
             EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
-            PlannedEndDate = currentEpisode.Prices.First().PlannedEndDate,
+            PlannedEndDate = currentEpisode.Prices![0].PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            EarningsProfileId = currentEpisode.EarningsProfile.EarningsProfileId
+            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId
         };
     }
 }
