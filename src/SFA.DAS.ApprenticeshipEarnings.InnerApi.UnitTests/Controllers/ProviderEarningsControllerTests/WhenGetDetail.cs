@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
@@ -21,7 +22,7 @@ namespace SFA.DAS.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.Provider
         {
             _fixture = new Fixture();
             _queryDispatcher = new Mock<IQueryDispatcher>();
-            _sut = new ProviderEarningsController(_queryDispatcher.Object);
+            _sut = new ProviderEarningsController(_queryDispatcher.Object, Mock.Of<ILogger<ProviderEarningsController>>());
         }
 
         [Test]

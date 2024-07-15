@@ -10,16 +10,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
     public class ProviderEarningsController : ControllerBase
     {
         private readonly IQueryDispatcher _queryDispatcher;
+        private ILogger<ProviderEarningsController> _logger;
 
-        public ProviderEarningsController(IQueryDispatcher queryDispatcher)
+        public ProviderEarningsController(IQueryDispatcher queryDispatcher, ILogger<ProviderEarningsController> logger)
         {
             _queryDispatcher = queryDispatcher;
+            _logger = logger;
         }
 
         [Route("summary")]
         [HttpGet]
         public async Task<IActionResult> Summary(long ukprn)
         {
+            _logger.LogInformation("Getting provider earnings summary for ukprn: {ukprn}", ukprn);
+
             var request = new GetProviderEarningSummaryRequest(ukprn);
             var response = await _queryDispatcher.Send<GetProviderEarningSummaryRequest, GetProviderEarningSummaryResponse>(request);
 

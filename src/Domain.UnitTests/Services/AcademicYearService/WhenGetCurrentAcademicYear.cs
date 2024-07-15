@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -16,7 +17,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Services.Acade
         public void SetUp()
         {
             _dateService = new Mock<IDateService>();
-            _sut = new Domain.Services.AcademicYearService(_dateService.Object);
+            _sut = new Domain.Services.AcademicYearService(_dateService.Object, Mock.Of<ILogger<Domain.Services.AcademicYearService>>());
         }
 
         [Test]
