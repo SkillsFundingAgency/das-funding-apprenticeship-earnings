@@ -130,7 +130,7 @@ public class RecalculateEarningsStepDefinitions
             EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
             ProviderId = 123,
             PriceKey = _priceChangePriceKey,
-            ApprenticeshipEpisodeKey = _episodeKey,
+            EpisodeKey = _episodeKey,
             DeletedPriceKeys = new List<Guid>()
         };
 
