@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 
@@ -18,7 +14,13 @@ internal static class ApprenticeshipEntityExtensions
         if (episode == null)
         {
             // if no episode is active for the current date, then there could be an episode for the apprenticeship that is yet to start
-            episode = apprenticeship.Model.ApprenticeshipEpisodes.Single(x => x.Prices.Exists(price => price.ActualStartDate >= systemClock.UtcNow));
+            episode = apprenticeship.Model.ApprenticeshipEpisodes.SingleOrDefault(x => x.Prices.Exists(price => price.ActualStartDate >= systemClock.UtcNow));
+        }
+
+        if (episode == null)
+        {
+            // if no episode is active for the current date or future, then there could be an episode for the apprenticeship that has finished
+            episode = apprenticeship.Model.ApprenticeshipEpisodes.OrderByDescending(x => x.Prices.Select(y => y.PlannedEndDate)).First();
         }
 
         if (episode == null)

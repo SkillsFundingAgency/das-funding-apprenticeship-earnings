@@ -11,7 +11,13 @@ public static class ApprenticeshipExtensions
         if(episode == null)
         {
             // if no episode is active for the current date, then there could be an episode for the apprenticeship that is yet to start
-            episode = apprenticeship.ApprenticeshipEpisodes.Single(x => x.Prices != null && x.Prices.Exists(price => price.ActualStartDate >= systemClock.UtcNow));
+            episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x => x.Prices != null && x.Prices.Exists(price => price.ActualStartDate >= systemClock.UtcNow));
+        }
+
+        if (episode == null)
+        {
+            // if no episode is active for the current date or future, then there could be an episode for the apprenticeship that has finished
+            episode = apprenticeship.ApprenticeshipEpisodes.Where(x => x.Prices != null).OrderByDescending(x => x.Prices!.Select(y => y.PlannedEndDate)).First();
         }
 
         if (episode == null)
