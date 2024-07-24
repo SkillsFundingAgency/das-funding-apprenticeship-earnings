@@ -68,7 +68,16 @@ public class ApprenticeshipEpisode
 
     public void UpdateAgreedPrice(ISystemClockService systemClock, decimal newAgreedPrice, List<Guid> deletedPriceKeys, Guid newPriceKey)
     {
-        //build new price
+        // update existing price with matching key if it exists
+        var existingPrice = Prices?.SingleOrDefault(x => x.PriceKey == newPriceKey);
+        if (existingPrice != null)
+        {
+            existingPrice.UpdatePrice(newAgreedPrice);
+            Prices!.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
+            return;
+        }
+
+        // build new price
         var newPriceStartDate = systemClock.UtcNow.Date;
         var newPrice = new Price(
             newPriceKey,
@@ -77,13 +86,13 @@ public class ApprenticeshipEpisode
             newAgreedPrice,
             Prices!.OrderBy(x => x.ActualStartDate).First().FundingBandMaximum);
 
-        //remove all deleted prices
+        // remove all deleted prices
         Prices!.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
 
-        //close off remaining active price
+        // close off remaining active price
         Prices.SingleOrDefault()!.CloseOff(newPriceStartDate.AddDays(-1));
         
-        //add new price
+        // add new price
         Prices.Add(newPrice);
     }
 

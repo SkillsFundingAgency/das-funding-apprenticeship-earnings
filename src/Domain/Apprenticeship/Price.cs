@@ -28,6 +28,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             PlannedEndDate = plannedEndDate;
         }
 
+        public void UpdatePrice(decimal newAgreedPrice)
+        {
+            AgreedPrice = newAgreedPrice;
+        }
+
         public void CloseOff(DateTime plannedEndDate)
         {
             PlannedEndDate = plannedEndDate;
