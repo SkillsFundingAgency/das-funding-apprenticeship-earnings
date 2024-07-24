@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
@@ -77,7 +78,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             EmployerApprovedBy = "",
             Initiator = ""
         };
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), new List<Guid>(), Guid.Empty); //todo review this
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), new List<Guid>(), Guid.Empty, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>()); //todo review this
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();

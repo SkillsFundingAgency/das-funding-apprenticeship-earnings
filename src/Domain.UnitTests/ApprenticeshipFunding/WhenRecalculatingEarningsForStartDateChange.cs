@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -14,10 +16,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 [TestFixture]
 public class WhenRecalculatingEarningsForStartDateChange
 {
-    private Fixture? _fixture;
-    private Mock<ISystemClockService>? _mockSystemClockService;
-    private Apprenticeship.Apprenticeship? _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
+    private Fixture _fixture;
+    private Mock<ISystemClockService> _mockSystemClockService;
+    private Apprenticeship.Apprenticeship _apprenticeship;
+    private Apprenticeship.ApprenticeshipEpisode _currentEpisode;
 
     [SetUp]
     public void Setup()
@@ -56,7 +58,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == changingPriceKey);
@@ -76,7 +78,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(ageAtStart);
@@ -93,7 +95,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         _currentEpisode.Prices.Should().NotContain(p => deletedPriceKeys.Contains(p.PriceKey));
@@ -110,7 +112,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();

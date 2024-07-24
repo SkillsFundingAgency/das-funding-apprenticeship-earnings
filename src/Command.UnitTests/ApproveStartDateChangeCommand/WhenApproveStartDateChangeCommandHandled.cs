@@ -1,4 +1,6 @@
 ﻿using AutoFixture;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
@@ -40,7 +42,7 @@ public class WhenApproveStartDateChangeCommandHandled
     public async Task ThenTheEarningsAreRecalculated()
     {
         // Arrange
-        var sut = new ApproveStartDateChangeCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object);
+        var sut = new ApproveStartDateChangeCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
         var command = CreateCommand();
 
         // Act

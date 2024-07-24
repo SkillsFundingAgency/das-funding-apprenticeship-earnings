@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -10,13 +11,15 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
     private readonly IMessageSession _messageSession;
     private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
     private readonly ISystemClockService _systemClock;
+    private readonly ILogger<ApproveStartDateChangeCommandHandler> _logger;
 
     public ApproveStartDateChangeCommandHandler(
-        IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
+        IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock, ILogger<ApproveStartDateChangeCommandHandler> logger)
     {
         _messageSession = messageSession;
         _eventBuilder = eventBuilder;
         _systemClock = systemClock;
+        _logger = logger;
     }
 
     public async Task<Apprenticeship> RecalculateEarnings(ApproveStartDateChangeCommand command)
@@ -28,7 +31,7 @@ public class ApproveStartDateChangeCommandHandler : IApproveStartDateChangeComma
         var deletedPriceKeys = command.ApprenticeshipStartDateChangedEvent.DeletedPriceKeys;
         var changingPriceKey = command.ApprenticeshipStartDateChangedEvent.PriceKey;
 
-        apprenticeshipDomainModel.RecalculateEarningsStartDateChange(_systemClock, newStartDate, newPlannedEndDate, newAgeAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey);
+        apprenticeshipDomainModel.RecalculateEarningsStartDateChange(_systemClock, newStartDate, newPlannedEndDate, newAgeAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey, _logger);
         
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
         

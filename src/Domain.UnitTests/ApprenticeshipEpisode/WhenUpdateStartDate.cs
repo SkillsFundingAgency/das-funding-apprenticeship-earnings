@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipEpisode;
@@ -34,7 +37,7 @@ public class WhenUpdateStartDate
         PopulateTestVariables();
 
         // Act
-        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey);
+        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         var updatedPrice = _apprenticeshipEpisode.Prices.Find(p => p.PriceKey == _changingPriceKey);
@@ -51,7 +54,7 @@ public class WhenUpdateStartDate
         PopulateTestVariables();
 
         // Act
-        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey);
+        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         _apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_newAgeAtStart);
@@ -65,7 +68,7 @@ public class WhenUpdateStartDate
         PopulateTestVariables();
 
         // Act
-        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey);
+        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
 
         // Assert
         _apprenticeshipEpisode.Prices.Should().NotContain(p => _deletedPriceKeys.Contains(p.PriceKey));
