@@ -1,9 +1,8 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -11,6 +10,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 
@@ -20,20 +20,17 @@ public class ApprenticeshipEntity
     [JsonProperty] public ApprenticeshipEntityModel Model { get; set; }
 
     private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
-    private readonly IApprovePriceChangeCommandHandler _approvePriceChangeCommandHandler;
-    private readonly IApproveStartDateChangeCommandHandler _startDateChangeApprovedCommandHandler;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
+    private readonly IProcessEpisodeUpdatedCommandHandler _processEpisodeUpdatedCommandHandler;
 
     public ApprenticeshipEntity(
         ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler,
-        IApprovePriceChangeCommandHandler approvePriceChangeCommandHandler,
-        IApproveStartDateChangeCommandHandler startDateChangeApprovedCommandHandler,
-        IDomainEventDispatcher domainEventDispatcher)
+        IDomainEventDispatcher domainEventDispatcher,
+        IProcessEpisodeUpdatedCommandHandler processEpisodeUpdatedCommandHandler)
     {
         _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
-        _approvePriceChangeCommandHandler = approvePriceChangeCommandHandler;
-        _startDateChangeApprovedCommandHandler = startDateChangeApprovedCommandHandler;
         _domainEventDispatcher = domainEventDispatcher;
+        _processEpisodeUpdatedCommandHandler = processEpisodeUpdatedCommandHandler;
     }
 
     public async Task HandleApprenticeshipLearnerEvent(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
@@ -51,7 +48,7 @@ public class ApprenticeshipEntity
 
     public async Task HandleApprenticeshipStartDateChangeApprovedEvent(ApprenticeshipStartDateChangedEvent startDateChangedEvent)
     {
-        var apprenticeship = await _startDateChangeApprovedCommandHandler.RecalculateEarnings(new ApproveStartDateChangeCommand(Model, startDateChangedEvent));
+        var apprenticeship = await _processEpisodeUpdatedCommandHandler.RecalculateEarnings(new ProcessEpisodeUpdatedCommand(Model, startDateChangedEvent));
         UpdateEpisodes(apprenticeship);
             
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
@@ -60,9 +57,9 @@ public class ApprenticeshipEntity
         }
     }
 
-    public async Task HandleApprenticeshipPriceChangeApprovedEvent(PriceChangeApprovedEvent priceChangeApprovedEvent)
+    public async Task HandleApprenticeshipPriceChangeApprovedEvent(ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
     {
-        var apprenticeship = await _approvePriceChangeCommandHandler.RecalculateEarnings(new ApprovePriceChangeCommand(Model, priceChangeApprovedEvent));
+        var apprenticeship = await _processEpisodeUpdatedCommandHandler.RecalculateEarnings(new ProcessEpisodeUpdatedCommand(Model, apprenticeshipPriceChangedEvent));
 
         UpdateEpisodes(apprenticeship);
 
@@ -84,25 +81,23 @@ public class ApprenticeshipEntity
             ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
             ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel> { new ApprenticeshipEpisodeModel
             {
-                ApprenticeshipEpisodeKey = apprenticeshipCreatedEvent.ApprenticeshipEpisodeKey,
-                UKPRN = apprenticeshipCreatedEvent.UKPRN,
-                EmployerAccountId = apprenticeshipCreatedEvent.EmployerAccountId,
-                TrainingCode = apprenticeshipCreatedEvent.TrainingCode,
-                FundingType = apprenticeshipCreatedEvent.FundingType,
-                LegalEntityName = apprenticeshipCreatedEvent.LegalEntityName,
+                ApprenticeshipEpisodeKey = apprenticeshipCreatedEvent.Episode.Key,
+                UKPRN = apprenticeshipCreatedEvent.Episode.Ukprn,
+                EmployerAccountId = apprenticeshipCreatedEvent.Episode.EmployerAccountId,
+                TrainingCode = apprenticeshipCreatedEvent.Episode.TrainingCode,
+                FundingType = Enum.Parse<FundingType>(apprenticeshipCreatedEvent.Episode.FundingType.ToString()),
+                LegalEntityName = apprenticeshipCreatedEvent.Episode.LegalEntityName,
                 AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
-                FundingEmployerAccountId = apprenticeshipCreatedEvent.FundingEmployerAccountId,
-                Prices = new List<PriceModel>
-                {
-                    new()
+                FundingEmployerAccountId = apprenticeshipCreatedEvent.Episode.FundingEmployerAccountId,
+                Prices = apprenticeshipCreatedEvent.Episode.Prices.Select(x =>
+                    new PriceModel
                     {
-                        PriceKey = apprenticeshipCreatedEvent.PriceKey,
-                        ActualStartDate = apprenticeshipCreatedEvent.ActualStartDate.Value,
-                        PlannedEndDate = apprenticeshipCreatedEvent.PlannedEndDate.Value,
-                        AgreedPrice = apprenticeshipCreatedEvent.AgreedPrice,
-                        FundingBandMaximum = apprenticeshipCreatedEvent.FundingBandMaximum
-                    }
-                }
+                        PriceKey = x.Key,
+                        ActualStartDate = x.StartDate,
+                        PlannedEndDate = x.EndDate,
+                        FundingBandMaximum = x.FundingBandMaximum,
+                        AgreedPrice = x.TotalPrice
+                    }).ToList()
             }},
         };
     }
@@ -154,7 +149,11 @@ public class ApprenticeshipEntity
                 Record = MapEarningsProfileToModel(ep.Record),
                 SupersededDate = ep.SupersededDate
             }).ToList(),
-            Prices = x.Prices == null ? new List<PriceModel>() : x.Prices.Select(MapPricesToModel).ToList()
+            Prices = x.Prices == null ? new List<PriceModel>() : x.Prices.Select(MapPricesToModel).ToList(),
+            FundingType = x.FundingType,
+            FundingEmployerAccountId = x.FundingEmployerAccountId,
+            LegalEntityName = x.LegalEntityName,
+            TrainingCode = x.TrainingCode
         }).ToList();
     }
 }

@@ -8,12 +8,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 public class ApprenticeshipEpisode
 {
     public Guid ApprenticeshipEpisodeKey { get; }
-    public long UKPRN { get; }
-    public long EmployerAccountId { get; }
+    public long UKPRN { get; private set; }
+    public long EmployerAccountId { get; private set; }
     public int AgeAtStartOfApprenticeship { get; private set; }
-    public string TrainingCode { get; }
-    public FundingType FundingType { get; }
-    public string LegalEntityName { get; }
+    public string TrainingCode { get; private set; }
+    public FundingType FundingType { get; private set; }
+    public string LegalEntityName { get; private set; }
     public long? FundingEmployerAccountId { get; set; }
     public EarningsProfile? EarningsProfile { get; private set; }
     public List<Price>? Prices { get; private set; }
@@ -102,6 +102,20 @@ public class ApprenticeshipEpisode
         Prices.Find(x => x.PriceKey == changingPriceKey).UpdateDates(startDate, endDate);
         
         AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
+    }
+
+    public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
+    {
+        Prices = episodeUpdate.Prices
+            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
+            .ToList();
+        //AgeAtStartOfApprenticeship = TODO?; //TODO
+        EmployerAccountId = episodeUpdate.EmployerAccountId;
+        FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
+        FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
+        LegalEntityName = episodeUpdate.LegalEntityName;
+        TrainingCode = episodeUpdate.TrainingCode;
+        UKPRN = episodeUpdate.Ukprn;
     }
 
     private void UpdateEarningsProfile(ApprenticeshipFunding.ApprenticeshipFunding apprenticeshipFunding, List<Earning> earnings, ISystemClockService? systemClock)

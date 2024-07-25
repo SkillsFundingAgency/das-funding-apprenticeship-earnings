@@ -9,22 +9,22 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 
-public class PriceChangeApprovedEventHandler
+public class ApprenticeshipPriceChangedEventHandler
 {
     [FunctionName(nameof(PriceChangeApprovedEventServiceBusTrigger))]
     public async Task PriceChangeApprovedEventServiceBusTrigger(
-        [NServiceBusTrigger(Endpoint = QueueNames.PriceChangeApproved)] PriceChangeApprovedEvent priceChangeApprovedEvent,
+        [NServiceBusTrigger(Endpoint = QueueNames.PriceChangeApproved)] ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent,
         [DurableClient] IDurableEntityClient client,
         ILogger log)
     {
         log.LogInformation($"{nameof(PriceChangeApprovedEventServiceBusTrigger)} processing...");
         log.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
-            priceChangeApprovedEvent.ApprenticeshipKey,
-            nameof(PriceChangeApprovedEvent),
-            JsonSerializer.Serialize(priceChangeApprovedEvent, new JsonSerializerOptions { WriteIndented = true }));
+            apprenticeshipPriceChangedEvent.ApprenticeshipKey,
+            nameof(ApprenticeshipPriceChangedEvent),
+            JsonSerializer.Serialize(apprenticeshipPriceChangedEvent, new JsonSerializerOptions { WriteIndented = true }));
 
 
-        var entityId = new EntityId(nameof(ApprenticeshipEntity), priceChangeApprovedEvent.ApprenticeshipKey.ToString());
-        await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipPriceChangeApprovedEvent), priceChangeApprovedEvent);
+        var entityId = new EntityId(nameof(ApprenticeshipEntity), apprenticeshipPriceChangedEvent.ApprenticeshipKey.ToString());
+        await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipPriceChangeApprovedEvent), apprenticeshipPriceChangedEvent);
     }
 }
