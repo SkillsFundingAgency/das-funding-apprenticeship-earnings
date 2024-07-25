@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
@@ -15,7 +14,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
@@ -78,7 +76,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             EmployerApprovedBy = "",
             Initiator = ""
         };
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), new List<Guid>(), Guid.Empty, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>()); //todo review this
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClock.Object, _startDateChangedEvent.ActualStartDate, _startDateChangedEvent.PlannedEndDate, _startDateChangedEvent.AgeAtStartOfApprenticeship.GetValueOrDefault(), new List<Guid>(), Guid.Empty); //todo review this
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();

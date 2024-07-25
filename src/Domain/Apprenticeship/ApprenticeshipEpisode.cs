@@ -97,10 +97,8 @@ public class ApprenticeshipEpisode
         Prices.Add(newPrice);
     }
 
-    public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey, ILogger logger)
+    public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
     {
-        logger.LogInformation($"FLP-107 debug Prices: {Prices}");
-        logger.LogInformation($"FLP-107 debug deletedPriceKeys: {deletedPriceKeys}");
         Prices.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
         Prices.Find(x => x.PriceKey == changingPriceKey).UpdateDates(startDate, endDate);
         

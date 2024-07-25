@@ -37,7 +37,7 @@ public class WhenUpdateStartDate
         PopulateTestVariables();
 
         // Act
-        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey);
 
         // Assert
         var updatedPrice = _apprenticeshipEpisode.Prices.Find(p => p.PriceKey == _changingPriceKey);
@@ -54,7 +54,7 @@ public class WhenUpdateStartDate
         PopulateTestVariables();
 
         // Act
-        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey);
 
         // Assert
         _apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_newAgeAtStart);
@@ -68,7 +68,7 @@ public class WhenUpdateStartDate
         PopulateTestVariables();
 
         // Act
-        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeshipEpisode.UpdateStartDate(_newStartDate, _newEndDate, _newAgeAtStart, _deletedPriceKeys, _changingPriceKey);
 
         // Assert
         _apprenticeshipEpisode.Prices.Should().NotContain(p => _deletedPriceKeys.Contains(p.PriceKey));

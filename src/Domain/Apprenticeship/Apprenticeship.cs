@@ -3,6 +3,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -45,12 +48,22 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
-    public void RecalculateEarningsStartDateChange(ISystemClockService systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey, ILogger logger)
+    public void RecalculateEarningsStartDateChange(ISystemClockService systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateStartDate(newStartDate, newEndDate, ageAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey, logger);
+        currentEpisode.UpdateStartDate(newStartDate, newEndDate, ageAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey);
         currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(newStartDate));
 
         AddEvent(new EarningsRecalculatedEvent(this));
+    }
+
+    //todo remove this before merging into release
+    public string Log107Data(ISystemClockService systemClock, List<Guid> deletedPriceKeys)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        var builder = new StringBuilder();
+        builder.Append($"FLP-107 debug Prices: {JsonSerializer.Serialize(currentEpisode.Prices)}");
+        builder.Append($" | FLP-107 debug deletedPriceKeys: {JsonSerializer.Serialize(deletedPriceKeys)}");
+        return builder.ToString();
     }
 }

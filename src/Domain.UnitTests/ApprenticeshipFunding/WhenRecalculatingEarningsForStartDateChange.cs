@@ -58,7 +58,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
 
         // Assert
         var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == changingPriceKey);
@@ -78,7 +78,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
 
         // Assert
         _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(ageAtStart);
@@ -95,7 +95,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
 
         // Assert
         _currentEpisode.Prices.Should().NotContain(p => deletedPriceKeys.Contains(p.PriceKey));
@@ -112,7 +112,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
 
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey, Mock.Of<ILogger<ApproveStartDateChangeCommandHandler>>());
+        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();
