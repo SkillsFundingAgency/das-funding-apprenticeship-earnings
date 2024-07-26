@@ -8,8 +8,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using FundingPlatform = SFA.DAS.Apprenticeships.Types.FundingPlatform;
-using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -22,7 +20,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly Random _random = new();
 
     private ApprenticeshipCreatedEvent? _apprenticeshipCreatedEvent;
-    private PriceChangeApprovedEvent? _priceChangeApprovedEvent;
+    private ApprenticeshipPriceChangedEvent? _apprenticeshipPriceChangedEvent;
     private ApprenticeshipStartDateChangedEvent? _startDateChangedEvent;
 
     #region Test Values
@@ -76,7 +74,7 @@ public class RecalculateEarningsStepDefinitions
             .StartEndpoint("Test.Funding.ApprenticeshipEarnings", true, new[]
             {
                 typeof(ApprenticeshipCreatedEvent), 
-                typeof(PriceChangeApprovedEvent), 
+                typeof(ApprenticeshipPriceChangedEvent), 
                 typeof(ApprenticeshipStartDateChangedEvent), 
                 typeof(EarningsRecalculatedEvent)
             });
@@ -98,84 +96,112 @@ public class RecalculateEarningsStepDefinitions
         //  Gets published in the when clause just before the price change request to allow for any 'And' clauses to be added
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            AgreedPrice = 15000,
-            ActualStartDate = _startDate,
             ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            FundingType = FundingType.Levy,
-            PlannedEndDate = _endDate,
-            UKPRN = 116,
-            TrainingCode = "AbleSeafarer",
-            FundingEmployerAccountId = null,
             Uln = _random.Next().ToString(),
-            LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            FundingBandMaximum = _fundingBandMaximum,
             AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-            FundingPlatform = FundingPlatform.DAS,
-            PriceKey = _priceKey,
-            ApprenticeshipEpisodeKey = _episodeKey
+            Episode = new ApprenticeshipEpisode
+            {
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        EndDate = _endDate,
+                        FundingBandMaximum = _fundingBandMaximum,
+                        Key = _priceKey,
+                        StartDate = _startDate,
+                        TotalPrice = 15000
+                    }
+                },
+                FundingType = Apprenticeships.Enums.FundingType.Levy,
+                LegalEntityName = "MyTrawler",
+                Key = _episodeKey,
+                EmployerAccountId = 114,
+                Ukprn = 116,
+                TrainingCode = "AbleSeafarer",
+                FundingEmployerAccountId = null,
+                //todo ageAtStart
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
+            }
         };
 
-        _priceChangeApprovedEvent = new PriceChangeApprovedEvent
+        _apprenticeshipPriceChangedEvent = new ApprenticeshipPriceChangedEvent
         {
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
-            TrainingPrice = 16000,
-            AssessmentPrice = 1500,
             EffectiveFromDate = _effectiveFromDate,
             ApprovedBy = ApprovedBy.Employer,
             ApprovedDate = _changeRequestDate,
-            EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
-            ProviderId = 123,
-            PriceKey = _priceChangePriceKey,
-            EpisodeKey = _episodeKey,
-            DeletedPriceKeys = new List<Guid>()
+            Episode = new ApprenticeshipEpisode
+            {
+                Key = _episodeKey,
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        Key = _priceChangePriceKey,
+                        TrainingPrice = 16000,
+                        EndPointAssessmentPrice = 1500,
+                        //todo more here?
+                    }
+                },
+                EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
+                Ukprn = 123
+            }
         };
 
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
         {
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
-            ActualStartDate = _startDate,
-            PlannedEndDate = _endDate,
-            EmployerAccountId = _apprenticeshipCreatedEvent.EmployerAccountId,
-            ProviderId = 123,
             ApprovedDate = _changeRequestDate,
             ProviderApprovedBy = "",
             EmployerApprovedBy = "",
             Initiator = "",
-            PriceKey = _priceKey,
-            ApprenticeshipEpisodeKey = _episodeKey,
-            DeletedPriceKeys = new List<Guid>()
+            Episode = new ApprenticeshipEpisode
+            {
+                Key = _episodeKey,
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        Key = _priceKey,
+                        StartDate = _startDate,
+                        EndDate = _endDate
+                        //todo more here?
+                    }
+                },
+                EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
+                Ukprn = 123
+            }
         };
     }
 
     [Given("the total price is below or at the funding band maximum")]
     public void SetTotalBelowBandMaximum()
     {
-        _apprenticeshipCreatedEvent!.AgreedPrice = _originalPrice;
+        _apprenticeshipCreatedEvent!.Episode.Prices.First().TotalPrice = _originalPrice;
     }
 
     [Given("the price change request is for a new total price above the funding band maximum")]
     public void SetTotalAboveBandMaximum()
     {
-        _priceChangeApprovedEvent!.TrainingPrice = _newTrainingPriceAboveBandMax;
-        _priceChangeApprovedEvent!.AssessmentPrice = _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPriceAboveBandMax;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
     }
 
     [Given("a price change request was sent before the end of R14 of the current academic year")]
     public void SetPriceChangeApprovedDate()
     {
-        _priceChangeApprovedEvent!.ApprovedDate = _changeRequestDate;
+        _apprenticeshipPriceChangedEvent!.ApprovedDate = _changeRequestDate;
     }
 
     [Given("the price change request is for a new total price up to or at the funding band maximum")]
     public void SetPriceChange()
     {
-        _priceChangeApprovedEvent!.TrainingPrice = _newTrainingPrice;
-        _priceChangeApprovedEvent!.AssessmentPrice = _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
     }
 
     [Given("a start date change request was sent before the end of R14 of the current academic year")]
@@ -187,34 +213,34 @@ public class RecalculateEarningsStepDefinitions
     [Given("the new start date is earlier than, and in the same academic year, as the current start date")]
     public void SetEarlierStartDateChange()
     {
-	    _startDateChangedEvent!.ActualStartDate = _startDateEarlierThanOriginal;
+	    _startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateEarlierThanOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForEarlierStartDate;
     }
 
     [Given("the new start date is later than, and in the same academic year, as the current start date")]
     public void SetLaterStartDateChangeInSameAcademicYear()
     {
-        _startDateChangedEvent!.ActualStartDate = _startDateLaterThanOriginal;
+        _startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateLaterThanOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForLaterStartDate;
     }
 
     [Given("the new start date is in the next academic year to the current start date")]
     public void SetLaterStartDateChangeInNextAcademicYear()
     {
-        _startDateChangedEvent!.ActualStartDate = _startDateInNextAcademicYearToOriginal;
+        _startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateInNextAcademicYearToOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear;
     }
 
     [Given(@"there are (.*) earnings")]
     public void SetAgreedPriceAndDuration(int months)
     {
-        var startDate = _apprenticeshipCreatedEvent!.ActualStartDate;
-        var endDate = startDate.Value.AddMonths(months);
-        _apprenticeshipCreatedEvent.PlannedEndDate = endDate;
+        var startDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate;
+        var endDate = startDate.AddMonths(months);
+        _apprenticeshipCreatedEvent.Episode.Prices.First().EndDate = endDate;
 
         //  These values may get updated in the 'And' clauses
-        _startDateChangedEvent!.ActualStartDate = startDate.Value;
-        _startDateChangedEvent!.PlannedEndDate = endDate;
+        _startDateChangedEvent!.Episode.Prices.First().StartDate = startDate;
+        _startDateChangedEvent!.Episode.Prices.First().EndDate = endDate;
     }
 
     [Given(@"the (.*) date has been moved (.*) months (.*)")]
@@ -224,10 +250,10 @@ public class RecalculateEarningsStepDefinitions
         switch(field)
         {
             case "start":
-                _startDateChangedEvent!.ActualStartDate = _apprenticeshipCreatedEvent!.ActualStartDate.Value.AddMonths(monthChange);
+                _startDateChangedEvent!.Episode.Prices.First().StartDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate.AddMonths(monthChange);
                 break;
             case "end":
-                _startDateChangedEvent!.PlannedEndDate = _apprenticeshipCreatedEvent!.PlannedEndDate.Value.AddMonths(monthChange);
+                _startDateChangedEvent!.Episode.Prices.First().EndDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().EndDate.AddMonths(monthChange);
                 break;
         }
     }
@@ -241,7 +267,7 @@ public class RecalculateEarningsStepDefinitions
     {
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
         await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
-        await _endpointInstance.Publish(_priceChangeApprovedEvent);
+        await _endpointInstance.Publish(_apprenticeshipPriceChangedEvent);
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 

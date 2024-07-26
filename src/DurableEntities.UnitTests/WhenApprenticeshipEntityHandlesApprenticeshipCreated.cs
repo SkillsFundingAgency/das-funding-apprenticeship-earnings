@@ -1,24 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure;
-using Microsoft.Extensions.Internal;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveStartDateChangeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
-using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
+using ApprenticeshipEpisode = SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests;
 
@@ -26,10 +23,9 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 {
     private ApprenticeshipEntity _sut;
     private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
-    private PriceChangeApprovedEvent _priceChangeApprovedEvent;
+    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;
     private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
-    private Mock<IApprovePriceChangeCommandHandler> _approvePriceChangeCommandHandler;
-    private Mock<IApproveStartDateChangeCommandHandler> _approveStartDateChangeCommandHandler;
+    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
     private Mock<ISystemClockService> _mockSystemClock;
     private Fixture _fixture;
@@ -48,30 +44,38 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            FundingType = _apprenticeship.ApprenticeshipEpisodes.First().FundingType,
-            ActualStartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().ActualStartDate,
             ApprenticeshipKey = _apprenticeship.ApprenticeshipKey,
-            EmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().EmployerAccountId,
-            PlannedEndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().PlannedEndDate,
-            UKPRN = _apprenticeship.ApprenticeshipEpisodes.First().UKPRN,
-            TrainingCode = _apprenticeship.ApprenticeshipEpisodes.First().TrainingCode,
-            FundingEmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().FundingEmployerAccountId,
             Uln = _apprenticeship.Uln,
-            AgreedPrice = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice,
             ApprovalsApprenticeshipId = _apprenticeship.ApprovalsApprenticeshipId,
-            LegalEntityName = _apprenticeship.ApprenticeshipEpisodes.First().LegalEntityName,
-            AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship, //todo I think this should be on the apprenticeship
-            FundingBandMaximum = (int)_apprenticeship.ApprenticeshipEpisodes.First().Prices.First().FundingBandMaximum
+            AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship,
+            Episode = new ApprenticeshipEpisode
+            {
+                FundingType = Enum.Parse<SFA.DAS.Apprenticeships.Enums.FundingType>(_apprenticeship.ApprenticeshipEpisodes.First().FundingType.ToString()),
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        StartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().ActualStartDate,
+                        EndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().PlannedEndDate,
+                        TotalPrice = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice,
+                        FundingBandMaximum = (int)_apprenticeship.ApprenticeshipEpisodes.First().Prices.First().FundingBandMaximum
+                    }
+                },
+                EmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().EmployerAccountId,
+                Ukprn = _apprenticeship.ApprenticeshipEpisodes.First().UKPRN,
+                TrainingCode = _apprenticeship.ApprenticeshipEpisodes.First().TrainingCode,
+                FundingEmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().FundingEmployerAccountId,
+                LegalEntityName = _apprenticeship.ApprenticeshipEpisodes.First().LegalEntityName,
+            }
         };
 
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
-        _approvePriceChangeCommandHandler = new Mock<IApprovePriceChangeCommandHandler>();
-        _approveStartDateChangeCommandHandler = new Mock<IApproveStartDateChangeCommandHandler>();
+        _processEpisodeUpdatedCommandHandler = new Mock<IProcessEpisodeUpdatedCommandHandler>();
         _domainEventDispatcher = new Mock<IDomainEventDispatcher>();
             
-        _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _approvePriceChangeCommandHandler.Object, _approveStartDateChangeCommandHandler.Object, _domainEventDispatcher.Object);
+        _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _domainEventDispatcher.Object, _processEpisodeUpdatedCommandHandler.Object);
         _createApprenticeshipCommandHandler.Setup(x => x.Create(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
 
         await _sut.HandleApprenticeshipLearnerEvent(_apprenticeshipCreatedEvent);
@@ -87,14 +91,14 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 
         _sut.Model.ApprenticeshipEpisodes.Should().HaveCount(1);
         var apprenticeshipEpisode = _sut.Model.ApprenticeshipEpisodes.First();
-        apprenticeshipEpisode.UKPRN.Should().Be(_apprenticeshipCreatedEvent.UKPRN);
-        apprenticeshipEpisode.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.EmployerAccountId);
-        apprenticeshipEpisode.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.TrainingCode);
-        apprenticeshipEpisode.FundingType.Should().Be(_apprenticeshipCreatedEvent.FundingType);
-        apprenticeshipEpisode.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.LegalEntityName);
+        apprenticeshipEpisode.UKPRN.Should().Be(_apprenticeshipCreatedEvent.Episode.Ukprn);
+        apprenticeshipEpisode.EmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.Episode.EmployerAccountId);
+        apprenticeshipEpisode.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.Episode.TrainingCode);
+        apprenticeshipEpisode.FundingType.ToString().Should().Be(_apprenticeshipCreatedEvent.Episode.FundingType.ToString());
+        apprenticeshipEpisode.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.Episode.LegalEntityName);
         apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship);
-        apprenticeshipEpisode.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.FundingEmployerAccountId);
-        //todo add assertion here when ApprenticeshipEpisodeKey is available on the event from das-apprenticeships
+        apprenticeshipEpisode.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.Episode.FundingEmployerAccountId);
+        apprenticeshipEpisode.ApprenticeshipEpisodeKey.Should().Be(_apprenticeshipCreatedEvent.Episode.Key);
 
         var expectedEpisode = _apprenticeship.ApprenticeshipEpisodes.Single();
         apprenticeshipEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile.OnProgramTotal);
@@ -103,10 +107,10 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile.Instalments);
 
         apprenticeshipEpisode.Prices.Should().ContainSingle(x =>
-            x.ActualStartDate == _apprenticeshipCreatedEvent.ActualStartDate
-            && x.AgreedPrice == _apprenticeshipCreatedEvent.AgreedPrice
-            && x.FundingBandMaximum == _apprenticeshipCreatedEvent.FundingBandMaximum
-            && x.PlannedEndDate == _apprenticeshipCreatedEvent.PlannedEndDate);
+            x.ActualStartDate == _apprenticeshipCreatedEvent.Episode.Prices.First().StartDate
+            && x.AgreedPrice == _apprenticeshipCreatedEvent.Episode.Ukprn
+            && x.FundingBandMaximum == _apprenticeshipCreatedEvent.Episode.Ukprn
+            && x.PlannedEndDate == _apprenticeshipCreatedEvent.Episode.Prices.First().EndDate);
     }
 
     [Test]

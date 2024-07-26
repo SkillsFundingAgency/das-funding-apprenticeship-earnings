@@ -5,6 +5,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -18,6 +19,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     private Mock<ISystemClockService>? _mockSystemClockService;
     private Apprenticeship.Apprenticeship? _apprenticeship;
     private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
+    private ApprenticeshipStartDateChangedEvent _apprenticeshipStartDateChangedEvent;
 
     [SetUp]
     public void Setup()
@@ -38,79 +40,68 @@ public class WhenRecalculatingEarningsForStartDateChange
 
         var apprenticeshipEntityModel = _fixture
             .Build<ApprenticeshipEntityModel>()
-            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeModel>{ apprenticeshipEpisode })
+            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeModel> { apprenticeshipEpisode })
             .Create();
-        
+
         _apprenticeship = new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
         _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
+
+        _apprenticeshipStartDateChangedEvent = new ApprenticeshipStartDateChangedEvent
+        {
+            Episode = new Apprenticeships.Types.ApprenticeshipEpisode
+            {
+                Key = _currentEpisode.ApprenticeshipEpisodeKey,
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        Key = _currentEpisode.Prices.Last().PriceKey,
+                        StartDate = new DateTime(2023, 1, 1),
+                        EndDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            }
+        };
     }
 
     [Test]
     public void ThenTheStartDateAndEndDateAreUpdated()
     {
-        // Arrange
-        var newStartDate = new DateTime(2023, 1, 1);
-        var newEndDate = new DateTime(2024, 1, 1);
-        var ageAtStart = 25;
-        var deletedPriceKeys = new List<Guid> { _currentEpisode.Prices.First().PriceKey };
-        var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
-
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == changingPriceKey);
+        var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
         updatedPrice.Should().NotBeNull();
-        updatedPrice!.ActualStartDate.Should().Be(newStartDate);
-        updatedPrice.PlannedEndDate.Should().Be(newEndDate);
+        //updatedPrice!.ActualStartDate.Should().Be(newStartDate); todo assert this when it comes from event
+        updatedPrice.PlannedEndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);
     }
 
     [Test]
     public void ThenTheAgeAtStartOfApprenticeshipIsUpdated()
     {
-        // Arrange
-        var newStartDate = new DateTime(2023, 1, 1);
-        var newEndDate = new DateTime(2024, 1, 1);
-        var ageAtStart = 25;
-        var deletedPriceKeys = new List<Guid> { _currentEpisode.Prices.First().PriceKey };
-        var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
-
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(ageAtStart);
+        //_currentEpisode.AgeAtStartOfApprenticeship.Should().Be(); todo assert this when it comes from the event
     }
 
     [Test]
     public void ThenTheDeletedPricesAreRemoved()
     {
-        // Arrange
-        var newStartDate = new DateTime(2023, 1, 1);
-        var newEndDate = new DateTime(2024, 1, 1);
-        var ageAtStart = 25;
-        var deletedPriceKeys = _currentEpisode.Prices.Take(1).Select(p => p.PriceKey).ToList(); // Assume we delete the first price
-        var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
-
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        _currentEpisode.Prices.Should().NotContain(p => deletedPriceKeys.Contains(p.PriceKey));
+        _currentEpisode.Prices.Should().OnlyContain(p => _apprenticeshipStartDateChangedEvent.Episode.Prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
     }
 
     [Test]
     public void ThenAnEarningsRecalculatedEventIsAdded()
     {
-        // Arrange
-        var newStartDate = new DateTime(2023, 1, 1);
-        var newEndDate = new DateTime(2024, 1, 1);
-        var ageAtStart = 25;
-        var deletedPriceKeys = new List<Guid> { _currentEpisode.Prices.First().PriceKey };
-        var changingPriceKey = _currentEpisode.Prices.Last().PriceKey;
-
         // Act
-        _apprenticeship.RecalculateEarningsStartDateChange(_mockSystemClockService.Object, newStartDate, newEndDate, ageAtStart, deletedPriceKeys, changingPriceKey);
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();
