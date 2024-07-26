@@ -43,7 +43,7 @@ public class Apprenticeship : AggregateRoot
         }
         else if (episodeUpdatedEvent is ApprenticeshipStartDateChangedEvent apprenticeshipStartDateChangedEvent)
         {
-            episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(new DateTime(2000,1,1))); //todo this needs to be the new start date possibly from the event
+            episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(apprenticeshipStartDateChangedEvent.StartDate));
         }
 
         AddEvent(new EarningsRecalculatedEvent(this));

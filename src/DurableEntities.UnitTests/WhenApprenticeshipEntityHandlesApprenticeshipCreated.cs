@@ -108,8 +108,8 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 
         apprenticeshipEpisode.Prices.Should().ContainSingle(x =>
             x.ActualStartDate == _apprenticeshipCreatedEvent.Episode.Prices.First().StartDate
-            && x.AgreedPrice == _apprenticeshipCreatedEvent.Episode.Ukprn
-            && x.FundingBandMaximum == _apprenticeshipCreatedEvent.Episode.Ukprn
+            && x.AgreedPrice == _apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice
+            && x.FundingBandMaximum == _apprenticeshipCreatedEvent.Episode.Prices.First().FundingBandMaximum
             && x.PlannedEndDate == _apprenticeshipCreatedEvent.Episode.Prices.First().EndDate);
     }
 

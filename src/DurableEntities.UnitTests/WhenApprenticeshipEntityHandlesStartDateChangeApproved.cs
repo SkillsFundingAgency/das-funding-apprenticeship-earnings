@@ -77,6 +77,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             ProviderApprovedBy = "",
             EmployerApprovedBy = "",
             Initiator = "",
+            StartDate = apprenticeshipStartDate.AddMonths(3),
             Episode = new ApprenticeshipEpisode
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -96,7 +97,8 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _domainEventDispatcher = new Mock<IDomainEventDispatcher>();
-            
+        _processEpisodeUpdatedCommandHandler = new Mock<IProcessEpisodeUpdatedCommandHandler>();
+
         _sut = new ApprenticeshipEntity(_createApprenticeshipCommandHandler.Object, _domainEventDispatcher.Object, _processEpisodeUpdatedCommandHandler.Object);
         _createApprenticeshipCommandHandler.Setup(x => x.Create(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(_apprenticeship);
         _processEpisodeUpdatedCommandHandler.Setup(x => x.RecalculateEarnings(It.IsAny<ProcessEpisodeUpdatedCommand>())).ReturnsAsync(_apprenticeship);

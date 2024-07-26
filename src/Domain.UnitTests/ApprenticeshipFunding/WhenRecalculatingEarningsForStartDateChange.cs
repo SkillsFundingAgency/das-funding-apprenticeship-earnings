@@ -59,8 +59,10 @@ public class WhenRecalculatingEarningsForStartDateChange
                         StartDate = new DateTime(2023, 1, 1),
                         EndDate = new DateTime(2024, 1, 1)
                     }
-                }
-            }
+                },
+                AgeAtStartOfApprenticeship = 20
+            },
+            StartDate = new DateTime(2023, 1, 1)
         };
     }
 
@@ -73,7 +75,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         // Assert
         var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
         updatedPrice.Should().NotBeNull();
-        //updatedPrice!.ActualStartDate.Should().Be(newStartDate); todo assert this when it comes from event
+        updatedPrice!.ActualStartDate.Should().Be(_apprenticeshipStartDateChangedEvent.StartDate);
         updatedPrice.PlannedEndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);
     }
 
@@ -84,7 +86,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        //_currentEpisode.AgeAtStartOfApprenticeship.Should().Be(); todo assert this when it comes from the event
+        _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.AgeAtStartOfApprenticeship);
     }
 
     [Test]
