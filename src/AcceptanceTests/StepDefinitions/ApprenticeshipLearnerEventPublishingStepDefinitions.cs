@@ -71,7 +71,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             Uln = _random.Next().ToString(),
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             Episode = new ApprenticeshipEpisode
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -90,7 +89,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
                 TrainingCode = "AbleSeafarer",
                 FundingEmployerAccountId = null,
                 LegalEntityName = "MyTrawler",
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             }
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
@@ -109,7 +109,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             Uln = _random.Next().ToString(),
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             Episode = new ApprenticeshipEpisode
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -128,7 +127,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
                 TrainingCode = "AbleSeafarer",
                 FundingEmployerAccountId = null,
                 LegalEntityName = "MyTrawler",
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.SLD
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.SLD,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             }
         };
 
@@ -159,7 +159,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             Uln = _random.Next().ToString(),
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             Episode = new ApprenticeshipEpisode
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -178,7 +177,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
                 TrainingCode = "AbleSeafarer",
                 FundingEmployerAccountId = null,
                 LegalEntityName = "MyTrawler",
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             }
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);

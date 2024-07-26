@@ -40,7 +40,6 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
             ApprenticeshipKey = Guid.NewGuid(),
             Uln = "900000118",
             ApprovalsApprenticeshipId = 120,
-            AgeAtStartOfApprenticeship = 20,
             Episode = new ApprenticeshipEpisode
             {
                 FundingType = Apprenticeships.Enums.FundingType.NonLevy,
@@ -57,7 +56,8 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
                 Ukprn = 116,
                 TrainingCode = "able-seafarer",
                 FundingEmployerAccountId = 118,
-                LegalEntityName = "MyTrawler"
+                LegalEntityName = "MyTrawler",
+                AgeAtStartOfApprenticeship = 20,
             }
         };
 

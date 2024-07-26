@@ -43,7 +43,6 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             ApprenticeshipKey = Guid.NewGuid(),
             Uln = "900000118",
             ApprovalsApprenticeshipId = 120,
-            AgeAtStartOfApprenticeship = 20,
             Episode = new ApprenticeshipEpisode
             {
                 FundingType = Apprenticeships.Enums.FundingType.NonLevy,
@@ -60,7 +59,8 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
                 Ukprn = 116,
                 TrainingCode = "able-seafarer",
                 FundingEmployerAccountId = 118,
-                LegalEntityName = "MyTrawler"
+                LegalEntityName = "MyTrawler",
+                AgeAtStartOfApprenticeship = 20,
             }
         };
 
@@ -73,7 +73,6 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
         {
             ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
             ApprenticeshipId = 123,
-            AgeAtStartOfApprenticeship = _fixture.Create<int>(),
             ApprovedDate = new DateTime(2023, 2, 15),
             ProviderApprovedBy = "",
             EmployerApprovedBy = "",
@@ -89,7 +88,8 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
                     }
                 },
                 EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
-                Ukprn = 123
+                Ukprn = 123,
+                AgeAtStartOfApprenticeship = _fixture.Create<int>()
             }
         };
         _apprenticeship.RecalculateEarningsEpisodeUpdated(_startDateChangedEvent, _mockSystemClock.Object);
@@ -116,7 +116,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedCurrentEpisode.EarningsProfile.CompletionPayment);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedCurrentEpisode.EarningsProfile.EarningsProfileId);
         currentEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedCurrentEpisode.EarningsProfile.Instalments);
-        currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_startDateChangedEvent.AgeAtStartOfApprenticeship);
+        currentEpisode.AgeAtStartOfApprenticeship.Should().Be(expectedCurrentEpisode.AgeAtStartOfApprenticeship);
     }
 
     [Test]

@@ -100,7 +100,6 @@ public class RecalculateEarningsStepDefinitions
             Uln = _random.Next().ToString(),
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             Episode = new ApprenticeshipEpisode
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -121,7 +120,7 @@ public class RecalculateEarningsStepDefinitions
                 Ukprn = 116,
                 TrainingCode = "AbleSeafarer",
                 FundingEmployerAccountId = null,
-                //todo ageAtStart
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
                 FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
             }
         };

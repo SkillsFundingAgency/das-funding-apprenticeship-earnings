@@ -47,7 +47,6 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
             ApprenticeshipKey = _apprenticeship.ApprenticeshipKey,
             Uln = _apprenticeship.Uln,
             ApprovalsApprenticeshipId = _apprenticeship.ApprovalsApprenticeshipId,
-            AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship,
             Episode = new ApprenticeshipEpisode
             {
                 FundingType = Enum.Parse<SFA.DAS.Apprenticeships.Enums.FundingType>(_apprenticeship.ApprenticeshipEpisodes.First().FundingType.ToString()),
@@ -66,6 +65,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
                 TrainingCode = _apprenticeship.ApprenticeshipEpisodes.First().TrainingCode,
                 FundingEmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().FundingEmployerAccountId,
                 LegalEntityName = _apprenticeship.ApprenticeshipEpisodes.First().LegalEntityName,
+                AgeAtStartOfApprenticeship = _apprenticeship.ApprenticeshipEpisodes.First().AgeAtStartOfApprenticeship,
             }
         };
 
@@ -96,7 +96,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.TrainingCode.Should().Be(_apprenticeshipCreatedEvent.Episode.TrainingCode);
         apprenticeshipEpisode.FundingType.ToString().Should().Be(_apprenticeshipCreatedEvent.Episode.FundingType.ToString());
         apprenticeshipEpisode.LegalEntityName.Should().Be(_apprenticeshipCreatedEvent.Episode.LegalEntityName);
-        apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipCreatedEvent.AgeAtStartOfApprenticeship);
+        apprenticeshipEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipCreatedEvent.Episode.AgeAtStartOfApprenticeship);
         apprenticeshipEpisode.FundingEmployerAccountId.Should().Be(_apprenticeshipCreatedEvent.Episode.FundingEmployerAccountId);
         apprenticeshipEpisode.ApprenticeshipEpisodeKey.Should().Be(_apprenticeshipCreatedEvent.Episode.Key);
 
