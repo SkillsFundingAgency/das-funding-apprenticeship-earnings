@@ -161,6 +161,7 @@ public class RecalculateEarningsStepDefinitions
             ProviderApprovedBy = "",
             EmployerApprovedBy = "",
             Initiator = "",
+            StartDate = _startDate,
             Episode = new ApprenticeshipEpisode
             {
                 Key = _episodeKey,
@@ -258,6 +259,7 @@ public class RecalculateEarningsStepDefinitions
         {
             case "start":
                 _startDateChangedEvent!.Episode.Prices.First().StartDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate.AddMonths(monthChange);
+                _startDateChangedEvent!.StartDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate.AddMonths(monthChange);
                 break;
             case "end":
                 _startDateChangedEvent!.Episode.Prices.First().EndDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().EndDate.AddMonths(monthChange);
