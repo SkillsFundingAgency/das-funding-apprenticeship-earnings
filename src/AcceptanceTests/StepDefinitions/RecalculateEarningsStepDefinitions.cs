@@ -140,9 +140,12 @@ public class RecalculateEarningsStepDefinitions
                     new ApprenticeshipEpisodePrice
                     {
                         Key = _priceChangePriceKey,
-                        TrainingPrice = 16000,
-                        EndPointAssessmentPrice = 1500,
-                        //todo more here?
+                        TrainingPrice = _newTrainingPrice,
+                        EndPointAssessmentPrice = _newAssessmentPrice,
+                        StartDate = _startDate,
+                        EndDate = _endDate,
+                        FundingBandMaximum = _fundingBandMaximum,
+                        TotalPrice = _newTrainingPrice + _newAssessmentPrice
                     }
                 },
                 EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
@@ -167,8 +170,9 @@ public class RecalculateEarningsStepDefinitions
                     {
                         Key = _priceKey,
                         StartDate = _startDate,
-                        EndDate = _endDate
-                        //todo more here?
+                        EndDate = _endDate,
+                        TotalPrice = 15000,
+                        FundingBandMaximum = _fundingBandMaximum
                     }
                 },
                 EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
@@ -180,13 +184,16 @@ public class RecalculateEarningsStepDefinitions
     [Given("the total price is below or at the funding band maximum")]
     public void SetTotalBelowBandMaximum()
     {
-        _apprenticeshipCreatedEvent!.Episode.Prices.First().TotalPrice = _originalPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TrainingPrice = _newTrainingPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
     }
 
     [Given("the price change request is for a new total price above the funding band maximum")]
     public void SetTotalAboveBandMaximum()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPriceAboveBandMax;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPriceAboveBandMax + _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TrainingPrice = _newTrainingPriceAboveBandMax;
         _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
     }
 
@@ -199,8 +206,9 @@ public class RecalculateEarningsStepDefinitions
     [Given("the price change request is for a new total price up to or at the funding band maximum")]
     public void SetPriceChange()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
         _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TrainingPrice = _newTrainingPrice;
     }
 
     [Given("a start date change request was sent before the end of R14 of the current academic year")]
@@ -285,13 +293,13 @@ public class RecalculateEarningsStepDefinitions
 	[Then("the earnings are recalculated based on the new price")]
     public void AssertEarningsRecalculated()
     {
-        var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
+        var expectedTotal = _newTrainingPrice + _newAssessmentPrice; //todo
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
         var actualTotal = currentEpisode.EarningsProfile.AdjustedPrice + currentEpisode.EarningsProfile.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
-            Assert.Fail("Earnings not updated");
+            Assert.Fail($"Earnings not updated, Expected Total:{expectedTotal}, Actual Total:{actualTotal}");
         }
     }
 
@@ -305,7 +313,7 @@ public class RecalculateEarningsStepDefinitions
 
         if (expectedTotal != actualTotal)
         {
-            Assert.Fail("Earnings not updated correctly");
+            Assert.Fail($"Earnings not updated correctly, Expected Total:{expectedTotal}, Actual Total:{actualTotal}");
         }
     }
 
