@@ -222,6 +222,7 @@ public class RecalculateEarningsStepDefinitions
     public void SetEarlierStartDateChange()
     {
 	    _startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateEarlierThanOriginal;
+        _startDateChangedEvent!.StartDate = _startDateEarlierThanOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForEarlierStartDate;
     }
 
@@ -229,6 +230,7 @@ public class RecalculateEarningsStepDefinitions
     public void SetLaterStartDateChangeInSameAcademicYear()
     {
         _startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateLaterThanOriginal;
+        _startDateChangedEvent!.StartDate = _startDateLaterThanOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForLaterStartDate;
     }
 
@@ -236,6 +238,7 @@ public class RecalculateEarningsStepDefinitions
     public void SetLaterStartDateChangeInNextAcademicYear()
     {
         _startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateInNextAcademicYearToOriginal;
+        _startDateChangedEvent!.StartDate = _startDateInNextAcademicYearToOriginal;
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear;
     }
 
