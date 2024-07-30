@@ -38,7 +38,7 @@ public class Apprenticeship : AggregateRoot
 
         if (episodeUpdatedEvent is ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
         {
-            var existingEarnings = episode.EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
+            var existingEarnings = episode.EarningsProfile!.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
             episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, apprenticeshipPriceChangedEvent.EffectiveFromDate));
         }
         else if (episodeUpdatedEvent is ApprenticeshipStartDateChangedEvent apprenticeshipStartDateChangedEvent)
