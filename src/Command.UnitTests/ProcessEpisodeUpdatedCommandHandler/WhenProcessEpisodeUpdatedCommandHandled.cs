@@ -62,7 +62,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
                     new ApprenticeshipEpisodePrice
                     {
                         Key = Guid.NewGuid(),
-                        EndDate = currentEpisode.Prices.Single().PlannedEndDate,
+                        EndDate = currentEpisode.Prices!.Single().PlannedEndDate,
                         EndPointAssessmentPrice = 17000,
                         FundingBandMaximum = 21000,
                         StartDate = currentEpisode.Prices.Single().ActualStartDate,

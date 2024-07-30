@@ -16,7 +16,7 @@ public class WhenCalculateEarnings
 {
     private readonly Fixture _fixture = new();
     private Apprenticeship.Apprenticeship _sut;
-    private Mock<ISystemClockService> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock = null!;
 
     [SetUp]
     public void SetUp()
