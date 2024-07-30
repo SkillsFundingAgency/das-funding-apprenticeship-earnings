@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+﻿
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
@@ -37,7 +38,7 @@ public class Apprenticeship : AggregateRoot
         if (currentEpisode.EarningsProfile == null)
             throw new Exception($"No earnings profile for current episode on {systemClock.UtcNow}");
 
-        var existingEarnings = currentEpisode.EarningsProfile.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
+        var existingEarnings = currentEpisode.EarningsProfile!.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
         currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice, deletedPriceKeys, newPriceKey);
         currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate));
 

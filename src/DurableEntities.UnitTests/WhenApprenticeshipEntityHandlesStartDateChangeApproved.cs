@@ -17,6 +17,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.TestHelpers;
 using FundingType = SFA.DAS.Apprenticeships.Types.FundingType;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests;
 

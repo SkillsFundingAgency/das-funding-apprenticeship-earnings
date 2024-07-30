@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
+    <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 

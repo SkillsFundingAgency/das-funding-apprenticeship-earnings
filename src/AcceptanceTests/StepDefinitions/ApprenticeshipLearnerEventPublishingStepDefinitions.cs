@@ -2,6 +2,7 @@ using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
