@@ -14,7 +14,7 @@ public class ApprenticeshipEpisodeModel
     [JsonProperty] public long? FundingEmployerAccountId { get; set; }
     [JsonProperty] public FundingType FundingType { get; set; }
     [JsonProperty] public int AgeAtStartOfApprenticeship { get; set; }
-    [JsonProperty] public List<PriceModel> Prices { get; set; }
-    [JsonProperty] public EarningsProfileEntityModel EarningsProfile { get; set; }
-    [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>> EarningsProfileHistory { get; set; }
+    [JsonProperty] public List<PriceModel>? Prices { get; set; }
+    [JsonProperty] public EarningsProfileEntityModel? EarningsProfile { get; set; }
+    [JsonProperty] public List<HistoryRecord<EarningsProfileEntityModel>>? EarningsProfileHistory { get; set; }
 }
