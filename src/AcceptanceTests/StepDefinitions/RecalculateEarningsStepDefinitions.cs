@@ -298,7 +298,7 @@ public class RecalculateEarningsStepDefinitions
 	[Then("the earnings are recalculated based on the new price")]
     public void AssertEarningsRecalculated()
     {
-        var expectedTotal = _newTrainingPrice + _newAssessmentPrice; //todo
+        var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
         var actualTotal = currentEpisode.EarningsProfile.AdjustedPrice + currentEpisode.EarningsProfile.CompletionPayment;
 

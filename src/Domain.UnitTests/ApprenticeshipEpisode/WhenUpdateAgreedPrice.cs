@@ -61,7 +61,6 @@ public class WhenUpdateAgreedPrice
         _apprenticeshipEpisode.Prices.Should().NotContain(p => _deletedPriceKeys.Contains(p.PriceKey));
     }
 
-    //todo ThenTheExistingActivePriceIsClosedOff
     [Test]
     public void ThenTheExistingActivePriceIsClosedOff()
     {
