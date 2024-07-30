@@ -300,7 +300,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var expectedTotal = _newTrainingPrice + _newAssessmentPrice;
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        var actualTotal = currentEpisode.EarningsProfile.AdjustedPrice + currentEpisode.EarningsProfile.CompletionPayment;
+        var actualTotal = currentEpisode.EarningsProfile!.AdjustedPrice + currentEpisode.EarningsProfile!.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
@@ -314,7 +314,7 @@ public class RecalculateEarningsStepDefinitions
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var expectedTotal = _fundingBandMaximum;
-        var actualTotal = currentEpisode.EarningsProfile.AdjustedPrice + currentEpisode.EarningsProfile.CompletionPayment;
+        var actualTotal = currentEpisode.EarningsProfile!.AdjustedPrice + currentEpisode.EarningsProfile!.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
@@ -360,7 +360,7 @@ public class RecalculateEarningsStepDefinitions
     public void AssertNumberOfInstalmentsForPriceChange()
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        var numberOfInstalments = currentEpisode.EarningsProfile.Instalments.Count;
+        var numberOfInstalments = currentEpisode.EarningsProfile!.Instalments.Count;
 
         if (numberOfInstalments != _expectedNumberOfInstalments)
         {
@@ -372,7 +372,7 @@ public class RecalculateEarningsStepDefinitions
     public void AssertNumberOfInstalmentsForStartDateChange()
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        var numberOfInstalments = currentEpisode.EarningsProfile.Instalments.Count;
+        var numberOfInstalments = currentEpisode.EarningsProfile!.Instalments.Count;
 
         if (numberOfInstalments != _expectedNumberOfInstalments)
         {
@@ -388,12 +388,12 @@ public class RecalculateEarningsStepDefinitions
         var frozenInstalments = GetFrozenInstalments(_updatedApprenticeshipEntity!);
         var earningsBeforeTheEffectiveFromDate = frozenInstalments.Sum(x => x.Amount);
 
-        var numberOfRecalculatedInstalments = currentEpisode.EarningsProfile.Instalments.Count - frozenInstalments.Count;
-        var newPriceLessCompletion = currentEpisode.EarningsProfile.AdjustedPrice;
+        var numberOfRecalculatedInstalments = currentEpisode.EarningsProfile!.Instalments.Count - frozenInstalments.Count;
+        var newPriceLessCompletion = currentEpisode.EarningsProfile!.AdjustedPrice;
 
         var expectedMonthlyPrice = Math.Round((newPriceLessCompletion - earningsBeforeTheEffectiveFromDate) / numberOfRecalculatedInstalments, 5);
 
-        var numberOfMatchingInstalments = currentEpisode.EarningsProfile.Instalments
+        var numberOfMatchingInstalments = currentEpisode.EarningsProfile!.Instalments
             .Count(x => x.Amount == expectedMonthlyPrice);
 
         
@@ -408,12 +408,12 @@ public class RecalculateEarningsStepDefinitions
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
-        var numberOfRecalculatedInstalments = currentEpisode.EarningsProfile.Instalments.Count;
-        var totalPriceLessCompletion = currentEpisode.EarningsProfile.AdjustedPrice;
+        var numberOfRecalculatedInstalments = currentEpisode.EarningsProfile!.Instalments.Count;
+        var totalPriceLessCompletion = currentEpisode.EarningsProfile!.AdjustedPrice;
 
         var expectedMonthlyPrice = Math.Round(totalPriceLessCompletion / numberOfRecalculatedInstalments, 5);
 
-        var numberOfMatchingInstalments = currentEpisode.EarningsProfile.Instalments
+        var numberOfMatchingInstalments = currentEpisode.EarningsProfile!.Instalments
             .Count(x => x.Amount == expectedMonthlyPrice);
         
         if (numberOfMatchingInstalments != numberOfRecalculatedInstalments)
@@ -427,8 +427,8 @@ public class RecalculateEarningsStepDefinitions
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
-        Assert.That(currentEpisode.EarningsProfile.EarningsProfileId != Guid.Empty &&
-                    currentEpisode.EarningsProfile.EarningsProfileId != _originalEarningsProfile.EarningsProfileId);
+        Assert.That(currentEpisode.EarningsProfile!.EarningsProfileId != Guid.Empty &&
+                    currentEpisode.EarningsProfile!.EarningsProfileId != _originalEarningsProfile.EarningsProfileId);
     }
 
     [Then("the earnings are recalculated based on the new start date")]
@@ -442,7 +442,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
-        var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count;
+        var matchingInstalments = currentEpisode.EarningsProfile!.Instalments.Count;
 
         if(matchingInstalments != expectedNumberOfEarnings)
         {
@@ -490,7 +490,7 @@ public class RecalculateEarningsStepDefinitions
 
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
-        return currentEpisode.EarningsProfile.Instalments
+        return currentEpisode.EarningsProfile!.Instalments
             .Where(x => 
                 (x.AcademicYear == fromYear && x.DeliveryPeriod < fromPeriod) ||
                 x.AcademicYear < fromYear

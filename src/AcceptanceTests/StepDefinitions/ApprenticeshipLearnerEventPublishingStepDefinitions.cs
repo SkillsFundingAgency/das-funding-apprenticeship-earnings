@@ -148,7 +148,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         var entity = await _testContext.TestFunction.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
+        currentEpisode.EarningsProfile!.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
 
     [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
