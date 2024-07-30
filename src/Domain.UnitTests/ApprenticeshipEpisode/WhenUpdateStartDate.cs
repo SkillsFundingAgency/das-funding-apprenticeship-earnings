@@ -11,13 +11,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 [TestFixture]
 public class WhenUpdateStartDate
 {
-    private Fixture? _fixture;
-    private Apprenticeship.ApprenticeshipEpisode? _apprenticeshipEpisode;
-    private ApprenticeshipEpisodeModel? _apprenticeshipEpisodeModel;
+    private Fixture _fixture;
+    private Apprenticeship.ApprenticeshipEpisode _apprenticeshipEpisode;
+    private ApprenticeshipEpisodeModel _apprenticeshipEpisodeModel;
     private DateTime _newStartDate;
     private DateTime _newEndDate;
     private int _newAgeAtStart;
-    private List<Guid>? _deletedPriceKeys;
+    private List<Guid> _deletedPriceKeys;
     private Guid _changingPriceKey;
 
     [SetUp]

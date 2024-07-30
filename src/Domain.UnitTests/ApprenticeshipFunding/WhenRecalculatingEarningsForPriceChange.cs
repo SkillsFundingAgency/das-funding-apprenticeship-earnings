@@ -18,8 +18,8 @@ public class WhenRecalculatingEarningsForPriceChange
 {
     private readonly Fixture _fixture;
     private readonly Mock<ISystemClockService> _mockSystemClock;
-    private Apprenticeship.Apprenticeship? _existingApprenticeship; //represents the apprenticeship before the price change
-    private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the price change
+    private Apprenticeship.Apprenticeship _existingApprenticeship; //represents the apprenticeship before the price change
+    private Apprenticeship.Apprenticeship _sut; // represents the apprenticeship after the price change
     private decimal _originalPrice;
     private decimal _updatedPrice;
     private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;
@@ -64,7 +64,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheAgreedPriceIsUpdated()
     {
-        _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
+        _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.Prices.OrderBy(x => x.ActualStartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
     }
@@ -72,7 +72,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheOnProgramTotalIsCalculated()
     {
-        _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
+        _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
@@ -80,7 +80,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheCompletionAmountIsCalculated()
     {
-        _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
+        _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
@@ -88,7 +88,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
     {
-        _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
+        _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
@@ -99,7 +99,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenEarningsRecalculatedEventIsCreated()
     {
-        _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
+        _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
 
         var events = _sut.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
@@ -108,7 +108,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheEarningsProfileIdIsGenerated()
     {
-        _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
+        _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
@@ -118,7 +118,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _sut = _fixture.CreateUpdatedApprenticeship(_existingApprenticeship, newPrice: _updatedPrice, null, true);
         FluentActions
-            .Invoking(() => _sut!.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object))
+            .Invoking(() => _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object))
             .Should()
             .Throw<Exception>();
     }

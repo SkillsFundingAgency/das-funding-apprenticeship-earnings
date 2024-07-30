@@ -4,26 +4,19 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
 [TestFixture]
 public class WhenCalculateEarnings
 {
-    private Fixture _fixture;
+    private readonly Fixture _fixture = new();
     private Apprenticeship.Apprenticeship _sut;
     private Mock<ISystemClockService> _mockSystemClock;
-
-    public WhenCalculateEarnings()
-    {
-        _fixture = new Fixture();
-    }
 
     [SetUp]
     public void SetUp()
@@ -42,7 +35,7 @@ public class WhenCalculateEarnings
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .8m);
+        currentEpisode.EarningsProfile!.OnProgramTotal.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .8m);
     }
 
     [Test]
@@ -50,7 +43,7 @@ public class WhenCalculateEarnings
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .2m);
+        currentEpisode.EarningsProfile!.CompletionPayment.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .2m);
     }
 
     [Test]
@@ -59,8 +52,8 @@ public class WhenCalculateEarnings
         _sut.CalculateEarnings(_mockSystemClock.Object);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
-        currentEpisode.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(decimal.Round(currentEpisode.EarningsProfile.OnProgramTotal / 12m, 5)));
+        currentEpisode.EarningsProfile!.Instalments.Count.Should().Be(12);
+        currentEpisode.EarningsProfile!.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(decimal.Round(currentEpisode.EarningsProfile!.OnProgramTotal / 12m, 5)));
     }
 
     [Test]
@@ -77,6 +70,6 @@ public class WhenCalculateEarnings
     {
         _sut.CalculateEarnings(_mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+        currentEpisode.EarningsProfile!.EarningsProfileId.Should().NotBeEmpty();
     }
 }

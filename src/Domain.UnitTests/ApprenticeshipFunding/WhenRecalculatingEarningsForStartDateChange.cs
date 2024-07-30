@@ -15,10 +15,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 [TestFixture]
 public class WhenRecalculatingEarningsForStartDateChange
 {
-    private Fixture? _fixture;
-    private Mock<ISystemClockService>? _mockSystemClockService;
-    private Apprenticeship.Apprenticeship? _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
+    private Fixture _fixture;
+    private Mock<ISystemClockService> _mockSystemClockService;
+    private Apprenticeship.Apprenticeship _apprenticeship;
+    private Apprenticeship.ApprenticeshipEpisode _currentEpisode;
     private ApprenticeshipStartDateChangedEvent _apprenticeshipStartDateChangedEvent;
 
     [SetUp]
