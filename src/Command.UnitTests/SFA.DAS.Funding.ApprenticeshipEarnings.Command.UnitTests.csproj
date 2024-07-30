@@ -12,10 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.1" />
-    <PackageReference Include="Azure.Identity" Version="1.11.4" />
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.62.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Command\SFA.DAS.Funding.ApprenticeshipEarnings.Command.csproj" />
+    <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
   </ItemGroup>
 
 </Project>

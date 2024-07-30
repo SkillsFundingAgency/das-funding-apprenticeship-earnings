@@ -1,4 +1,5 @@
 ﻿
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -31,25 +32,20 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarningsPriceChange(ISystemClockService systemClock, decimal newAgreedPrice, DateTime effectiveFromDate, List<Guid> deletedPriceKeys, Guid newPriceKey)
+    public void RecalculateEarningsEpisodeUpdated(EpisodeUpdatedEvent episodeUpdatedEvent, ISystemClockService systemClock)
     {
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        var episode = this.ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == episodeUpdatedEvent.Episode.Key);
+        episode.Update(episodeUpdatedEvent.Episode);
 
-        if (currentEpisode.EarningsProfile == null)
-            throw new Exception($"No earnings profile for current episode on {systemClock.UtcNow}");
-
-        var existingEarnings = currentEpisode.EarningsProfile!.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
-        currentEpisode.UpdateAgreedPrice(systemClock, newAgreedPrice, deletedPriceKeys, newPriceKey);
-        currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, effectiveFromDate));
-
-        AddEvent(new EarningsRecalculatedEvent(this));
-    }
-
-    public void RecalculateEarningsStartDateChange(ISystemClockService systemClock, DateTime newStartDate, DateTime newEndDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
-    {
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateStartDate(newStartDate, newEndDate, ageAtStartOfApprenticeship, deletedPriceKeys, changingPriceKey);
-        currentEpisode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(newStartDate));
+        if (episodeUpdatedEvent is ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
+        {
+            var existingEarnings = episode.EarningsProfile!.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
+            episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, apprenticeshipPriceChangedEvent.EffectiveFromDate));
+        }
+        else if (episodeUpdatedEvent is ApprenticeshipStartDateChangedEvent apprenticeshipStartDateChangedEvent)
+        {
+            episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(apprenticeshipStartDateChangedEvent.StartDate));
+        }
 
         AddEvent(new EarningsRecalculatedEvent(this));
     }

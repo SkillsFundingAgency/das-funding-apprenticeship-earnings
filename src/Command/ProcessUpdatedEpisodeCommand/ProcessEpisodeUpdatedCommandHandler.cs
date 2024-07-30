@@ -1,17 +1,16 @@
-﻿using Microsoft.Extensions.Internal;
-using NServiceBus;
+﻿using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApprovePriceChangeCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 
-public class ApprovePriceChangeCommandHandler : IApprovePriceChangeCommandHandler
+public class ProcessEpisodeUpdatedCommandHandler : IProcessEpisodeUpdatedCommandHandler
 {
     private readonly IMessageSession _messageSession;
     private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
     private readonly ISystemClockService _systemClock;
 
-    public ApprovePriceChangeCommandHandler(
+    public ProcessEpisodeUpdatedCommandHandler(
         IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
     {
         _messageSession = messageSession;
@@ -19,12 +18,14 @@ public class ApprovePriceChangeCommandHandler : IApprovePriceChangeCommandHandle
         _systemClock = systemClock;
     }
 
-    public async Task<Apprenticeship> RecalculateEarnings(ApprovePriceChangeCommand command)
+    public async Task<Apprenticeship> RecalculateEarnings(ProcessEpisodeUpdatedCommand command)
     {
         var apprenticeshipDomainModel = command.ApprenticeshipEntity.GetDomainModel();
-        var agreedPrice = command.PriceChangeApprovedEvent.AssessmentPrice + command.PriceChangeApprovedEvent.TrainingPrice;
-        apprenticeshipDomainModel.RecalculateEarningsPriceChange(_systemClock, agreedPrice, command.PriceChangeApprovedEvent.EffectiveFromDate, command.PriceChangeApprovedEvent.DeletedPriceKeys, command.PriceChangeApprovedEvent.PriceKey);
+
+        apprenticeshipDomainModel.RecalculateEarningsEpisodeUpdated(command.EpisodeUpdatedEvent, _systemClock);
+
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
+
         return apprenticeshipDomainModel;
     }
 }
