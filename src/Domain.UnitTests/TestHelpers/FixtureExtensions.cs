@@ -18,6 +18,7 @@ internal static class FixtureExtensions
         apprenticeshipEntityModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeModel>
         {
             new() { 
+                ApprenticeshipEpisodeKey = Guid.NewGuid(),
                 UKPRN = 10000001, 
                 EmployerAccountId = 10000001, 
                 FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value,
