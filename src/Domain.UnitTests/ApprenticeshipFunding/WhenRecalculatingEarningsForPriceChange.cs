@@ -19,7 +19,7 @@ public class WhenRecalculatingEarningsForPriceChange
     private readonly Fixture _fixture;
     private readonly Mock<ISystemClockService> _mockSystemClock;
     private Apprenticeship.Apprenticeship _existingApprenticeship = null!; //represents the apprenticeship before the price change
-    private Apprenticeship.Apprenticeship _sut; // represents the apprenticeship after the price change
+    private Apprenticeship.Apprenticeship _sut = null!; // represents the apprenticeship after the price change
     private decimal _originalPrice;
     private decimal _updatedPrice;
     private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;

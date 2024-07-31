@@ -460,7 +460,7 @@ public class RecalculateEarningsStepDefinitions
         }
 
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        _originalEarningsProfile = currentEpisode!.EarningsProfile;
+        _originalEarningsProfile = currentEpisode!.EarningsProfile!;
         return true;
     }
 
@@ -474,7 +474,7 @@ public class RecalculateEarningsStepDefinitions
         var apprenticeshipEntity = await GetApprenticeshipEntity();
 
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        if (!currentEpisode!.EarningsProfileHistory.Any())
+        if (!currentEpisode!.EarningsProfileHistory!.Any())
         {
             return false;
         }
