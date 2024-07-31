@@ -87,7 +87,7 @@ public class ApprenticeshipEntity
                 TrainingCode = apprenticeshipCreatedEvent.Episode.TrainingCode,
                 FundingType = Enum.Parse<FundingType>(apprenticeshipCreatedEvent.Episode.FundingType.ToString()),
                 LegalEntityName = apprenticeshipCreatedEvent.Episode.LegalEntityName,
-                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.Episode.AgeAtStartOfApprenticeship.GetValueOrDefault(), //todo when the story for filtering out non-pilot apprenticeships is done this should always have a value at this point
+                AgeAtStartOfApprenticeship = apprenticeshipCreatedEvent.Episode.AgeAtStartOfApprenticeship,
                 FundingEmployerAccountId = apprenticeshipCreatedEvent.Episode.FundingEmployerAccountId,
                 Prices = apprenticeshipCreatedEvent.Episode.Prices.Select(x =>
                     new PriceModel

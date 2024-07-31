@@ -31,7 +31,7 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarningsEpisodeUpdated(EpisodeUpdatedEvent episodeUpdatedEvent, ISystemClockService systemClock)
+    public void RecalculateEarningsEpisodeUpdated(ApprenticeshipEvent episodeUpdatedEvent, ISystemClockService systemClock)
     {
         var episode = this.ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == episodeUpdatedEvent.Episode.Key);
         episode.Update(episodeUpdatedEvent.Episode);

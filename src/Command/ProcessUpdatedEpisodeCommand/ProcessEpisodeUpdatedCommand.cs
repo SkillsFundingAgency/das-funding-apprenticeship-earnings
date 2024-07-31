@@ -5,13 +5,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCo
 
 public class ProcessEpisodeUpdatedCommand
 {
-    public ProcessEpisodeUpdatedCommand(ApprenticeshipEntityModel apprenticeshipEntity, EpisodeUpdatedEvent episodeUpdatedEvent)
+    public ProcessEpisodeUpdatedCommand(ApprenticeshipEntityModel apprenticeshipEntity, ApprenticeshipEvent episodeUpdatedEvent)
     {
         ApprenticeshipEntity = apprenticeshipEntity;
         EpisodeUpdatedEvent = episodeUpdatedEvent;
     }
 
     public ApprenticeshipEntityModel ApprenticeshipEntity { get; }
-    public EpisodeUpdatedEvent EpisodeUpdatedEvent { get; }
+    public ApprenticeshipEvent EpisodeUpdatedEvent { get; }
 
 }

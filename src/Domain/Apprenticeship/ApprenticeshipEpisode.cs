@@ -71,7 +71,7 @@ public class ApprenticeshipEpisode
         Prices = episodeUpdate.Prices
             .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
             .ToList();
-        AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship.GetValueOrDefault(); //todo update when set to not nullable?
+        AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship;
         EmployerAccountId = episodeUpdate.EmployerAccountId;
         FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
         FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
