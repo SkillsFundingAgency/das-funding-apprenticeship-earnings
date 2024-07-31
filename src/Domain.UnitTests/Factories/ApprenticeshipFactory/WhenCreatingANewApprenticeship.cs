@@ -43,9 +43,9 @@ public class WhenCreatingANewApprenticeship
 
             episode.Should().NotBeNull();
 
-            foreach (var price in apprenticeshipEpisode.Prices)
+            foreach (var price in apprenticeshipEpisode.Prices!)
             {
-                episode.Prices.Should().ContainSingle(x =>
+                episode!.Prices.Should().ContainSingle(x =>
                     x.PriceKey == price.PriceKey &&
                     x.ActualStartDate == price.ActualStartDate &&
                     x.PlannedEndDate == price.PlannedEndDate &&

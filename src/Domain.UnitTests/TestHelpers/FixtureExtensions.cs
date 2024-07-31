@@ -53,9 +53,9 @@ internal static class FixtureExtensions
             TrainingCode = x.TrainingCode,
             FundingType = x.FundingType,
             LegalEntityName = x.LegalEntityName,
-            EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
+            EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile!),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
+            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices!.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
             ApprenticeshipEpisodeKey = x.ApprenticeshipEpisodeKey
         }).ToList();
 

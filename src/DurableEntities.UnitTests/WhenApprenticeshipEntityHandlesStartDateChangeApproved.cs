@@ -25,9 +25,9 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
     private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
     private ApprenticeshipStartDateChangedEvent _startDateChangedEvent;
     private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
-    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler;
+    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler = null!;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
-    private Mock<ISystemClockService> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock = null!;
     private Fixture _fixture;
     private Apprenticeship _apprenticeship;
 
@@ -115,10 +115,10 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         var expectedCurrentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 
-        currentEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedCurrentEpisode.EarningsProfile.OnProgramTotal);
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedCurrentEpisode.EarningsProfile.CompletionPayment);
-        currentEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedCurrentEpisode.EarningsProfile.EarningsProfileId);
-        currentEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedCurrentEpisode.EarningsProfile.Instalments);
+        currentEpisode.EarningsProfile!.AdjustedPrice.Should().Be(expectedCurrentEpisode.EarningsProfile!.OnProgramTotal);
+        currentEpisode.EarningsProfile!.CompletionPayment.Should().Be(expectedCurrentEpisode.EarningsProfile!.CompletionPayment);
+        currentEpisode.EarningsProfile!.EarningsProfileId.Should().Be(expectedCurrentEpisode.EarningsProfile!.EarningsProfileId);
+        currentEpisode.EarningsProfile!.Instalments.Should().BeEquivalentTo(expectedCurrentEpisode.EarningsProfile!.Instalments);
         currentEpisode.AgeAtStartOfApprenticeship.Should().Be(expectedCurrentEpisode.AgeAtStartOfApprenticeship);
     }
 

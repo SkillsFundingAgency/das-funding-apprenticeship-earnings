@@ -16,10 +16,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenRecalculatingEarningsForStartDateChange
 {
     private Fixture _fixture;
-    private Mock<ISystemClockService> _mockSystemClockService;
-    private Apprenticeship.Apprenticeship _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode _currentEpisode;
-    private ApprenticeshipStartDateChangedEvent _apprenticeshipStartDateChangedEvent;
+    private Mock<ISystemClockService> _mockSystemClockService = null!;
+    private Apprenticeship.Apprenticeship _apprenticeship = null!;
+    private Apprenticeship.ApprenticeshipEpisode _currentEpisode = null!;
+    private ApprenticeshipStartDateChangedEvent _apprenticeshipStartDateChangedEvent = null!;
 
     [SetUp]
     public void Setup()
@@ -55,7 +55,7 @@ public class WhenRecalculatingEarningsForStartDateChange
                 {
                     new ApprenticeshipEpisodePrice
                     {
-                        Key = _currentEpisode.Prices.Last().PriceKey,
+                        Key = _currentEpisode.Prices!.Last().PriceKey,
                         StartDate = new DateTime(2023, 1, 1),
                         EndDate = new DateTime(2024, 1, 1)
                     }
@@ -73,7 +73,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
+        var updatedPrice = _currentEpisode.Prices!.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
         updatedPrice.Should().NotBeNull();
         updatedPrice!.ActualStartDate.Should().Be(_apprenticeshipStartDateChangedEvent.StartDate);
         updatedPrice.PlannedEndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);

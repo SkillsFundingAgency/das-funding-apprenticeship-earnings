@@ -23,11 +23,10 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 {
     private ApprenticeshipEntity _sut;
     private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
-    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;
     private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
-    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler;
+    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler = null!;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
-    private Mock<ISystemClockService> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock = null!;
     private Fixture _fixture;
     private Apprenticeship _apprenticeship;
     
@@ -54,10 +53,10 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
                 {
                     new ApprenticeshipEpisodePrice
                     {
-                        StartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().ActualStartDate,
-                        EndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().PlannedEndDate,
-                        TotalPrice = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice,
-                        FundingBandMaximum = (int)_apprenticeship.ApprenticeshipEpisodes.First().Prices.First().FundingBandMaximum
+                        StartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices!.First().ActualStartDate,
+                        EndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices!.First().PlannedEndDate,
+                        TotalPrice = _apprenticeship.ApprenticeshipEpisodes.First().Prices!.First().AgreedPrice,
+                        FundingBandMaximum = (int)_apprenticeship.ApprenticeshipEpisodes.First().Prices!.First().FundingBandMaximum
                     }
                 },
                 EmployerAccountId = _apprenticeship.ApprenticeshipEpisodes.First().EmployerAccountId,
@@ -101,10 +100,10 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         apprenticeshipEpisode.ApprenticeshipEpisodeKey.Should().Be(_apprenticeshipCreatedEvent.Episode.Key);
 
         var expectedEpisode = _apprenticeship.ApprenticeshipEpisodes.Single();
-        apprenticeshipEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile.OnProgramTotal);
-        apprenticeshipEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile.CompletionPayment);
-        apprenticeshipEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedEpisode.EarningsProfile.EarningsProfileId);
-        apprenticeshipEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile.Instalments);
+        apprenticeshipEpisode.EarningsProfile!.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile!.OnProgramTotal);
+        apprenticeshipEpisode.EarningsProfile!.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile!.CompletionPayment);
+        apprenticeshipEpisode.EarningsProfile!.EarningsProfileId.Should().Be(expectedEpisode.EarningsProfile!.EarningsProfileId);
+        apprenticeshipEpisode.EarningsProfile!.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile!.Instalments);
 
         apprenticeshipEpisode.Prices.Should().ContainSingle(x =>
             x.ActualStartDate == _apprenticeshipCreatedEvent.Episode.Prices.First().StartDate

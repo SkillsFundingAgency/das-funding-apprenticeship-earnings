@@ -65,7 +65,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
                         EndDate = currentEpisode.Prices!.Single().PlannedEndDate,
                         EndPointAssessmentPrice = 17000,
                         FundingBandMaximum = 21000,
-                        StartDate = currentEpisode.Prices.Single().ActualStartDate,
+                        StartDate = currentEpisode.Prices!.Single().ActualStartDate,
                         TrainingPrice = 3000,
                         TotalPrice = 20000
                     }

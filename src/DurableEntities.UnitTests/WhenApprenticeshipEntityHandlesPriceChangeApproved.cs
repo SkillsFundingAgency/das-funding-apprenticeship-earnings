@@ -22,11 +22,11 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
 {
     private ApprenticeshipEntity _sut;
     private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
-    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;
+    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent = null!;
     private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
-    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler;
+    private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler = null!;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
-    private Mock<ISystemClockService> _mockSystemClock;
+    private Mock<ISystemClockService> _mockSystemClock = null!;
     private Fixture _fixture;
     private Apprenticeship _apprenticeship;
 
@@ -107,10 +107,10 @@ public class WhenApprenticeshipEntityHandlesPriceChangeApproved
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         var expectedEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 
-        currentEpisode.EarningsProfile.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile.OnProgramTotal);
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile.CompletionPayment);
-        currentEpisode.EarningsProfile.EarningsProfileId.Should().Be(expectedEpisode.EarningsProfile.EarningsProfileId);
-        currentEpisode.EarningsProfile.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile.Instalments);
+        currentEpisode.EarningsProfile!.AdjustedPrice.Should().Be(expectedEpisode.EarningsProfile!.OnProgramTotal);
+        currentEpisode.EarningsProfile!.CompletionPayment.Should().Be(expectedEpisode.EarningsProfile!.CompletionPayment);
+        currentEpisode.EarningsProfile!.EarningsProfileId.Should().Be(expectedEpisode.EarningsProfile!.EarningsProfileId);
+        currentEpisode.EarningsProfile!.Instalments.Should().BeEquivalentTo(expectedEpisode.EarningsProfile!.Instalments);
     }
 
     [Test]

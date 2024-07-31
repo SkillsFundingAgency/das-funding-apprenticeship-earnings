@@ -62,7 +62,7 @@ public class WhenMappingApprenticeshipToEarningsReadModels
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().HaveCount(expectedEarnings.Count);
+        result.Should().HaveCount(expectedEarnings!.Count);
         foreach (var expectedEarning in expectedEarnings)
         {
             result.Should().ContainEquivalentOf(expectedEarning, options => options.Excluding(x => x.Id));

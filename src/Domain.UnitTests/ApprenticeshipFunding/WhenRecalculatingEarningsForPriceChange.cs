@@ -18,7 +18,7 @@ public class WhenRecalculatingEarningsForPriceChange
 {
     private readonly Fixture _fixture;
     private readonly Mock<ISystemClockService> _mockSystemClock;
-    private Apprenticeship.Apprenticeship _existingApprenticeship; //represents the apprenticeship before the price change
+    private Apprenticeship.Apprenticeship _existingApprenticeship = null!; //represents the apprenticeship before the price change
     private Apprenticeship.Apprenticeship _sut; // represents the apprenticeship after the price change
     private decimal _originalPrice;
     private decimal _updatedPrice;
@@ -48,16 +48,16 @@ public class WhenRecalculatingEarningsForPriceChange
                 {
                     new ApprenticeshipEpisodePrice
                     {
-                        Key = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().PriceKey,
-                        StartDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First()
+                        Key = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices!.First().PriceKey,
+                        StartDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices!.First()
                             .ActualStartDate,
-                        EndDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().PlannedEndDate,
+                        EndDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices!.First().PlannedEndDate,
                         TotalPrice = _updatedPrice,
                         FundingBandMaximum = (int)(Math.Ceiling(_updatedPrice) + 1)
                     }
                 }
             },
-            EffectiveFromDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().ActualStartDate
+            EffectiveFromDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices!.First().ActualStartDate
         };
     }
 
@@ -66,7 +66,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.Prices.OrderBy(x => x.ActualStartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
+        currentEpisode.Prices!.OrderBy(x => x.ActualStartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
     }
 
     [Test]
@@ -74,7 +74,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
+        currentEpisode.EarningsProfile!.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
+        currentEpisode.EarningsProfile!.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
 
     [Test]
@@ -91,9 +91,9 @@ public class WhenRecalculatingEarningsForPriceChange
         _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
-        var sum = Math.Round(currentEpisode.EarningsProfile.Instalments.Sum(x => x.Amount), 2);
-        sum.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
+        currentEpisode.EarningsProfile!.Instalments.Count.Should().Be(12);
+        var sum = Math.Round(currentEpisode.EarningsProfile!.Instalments.Sum(x => x.Amount), 2);
+        sum.Should().Be(currentEpisode.EarningsProfile!.OnProgramTotal);
     }
 
     [Test]
@@ -110,7 +110,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _sut.RecalculateEarningsEpisodeUpdated(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
+        currentEpisode.EarningsProfile!.EarningsProfileId.Should().NotBeEmpty();
     }
 
     [Test]
