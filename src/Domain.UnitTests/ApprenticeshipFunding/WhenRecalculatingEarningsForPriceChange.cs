@@ -22,7 +22,7 @@ public class WhenRecalculatingEarningsForPriceChange
     private Apprenticeship.Apprenticeship _sut = null!; // represents the apprenticeship after the price change
     private decimal _originalPrice;
     private decimal _updatedPrice;
-    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;
+    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent = null!;
 
     public WhenRecalculatingEarningsForPriceChange()
     {
