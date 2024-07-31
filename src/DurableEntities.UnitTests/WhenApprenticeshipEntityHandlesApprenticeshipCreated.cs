@@ -23,7 +23,6 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
 {
     private ApprenticeshipEntity _sut;
     private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
-    private ApprenticeshipPriceChangedEvent _apprenticeshipPriceChangedEvent;
     private Mock<ICreateApprenticeshipCommandHandler> _createApprenticeshipCommandHandler;
     private Mock<IProcessEpisodeUpdatedCommandHandler> _processEpisodeUpdatedCommandHandler;
     private Mock<IDomainEventDispatcher> _domainEventDispatcher;
