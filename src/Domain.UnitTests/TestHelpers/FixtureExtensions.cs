@@ -55,7 +55,7 @@ internal static class FixtureExtensions
             LegalEntityName = x.LegalEntityName,
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.First().AgreedPrice + 1 : newPrice.Value + 1, newStartDate), //todo is .First() right here?
+            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
             ApprenticeshipEpisodeKey = x.ApprenticeshipEpisodeKey
         }).ToList();
 
