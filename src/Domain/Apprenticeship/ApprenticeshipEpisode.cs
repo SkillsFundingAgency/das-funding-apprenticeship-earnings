@@ -66,44 +66,6 @@ public class ApprenticeshipEpisode
         UpdateEarningsProfile(apprenticeshipFunding, newEarnings, systemClock);
     }
 
-    public void UpdateAgreedPrice(ISystemClockService systemClock, decimal newAgreedPrice, List<Guid> deletedPriceKeys, Guid newPriceKey)
-    {
-        // update existing price with matching key if it exists
-        var existingPrice = Prices?.SingleOrDefault(x => x.PriceKey == newPriceKey);
-        if (existingPrice != null)
-        {
-            existingPrice.UpdatePrice(newAgreedPrice);
-            Prices!.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
-            return;
-        }
-
-        // build new price
-        var newPriceStartDate = systemClock.UtcNow.Date;
-        var newPrice = new Price(
-            newPriceKey,
-            newPriceStartDate,
-            Prices!.OrderByDescending(x => x.PlannedEndDate).First().PlannedEndDate,
-            newAgreedPrice,
-            Prices!.OrderBy(x => x.ActualStartDate).First().FundingBandMaximum);
-
-        // remove all deleted prices
-        Prices!.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
-
-        // close off remaining active price
-        Prices.SingleOrDefault()!.CloseOff(newPriceStartDate.AddDays(-1));
-        
-        // add new price
-        Prices.Add(newPrice);
-    }
-
-    public void UpdateStartDate(DateTime startDate, DateTime endDate, int ageAtStartOfApprenticeship, List<Guid> deletedPriceKeys, Guid changingPriceKey)
-    {
-        Prices.RemoveAll(x => deletedPriceKeys.Exists(key => key == x.PriceKey));
-        Prices.Find(x => x.PriceKey == changingPriceKey).UpdateDates(startDate, endDate);
-        
-        AgeAtStartOfApprenticeship = ageAtStartOfApprenticeship;
-    }
-
     public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
     {
         Prices = episodeUpdate.Prices
