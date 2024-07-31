@@ -7,6 +7,14 @@
 	<WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>8602</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>8602</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <SpecFlowObsoleteCodeBehindFiles Remove="Features\RecalculateEarningsFollowingPriceChange - Copy.feature.cs" />
   </ItemGroup>
