@@ -2,6 +2,7 @@ using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -19,10 +20,13 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     private int _ageAtStartOfApprenticeship = 21;
     private Random _random = new();
 
+    private readonly DateTime _defaultCurrentDateTime = new DateTime(2020, 01, 01);
+
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
+        TestSystemClock.SetDateTime(_defaultCurrentDateTime);
     }
 
     [BeforeTestRun]
@@ -43,6 +47,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public void GivenTheApprenticeshipIsUnder19()
     {
         _startDate = new DateTime(2020, 8, 1);
+        TestSystemClock.SetDateTime(new DateTime(2020, 09, 01));
         _dateOfBirth = new DateTime(2002, 9, 1);
         _ageAtStartOfApprenticeship = 18;
     }
@@ -51,6 +56,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public void GivenTheApprenticeshipIsOver19()
     {
         _startDate = new DateTime(2020, 8, 1);
+        TestSystemClock.SetDateTime(new DateTime(2020, 09, 01));
         _dateOfBirth = new DateTime(2000, 9, 1);
         _ageAtStartOfApprenticeship = 19;
     }
@@ -62,22 +68,31 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            AgreedPrice = 15000,
-            ActualStartDate = _startDate,
             ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            FundingType = FundingType.Levy,
-            PlannedEndDate = new DateTime(2021, 1, 1),
-            UKPRN = 116,
-            TrainingCode = "AbleSeafarer",
-            FundingEmployerAccountId = null,
             Uln = _random.Next().ToString(),
-            LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            FundingBandMaximum = 15000,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-            FundingPlatform = FundingPlatform.DAS
+            Episode = new ApprenticeshipEpisode
+            {
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        TotalPrice = 15000,
+                        StartDate = _startDate,
+                        EndDate = new DateTime(2021, 1, 1),
+                        FundingBandMaximum = 15000
+                    }
+                },
+                EmployerAccountId = 114,
+                FundingType = Apprenticeships.Enums.FundingType.Levy,
+                Ukprn = 116,
+                TrainingCode = "AbleSeafarer",
+                FundingEmployerAccountId = null,
+                LegalEntityName = "MyTrawler",
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+            }
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
@@ -91,23 +106,33 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            AgreedPrice = 15000,
-            ActualStartDate = _startDate,
             ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            FundingType = FundingType.Levy,
-            PlannedEndDate = new DateTime(2020, 12, 31),
-            UKPRN = 116,
-            TrainingCode = "AbleSeafarer",
-            FundingEmployerAccountId = null,
             Uln = _random.Next().ToString(),
-            LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            FundingBandMaximum = 15000,
-            AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-            FundingPlatform = FundingPlatform.SLD
+            Episode = new ApprenticeshipEpisode
+            {
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        TotalPrice = 15000,
+                        StartDate = _startDate,
+                        EndDate = new DateTime(2020, 12, 31),
+                        FundingBandMaximum = 15000
+                    }
+                },
+                EmployerAccountId = 114,
+                FundingType = Apprenticeships.Enums.FundingType.Levy,
+                Ukprn = 116,
+                TrainingCode = "AbleSeafarer",
+                FundingEmployerAccountId = null,
+                LegalEntityName = "MyTrawler",
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.SLD,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+            }
         };
+
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 
         _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
@@ -122,7 +147,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public async Task ThenTheCompletionPaymentAmountIsCalculated()
     {
         var entity = await _testContext.TestFunction.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
-        entity.Model.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.AgreedPrice * .2m);
+        var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
 
     [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
@@ -130,20 +156,31 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            AgreedPrice = 35000,
-            ActualStartDate = new DateTime(2019, 01, 01),
             ApprenticeshipKey = Guid.NewGuid(),
-            EmployerAccountId = 114,
-            FundingType = FundingType.Levy,
-            PlannedEndDate = new DateTime(2020, 12, 31),
-            UKPRN = 116,
-            TrainingCode = "AbleSeafarer",
-            FundingEmployerAccountId = null,
             Uln = _random.Next().ToString(),
-            LegalEntityName = "MyTrawler",
             ApprovalsApprenticeshipId = 120,
-            FundingBandMaximum = 30000,
-            FundingPlatform = FundingPlatform.DAS
+            DateOfBirth = _dateOfBirth,
+            Episode = new ApprenticeshipEpisode
+            {
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        TotalPrice = 35000,
+                        StartDate = new DateTime(2019, 01, 01),
+                        EndDate = new DateTime(2020, 12, 31),
+                        FundingBandMaximum = 30000
+                    }
+                },
+                EmployerAccountId = 114,
+                FundingType = Apprenticeships.Enums.FundingType.Levy,
+                Ukprn = 116,
+                TrainingCode = "AbleSeafarer",
+                FundingEmployerAccountId = null,
+                LegalEntityName = "MyTrawler",
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+            }
         };
         await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
 

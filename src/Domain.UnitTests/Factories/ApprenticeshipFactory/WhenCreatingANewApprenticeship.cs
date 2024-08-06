@@ -1,42 +1,58 @@
-﻿using AutoFixture;
+﻿using System.Linq;
+using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.ApprenticeshipFactory
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.ApprenticeshipFactory;
+
+[TestFixture]
+public class WhenCreatingANewApprenticeship
 {
-    [TestFixture]
-    public class WhenCreatingANewApprenticeship
+    private Fixture _fixture;
+    private Domain.Factories.ApprenticeshipFactory _factory;
+
+    [SetUp]
+    public void SetUp()
     {
-        private Fixture _fixture;
-        private Domain.Factories.ApprenticeshipFactory _factory;
+        _fixture = new Fixture();
+        _factory = new Domain.Factories.ApprenticeshipFactory();
+    }
 
-        [SetUp]
-        public void SetUp()
+    [Test]
+    public void ThenTheApprenticeshipIsCreated()
+    {
+        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+
+        var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
+
+        apprenticeshipEntityModel.ApprenticeshipKey.Should().Be(apprenticeship.ApprenticeshipKey);
+        apprenticeshipEntityModel.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
+        apprenticeshipEntityModel.Uln.Should().Be(apprenticeship.Uln);
+
+        foreach (var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
         {
-            _fixture = new Fixture();
-            _factory = new Domain.Factories.ApprenticeshipFactory();
+            var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
+                x.UKPRN == apprenticeshipEpisode.UKPRN &&
+                x.EmployerAccountId == apprenticeshipEpisode.EmployerAccountId &&
+                x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
+                x.LegalEntityName == apprenticeshipEpisode.LegalEntityName &&
+                x.AgeAtStartOfApprenticeship == apprenticeshipEpisode.AgeAtStartOfApprenticeship &&
+                x.FundingEmployerAccountId == apprenticeshipEpisode.FundingEmployerAccountId &&
+                x.ApprenticeshipEpisodeKey == apprenticeshipEpisode.ApprenticeshipEpisodeKey);
+
+            episode.Should().NotBeNull();
+
+            foreach (var price in apprenticeshipEpisode.Prices)
+            {
+                episode.Prices.Should().ContainSingle(x =>
+                    x.PriceKey == price.PriceKey &&
+                    x.ActualStartDate == price.ActualStartDate &&
+                    x.PlannedEndDate == price.PlannedEndDate &&
+                    x.AgreedPrice == price.AgreedPrice &&
+                    x.FundingBandMaximum == price.FundingBandMaximum);
+            }
         }
 
-        [Test]
-        public void ThenTheApprenticeshipIsCreated()
-        {
-            var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
-
-            var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
-
-            Assert.That(apprenticeshipEntityModel.ActualStartDate, Is.EqualTo(apprenticeship.ActualStartDate));
-            Assert.That(apprenticeshipEntityModel.AgreedPrice, Is.EqualTo(apprenticeship.AgreedPrice));
-            Assert.That(apprenticeshipEntityModel.EmployerAccountId, Is.EqualTo(apprenticeship.EmployerAccountId));
-            Assert.That(apprenticeshipEntityModel.FundingEmployerAccountId, Is.EqualTo(apprenticeship.FundingEmployerAccountId)); 
-            Assert.That(apprenticeshipEntityModel.LegalEntityName, Is.EqualTo(apprenticeship.LegalEntityName));
-            Assert.That(apprenticeshipEntityModel.PlannedEndDate, Is.EqualTo(apprenticeship.PlannedEndDate));
-            Assert.That(apprenticeshipEntityModel.TrainingCode, Is.EqualTo(apprenticeship.TrainingCode));
-            Assert.That(apprenticeshipEntityModel.UKPRN, Is.EqualTo(apprenticeship.UKPRN));
-            Assert.That(apprenticeshipEntityModel.ApprenticeshipKey, Is.EqualTo(apprenticeship.ApprenticeshipKey));
-            Assert.That(apprenticeshipEntityModel.ApprovalsApprenticeshipId, Is.EqualTo(apprenticeship.ApprovalsApprenticeshipId));
-            Assert.That(apprenticeshipEntityModel.Uln, Is.EqualTo(apprenticeship.Uln));
-            Assert.That(apprenticeshipEntityModel.FundingBandMaximum, Is.EqualTo(apprenticeship.FundingBandMaximum));
-            Assert.That(apprenticeshipEntityModel.AgeAtStartOfApprenticeship, Is.EqualTo(apprenticeship.AgeAtStartOfApprenticeship));
-        }
     }
 }
