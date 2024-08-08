@@ -40,8 +40,8 @@ public class WhenBuilding
         result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
         result.DeliveryPeriods.Should().BeEquivalentTo(currentEpisode.BuildDeliveryPeriods());
         result.EarningsProfileId.Should().Be(currentEpisode.EarningsProfile!.EarningsProfileId);
-        result.StartDate.Should().Be(currentEpisode.Prices!.OrderBy(x => x.ActualStartDate).First().ActualStartDate);
-        result.PlannedEndDate.Should().Be(currentEpisode.Prices!.OrderBy(x => x.ActualStartDate).Last().PlannedEndDate);
+        result.StartDate.Should().Be(currentEpisode.Prices!.OrderBy(x => x.StartDate).First().StartDate);
+        result.PlannedEndDate.Should().Be(currentEpisode.Prices!.OrderBy(x => x.StartDate).Last().EndDate);
     }
 
     private void BuildApprenticeship()

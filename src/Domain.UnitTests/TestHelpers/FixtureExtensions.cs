@@ -37,7 +37,12 @@ internal static class FixtureExtensions
     }
 
 
-    internal static Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(this Fixture fixture, Apprenticeship.Apprenticeship apprenticeship, decimal? newPrice = null, DateTime? newStartDate = null, bool withMissingEarningsProfile = false)
+    internal static Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(
+        this Fixture fixture, 
+        Apprenticeship.Apprenticeship apprenticeship, 
+        decimal? newPrice = null, 
+        DateTime? newStartDate = null, 
+        bool withMissingEarningsProfile = false)
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipEntityModel>();
 
@@ -86,9 +91,9 @@ internal static class FixtureExtensions
         {
             PriceKey = x.PriceKey,
             FundingBandMaximum = fundingBandMaximum,
-            ActualStartDate = newStartDate ?? x.ActualStartDate,
+            ActualStartDate = newStartDate ?? x.StartDate,
             AgreedPrice = x.AgreedPrice,
-            PlannedEndDate = x.PlannedEndDate
+            PlannedEndDate = x.EndDate
         }).ToList();
     }
 }

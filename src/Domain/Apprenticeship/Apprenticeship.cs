@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
@@ -17,7 +16,6 @@ public class Apprenticeship : AggregateRoot
         ApprenticeshipEpisodes = apprenticeshipEntityModel.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisode(x)).ToList();
     }
 
-
     public Guid ApprenticeshipKey { get; }
     public long ApprovalsApprenticeshipId { get; }
     public string Uln { get; }
@@ -27,25 +25,15 @@ public class Apprenticeship : AggregateRoot
     public void CalculateEarnings(ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.CalculateEarnings();
+        currentEpisode.CalculateEarnings(systemClock);
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarningsEpisodeUpdated(ApprenticeshipEvent episodeUpdatedEvent, ISystemClockService systemClock)
+    public void RecalculateEarnings(ApprenticeshipEvent apprenticeshipEvent, ISystemClockService systemClock)
     {
-        var episode = this.ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == episodeUpdatedEvent.Episode.Key);
-        episode.Update(episodeUpdatedEvent.Episode);
-
-        if (episodeUpdatedEvent is ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
-        {
-            var existingEarnings = episode.EarningsProfile!.Instalments.Select(x => new Earning { AcademicYear = x.AcademicYear, Amount = x.Amount, DeliveryPeriod = x.DeliveryPeriod }).ToList();
-            episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(existingEarnings, apprenticeshipPriceChangedEvent.EffectiveFromDate));
-        }
-        else if (episodeUpdatedEvent is ApprenticeshipStartDateChangedEvent apprenticeshipStartDateChangedEvent)
-        {
-            episode.RecalculateEarnings(systemClock, apprenticeshipFunding => apprenticeshipFunding.RecalculateEarnings(apprenticeshipStartDateChangedEvent.StartDate));
-        }
-
+        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
+        episode.Update(apprenticeshipEvent.Episode);
+        episode.CalculateEarnings(systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 }

@@ -76,7 +76,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
-                    new ApprenticeshipEpisodePrice
+                    new()
                     {
                         TotalPrice = 15000,
                         StartDate = _startDate,
@@ -114,7 +114,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
-                    new ApprenticeshipEpisodePrice
+                    new()
                     {
                         TotalPrice = 15000,
                         StartDate = _startDate,
@@ -164,7 +164,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
-                    new ApprenticeshipEpisodePrice
+                    new()
                     {
                         TotalPrice = 35000,
                         StartDate = new DateTime(2019, 01, 01),

@@ -1,65 +1,77 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
-public interface IInstalmentsGenerator
+public static class InstalmentsGenerator
 {
-    public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate);
-    public List<Earning> Recalculate(decimal newTotalPrice, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings);
-}
-
-public class InstalmentsGenerator : IInstalmentsGenerator
-{
-    public List<Earning> Generate(decimal total, DateTime startDate, DateTime endDate)
+    public static List<Earning> GenerateEarningsForEpisodePrices(List<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
     {
-        var installments = new List<Earning>();
+        var earnings = new List<Earning>();
+        onProgramTotal = 0;
+        completionPayment = 0;
+        var apprenticeshipEndDate = prices.Max(x => x.EndDate);
 
+        foreach (var price in prices)
+        {
+            var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(
+                price.AgreedPrice,
+                price.FundingBandMaximum);
+            onProgramTotal = apprenticeshipFunding.OnProgramTotal;
+            completionPayment = apprenticeshipFunding.CompletionPayment;
+
+            var remainingCostToDistribute = onProgramTotal - earnings.Sum(x => x.Amount);
+            var earningsForPricePeriod = GenerateEarningsForPeriod(
+                remainingCostToDistribute,
+                price.StartDate, 
+                price.EndDate, 
+                apprenticeshipEndDate);
+            earnings.AddRange(earningsForPricePeriod);
+        }
+
+        return earnings;
+    }
+
+    private static IEnumerable<Earning> GenerateEarningsForPeriod(decimal total, DateTime periodStartDate, DateTime periodEndDate, DateTime apprenticeshipEndDate)
+    {
+        var periodInstalmentCount = CalculateInstalmentCount(periodStartDate, periodEndDate);
+        var remainingInstalmentCount = CalculateInstalmentCount(periodStartDate, apprenticeshipEndDate);
+        var instalmentAmount = decimal.Round(total / remainingInstalmentCount, 5);
+
+        var earnings = new List<Earning>();
+        var currentMonth = new DateTime(periodStartDate.Year, periodStartDate.Month, 1);
+
+        for (var i = 0; i < periodInstalmentCount; i++)
+        {
+            var earning = new Earning
+            {
+                DeliveryPeriod = currentMonth.ToDeliveryPeriod(),
+                AcademicYear = currentMonth.ToAcademicYear(),
+                Amount = instalmentAmount
+            };
+
+            earnings.Add(earning);
+            currentMonth = currentMonth.AddMonths(1);
+        }
+
+        return earnings;
+    }
+
+    private static int CalculateInstalmentCount(DateTime startDate, DateTime endDate)
+    {
         var startDateMonth = new DateTime(startDate.Year, startDate.Month, 1);
         var endDateMonth = GetLastPaymentMonth(endDate);
-
-        while (startDateMonth <= endDateMonth)
-        {
-            installments.Add(new Earning
-            {
-                DeliveryPeriod = startDateMonth.ToDeliveryPeriod(),
-                AcademicYear = startDateMonth.ToAcademicYear()
-            });
-            startDateMonth = startDateMonth.AddMonths(1);
-        }
-
-        var installmentAmount = total / installments.Count;
-
-        foreach (var installment in installments)
-        {
-            installment.Amount = decimal.Round(installmentAmount, 5);
-        }
-
-        return installments;
+        var instalmentCount = ((endDateMonth.Year - startDateMonth.Year) * 12) +
+            endDateMonth.Month -
+            startDateMonth.Month + 1;
+        return instalmentCount;
     }
 
-    public List<Earning> Recalculate(decimal newTotalPrice, DateTime priceDateChange, DateTime endDate, List<Earning> existingEarnings)
+    private static DateTime GetLastPaymentMonth(DateTime endDate)
     {
-        var installments = new List<Earning>();
-
-        var lastPaidMonth = GetLastPaymentMonth(priceDateChange);
-        var installmentsBeforePriceChangeDate = existingEarnings.Where(x => x.AcademicYear.ToDateTime(x.DeliveryPeriod) <= lastPaidMonth).ToList();
-
-        var totalBeforePriceChangeDate = installmentsBeforePriceChangeDate.Sum(x => x.Amount);
-        var amountLeftToPay = newTotalPrice - totalBeforePriceChangeDate;
-        var nextPayMonth = lastPaidMonth.AddMonths(1);
-
-        var newInstallments = Generate(amountLeftToPay, nextPayMonth, endDate);
-
-        installments.AddRange(installmentsBeforePriceChangeDate);
-        installments.AddRange(newInstallments);
-        return installments;
-    }
-
-    private DateTime GetLastPaymentMonth(DateTime endDate)
-    {
-        if (endDate.Day == DateTime.DaysInMonth(endDate.Year, endDate.Month))
-            return new DateTime(endDate.Year, endDate.Month, 1);
-
-        return new DateTime(endDate.Year, endDate.Month, 1).AddMonths(-1);
+        var isLastDayOfMonth = endDate.Day == DateTime.DaysInMonth(endDate.Year, endDate.Month);
+        return isLastDayOfMonth
+            ? new DateTime(endDate.Year, endDate.Month, 1)
+            : new DateTime(endDate.Year, endDate.Month, 1).AddMonths(-1);
     }
 }
