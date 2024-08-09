@@ -7,14 +7,13 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using Moq;
-using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
-public class EarningsGeneratedEventBuilder_BuildTests
+public class WhenBuildingEarningsGeneratedEvent
 {
     private EarningsGeneratedEventBuilder _sut;
     private EarningsGeneratedEvent _result;
