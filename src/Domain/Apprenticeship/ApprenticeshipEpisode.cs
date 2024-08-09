@@ -48,7 +48,7 @@ public class ApprenticeshipEpisode
         Prices = model.Prices != null ? model.Prices.Select(x => new Price(x)).ToList() : new List<Price>();
     }
 
-    public void CalculateEarnings(ISystemClockService systemClock)
+    public void CalculateEpisodeEarnings(ISystemClockService systemClock)
     {
         var earnings = InstalmentsGenerator.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
         UpdateEarningsProfile(earnings, systemClock, onProgramTotal, completionPayment);
@@ -68,7 +68,7 @@ public class ApprenticeshipEpisode
         UKPRN = episodeUpdate.Ukprn;
     }
 
-    private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService? systemClock, decimal onProgramTotal, decimal completionPayment)
+    private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
         if (EarningsProfile != null) 
         {

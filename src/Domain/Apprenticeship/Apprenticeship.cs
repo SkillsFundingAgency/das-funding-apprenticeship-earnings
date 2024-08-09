@@ -25,7 +25,7 @@ public class Apprenticeship : AggregateRoot
     public void CalculateEarnings(ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.CalculateEarnings(systemClock);
+        currentEpisode.CalculateEpisodeEarnings(systemClock);
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
@@ -33,7 +33,7 @@ public class Apprenticeship : AggregateRoot
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
-        episode.CalculateEarnings(systemClock);
+        episode.CalculateEpisodeEarnings(systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 }
