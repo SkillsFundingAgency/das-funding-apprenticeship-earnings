@@ -5,14 +5,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 
 public static class InstalmentsGenerator
 {
-    public static List<Earning> GenerateEarningsForEpisodePrices(List<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
+    public static List<Earning> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
     {
         var earnings = new List<Earning>();
         onProgramTotal = 0;
         completionPayment = 0;
-        var apprenticeshipEndDate = prices.Max(x => x.EndDate);
+        
+        var orderedPrices = prices.OrderBy(x => x.StartDate).ToList();
+        var apprenticeshipEndDate = orderedPrices.Last().EndDate;
 
-        foreach (var price in prices)
+        foreach (var price in orderedPrices)
         {
             var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(
                 price.AgreedPrice,
