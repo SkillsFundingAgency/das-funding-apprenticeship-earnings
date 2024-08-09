@@ -41,7 +41,7 @@ public static class InstalmentsGenerator
         var instalmentAmount = decimal.Round(total / remainingInstalmentCount, 5);
 
         var earnings = new List<Earning>();
-        var currentMonth = new DateTime(periodStartDate.Year, periodStartDate.Month, 1);
+        var currentMonth = new DateTime(periodStartDate.Year, periodStartDate.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
         for (var i = 0; i < periodInstalmentCount; i++)
         {
@@ -61,7 +61,7 @@ public static class InstalmentsGenerator
 
     private static int CalculateInstalmentCount(DateTime startDate, DateTime endDate)
     {
-        var startDateMonth = new DateTime(startDate.Year, startDate.Month, 1);
+        var startDateMonth = new DateTime(startDate.Year, startDate.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var endDateMonth = GetLastPaymentMonth(endDate);
         var instalmentCount = ((endDateMonth.Year - startDateMonth.Year) * 12) +
             endDateMonth.Month -
@@ -73,7 +73,7 @@ public static class InstalmentsGenerator
     {
         var isLastDayOfMonth = endDate.Day == DateTime.DaysInMonth(endDate.Year, endDate.Month);
         return isLastDayOfMonth
-            ? new DateTime(endDate.Year, endDate.Month, 1)
-            : new DateTime(endDate.Year, endDate.Month, 1).AddMonths(-1);
+            ? new DateTime(endDate.Year, endDate.Month, 1, 0, 0, 0, DateTimeKind.Utc)
+            : new DateTime(endDate.Year, endDate.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(-1);
     }
 }
