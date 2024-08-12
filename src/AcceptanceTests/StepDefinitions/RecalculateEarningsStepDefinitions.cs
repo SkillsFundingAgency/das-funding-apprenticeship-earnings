@@ -88,12 +88,9 @@ public class RecalculateEarningsStepDefinitions
     }
 
     #region Arrange
-    [Given("earnings have been calculated for an apprenticeship in the pilot")]
-    [Given("new earnings are to be calculated following a price change")]
-    [Given("new earnings are to be calculated following a start date change")]
+    [Given("an apprenticeship has been created")]
     public void ApprenticeshipCreated()
     {
-        //  Gets published in the when clause just before the price change request to allow for any 'And' clauses to be added
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             ApprenticeshipKey = Guid.NewGuid(),
@@ -104,12 +101,12 @@ public class RecalculateEarningsStepDefinitions
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
-                    new ApprenticeshipEpisodePrice
+                    new()
                     {
-                        EndDate = _endDate,
-                        FundingBandMaximum = _fundingBandMaximum,
                         Key = _priceKey,
                         StartDate = _startDate,
+                        EndDate = _endDate,
+                        FundingBandMaximum = _fundingBandMaximum,
                         TotalPrice = 15000
                     }
                 },
@@ -137,12 +134,20 @@ public class RecalculateEarningsStepDefinitions
                 Key = _episodeKey,
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
-                    new ApprenticeshipEpisodePrice
+                    new()
+                    {
+                        Key = _priceKey,
+                        StartDate = _startDate,
+                        EndDate = _effectiveFromDate.AddDays(-1),
+                        FundingBandMaximum = _fundingBandMaximum,
+                        TotalPrice = 15000
+                    },
+                    new()
                     {
                         Key = _priceChangePriceKey,
                         TrainingPrice = _newTrainingPrice,
                         EndPointAssessmentPrice = _newAssessmentPrice,
-                        StartDate = _startDate,
+                        StartDate = _effectiveFromDate,
                         EndDate = _endDate,
                         FundingBandMaximum = _fundingBandMaximum,
                         TotalPrice = _newTrainingPrice + _newAssessmentPrice
@@ -167,7 +172,7 @@ public class RecalculateEarningsStepDefinitions
                 Key = _episodeKey,
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
-                    new ApprenticeshipEpisodePrice
+                    new()
                     {
                         Key = _priceKey,
                         StartDate = _startDate,
@@ -185,17 +190,17 @@ public class RecalculateEarningsStepDefinitions
     [Given("the total price is below or at the funding band maximum")]
     public void SetTotalBelowBandMaximum()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TrainingPrice = _newTrainingPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TrainingPrice = _newTrainingPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().EndPointAssessmentPrice = _newAssessmentPrice;
     }
 
     [Given("the price change request is for a new total price above the funding band maximum")]
     public void SetTotalAboveBandMaximum()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPriceAboveBandMax + _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TrainingPrice = _newTrainingPriceAboveBandMax;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TotalPrice = _newTrainingPriceAboveBandMax + _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TrainingPrice = _newTrainingPriceAboveBandMax;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().EndPointAssessmentPrice = _newAssessmentPrice;
     }
 
     [Given("a price change request was sent before the end of R14 of the current academic year")]
@@ -207,9 +212,9 @@ public class RecalculateEarningsStepDefinitions
     [Given("the price change request is for a new total price up to or at the funding band maximum")]
     public void SetPriceChange()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().EndPointAssessmentPrice = _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.First().TrainingPrice = _newTrainingPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().EndPointAssessmentPrice = _newAssessmentPrice;
+        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TrainingPrice = _newTrainingPrice;
     }
 
     [Given("a start date change request was sent before the end of R14 of the current academic year")]
@@ -270,15 +275,19 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
+    [Given(@"the earnings for the apprenticeship are calculated")]
+    public async Task PublishApprenticeshipCreatedEvent()
+    {
+        await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
+        await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
+    }
+
     #endregion
 
     #region Act
     [When("the price change is approved by the other party before the end of year")]
-    [When("the earnings are calculated")]
-    public async Task PublishEvents()
+    public async Task PublishPriceChangeEvents()
     {
-        await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
-        await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
         await _endpointInstance.Publish(_apprenticeshipPriceChangedEvent);
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
@@ -286,8 +295,6 @@ public class RecalculateEarningsStepDefinitions
 	[When("the start date change is approved")]
 	public async Task PublishStartDateChangeEvents()
 	{
-		await _endpointInstance.Publish(_apprenticeshipCreatedEvent);
-		await WaitHelper.WaitForItAsync(async () => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
 		await _endpointInstance.Publish(_startDateChangedEvent);
 		await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
 	}
@@ -308,7 +315,7 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
-    [Then("the earnings are recalculated based on the lower of: the new total price and the funding band maximum")]
+    [Then("the earnings are recalculated based on the funding band maximum")]
     public void AssertEarningsRecalculatedBasedOnBandMaximum()
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());

@@ -22,7 +22,7 @@ public class ProcessEpisodeUpdatedCommandHandler : IProcessEpisodeUpdatedCommand
     {
         var apprenticeshipDomainModel = command.ApprenticeshipEntity.GetDomainModel();
 
-        apprenticeshipDomainModel.RecalculateEarningsEpisodeUpdated(command.EpisodeUpdatedEvent, _systemClock);
+        apprenticeshipDomainModel.RecalculateEarnings(command.EpisodeUpdatedEvent, _systemClock);
 
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
 

@@ -70,20 +70,20 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheStartDateAndEndDateAreUpdated()
     {
         // Act
-        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
+        _apprenticeship.RecalculateEarnings(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
         var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
         updatedPrice.Should().NotBeNull();
-        updatedPrice!.ActualStartDate.Should().Be(_apprenticeshipStartDateChangedEvent.StartDate);
-        updatedPrice.PlannedEndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);
+        updatedPrice!.StartDate.Should().Be(_apprenticeshipStartDateChangedEvent.StartDate);
+        updatedPrice.EndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);
     }
 
     [Test]
     public void ThenTheAgeAtStartOfApprenticeshipIsUpdated()
     {
         // Act
-        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
+        _apprenticeship.RecalculateEarnings(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
         _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.AgeAtStartOfApprenticeship);
@@ -93,7 +93,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheDeletedPricesAreRemoved()
     {
         // Act
-        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
+        _apprenticeship.RecalculateEarnings(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
         _currentEpisode.Prices.Should().OnlyContain(p => _apprenticeshipStartDateChangedEvent.Episode.Prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
@@ -103,7 +103,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenAnEarningsRecalculatedEventIsAdded()
     {
         // Act
-        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
+        _apprenticeship.RecalculateEarnings(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();

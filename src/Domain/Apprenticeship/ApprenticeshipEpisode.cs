@@ -16,7 +16,7 @@ public class ApprenticeshipEpisode
     public string LegalEntityName { get; private set; }
     public long? FundingEmployerAccountId { get; set; }
     public EarningsProfile? EarningsProfile { get; private set; }
-    public List<Price>? Prices { get; private set; }
+    public List<Price> Prices { get; private set; }
     public List<HistoryRecord<EarningsProfile>> EarningsProfileHistory { get; private set; }
 
     public string FundingLineType =>
@@ -48,22 +48,10 @@ public class ApprenticeshipEpisode
         Prices = model.Prices != null ? model.Prices.Select(x => new Price(x)).ToList() : new List<Price>();
     }
 
-    public void CalculateEarnings()
+    public void CalculateEpisodeEarnings(ISystemClockService systemClock)
     {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(Prices![0].AgreedPrice, Prices[0].ActualStartDate, Prices[0].PlannedEndDate, Prices[0].FundingBandMaximum);
-        var earnings = apprenticeshipFunding.GenerateEarnings();
-        UpdateEarningsProfile(apprenticeshipFunding, earnings, null);
-    }
-
-    public void RecalculateEarnings(ISystemClockService systemClock, Func<ApprenticeshipFunding.ApprenticeshipFunding, List<Earning>> recalculate)
-    {
-        var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(
-            this.GetCurrentPrice(systemClock).AgreedPrice,
-            Prices!.OrderBy(x => x.ActualStartDate).First().ActualStartDate,
-            Prices!.OrderBy(x => x.PlannedEndDate).Last().PlannedEndDate,
-            this.GetCurrentPrice(systemClock).FundingBandMaximum);
-        var newEarnings = recalculate(apprenticeshipFunding);
-        UpdateEarningsProfile(apprenticeshipFunding, newEarnings, systemClock);
+        var earnings = InstalmentsGenerator.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
+        UpdateEarningsProfile(earnings, systemClock, onProgramTotal, completionPayment);
     }
 
     public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
@@ -80,12 +68,12 @@ public class ApprenticeshipEpisode
         UKPRN = episodeUpdate.Ukprn;
     }
 
-    private void UpdateEarningsProfile(ApprenticeshipFunding.ApprenticeshipFunding apprenticeshipFunding, List<Earning> earnings, ISystemClockService? systemClock)
+    private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
         if (EarningsProfile != null) 
         {
             EarningsProfileHistory.Add(new HistoryRecord<EarningsProfile> { Record = EarningsProfile, SupersededDate = systemClock!.UtcNow.Date });
         }
-        EarningsProfile = new EarningsProfile(apprenticeshipFunding.OnProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), apprenticeshipFunding.CompletionPayment, Guid.NewGuid());
+        EarningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, Guid.NewGuid());
     }
 }

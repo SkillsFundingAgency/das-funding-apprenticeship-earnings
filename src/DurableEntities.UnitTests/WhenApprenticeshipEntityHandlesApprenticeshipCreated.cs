@@ -53,8 +53,8 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
                 {
                     new ApprenticeshipEpisodePrice
                     {
-                        StartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().ActualStartDate,
-                        EndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().PlannedEndDate,
+                        StartDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().StartDate,
+                        EndDate = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().EndDate,
                         TotalPrice = _apprenticeship.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice,
                         FundingBandMaximum = (int)_apprenticeship.ApprenticeshipEpisodes.First().Prices.First().FundingBandMaximum
                     }

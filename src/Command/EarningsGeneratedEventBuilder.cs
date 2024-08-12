@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -32,12 +31,12 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
             AgreedPrice = currentEpisode.Prices![0].AgreedPrice,
-            StartDate = currentEpisode.Prices![0].ActualStartDate,
+            StartDate = currentEpisode.Prices![0].StartDate,
             TrainingCode = currentEpisode.TrainingCode,
             EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
-            PlannedEndDate = currentEpisode.Prices![0].PlannedEndDate,
+            PlannedEndDate = currentEpisode.Prices![0].EndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId
         };

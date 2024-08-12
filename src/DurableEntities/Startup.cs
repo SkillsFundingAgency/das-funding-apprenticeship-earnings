@@ -54,14 +54,13 @@ public class Startup : FunctionsStartup
         Environment.SetEnvironmentVariable("NServiceBusConnectionString", applicationSettings.NServiceBusConnectionString);
        
         builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
-        builder.Services.AddSingleton<ApplicationSettings>(x => applicationSettings);
+        builder.Services.AddSingleton(_ => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
         builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotAcceptanceTests(configuration));
         builder.Services.AddCommandServices().AddEventServices();
 
         builder.Services.AddSingleton<ISystemClockService, SystemClockService>();
-        builder.Services.AddSingleton<IInstalmentsGenerator, InstalmentsGenerator>();
         builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
         builder.Services.AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>();
         builder.Services.AddScoped<ICreateApprenticeshipCommandHandler, CreateApprenticeshipCommandHandler>();
