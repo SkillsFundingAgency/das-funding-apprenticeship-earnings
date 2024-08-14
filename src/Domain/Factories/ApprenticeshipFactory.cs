@@ -6,22 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
     {
         public Apprenticeship.Apprenticeship CreateNew(ApprenticeshipEntityModel entityModel)
         {
-            return new Apprenticeship.Apprenticeship(
-                entityModel.ApprenticeshipKey,
-                entityModel.ApprovalsApprenticeshipId,
-                entityModel.Uln,
-                entityModel.UKPRN,
-                entityModel.EmployerAccountId,
-                entityModel.LegalEntityName,
-                entityModel.ActualStartDate,
-                entityModel.PlannedEndDate,
-                entityModel.AgreedPrice,
-                entityModel.TrainingCode,
-                entityModel.FundingEmployerAccountId,
-                entityModel.FundingType,
-                entityModel.FundingBandMaximum,
-                entityModel.AgeAtStartOfApprenticeship
-            );
+            return new Apprenticeship.Apprenticeship(entityModel);
         }
     }
 }

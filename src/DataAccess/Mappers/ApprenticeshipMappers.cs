@@ -1,26 +1,28 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
+
+public static class ApprenticeshipMappers
 {
-    internal static class ApprenticeshipMappers
+    public static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship, ISystemClockService systemClockService)
     {
-        internal static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship)
+        var currentEpisode = apprenticeship.GetCurrentEpisode(systemClockService);
+
+        return currentEpisode.EarningsProfile?.Instalments.Select(x => new Earning
         {
-            return apprenticeship.EarningsProfile?.Instalments.Select(x => new Earning
-            {
-                Id = Guid.NewGuid(),
-                AcademicYear = x.AcademicYear,
-                Amount = x.Amount,
-                DeliveryPeriod = x.DeliveryPeriod,
-                ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
-                ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-                EmployerAccountId = apprenticeship.EmployerAccountId,
-                FundingEmployerAccountId = apprenticeship.FundingEmployerAccountId,
-                FundingType = apprenticeship.FundingType,
-                UKPRN = apprenticeship.UKPRN,
-                Uln = apprenticeship.Uln
-            });
-        }
+            Id = Guid.NewGuid(),
+            AcademicYear = x.AcademicYear,
+            Amount = x.Amount,
+            DeliveryPeriod = x.DeliveryPeriod,
+            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
+            EmployerAccountId = currentEpisode.EmployerAccountId,
+            FundingType = currentEpisode.FundingType,
+            UKPRN = currentEpisode.UKPRN,
+            Uln = apprenticeship.Uln,
+            ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey
+        });
     }
 }

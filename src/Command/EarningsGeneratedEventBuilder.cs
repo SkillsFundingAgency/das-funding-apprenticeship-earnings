@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -11,24 +13,33 @@ public interface IEarningsGeneratedEventBuilder
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 {
+    private readonly ISystemClockService _systemClock;
+
+    public EarningsGeneratedEventBuilder(ISystemClockService systemClock)
+    {
+        _systemClock = systemClock;
+    }
+
     public EarningsGeneratedEvent Build(Apprenticeship apprenticeship)
     {
+        var currentEpisode = apprenticeship.GetCurrentEpisode(_systemClock);
+
         return new EarningsGeneratedEvent
         {
             ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             Uln = apprenticeship.Uln,
-            EmployerId = apprenticeship.EmployerAccountId,
-            ProviderId = apprenticeship.UKPRN,
-            TransferSenderEmployerId = apprenticeship.FundingEmployerAccountId,
-            AgreedPrice = apprenticeship.AgreedPrice,
-            StartDate = apprenticeship.ActualStartDate,
-            TrainingCode = apprenticeship.TrainingCode,
-            EmployerType = apprenticeship.FundingType.ToOutboundEventEmployerType(),
-            DeliveryPeriods = apprenticeship.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
-            EmployerAccountId = apprenticeship.EmployerAccountId,
-            PlannedEndDate = apprenticeship.PlannedEndDate,
+            EmployerId = currentEpisode.EmployerAccountId,
+            ProviderId = currentEpisode.UKPRN,
+            TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
+            AgreedPrice = currentEpisode.Prices![0].AgreedPrice,
+            StartDate = currentEpisode.Prices![0].ActualStartDate,
+            TrainingCode = currentEpisode.TrainingCode,
+            EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
+            DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
+            EmployerAccountId = currentEpisode.EmployerAccountId,
+            PlannedEndDate = currentEpisode.Prices![0].PlannedEndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            EarningsProfileId = apprenticeship.EarningsProfile.EarningsProfileId
+            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId
         };
     }
 }

@@ -1,112 +1,113 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutoFixture;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
-using System;
-using System.Linq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
 [TestFixture]
 public class WhenRecalculatingEarningsForStartDateChange
 {
-    private Fixture _fixture;
-    private Apprenticeship.Apprenticeship? _apprenticeshipBeforeStartDateChange; //represents the apprenticeship before the start date change
-    private Apprenticeship.Apprenticeship? _sut; // represents the apprenticeship after the start date change
-    private DateTime _updatedStartDate;
-    private int _updatedAgeAtApprenticeshipStart;
-    private DateTime _orginalStartDate = new DateTime(2021, 1, 15);
-    private DateTime _orginalEndDate = new DateTime(2021, 12, 31);
-
-    public WhenRecalculatingEarningsForStartDateChange()
-    {
-        _fixture = new Fixture();
-    }
+    private Fixture? _fixture;
+    private Mock<ISystemClockService>? _mockSystemClockService;
+    private Apprenticeship.Apprenticeship? _apprenticeship;
+    private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
+    private ApprenticeshipStartDateChangedEvent _apprenticeshipStartDateChangedEvent;
 
     [SetUp]
-    public void SetUp()
+    public void Setup()
     {
-        _updatedStartDate = new DateTime(2021, 3, 15);
-        _updatedAgeAtApprenticeshipStart = _fixture.Create<int>();
-        _apprenticeshipBeforeStartDateChange = CreateApprenticeship(_fixture.Create<decimal>(), _orginalStartDate, _orginalEndDate);
-        _apprenticeshipBeforeStartDateChange.CalculateEarnings();
-        _sut = CreateUpdatedApprenticeship(_apprenticeshipBeforeStartDateChange, _updatedStartDate);
+        _fixture = new Fixture();
+        _mockSystemClockService = new Mock<ISystemClockService>();
+        _mockSystemClockService.Setup(x => x.UtcNow).Returns(new DateTimeOffset(new DateTime(2023, 11, 1)));
+
+        var apprenticeshipEpisode = _fixture.Create<ApprenticeshipEpisodeModel>();
+        var prices = _fixture.CreateMany<PriceModel>(3).ToList();
+        prices[0].ActualStartDate = new DateTime(2023, 2, 1);
+        prices[0].PlannedEndDate = new DateTime(2023, 5, 1);
+        prices[1].ActualStartDate = new DateTime(2023, 5, 1);
+        prices[1].PlannedEndDate = new DateTime(2023, 7, 1);
+        prices[2].ActualStartDate = new DateTime(2023, 7, 1);
+        prices[2].PlannedEndDate = new DateTime(2024, 2, 1);
+        apprenticeshipEpisode.Prices = prices;
+
+        var apprenticeshipEntityModel = _fixture
+            .Build<ApprenticeshipEntityModel>()
+            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeModel> { apprenticeshipEpisode })
+            .Create();
+
+        _apprenticeship = new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
+        _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
+
+        _apprenticeshipStartDateChangedEvent = new ApprenticeshipStartDateChangedEvent
+        {
+            Episode = new Apprenticeships.Types.ApprenticeshipEpisode
+            {
+                Key = _currentEpisode.ApprenticeshipEpisodeKey,
+                Prices = new List<ApprenticeshipEpisodePrice>
+                {
+                    new ApprenticeshipEpisodePrice
+                    {
+                        Key = _currentEpisode.Prices.Last().PriceKey,
+                        StartDate = new DateTime(2023, 1, 1),
+                        EndDate = new DateTime(2024, 1, 1)
+                    }
+                },
+                AgeAtStartOfApprenticeship = 20
+            },
+            StartDate = new DateTime(2023, 1, 1)
+        };
     }
 
     [Test]
-    public void ThenTheActualStartDateAndAgeAreUpdated()
+    public void ThenTheStartDateAndEndDateAreUpdated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
-        _sut.ActualStartDate.Should().Be(_updatedStartDate);
-        _sut.AgeAtStartOfApprenticeship.Should().Be(_updatedAgeAtApprenticeshipStart);
+        // Act
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
+
+        // Assert
+        var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
+        updatedPrice.Should().NotBeNull();
+        updatedPrice!.ActualStartDate.Should().Be(_apprenticeshipStartDateChangedEvent.StartDate);
+        updatedPrice.PlannedEndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);
     }
 
     [Test]
-    public void ThenTheEarningsProfileIsCalculated()
+    public void ThenTheAgeAtStartOfApprenticeshipIsUpdated()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
-        _sut.EarningsProfile.OnProgramTotal.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.OnProgramTotal);
-        _sut.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipBeforeStartDateChange.EarningsProfile.CompletionPayment);
-        _sut.EarningsProfile.EarningsProfileId.Should().NotBe(_apprenticeshipBeforeStartDateChange.EarningsProfile.EarningsProfileId);
-        _sut.EarningsProfile.Instalments.Count.Should().Be(10);
-            
-        var sum = Math.Round(_sut.EarningsProfile.Instalments.Sum(x => x.Amount),2);     
-        sum.Should().Be(_sut.EarningsProfile.OnProgramTotal);
+        // Act
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
+
+        // Assert
+        _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.AgeAtStartOfApprenticeship);
     }
 
     [Test]
-    public void ThenEarningsRecalculatedEventIsCreated()
+    public void ThenTheDeletedPricesAreRemoved()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
+        // Act
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
-        var events = _sut.FlushEvents();
-        events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
+        // Assert
+        _currentEpisode.Prices.Should().OnlyContain(p => _apprenticeshipStartDateChangedEvent.Episode.Prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
     }
-        
+
     [Test]
-    public void ThenTheEarningsProfileIdIsGenerated()
+    public void ThenAnEarningsRecalculatedEventIsAdded()
     {
-        _sut!.RecalculateEarnings(_updatedStartDate, _orginalEndDate, _updatedAgeAtApprenticeshipStart);
-        _sut.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
-    }
+        // Act
+        _apprenticeship.RecalculateEarningsEpisodeUpdated(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
-    private Apprenticeship.Apprenticeship CreateApprenticeship(decimal agreedPrice, DateTime startDate, DateTime endDate)
-    {
-        return new Apprenticeship.Apprenticeship(
-            Guid.NewGuid(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            _fixture.Create<long>(),
-            _fixture.Create<long>(),
-            _fixture.Create<string>(),
-            startDate,
-            endDate,
-            agreedPrice,
-            _fixture.Create<string>(),
-            null,
-            _fixture.Create<FundingType>(),
-            agreedPrice + 1,
-            _fixture.Create<int>());
-    }
- 
-    private Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(Apprenticeship.Apprenticeship apprenticeship, DateTime newStartDate)
-    {
-        return new Apprenticeship.Apprenticeship(
-            apprenticeship.ApprenticeshipKey,
-            apprenticeship.ApprovalsApprenticeshipId,
-            apprenticeship.Uln,
-            apprenticeship.UKPRN,
-            apprenticeship.EmployerAccountId,
-            apprenticeship.LegalEntityName,
-            newStartDate,
-            apprenticeship.PlannedEndDate,
-            apprenticeship.AgreedPrice,
-            apprenticeship.TrainingCode,
-            apprenticeship.FundingEmployerAccountId,
-            apprenticeship.FundingType,
-            apprenticeship.AgreedPrice + 1,
-            apprenticeship.AgeAtStartOfApprenticeship,
-            apprenticeship.EarningsProfile);
+        // Assert
+        var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();
+        events.Should().HaveCount(1);
+        events.First().Apprenticeship.Should().BeEquivalentTo(_apprenticeship);
     }
 }

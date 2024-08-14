@@ -26,7 +26,7 @@ public class ApprenticeshipCreatedEventHandler
                 apprenticeshipCreatedEvent.ApprenticeshipKey,
                 JsonSerializer.Serialize(apprenticeshipCreatedEvent, new JsonSerializerOptions { WriteIndented = true }));
 
-            if (!(apprenticeshipCreatedEvent.FundingPlatform.HasValue && apprenticeshipCreatedEvent.FundingPlatform.Value == FundingPlatform.DAS))
+            if (!(apprenticeshipCreatedEvent.Episode.FundingPlatform.HasValue && Enum.Parse<FundingPlatform>(apprenticeshipCreatedEvent.Episode.FundingPlatform.Value.ToString()) == FundingPlatform.DAS))
             {
                 log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {apprenticeshipCreatedEvent.ApprenticeshipKey}");
                 return;
@@ -40,7 +40,7 @@ public class ApprenticeshipCreatedEventHandler
         }
         catch (Exception ex)
         {
-            log.LogError($"{nameof(ApprenticeshipEntity)} threw exception.", ex);
+            log.LogError(ex, $"{nameof(ApprenticeshipEntity)} threw exception.");
             throw;
         }
     }
