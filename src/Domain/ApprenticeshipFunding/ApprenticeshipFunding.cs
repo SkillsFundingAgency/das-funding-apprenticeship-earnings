@@ -3,22 +3,17 @@
 public class ApprenticeshipFunding
 {
     private const decimal AgreedPriceMultiplier = 0.8m;
-    private readonly DateTime _startDate;
-    private readonly DateTime _endDate;
     public decimal OnProgramTotal { get; }
     public decimal CompletionPayment { get; }
-    public decimal CappedAgreedPrice { get; }
 
-    public ApprenticeshipFunding(decimal agreedPrice, DateTime startDate, DateTime endDate, decimal fundingBandMaximum)
+    public ApprenticeshipFunding(decimal agreedPrice, decimal fundingBandMaximum)
     {
-        _startDate = startDate;
-        _endDate = endDate;
-        CappedAgreedPrice = CalculateCappedAgreedPrice(fundingBandMaximum, agreedPrice);
-        OnProgramTotal = CalculateOnProgramTotalAmount(CappedAgreedPrice);
-        CompletionPayment = CalculateCompletionPayment(CappedAgreedPrice);
+        var cappedAgreedPrice = CalculateCappedAgreedPrice(fundingBandMaximum, agreedPrice);
+        OnProgramTotal = CalculateOnProgramTotalAmount(cappedAgreedPrice);
+        CompletionPayment = CalculateCompletionPayment(cappedAgreedPrice);
     }
-
-    private decimal CalculateCappedAgreedPrice(decimal fundingBandMaximum, decimal agreedPrice)
+    
+    private static decimal CalculateCappedAgreedPrice(decimal fundingBandMaximum, decimal agreedPrice)
     {
         return Math.Min(fundingBandMaximum, agreedPrice);
     }
@@ -28,29 +23,8 @@ public class ApprenticeshipFunding
         return agreedPrice - OnProgramTotal;
     }
 
-    private decimal CalculateOnProgramTotalAmount(decimal agreedPrice)
+    private static decimal CalculateOnProgramTotalAmount(decimal agreedPrice)
     {
         return agreedPrice * AgreedPriceMultiplier;
-    }
-
-    public List<Earning> GenerateEarnings()
-    {
-        var instalmentGenerator = new InstalmentsGenerator();
-        var earnings = instalmentGenerator.Generate(OnProgramTotal, _startDate, _endDate);
-        return earnings;
-    }
-
-    public List<Earning> RecalculateEarnings(List<Earning> existingEarnings, DateTime effectivePriceChangeDate)
-    {
-        var installmentGenerator = new InstalmentsGenerator();
-        var earnings = installmentGenerator.Recalculate(OnProgramTotal, effectivePriceChangeDate, _endDate, existingEarnings);
-        return earnings;
-    }
-
-    public List<Earning> RecalculateEarnings(DateTime newStartDate)
-    {
-        var installmentGenerator = new InstalmentsGenerator();
-        var earnings = installmentGenerator.Generate(OnProgramTotal, newStartDate, _endDate);
-        return earnings;
     }
 }

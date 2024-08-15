@@ -60,7 +60,6 @@ public class ApprenticeshipEntity
     public async Task HandleApprenticeshipPriceChangeApprovedEvent(ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
     {
         var apprenticeship = await _processEpisodeUpdatedCommandHandler.RecalculateEarnings(new ProcessEpisodeUpdatedCommand(Model, apprenticeshipPriceChangedEvent));
-
         UpdateEpisodes(apprenticeship);
 
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
@@ -129,9 +128,9 @@ public class ApprenticeshipEntity
         {
             PriceKey = price.PriceKey,
             FundingBandMaximum = price.FundingBandMaximum,
-            ActualStartDate = price.ActualStartDate,
+            ActualStartDate = price.StartDate,
             AgreedPrice = price.AgreedPrice,
-            PlannedEndDate = price.PlannedEndDate
+            PlannedEndDate = price.EndDate
         };
     }
 

@@ -47,8 +47,8 @@ public class WhenCreatingANewApprenticeship
             {
                 episode.Prices.Should().ContainSingle(x =>
                     x.PriceKey == price.PriceKey &&
-                    x.ActualStartDate == price.ActualStartDate &&
-                    x.PlannedEndDate == price.PlannedEndDate &&
+                    x.StartDate == price.ActualStartDate &&
+                    x.EndDate == price.PlannedEndDate &&
                     x.AgreedPrice == price.AgreedPrice &&
                     x.FundingBandMaximum == price.FundingBandMaximum);
             }

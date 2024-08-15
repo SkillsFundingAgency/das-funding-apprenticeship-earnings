@@ -94,7 +94,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
                 AgeAtStartOfApprenticeship = _fixture.Create<int>()
             }
         };
-        _apprenticeship.RecalculateEarningsEpisodeUpdated(_startDateChangedEvent, _mockSystemClock.Object);
+        _apprenticeship.RecalculateEarnings(_startDateChangedEvent, _mockSystemClock.Object);
 
         _createApprenticeshipCommandHandler = new Mock<ICreateApprenticeshipCommandHandler>();
         _domainEventDispatcher = new Mock<IDomainEventDispatcher>();
