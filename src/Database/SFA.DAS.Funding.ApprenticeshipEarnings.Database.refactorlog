@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="0cfe3106-4218-4b28-8121-32cb7da1cbb9" ChangeDateTime="08/19/2024 09:51:28">
+    <Property Name="ElementName" Value="[dbo].[Apprenticeship].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Apprenticeship]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Key" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b2787562-0c36-4f14-b445-c4e6670fd976" ChangeDateTime="08/19/2024 09:57:43">
+    <Property Name="ElementName" Value="[dbo].[Episode].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Episode]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Key" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2c631d21-2095-4736-a1f7-f696fc640eec" ChangeDateTime="08/19/2024 12:45:41">
+    <Property Name="ElementName" Value="[dbo].[EarningProfile].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[EarningProfile]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Key" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="16ca9e2e-bac0-4c28-9547-573700b85ced" ChangeDateTime="08/19/2024 12:48:48">
+    <Property Name="ElementName" Value="[dbo].[Instalment].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Instalment]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Key" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c39f5948-7b89-4749-ab3b-7f7ecf196032" ChangeDateTime="08/19/2024 12:53:20">
+    <Property Name="ElementName" Value="[dbo].[Instalment].[EarningsProfileKey]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Instalment]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EarningProfileKey" />
+  </Operation>
+</Operations>

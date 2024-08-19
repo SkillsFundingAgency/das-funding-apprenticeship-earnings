@@ -61,6 +61,14 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Schemas\Query.sql" />
-    <Build Include="Tables\Earning.sql" />
+    <Build Include="Tables\QueryEarning.sql" />
+    <Build Include="Tables\Apprenticeship.sql" />
+    <Build Include="Tables\Episode.sql" />
+    <Build Include="Tables\EpisodePrice.sql" />
+    <Build Include="Tables\EarningProfile.sql" />
+    <Build Include="Tables\Instalment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.refactorlog" />
   </ItemGroup>
 </Project>
