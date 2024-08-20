@@ -23,6 +23,6 @@ public static class ApprenticeshipExtensions
 
     public static Apprenticeship GetDomainModel(this ApprenticeshipEntityModel entityModel)
     {
-        return new Apprenticeship(entityModel);
+        return new Apprenticeship(entityModel.ApprovalsApprenticeshipId, entityModel.Uln);
     }
 }

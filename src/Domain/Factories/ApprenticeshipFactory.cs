@@ -1,12 +1,11 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+
+public class ApprenticeshipFactory : IApprenticeshipFactory
 {
-    public class ApprenticeshipFactory : IApprenticeshipFactory
+    public Apprenticeship.Apprenticeship CreateNew(long approvalsApprenticeshipId, string uln, List<ApprenticeshipEpisode> apprenticeshipEpisodes)
     {
-        public Apprenticeship.Apprenticeship CreateNew(ApprenticeshipEntityModel entityModel)
-        {
-            return new Apprenticeship.Apprenticeship(entityModel);
-        }
+        return new Apprenticeship.Apprenticeship(approvalsApprenticeshipId, uln, apprenticeshipEpisodes);
     }
 }

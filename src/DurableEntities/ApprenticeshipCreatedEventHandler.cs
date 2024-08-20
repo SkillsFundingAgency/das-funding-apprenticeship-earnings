@@ -36,7 +36,7 @@ public class ApprenticeshipCreatedEventHandler
 
             await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent), apprenticeshipCreatedEvent);
 
-            log.LogInformation($"Started {nameof(ApprenticeshipEntity)} with EntityId = '{entityId}'.");
+            log.LogInformation("Apprenticeship {apprenticeshipKey} Created", apprenticeshipCreatedEvent.ApprenticeshipKey);
         }
         catch (Exception ex)
         {

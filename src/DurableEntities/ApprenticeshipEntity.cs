@@ -36,7 +36,7 @@ public class ApprenticeshipEntity
     public async Task HandleApprenticeshipLearnerEvent(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
     {
         MapApprenticeshipLearnerEventProperties(apprenticeshipCreatedEvent);
-        var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model));
+        var apprenticeship = await _createApprenticeshipCommandHandler.Create(new CreateApprenticeshipCommand(Model)); 
 
         UpdateEpisodes(apprenticeship);
 

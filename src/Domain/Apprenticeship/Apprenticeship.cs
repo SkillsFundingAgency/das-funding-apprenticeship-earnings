@@ -1,19 +1,16 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    public Apprenticeship(ApprenticeshipEntityModel apprenticeshipEntityModel)
+    public Apprenticeship(long approvalsApprenticeshipId, string uln, List<ApprenticeshipEpisode> apprenticeshipEpisodes)
     {
-        ApprenticeshipKey = apprenticeshipEntityModel.ApprenticeshipKey;
-        ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
-        Uln = apprenticeshipEntityModel.Uln;
-
-        ApprenticeshipEpisodes = apprenticeshipEntityModel.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisode(x)).ToList();
+        ApprovalsApprenticeshipId = approvalsApprenticeshipId;
+        Uln = uln;
+        ApprenticeshipEpisodes = apprenticeshipEpisodes;
     }
 
     public Guid ApprenticeshipKey { get; }
