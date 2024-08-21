@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -52,7 +53,7 @@ public class Startup : FunctionsStartup
         Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
         EnsureConfig(applicationSettings);
         Environment.SetEnvironmentVariable("NServiceBusConnectionString", applicationSettings.NServiceBusConnectionString);
-       
+
         builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
         builder.Services.AddSingleton(_ => applicationSettings);
 
