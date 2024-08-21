@@ -3,9 +3,8 @@
 
 public class GetFm36DataResponse : List<Apprenticeship>
 {
-    //public List<Apprenticeship>? Apprenticeships { get; set; }
-}
 
+}
 
 public class Apprenticeship
 {

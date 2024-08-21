@@ -38,16 +38,19 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
 
         _fixture = new Fixture();
+        var apprenticeshipKey = Guid.NewGuid();
+        var episodeKey = Guid.NewGuid();
 
-        _apprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2022, 1, 15));
+        _apprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2022, 1, 15), apprenticeshipKey, episodeKey);
 
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            ApprenticeshipKey = _apprenticeship.ApprenticeshipKey,
+            ApprenticeshipKey = apprenticeshipKey,
             Uln = _apprenticeship.Uln,
             ApprovalsApprenticeshipId = _apprenticeship.ApprovalsApprenticeshipId,
             Episode = new ApprenticeshipEpisode
             {
+                Key = episodeKey,
                 FundingType = Enum.Parse<SFA.DAS.Apprenticeships.Enums.FundingType>(_apprenticeship.ApprenticeshipEpisodes.First().FundingType.ToString()),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {

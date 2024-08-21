@@ -38,14 +38,17 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2021, 8, 30));
 
         _fixture = new Fixture();
+        var apprenticeshipKey = Guid.NewGuid();
+        var episodeKey = Guid.NewGuid();
 
         _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
-            ApprenticeshipKey = Guid.NewGuid(),
+            ApprenticeshipKey = apprenticeshipKey,
             Uln = "900000118",
             ApprovalsApprenticeshipId = 120,
             Episode = new ApprenticeshipEpisode
             {
+                Key = episodeKey,
                 FundingType = Apprenticeships.Enums.FundingType.NonLevy,
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
@@ -68,7 +71,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
         var apprenticeshipStartDate = new DateTime(2021, 1, 15);
         var apprenticeshipEndDate = new DateTime(2022, 1, 15);
 
-        _apprenticeship = _fixture.CreateApprenticeship(apprenticeshipStartDate, apprenticeshipEndDate);
+        _apprenticeship = _fixture.CreateApprenticeship(apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipKey, episodeKey );
 
         _startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
         {
@@ -81,6 +84,7 @@ public class WhenApprenticeshipEntityHandlesStartDateChangeApproved
             StartDate = apprenticeshipStartDate.AddMonths(3),
             Episode = new ApprenticeshipEpisode
             {
+                Key = episodeKey,
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new ApprenticeshipEpisodePrice
