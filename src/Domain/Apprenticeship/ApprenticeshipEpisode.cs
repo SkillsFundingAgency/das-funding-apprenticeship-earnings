@@ -14,7 +14,10 @@ public class ApprenticeshipEpisode
         _model = model;
 
         _prices = _model.Prices.Select(Price.Get).ToList();
-        _earningsProfile = EarningsProfile.Get(_model.EarningsProfile);
+        if (_model.EarningsProfile != null)
+        {
+            _earningsProfile = EarningsProfile.Get(_model.EarningsProfile);
+        }
     }
 
     private readonly EpisodeModel _model;
@@ -31,8 +34,6 @@ public class ApprenticeshipEpisode
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
-    //TODO
-    public List<HistoryRecord<EarningsProfile>> EarningsProfileHistory { get; private set; }
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -66,9 +67,10 @@ public class ApprenticeshipEpisode
 
     private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
-        if (EarningsProfile != null) 
+        if (EarningsProfile != null)
         {
-            EarningsProfileHistory.Add(new HistoryRecord<EarningsProfile> { Record = EarningsProfile, SupersededDate = systemClock!.UtcNow.Date });
+            var historyEntity = new HistoryRecord<EarningsProfileModelBase>(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
+            _model.EarningsProfileHistory.Add(historyEntity);
         }
         _earningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, Guid.NewGuid());
     }

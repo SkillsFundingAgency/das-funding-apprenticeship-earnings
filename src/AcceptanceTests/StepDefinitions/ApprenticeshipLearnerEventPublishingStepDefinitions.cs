@@ -1,6 +1,9 @@
+using Dapper.Contrib.Extensions;
+using Microsoft.Data.SqlClient;
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.QueueNames;
@@ -146,7 +149,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [Then(@"the total completion payment amount of 20% of the adjusted price must be calculated")]
     public async Task ThenTheCompletionPaymentAmountIsCalculated()
     {
-        var entity = await _testContext.TestFunction.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
+        var entity = await GetApprenticeshipEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
@@ -187,5 +190,13 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
         _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
+    }
+
+    private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
+    {
+        await using var dbConnection = new SqlConnection(_testContext.SqlDatabase?.DatabaseInfo.ConnectionString);
+        var apprenticeship = (await dbConnection.GetAllAsync<ApprenticeshipModel>()).SingleOrDefault(x => x.Key == _apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        return apprenticeship;
     }
 }

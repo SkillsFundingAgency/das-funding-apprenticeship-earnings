@@ -21,9 +21,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             _model = model;
         }
 
-        public short AcademicYear { get; }
-        public byte DeliveryPeriod { get; }
-        public decimal Amount { get; }
+        public short AcademicYear => _model.AcademicYear;
+        public byte DeliveryPeriod => _model.DeliveryPeriod;
+        public decimal Amount => _model.Amount;
 
         public InstalmentModel GetModel()
         {

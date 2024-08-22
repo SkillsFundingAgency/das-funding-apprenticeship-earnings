@@ -8,9 +8,7 @@ public class EpisodeModel
 {
     public EpisodeModel()
     {
-        Prices = new List<EpisodePriceModel>();
-        EarningsProfile = new EarningsProfileModel();
-        EarningsProfileHistory = new List<EarningsProfileHistoryModel>();
+        EarningsProfileHistory = new List<HistoryRecord<EarningsProfileModelBase>>();
     }
 
     public EpisodeModel(Guid apprenticeshipKey, ApprenticeshipEpisode apprenticeshipEpisode) : base()
@@ -24,7 +22,7 @@ public class EpisodeModel
         LegalEntityName = apprenticeshipEpisode.LegalEntityName;
         TrainingCode = apprenticeshipEpisode.TrainingCode;
         AgeAtStartOfApprenticeship = apprenticeshipEpisode.AgeAtStartOfApprenticeship;
-        Prices.Add(new EpisodePriceModel(Key, apprenticeshipEpisode.Prices.Single()));
+        Prices.Add(new EpisodePriceModel(Key, apprenticeshipEpisode.Prices.First()));
     }
 
     [Key]
@@ -37,7 +35,7 @@ public class EpisodeModel
 	public string LegalEntityName { get; set; }
     public string TrainingCode { get; set; } = null!;
     public int AgeAtStartOfApprenticeship { get; set; }
-    public List<EpisodePriceModel> Prices { get; set; }
-    public EarningsProfileModel EarningsProfile { get; set; }
-    public List<EarningsProfileHistoryModel> EarningsProfileHistory { get; set; }
+    public List<EpisodePriceModel> Prices { get; set; } = new ();
+    public EarningsProfileModel EarningsProfile { get; set; } = null!;
+    public List<HistoryRecord<EarningsProfileModelBase>> EarningsProfileHistory { get; set; }
 }

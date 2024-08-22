@@ -1,12 +1,14 @@
-﻿using NServiceBus;
+﻿using Dapper.Contrib.Extensions;
+using Microsoft.Data.SqlClient;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -55,8 +57,8 @@ public class RecalculateEarningsStepDefinitions
     private readonly Guid _episodeKey = Guid.NewGuid();
 
 
-	private EarningsProfileEntityModel _originalEarningsProfile;
-    private ApprenticeshipEntity? _updatedApprenticeshipEntity;
+	private EarningsProfileModel _originalEarningsProfile;
+    private ApprenticeshipModel? _updatedApprenticeshipEntity;
 
     #endregion
 
@@ -97,7 +99,7 @@ public class RecalculateEarningsStepDefinitions
             Uln = _random.Next().ToString(),
             ApprovalsApprenticeshipId = 120,
             DateOfBirth = _dateOfBirth,
-            Episode = new ApprenticeshipEpisode
+            Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode
             {
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
@@ -129,7 +131,7 @@ public class RecalculateEarningsStepDefinitions
             EffectiveFromDate = _effectiveFromDate,
             ApprovedBy = ApprovedBy.Employer,
             ApprovedDate = _changeRequestDate,
-            Episode = new ApprenticeshipEpisode
+            Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode
             {
                 Key = _episodeKey,
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -167,7 +169,7 @@ public class RecalculateEarningsStepDefinitions
             EmployerApprovedBy = "",
             Initiator = "",
             StartDate = _startDate,
-            Episode = new ApprenticeshipEpisode
+            Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode
             {
                 Key = _episodeKey,
                 Prices = new List<ApprenticeshipEpisodePrice>
@@ -307,7 +309,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var expectedTotal = _newTrainingPrice + _newAssessmentPrice; //todo
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        var actualTotal = currentEpisode.EarningsProfile.AdjustedPrice + currentEpisode.EarningsProfile.CompletionPayment;
+        var actualTotal = currentEpisode.EarningsProfile.OnProgramTotal + currentEpisode.EarningsProfile.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
@@ -321,7 +323,7 @@ public class RecalculateEarningsStepDefinitions
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var expectedTotal = _fundingBandMaximum;
-        var actualTotal = currentEpisode.EarningsProfile.AdjustedPrice + currentEpisode.EarningsProfile.CompletionPayment;
+        var actualTotal = currentEpisode.EarningsProfile.OnProgramTotal + currentEpisode.EarningsProfile.CompletionPayment;
 
         if (expectedTotal != actualTotal)
         {
@@ -396,7 +398,7 @@ public class RecalculateEarningsStepDefinitions
         var earningsBeforeTheEffectiveFromDate = frozenInstalments.Sum(x => x.Amount);
 
         var numberOfRecalculatedInstalments = currentEpisode.EarningsProfile.Instalments.Count - frozenInstalments.Count;
-        var newPriceLessCompletion = currentEpisode.EarningsProfile.AdjustedPrice;
+        var newPriceLessCompletion = currentEpisode.EarningsProfile.OnProgramTotal;
 
         var expectedMonthlyPrice = Math.Round((newPriceLessCompletion - earningsBeforeTheEffectiveFromDate) / numberOfRecalculatedInstalments, 5);
 
@@ -416,7 +418,7 @@ public class RecalculateEarningsStepDefinitions
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var numberOfRecalculatedInstalments = currentEpisode.EarningsProfile.Instalments.Count;
-        var totalPriceLessCompletion = currentEpisode.EarningsProfile.AdjustedPrice;
+        var totalPriceLessCompletion = currentEpisode.EarningsProfile.OnProgramTotal;
 
         var expectedMonthlyPrice = Math.Round(totalPriceLessCompletion / numberOfRecalculatedInstalments, 5);
 
@@ -471,9 +473,12 @@ public class RecalculateEarningsStepDefinitions
         return true;
     }
 
-    private async Task<ApprenticeshipEntity> GetApprenticeshipEntity()
+    private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
-        return await _testContext.TestFunction!.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent!.ApprenticeshipKey.ToString());
+        await using var dbConnection = new SqlConnection(_testContext.SqlDatabase?.DatabaseInfo.ConnectionString);
+        var apprenticeship = (await dbConnection.GetAllAsync<ApprenticeshipModel>()).SingleOrDefault(x => x.Key == _apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        return apprenticeship;
     }
 
     private async Task<bool> EnsureRecalculationHasHappened()
@@ -490,7 +495,7 @@ public class RecalculateEarningsStepDefinitions
         return true;
     }
 
-    private List<InstalmentEntityModel> GetFrozenInstalments(ApprenticeshipEntity apprenticeshipEntity)
+    private List<InstalmentModel> GetFrozenInstalments(ApprenticeshipModel apprenticeshipEntity)
     {
         var fromYear = _effectiveFromDate.ToAcademicYear();
         var fromPeriod = _effectiveFromDate.ToDeliveryPeriod();

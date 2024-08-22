@@ -66,4 +66,9 @@
     </SpecFlowFeatureFiles>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Functions\" />
+  </ItemGroup>
+
 </Project>

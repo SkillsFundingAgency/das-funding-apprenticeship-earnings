@@ -19,7 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
         public virtual DbSet<InstalmentModel> Instalments { get; set; }
 
-        public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
+        //public virtual DbSet<HistoryRecord<EarningsProfileModelBase>> EarningsProfileHistories { get; set; }
         public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,23 +47,27 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
             // EarningsProfile
             modelBuilder.Entity<EarningsProfileModel>()
+                .HasKey(x => x.EarningsProfileId);
+
+            modelBuilder.Entity<EarningsProfileModel>()
                 .HasMany(x => x.Instalments)
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
-            modelBuilder.Entity<EarningsProfileModel>()
-                .HasKey(x => x.EarningsProfileId);
 
             // Instalment
             modelBuilder.Entity<InstalmentModel>()
                 .HasKey(x => x.Key);
 
             // EarningsProfileHistories
-            modelBuilder.Entity<EarningsProfileHistoryModel>()
-                .HasMany(x => x.Instalments)
+            modelBuilder.Entity<HistoryRecord<EarningsProfileModelBase>>()
+                .OwnsOne(x => x.Record)
+                .ToTable("EarningsProfileHistory")
+                .HasKey(x => x.EarningsProfileId);
+
+            modelBuilder.Entity<HistoryRecord<EarningsProfileModelBase>>()
+                .HasMany(x => x.Record.Instalments)
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
-            modelBuilder.Entity<EarningsProfileHistoryModel>()
-                .HasKey(x => x.EarningsProfileId);
 
             // InstalmentHistories
             modelBuilder.Entity<InstalmentHistoryModel>()

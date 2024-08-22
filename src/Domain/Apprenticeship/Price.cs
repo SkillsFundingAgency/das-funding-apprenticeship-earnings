@@ -13,11 +13,14 @@ public class Price
 
     public Price(Guid priceKey, DateTime startDate, DateTime endDate, decimal agreedPrice, decimal fundingBandMaximum)
     {
-        _model.Key = priceKey;
-        _model.StartDate = startDate;
-        _model.EndDate = endDate;
-        _model.AgreedPrice = agreedPrice;
-        _model.FundingBandMaximum = fundingBandMaximum;
+        _model = new EpisodePriceModel
+        {
+            Key = priceKey,
+            StartDate = startDate,
+            EndDate = endDate,
+            AgreedPrice = agreedPrice,
+            FundingBandMaximum = fundingBandMaximum
+        };
     }
 
     public Guid PriceKey => _model.Key;

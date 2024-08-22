@@ -3,9 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
@@ -128,12 +126,6 @@ public class TestFunction : IDisposable
         {
             throw new Exception($"Failed to start test function host within {timeout.Seconds} seconds.  Check the AzureStorageEmulator is running. ");
         }
-    }
-
-    public async Task<ApprenticeshipEntity> GetEntity(string entityType, string entityKey)
-    {
-        await Jobs.GetEntity(entityType, entityKey);
-        return _orchestrationData.Entity as ApprenticeshipEntity;
     }
     
     public async Task DisposeAsync()

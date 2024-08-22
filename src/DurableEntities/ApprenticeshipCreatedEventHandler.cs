@@ -41,7 +41,6 @@ public class ApprenticeshipCreatedEventHandler
 
             var command = new CreateApprenticeshipCommand(apprenticeshipCreatedEvent);
             await _createApprenticeshipCommandHandler.Create(command);
-            var entityId = new EntityId(nameof(ApprenticeshipEntity), apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
         }
         catch (Exception ex)
         {
