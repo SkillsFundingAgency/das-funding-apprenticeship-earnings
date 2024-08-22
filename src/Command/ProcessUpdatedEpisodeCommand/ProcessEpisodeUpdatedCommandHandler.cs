@@ -1,31 +1,32 @@
 ﻿using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 
 public class ProcessEpisodeUpdatedCommandHandler : IProcessEpisodeUpdatedCommandHandler
 {
+    private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly IMessageSession _messageSession;
     private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
     private readonly ISystemClockService _systemClock;
 
-    public ProcessEpisodeUpdatedCommandHandler(
-        IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
+    public ProcessEpisodeUpdatedCommandHandler(IApprenticeshipRepository apprenticeshipRepository, IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
     {
+        _apprenticeshipRepository = apprenticeshipRepository;
         _messageSession = messageSession;
         _eventBuilder = eventBuilder;
         _systemClock = systemClock;
     }
 
-    public async Task<Apprenticeship> RecalculateEarnings(ProcessEpisodeUpdatedCommand command)
+    public async Task RecalculateEarnings(ProcessEpisodeUpdatedCommand command)
     {
-        var apprenticeshipDomainModel = command.ApprenticeshipEntity.GetDomainModel();
+        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.EpisodeUpdatedEvent.ApprenticeshipKey);
 
         apprenticeshipDomainModel.RecalculateEarnings(command.EpisodeUpdatedEvent, _systemClock);
 
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
 
-        return apprenticeshipDomainModel;
+        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
     }
 }

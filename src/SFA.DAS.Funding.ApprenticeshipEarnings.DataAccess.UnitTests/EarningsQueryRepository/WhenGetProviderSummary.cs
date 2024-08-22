@@ -14,7 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
     public class WhenGetProviderSummary
     {
         private ApprenticeshipEarningsDataContext _dbContext;
-        private Repositories.EarningsQueryRepository _sut;
+        private Domain.Repositories.EarningsQueryRepository _sut;
         private Fixture _fixture;
 
         [SetUp]
@@ -24,7 +24,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
 
             var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>().UseInMemoryDatabase("EmployerIncentivesDbContext" + Guid.NewGuid()).Options;
             _dbContext = new ApprenticeshipEarningsDataContext(options);
-            _sut = new Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), Mock.Of<ISystemClockService>());
+            _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), Mock.Of<ISystemClockService>());
         }
 
         [TearDown]

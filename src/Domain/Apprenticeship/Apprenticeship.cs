@@ -1,26 +1,49 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    public Apprenticeship(ApprenticeshipEntityModel apprenticeshipEntityModel)
+    public Apprenticeship(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
     {
-        ApprenticeshipKey = apprenticeshipEntityModel.ApprenticeshipKey;
-        ApprovalsApprenticeshipId = apprenticeshipEntityModel.ApprovalsApprenticeshipId;
-        Uln = apprenticeshipEntityModel.Uln;
-
-        ApprenticeshipEpisodes = apprenticeshipEntityModel.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisode(x)).ToList();
+        _model = new ApprenticeshipModel
+        {
+            ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
+            Key = apprenticeshipCreatedEvent.ApprenticeshipKey,
+            Uln = apprenticeshipCreatedEvent.Uln,
+            Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.Episode) }
+        };
+        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
     }
 
-    public Guid ApprenticeshipKey { get; }
-    public long ApprovalsApprenticeshipId { get; }
-    public string Uln { get; }
+    private Apprenticeship(ApprenticeshipModel model)
+    {
+        _model = model;
+        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+    }
 
-    public List<ApprenticeshipEpisode> ApprenticeshipEpisodes { get; }
+    private ApprenticeshipModel _model;
+    private readonly List<ApprenticeshipEpisode> _episodes;
+
+    public Guid ApprenticeshipKey => _model.Key;
+    public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
+    public string Uln => _model.Uln;
+
+    public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
+    
+    public static Apprenticeship Get(ApprenticeshipModel entity)
+    {
+        return new Apprenticeship(entity);
+    }
+
+    public ApprenticeshipModel GetModel()
+    {
+        return _model;
+    }
 
     public void CalculateEarnings(ISystemClockService systemClock)
     {

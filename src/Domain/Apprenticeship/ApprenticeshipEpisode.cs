@@ -1,22 +1,37 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class ApprenticeshipEpisode
 {
-    public Guid ApprenticeshipEpisodeKey { get; }
-    public long UKPRN { get; private set; }
-    public long EmployerAccountId { get; private set; }
-    public int AgeAtStartOfApprenticeship { get; private set; }
-    public string TrainingCode { get; private set; }
-    public FundingType FundingType { get; private set; }
-    public string LegalEntityName { get; private set; }
-    public long? FundingEmployerAccountId { get; set; }
-    public EarningsProfile? EarningsProfile { get; private set; }
-    public List<Price> Prices { get; private set; }
+
+    private ApprenticeshipEpisode(EpisodeModel model)
+    {
+        _model = model;
+
+        _prices = _model.Prices.Select(Price.Get).ToList();
+        _earningsProfile = EarningsProfile.Get(_model.EarningsProfile);
+    }
+
+    private readonly EpisodeModel _model;
+    private List<Price> _prices;
+    private EarningsProfile _earningsProfile;
+
+    public Guid ApprenticeshipEpisodeKey => _model.Key;
+    public long UKPRN => _model.Ukprn;
+    public long EmployerAccountId => _model.EmployerAccountId;
+    public int AgeAtStartOfApprenticeship => _model.AgeAtStartOfApprenticeship;
+    public string TrainingCode => _model.TrainingCode;
+    public FundingType FundingType => _model.FundingType;
+    public string LegalEntityName => _model.LegalEntityName;
+    public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
+    public EarningsProfile? EarningsProfile => _earningsProfile;
+    public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
+    //TODO
     public List<HistoryRecord<EarningsProfile>> EarningsProfileHistory { get; private set; }
 
     public string FundingLineType =>
@@ -24,28 +39,9 @@ public class ApprenticeshipEpisode
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
-    public ApprenticeshipEpisode(ApprenticeshipEpisodeModel model)
+    public static ApprenticeshipEpisode Get(EpisodeModel entity)
     {
-        ApprenticeshipEpisodeKey = model.ApprenticeshipEpisodeKey;
-        UKPRN = model.UKPRN;
-        EmployerAccountId = model.EmployerAccountId;
-        TrainingCode = model.TrainingCode;
-        FundingType = model.FundingType;
-        LegalEntityName = model.LegalEntityName;
-        EarningsProfile = model.EarningsProfile != null ? new EarningsProfile(model.EarningsProfile) : null;
-        FundingEmployerAccountId = model.FundingEmployerAccountId;
-        AgeAtStartOfApprenticeship = model.AgeAtStartOfApprenticeship;
-
-        if(model.EarningsProfileHistory != null)
-        {
-            EarningsProfileHistory = model.EarningsProfileHistory.Select(x => new HistoryRecord<EarningsProfile> { SupersededDate = x.SupersededDate, Record = new EarningsProfile(x.Record)}).ToList();
-        }
-        else
-        {
-            EarningsProfileHistory = new List<HistoryRecord<EarningsProfile>>();
-        }
-
-        Prices = model.Prices != null ? model.Prices.Select(x => new Price(x)).ToList() : new List<Price>();
+        return new ApprenticeshipEpisode(entity);
     }
 
     public void CalculateEpisodeEarnings(ISystemClockService systemClock)
@@ -56,16 +52,16 @@ public class ApprenticeshipEpisode
 
     public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
     {
-        Prices = episodeUpdate.Prices
+        _prices = episodeUpdate.Prices
             .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
             .ToList();
-        AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship;
-        EmployerAccountId = episodeUpdate.EmployerAccountId;
-        FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
-        FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
-        LegalEntityName = episodeUpdate.LegalEntityName;
-        TrainingCode = episodeUpdate.TrainingCode;
-        UKPRN = episodeUpdate.Ukprn;
+        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship;
+        _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
+        _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
+        _model.FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
+        _model.LegalEntityName = episodeUpdate.LegalEntityName;
+        _model.TrainingCode = episodeUpdate.TrainingCode;
+        _model.Ukprn = episodeUpdate.Ukprn;
     }
 
     private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
@@ -74,6 +70,6 @@ public class ApprenticeshipEpisode
         {
             EarningsProfileHistory.Add(new HistoryRecord<EarningsProfile> { Record = EarningsProfile, SupersededDate = systemClock!.UtcNow.Date });
         }
-        EarningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, Guid.NewGuid());
+        _earningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, Guid.NewGuid());
     }
 }

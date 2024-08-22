@@ -2,11 +2,11 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Mappers;
 
 public static class ApprenticeshipMappers
 {
-    public static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship apprenticeship, ISystemClockService systemClockService)
+    public static IEnumerable<Earning>? ToEarningsReadModels(this Apprenticeship.Apprenticeship apprenticeship, ISystemClockService systemClockService)
     {
         var currentEpisode = apprenticeship.GetCurrentEpisode(systemClockService);
 

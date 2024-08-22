@@ -29,8 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Types", "Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj", "{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models", "DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj", "{35B906E7-90BD-406B-80D6-5B8F9684B5E2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects", "SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects\SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects.csproj", "{25169F5E-85C3-44BB-B2C6-5519477C39D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{694AAE59-8442-4592-8FA1-C7A8E7FD9A32}"
@@ -103,10 +101,6 @@ Global
 		{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35B906E7-90BD-406B-80D6-5B8F9684B5E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35B906E7-90BD-406B-80D6-5B8F9684B5E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35B906E7-90BD-406B-80D6-5B8F9684B5E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35B906E7-90BD-406B-80D6-5B8F9684B5E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{25169F5E-85C3-44BB-B2C6-5519477C39D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{25169F5E-85C3-44BB-B2C6-5519477C39D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25169F5E-85C3-44BB-B2C6-5519477C39D3}.Release|Any CPU.ActiveCfg = Release|Any CPU

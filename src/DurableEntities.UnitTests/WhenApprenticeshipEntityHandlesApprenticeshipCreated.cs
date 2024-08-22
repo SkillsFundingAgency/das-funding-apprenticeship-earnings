@@ -115,7 +115,7 @@ public class WhenApprenticeshipEntityHandlesApprenticeshipCreated
     [Test]
     public void ShouldCallGenerateEarnings()
     {
-        _createApprenticeshipCommandHandler.Verify(x => x.Create(It.Is<CreateApprenticeshipCommand>(y => y.ApprenticeshipEntity == _sut.Model)));
+        _createApprenticeshipCommandHandler.Verify(x => x.Create(It.Is<CreateApprenticeshipCommand>(y => y.ApprenticeshipCreatedEvent == _sut.Model)));
     }
 
     [Test]

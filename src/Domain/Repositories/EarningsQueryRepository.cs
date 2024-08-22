@@ -1,13 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Mappers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories
 {
     public class EarningsQueryRepository : IEarningsQueryRepository
     {
@@ -22,7 +20,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             _systemClockService = systemClockService;
         }
 
-        public async Task Add(Apprenticeship apprenticeship)
+        public async Task Add(Apprenticeship.Apprenticeship apprenticeship)
         {
             var earningsReadModels = apprenticeship.ToEarningsReadModels(_systemClockService);
             if (earningsReadModels != null)
@@ -32,7 +30,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Repositories
             }
         }
 
-        public async Task Replace(Apprenticeship apprenticeship)
+        public async Task Replace(Apprenticeship.Apprenticeship apprenticeship)
         {
             var earningsToBeRemoved = await DbContext.Earning.Where(x => x.ApprenticeshipKey == apprenticeship.ApprenticeshipKey).ToListAsync();
             DbContext.RemoveRange(earningsToBeRemoved);
