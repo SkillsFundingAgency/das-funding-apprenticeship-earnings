@@ -15,7 +15,7 @@ public class Apprenticeship : AggregateRoot
             ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
             Key = apprenticeshipCreatedEvent.ApprenticeshipKey,
             Uln = apprenticeshipCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.Episode) }
+            Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.ApprenticeshipKey, apprenticeshipCreatedEvent.Episode) }
         };
         _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
     }

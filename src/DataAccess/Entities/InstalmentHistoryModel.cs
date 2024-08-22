@@ -1,8 +1,8 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
-[Table("Domain.InstalmentHistory")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.InstalmentHistory")]
-public class InstalmentHistoryModel
+[Table("Domain.Instalment")]
+[System.ComponentModel.DataAnnotations.Schema.Table("Domain.Instalment")]
+public class InstalmentModel
 {
     [Key]
     public Guid Key { get; set; }

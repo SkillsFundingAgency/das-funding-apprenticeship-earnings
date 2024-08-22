@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Apprenticeships.Enums;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
@@ -18,6 +18,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
         public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
         public virtual DbSet<InstalmentModel> Instalments { get; set; }
+
+        public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
+        public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +55,18 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
             // Instalment
             modelBuilder.Entity<InstalmentModel>()
+                .HasKey(x => x.Key);
+
+            // EarningsProfileHistories
+            modelBuilder.Entity<EarningsProfileHistoryModel>()
+                .HasMany(x => x.Instalments)
+                .WithOne()
+                .HasForeignKey(fk => fk.EarningsProfileId);
+            modelBuilder.Entity<EarningsProfileHistoryModel>()
+                .HasKey(x => x.EarningsProfileId);
+
+            // InstalmentHistories
+            modelBuilder.Entity<InstalmentHistoryModel>()
                 .HasKey(x => x.Key);
 
             base.OnModelCreating(modelBuilder);

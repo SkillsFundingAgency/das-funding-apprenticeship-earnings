@@ -10,7 +10,7 @@ public class EpisodeModel
     {
         Prices = new List<EpisodePriceModel>();
         EarningsProfile = new EarningsProfileModel();
-        EarningsProfileHistory = new List<EarningsProfileHistory>();
+        EarningsProfileHistory = new List<EarningsProfileHistoryModel>();
     }
 
     public EpisodeModel(Guid apprenticeshipKey, ApprenticeshipEpisode apprenticeshipEpisode) : base()
@@ -19,7 +19,7 @@ public class EpisodeModel
         ApprenticeshipKey = apprenticeshipKey;
         Ukprn = apprenticeshipEpisode.Ukprn;
         EmployerAccountId = apprenticeshipEpisode.EmployerAccountId;
-        FundingType = apprenticeshipEpisode.FundingType;
+        FundingType = (FundingType)apprenticeshipEpisode.FundingType;
         FundingEmployerAccountId = apprenticeshipEpisode.FundingEmployerAccountId;
         LegalEntityName = apprenticeshipEpisode.LegalEntityName;
         TrainingCode = apprenticeshipEpisode.TrainingCode;
@@ -39,5 +39,5 @@ public class EpisodeModel
     public int AgeAtStartOfApprenticeship { get; set; }
     public List<EpisodePriceModel> Prices { get; set; }
     public EarningsProfileModel EarningsProfile { get; set; }
-    public List<EarningsProfileHistory> EarningsProfileHistory { get; set; }
+    public List<EarningsProfileHistoryModel> EarningsProfileHistory { get; set; }
 }

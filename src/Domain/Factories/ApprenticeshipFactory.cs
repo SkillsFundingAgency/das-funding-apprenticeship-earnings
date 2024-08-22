@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
 {
@@ -8,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
     {
         public Apprenticeship.Apprenticeship CreateNew(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
-            return new Apprenticeship.Apprenticeship(entityModel);
+            return new Apprenticeship.Apprenticeship(apprenticeshipCreatedEvent);
         }
 
         public Apprenticeship.Apprenticeship GetExisting(ApprenticeshipModel model)
