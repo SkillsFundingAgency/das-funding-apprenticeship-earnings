@@ -31,12 +31,12 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/2.1.7
+    ref: refs/tags/2.1.28
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
     name: SkillsFundingAgency/das-platform-automation
-    ref: refs/tags/5.1.5
+    ref: refs/tags/5.1.8
     endpoint: SkillsFundingAgency
   pipelines:
   - pipeline: das-employer-config
@@ -58,7 +58,6 @@ stages:
   - template: pipeline-templates/job/acceptance-test.yml
     parameters:
       BuildConfiguration: $(BuildConfiguration)
-
 
 - template: azure-pipelines-templates/deploy/stage/nuget-publish.yml@das-platform-building-blocks
 
