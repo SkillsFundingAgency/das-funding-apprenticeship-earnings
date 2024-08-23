@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api.Requests;
 using System.Net;
 using System.Text.Json;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api.Clients;
 
 public class ApiClient<T> : IApiClient<T> where T : class, IApiConfig, new()
 {
@@ -17,10 +19,16 @@ public class ApiClient<T> : IApiClient<T> where T : class, IApiConfig, new()
     public async Task<ApiResponse<TResponse>> Get<TResponse>(IGetApiRequest request)
     {
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, request.GetUrl);
+        AddAuthHeaders(requestMessage);
 
         var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
 
         return await ProcessResponse<TResponse>(response);
+    }
+
+    protected virtual void AddAuthHeaders(HttpRequestMessage request)
+    {
+        // no default implementation
     }
 
     private static async Task<ApiResponse<TResponse>> ProcessResponse<TResponse>(HttpResponseMessage response)
@@ -48,5 +56,3 @@ public class ApiClient<T> : IApiClient<T> where T : class, IApiConfig, new()
         return apiResponse;
     }
 }
-
-public class ApiUnauthorizedException : Exception { }

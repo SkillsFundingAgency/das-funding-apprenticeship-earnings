@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api.Clients;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 

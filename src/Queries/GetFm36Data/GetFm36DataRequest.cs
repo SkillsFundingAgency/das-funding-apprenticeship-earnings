@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Api.Requests;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
