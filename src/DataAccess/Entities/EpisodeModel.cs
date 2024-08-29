@@ -8,7 +8,7 @@ public class EpisodeModel
 {
     public EpisodeModel()
     {
-        EarningsProfileHistory = new List<HistoryRecord<EarningsProfileModelBase>>();
+        EarningsProfileHistory = new List<EarningsProfileHistoryModel>();
     }
 
     public EpisodeModel(Guid apprenticeshipKey, ApprenticeshipEpisode apprenticeshipEpisode) : base()
@@ -37,5 +37,5 @@ public class EpisodeModel
     public int AgeAtStartOfApprenticeship { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
-    public List<HistoryRecord<EarningsProfileModelBase>> EarningsProfileHistory { get; set; }
+    public List<EarningsProfileHistoryModel> EarningsProfileHistory { get; set; }
 }

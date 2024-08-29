@@ -24,15 +24,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // EarningsProfileHistories
-            modelBuilder.Entity<HistoryRecord<EarningsProfileModelBase>>()
-                .HasKey(x => x.Key);
-
-            modelBuilder.Entity<HistoryRecord<EarningsProfileModelBase>>()
-                .OwnsOne(x => x.Record)
-                .Ignore(x => x.Instalments)
-                .ToTable("EarningsProfileHistory");
-
             // Apprenticeship
             modelBuilder.Entity<ApprenticeshipModel>()
                 .HasMany(x => x.Episodes)
@@ -44,6 +35,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             // Episode
             modelBuilder.Entity<EpisodeModel>()
                 .HasKey(a => new { a.Key });
+            modelBuilder.Entity<EpisodeModel>()
+                .HasMany(a => a.EarningsProfileHistory)
+                .WithOne()
+                .HasForeignKey(x => x.EpisodeKey);
             modelBuilder.Entity<EpisodeModel>()
                 .Property(p => p.FundingType)
                 .HasConversion(
@@ -65,6 +60,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
             // Instalment
             modelBuilder.Entity<InstalmentModel>()
+                .HasKey(x => x.Key);
+
+            // EarningsProfileHistory
+            modelBuilder.Entity<EarningsProfileHistoryModel>()
+                .HasKey(x => x.EarningsProfileId);
+
+            modelBuilder.Entity<EarningsProfileHistoryModel>()
+                .HasMany(x => x.Instalments)
+                .WithOne()
+                .HasForeignKey(fk => fk.EarningsProfileId);
+
+            // Instalment
+            modelBuilder.Entity<InstalmentHistoryModel>()
                 .HasKey(x => x.Key);
 
             base.OnModelCreating(modelBuilder);
