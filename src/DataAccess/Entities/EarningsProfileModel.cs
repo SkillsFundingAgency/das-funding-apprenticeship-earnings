@@ -20,14 +20,14 @@ public class EarningsProfileModelBase
 }
 
 [Table("Domain.EarningsProfile")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.EarningsProfile")]
+[System.ComponentModel.DataAnnotations.Schema.Table("EarningsProfile", Schema = "Domain")]
 public class EarningsProfileModel : EarningsProfileModelBase
 {
     public List<InstalmentModel> Instalments { get; set; } = null!;
 }
 
 [Table("Domain.EarningsProfileHistory")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.EarningsProfileHistory")]
+[System.ComponentModel.DataAnnotations.Schema.Table("EarningsProfileHistory", Schema = "Domain")]
 public class EarningsProfileHistoryModel : EarningsProfileModelBase
 {
     public EarningsProfileHistoryModel(EarningsProfileModel original, DateTime supersededDate) : base(original)

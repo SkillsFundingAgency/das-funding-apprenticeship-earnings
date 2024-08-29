@@ -7,7 +7,7 @@
     [FundingType] NVARCHAR(50) NOT NULL, 
     [FundingEmployerAccountId] BIGINT NULL, 
     [LegalEntityName] NVARCHAR(255) NOT NULL,
-    [TrainingCode] NCHAR(10) NOT NULL,
+    [TrainingCode] NCHAR(50) NOT NULL,
     [AgeAtStartOfApprenticeship] TINYINT NOT NULL
 )
 GO

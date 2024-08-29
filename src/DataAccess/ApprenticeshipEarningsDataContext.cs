@@ -36,6 +36,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             modelBuilder.Entity<EpisodeModel>()
                 .HasKey(a => new { a.Key });
             modelBuilder.Entity<EpisodeModel>()
+                .HasOne(a => a.EarningsProfile).WithOne().HasForeignKey<EarningsProfileModel>(x => x.EarningsProfileId);
+            modelBuilder.Entity<EpisodeModel>()
                 .HasMany(a => a.EarningsProfileHistory)
                 .WithOne()
                 .HasForeignKey(x => x.EpisodeKey);
@@ -44,6 +46,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasConversion(
                     v => v.ToString(),
                     v => (FundingType)Enum.Parse(typeof(FundingType), v));
+            modelBuilder.Entity<EpisodeModel>()
+                .HasMany(a => a.Prices)
+                .WithOne()
+                .HasForeignKey(x => x.EpisodeKey);
 
             // EpisodePrice
             modelBuilder.Entity<EpisodePriceModel>()

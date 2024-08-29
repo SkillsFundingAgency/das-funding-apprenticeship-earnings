@@ -3,7 +3,7 @@
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 [Table("Domain.Episode")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.Episode")]
+[System.ComponentModel.DataAnnotations.Schema.Table("Episode", Schema = "Domain")]
 public class EpisodeModel
 {
     public EpisodeModel()

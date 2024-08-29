@@ -11,6 +11,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
@@ -66,6 +67,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddScoped<ICreateApprenticeshipCommandHandler, CreateApprenticeshipCommandHandler>();
         builder.Services.AddScoped<IProcessEpisodeUpdatedCommandHandler, ProcessEpisodeUpdatedCommandHandler>();
         builder.Services.AddScoped<IApprenticeshipFactory, ApprenticeshipFactory>();
+        builder.Services.AddScoped<IApprenticeshipRepository, ApprenticeshipRepository>();
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)

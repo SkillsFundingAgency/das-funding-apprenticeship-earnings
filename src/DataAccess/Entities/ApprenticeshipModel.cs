@@ -1,7 +1,7 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 [Table("Domain.Apprenticeship")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.Apprenticeship")]
+[System.ComponentModel.DataAnnotations.Schema.Table("Apprenticeship", Schema = "Domain")]
 public class ApprenticeshipModel
 {
 	public ApprenticeshipModel()

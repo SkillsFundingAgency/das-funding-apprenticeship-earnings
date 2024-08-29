@@ -22,14 +22,14 @@ public class InstalmentModelBase
 }
 
 [Table("Domain.Instalment")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.Instalment")]
+[System.ComponentModel.DataAnnotations.Schema.Table("Instalment", Schema = "Domain")]
 public class InstalmentModel : InstalmentModelBase
 {
 
 }
 
 [Table("Domain.InstalmentHistory")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Domain.InstalmentHistory")]
+[System.ComponentModel.DataAnnotations.Schema.Table("InstalmentHistory", Schema = "Domain")]
 public class InstalmentHistoryModel : InstalmentModelBase
 {
     public InstalmentHistoryModel(InstalmentModelBase original) : base(original) { }
