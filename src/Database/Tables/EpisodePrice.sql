@@ -4,8 +4,8 @@
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
     [StartDate] DATETIME NOT NULL, 
     [EndDate] DATETIME NOT NULL, 
-    [AgreedPrice] MONEY NULL, 
-    [FundingBandMaximum] INT NOT NULL
+    [AgreedPrice] DECIMAL(15,5) NULL, 
+    [FundingBandMaximum] DECIMAL(15,5) NOT NULL
 )
 GO
 ALTER TABLE Domain.EpisodePrice

@@ -58,9 +58,9 @@ public class WaitHelper
         Assert.Fail($"{failText}  Time: {DateTime.Now:G}.");
     }
 
-    public static async Task WaitForUnexpected(Func<bool> findUnexpected, string failText)
+    public static async Task WaitForUnexpected(Func<bool> findUnexpected, string failText, TimeSpan timeToWait)
     {
-        var endTime = DateTime.Now.Add(Config.TimeToWait);
+        var endTime = DateTime.Now.Add(timeToWait);
         while (DateTime.Now < endTime)
         {
             if (findUnexpected())
@@ -76,5 +76,5 @@ public class WaitHelper
 public class WaitConfiguration
 {
     public TimeSpan TimeToWait { get; set; } = TimeSpan.FromMinutes(1);
-    public TimeSpan TimeToPause { get; set; } = TimeSpan.FromMilliseconds(10);
+    public TimeSpan TimeToPause { get; set; } = TimeSpan.FromMilliseconds(100);
 }

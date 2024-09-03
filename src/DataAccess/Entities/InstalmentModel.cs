@@ -1,18 +1,21 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
-public class InstalmentModelBase
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+
+public abstract class InstalmentModelBase
 {
     [Key]
     public Guid Key { get; set; }
     public Guid EarningsProfileId { get; set; }
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
+    [Precision(15, 5)]
     public decimal Amount { get; set; }
 
-    public InstalmentModelBase(InstalmentModelBase original)
+    public InstalmentModelBase(InstalmentModelBase original, Guid earningsProfileId)
     {
         Key = original.Key;
-        EarningsProfileId = original.EarningsProfileId;
+        EarningsProfileId = earningsProfileId;
         Amount = original.Amount;
         DeliveryPeriod = original.DeliveryPeriod;
         AcademicYear = original.AcademicYear;
@@ -32,6 +35,6 @@ public class InstalmentModel : InstalmentModelBase
 [System.ComponentModel.DataAnnotations.Schema.Table("InstalmentHistory", Schema = "Domain")]
 public class InstalmentHistoryModel : InstalmentModelBase
 {
-    public InstalmentHistoryModel(InstalmentModelBase original) : base(original) { }
+    public InstalmentHistoryModel(InstalmentModelBase original, Guid earningsProfileId) : base(original, earningsProfileId) { }
     public InstalmentHistoryModel() { }
 }

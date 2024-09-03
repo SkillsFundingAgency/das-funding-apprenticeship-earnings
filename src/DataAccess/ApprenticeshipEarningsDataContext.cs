@@ -14,13 +14,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public virtual DbSet<Earning> Earning { get; set; } = null!;
 
         public virtual DbSet<ApprenticeshipModel> Apprenticeships { get; set; }
-        //public virtual DbSet<EpisodeModel> Episodes { get; set; }
-        //public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
-        //public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
-        //public virtual DbSet<InstalmentModel> Instalments { get; set; }
+        public virtual DbSet<EpisodeModel> Episodes { get; set; }
+        public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
+        public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
+        public virtual DbSet<InstalmentModel> Instalments { get; set; }
 
-        //public virtual DbSet<HistoryRecord<EarningsProfileModelBase>> EarningsProfileHistories { get; set; }
-        //public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
+        public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
+        public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,7 +36,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             modelBuilder.Entity<EpisodeModel>()
                 .HasKey(a => new { a.Key });
             modelBuilder.Entity<EpisodeModel>()
-                .HasOne(a => a.EarningsProfile).WithOne().HasForeignKey<EarningsProfileModel>(x => x.EarningsProfileId);
+                .HasOne(a => a.EarningsProfile).WithOne().HasForeignKey<EarningsProfileModel>(x => x.EpisodeKey);
             modelBuilder.Entity<EpisodeModel>()
                 .HasMany(a => a.EarningsProfileHistory)
                 .WithOne()

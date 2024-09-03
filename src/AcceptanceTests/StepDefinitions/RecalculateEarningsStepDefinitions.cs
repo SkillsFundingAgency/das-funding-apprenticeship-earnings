@@ -1,13 +1,10 @@
-﻿using Dapper.Contrib.Extensions;
-using Microsoft.Data.SqlClient;
-using NServiceBus;
+﻿using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
@@ -156,7 +153,12 @@ public class RecalculateEarningsStepDefinitions
                     }
                 },
                 EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
-                Ukprn = 123
+                Ukprn = 123,
+                LegalEntityName = "Smiths",
+                TrainingCode = "AbleSeafarer",
+                FundingEmployerAccountId = null,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
             }
         };
 
@@ -184,7 +186,12 @@ public class RecalculateEarningsStepDefinitions
                     }
                 },
                 EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
-                Ukprn = 123
+                Ukprn = 123,
+                LegalEntityName = "Smiths",
+                TrainingCode = "AbleSeafarer",
+                FundingEmployerAccountId = null,
+                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
+                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
             }
         };
     }
@@ -475,10 +482,7 @@ public class RecalculateEarningsStepDefinitions
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
-        await using var dbConnection = new SqlConnection(_testContext.SqlDatabase?.DatabaseInfo.ConnectionString);
-        var apprenticeship = (await dbConnection.GetAllAsync<ApprenticeshipModel>()).SingleOrDefault(x => x.Key == _apprenticeshipCreatedEvent.ApprenticeshipKey);
-
-        return apprenticeship;
+        return await _testContext.SqlDatabase.GetApprenticeship(_apprenticeshipCreatedEvent.ApprenticeshipKey);
     }
 
     private async Task<bool> EnsureRecalculationHasHappened()
@@ -487,6 +491,11 @@ public class RecalculateEarningsStepDefinitions
 
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
         if (!currentEpisode.EarningsProfileHistory.Any())
+        {
+            return false;
+        }
+
+        if (!currentEpisode.EarningsProfile.Instalments.Any())
         {
             return false;
         }

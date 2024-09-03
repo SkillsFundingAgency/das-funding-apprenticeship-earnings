@@ -1,10 +1,9 @@
 ﻿CREATE TABLE [Domain].[EarningsProfileHistory]
 (
-    [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL,
+    [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
-    [AdjustedPrice] MONEY NULL, 
-    [CompletionPayment] MONEY NULL,
+    [OnProgramTotal] DECIMAL(15,5) NULL, 
+    [CompletionPayment] DECIMAL(15,5) NULL,
     [SupersededDate] DATETIME NOT NULL
 )
 GO

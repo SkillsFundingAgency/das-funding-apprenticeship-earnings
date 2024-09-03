@@ -1,5 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
@@ -10,11 +13,33 @@ public class SqlDatabase : IDisposable
     private const string _authentication = "Integrated Security=True";
 
     public DatabaseInfo DatabaseInfo { get; } = new DatabaseInfo();
+    public ApprenticeshipEarningsDataContext DbContext { get; private set; }
 
     public SqlDatabase(string? dbName = null)
     {
         DatabaseInfo.SetDatabaseName(dbName ?? Guid.NewGuid().ToString());
         CreateTestDatabase();
+
+        var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>()
+            .UseSqlServer(new SqlConnection(DatabaseInfo.ConnectionString), optionsBuilder => optionsBuilder.CommandTimeout(7200)) //7200=2hours
+            .Options;
+        DbContext = new ApprenticeshipEarningsDataContext(options);
+    }
+
+    public async Task<ApprenticeshipModel?> GetApprenticeship(Guid apprenticeshipKey)
+    {
+        var apprenticeship = await DbContext.Apprenticeships
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.EarningsProfile)
+            .ThenInclude(y => y.Instalments)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.EarningsProfileHistory)
+            .ThenInclude(y => y.Instalments)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.Prices)
+            .SingleOrDefaultAsync(x => x.Key == apprenticeshipKey);
+
+        return apprenticeship;
     }
 
     private void CreateTestDatabase()
@@ -33,7 +58,7 @@ public class SqlDatabase : IDisposable
                       FILENAME = 'C:\\temp\\{DatabaseInfo.DatabaseName}.mdf')
                       LOG ON (NAME = [{DatabaseInfo.DatabaseName}_Log],
                       FILENAME = 'C:\\temp\\{DatabaseInfo.DatabaseName}.ldf')";
-  
+
 
 
             using var cmd = new SqlCommand(sql, dbConn);

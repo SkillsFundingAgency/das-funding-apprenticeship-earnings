@@ -16,6 +16,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="Functions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="Functions\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="Functions\**" />
+    <SpecFlowFeatureFiles Remove="Extensions\**" />
+    <SpecFlowFeatureFiles Remove="Functions\**" />
+    <SpecFlowObsoleteCodeBehindFiles Remove="Extensions\**" />
+    <SpecFlowObsoleteCodeBehindFiles Remove="Functions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <SpecFlowObsoleteCodeBehindFiles Remove="Features\RecalculateEarningsFollowingPriceChange - Copy.feature.cs" />
   </ItemGroup>
 
@@ -64,11 +77,6 @@
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
       <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
     </SpecFlowFeatureFiles>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-    <Folder Include="Functions\" />
   </ItemGroup>
 
 </Project>

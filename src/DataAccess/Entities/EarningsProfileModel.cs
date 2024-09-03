@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
-public class EarningsProfileModelBase
+public abstract class EarningsProfileModelBase
 {
     [Key]
     public Guid EarningsProfileId { get; set; }
@@ -33,7 +33,7 @@ public class EarningsProfileHistoryModel : EarningsProfileModelBase
     public EarningsProfileHistoryModel(EarningsProfileModel original, DateTime supersededDate) : base(original)
     {
         SupersededDate = supersededDate;
-        Instalments = original.Instalments.Select(x => new InstalmentHistoryModel(x)).ToList();
+        Instalments = original.Instalments.Select(x => new InstalmentHistoryModel(x, EarningsProfileId)).ToList();
     }
 
     public EarningsProfileHistoryModel() {}

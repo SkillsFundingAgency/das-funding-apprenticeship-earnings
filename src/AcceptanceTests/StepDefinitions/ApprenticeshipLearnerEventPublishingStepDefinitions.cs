@@ -1,8 +1,11 @@
 using Dapper.Contrib.Extensions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -77,6 +80,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             Episode = new ApprenticeshipEpisode
             {
+                Key = Guid.NewGuid(),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new()
@@ -115,6 +119,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             Episode = new ApprenticeshipEpisode
             {
+                Key = Guid.NewGuid(),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new()
@@ -142,8 +147,9 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     }
 
     [When(@"the adjusted price has been calculated")]
-    public void WhenTheAdjustedPriceHasBeenCalculated()
+    public async Task WhenTheAdjustedPriceHasBeenCalculated()
     {
+        await WaitHelper.WaitForItAsync(async () => await EnsureApprenticeshipExists(), "Failed to create Apprenticeship");
     }
 
     [Then(@"the total completion payment amount of 20% of the adjusted price must be calculated")]
@@ -165,6 +171,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             Episode = new ApprenticeshipEpisode
             {
+                Key = Guid.NewGuid(),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new()
@@ -194,9 +201,18 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
-        await using var dbConnection = new SqlConnection(_testContext.SqlDatabase?.DatabaseInfo.ConnectionString);
-        var apprenticeship = (await dbConnection.GetAllAsync<ApprenticeshipModel>()).SingleOrDefault(x => x.Key == _apprenticeshipCreatedEvent.ApprenticeshipKey);
+        return await _testContext.SqlDatabase.GetApprenticeship(_apprenticeshipCreatedEvent.ApprenticeshipKey);
+    }
 
-        return apprenticeship;
+    private async Task<bool> EnsureApprenticeshipExists()
+    {
+        var apprenticeshipEntity = await GetApprenticeshipEntity();
+
+        if (apprenticeshipEntity == null)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

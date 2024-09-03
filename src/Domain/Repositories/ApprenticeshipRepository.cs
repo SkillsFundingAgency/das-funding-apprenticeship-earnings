@@ -29,12 +29,15 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
     public async Task<Apprenticeship.Apprenticeship> Get(Guid key)
     {
         var apprenticeship = await DbContext.Apprenticeships
+            .AsTracking()
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfileHistory)
             .ThenInclude(y => y.Instalments)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.Prices)
             .SingleAsync(x => x.Key == key);
 
         return _apprenticeshipFactory.GetExisting(apprenticeship);
@@ -43,8 +46,22 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
     public async Task Update(Apprenticeship.Apprenticeship apprenticeship)
     {
         var entity = apprenticeship.GetModel();
-        DbContext.Update(entity);
-
+        foreach (var episode in entity.Episodes)
+        {
+            await DbContext.EarningsProfiles.AddAsync(episode.EarningsProfile);
+            foreach (var instalment in episode.EarningsProfile.Instalments)
+            {
+                await DbContext.Instalments.AddAsync(instalment);
+            }
+            foreach (var earningsProfileHistory in episode.EarningsProfileHistory)
+            {
+                await DbContext.EarningsProfileHistories.AddAsync(earningsProfileHistory);
+                foreach (var instalment in earningsProfileHistory.Instalments)
+                {
+                    await DbContext.InstalmentHistories.AddAsync(instalment);
+                }
+            }
+        }
         await DbContext.SaveChangesAsync();
         await ReleaseEvents(apprenticeship);
     }

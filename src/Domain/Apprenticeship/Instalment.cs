@@ -10,9 +10,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         {
             _model = new InstalmentModel
             {
+                Key = Guid.NewGuid(),
                 AcademicYear = academicYear,
                 DeliveryPeriod = deliveryPeriod,
-                Amount = amount,
+                Amount = amount
             };
         }
 
@@ -25,8 +26,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public byte DeliveryPeriod => _model.DeliveryPeriod;
         public decimal Amount => _model.Amount;
 
-        public InstalmentModel GetModel()
+        public InstalmentModel GetModel(Guid earningsProfileId)
         {
+            _model.EarningsProfileId = earningsProfileId;
             return _model;
         }
 

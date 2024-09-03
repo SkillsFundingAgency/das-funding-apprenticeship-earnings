@@ -8,7 +8,7 @@
     [FundingEmployerAccountId] BIGINT NULL, 
     [LegalEntityName] NVARCHAR(255) NOT NULL,
     [TrainingCode] NCHAR(50) NOT NULL,
-    [AgeAtStartOfApprenticeship] TINYINT NOT NULL
+    [AgeAtStartOfApprenticeship] INT NOT NULL
 )
 GO
 ALTER TABLE Domain.Episode

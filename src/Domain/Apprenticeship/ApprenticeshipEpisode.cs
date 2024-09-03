@@ -72,6 +72,7 @@ public class ApprenticeshipEpisode
             var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
             _model.EarningsProfileHistory.Add(historyEntity);
         }
-        _earningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, Guid.NewGuid());
+        _earningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, ApprenticeshipEpisodeKey);
+        _model.EarningsProfile = _earningsProfile.GetModel();
     }
 }
