@@ -2,7 +2,7 @@
 (
     [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
-    [OnProgramTotal] DECIMAL(15,5) NULL, 
+    [OnProgramTotal] DECIMAL(15,5) NOT NULL, 
     [CompletionPayment] DECIMAL(15,5) NULL
 )
 GO
