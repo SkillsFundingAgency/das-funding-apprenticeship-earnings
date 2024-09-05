@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers
 {
     public class QueueNames
     {

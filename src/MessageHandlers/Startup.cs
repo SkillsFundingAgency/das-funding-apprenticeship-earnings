@@ -15,9 +15,10 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
-[assembly: FunctionsStartup(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Startup))]
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
+[assembly: FunctionsStartup(typeof(Startup))]
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 [ExcludeFromCodeCoverage]
 public class Startup : FunctionsStartup
