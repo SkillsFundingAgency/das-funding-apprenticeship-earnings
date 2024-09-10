@@ -44,28 +44,6 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     public async Task Update(Apprenticeship.Apprenticeship apprenticeship)
     {
-/*        var entity = apprenticeship.GetModel();
-        
-        foreach (var episode in entity.Episodes)
-        {
-            foreach (var price in episode.Prices)
-            {
-                //await DbContext.EpisodePrices.AddAsync(price);
-            }
-            await DbContext.EarningsProfiles.AddAsync(episode.EarningsProfile);
-            foreach (var instalment in episode.EarningsProfile.Instalments)
-            {
-                await DbContext.Instalments.AddAsync(instalment);
-            }
-            foreach (var earningsProfileHistory in episode.EarningsProfileHistory)
-            {
-                await DbContext.EarningsProfileHistories.AddAsync(earningsProfileHistory);
-                foreach (var instalment in earningsProfileHistory.Instalments)
-                {
-                    await DbContext.InstalmentHistories.AddAsync(instalment);
-                }
-            }
-        }*/
         await DbContext.SaveChangesAsync();
         await ReleaseEvents(apprenticeship);
     }
