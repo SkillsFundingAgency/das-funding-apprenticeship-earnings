@@ -1,8 +1,11 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 public abstract class EarningsProfileModelBase
 {
-    [Key]
+    [Dapper.Contrib.Extensions.Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid EarningsProfileId { get; set; }
     public Guid EpisodeKey { get; set; }
     public decimal OnProgramTotal { get; set; }
@@ -19,15 +22,15 @@ public abstract class EarningsProfileModelBase
     }
 }
 
-[Table("Domain.EarningsProfile")]
-[System.ComponentModel.DataAnnotations.Schema.Table("EarningsProfile", Schema = "Domain")]
+[Dapper.Contrib.Extensions.Table("Domain.EarningsProfile")]
+[Table("EarningsProfile", Schema = "Domain")]
 public class EarningsProfileModel : EarningsProfileModelBase
 {
     public List<InstalmentModel> Instalments { get; set; } = null!;
 }
 
-[Table("Domain.EarningsProfileHistory")]
-[System.ComponentModel.DataAnnotations.Schema.Table("EarningsProfileHistory", Schema = "Domain")]
+[Dapper.Contrib.Extensions.Table("Domain.EarningsProfileHistory")]
+[Table("EarningsProfileHistory", Schema = "Domain")]
 public class EarningsProfileHistoryModel : EarningsProfileModelBase
 {
     public EarningsProfileHistoryModel(EarningsProfileModel original, DateTime supersededDate) : base(original)

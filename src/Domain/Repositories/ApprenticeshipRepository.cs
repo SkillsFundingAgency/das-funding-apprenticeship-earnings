@@ -29,7 +29,6 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
     public async Task<Apprenticeship.Apprenticeship> Get(Guid key)
     {
         var apprenticeship = await DbContext.Apprenticeships
-            .AsTracking()
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
@@ -45,9 +44,14 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     public async Task Update(Apprenticeship.Apprenticeship apprenticeship)
     {
-        var entity = apprenticeship.GetModel();
+/*        var entity = apprenticeship.GetModel();
+        
         foreach (var episode in entity.Episodes)
         {
+            foreach (var price in episode.Prices)
+            {
+                //await DbContext.EpisodePrices.AddAsync(price);
+            }
             await DbContext.EarningsProfiles.AddAsync(episode.EarningsProfile);
             foreach (var instalment in episode.EarningsProfile.Instalments)
             {
@@ -61,7 +65,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
                     await DbContext.InstalmentHistories.AddAsync(instalment);
                 }
             }
-        }
+        }*/
         await DbContext.SaveChangesAsync();
         await ReleaseEvents(apprenticeship);
     }

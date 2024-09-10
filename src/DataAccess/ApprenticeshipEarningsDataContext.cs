@@ -48,7 +48,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                     v => (FundingType)Enum.Parse(typeof(FundingType), v));
             modelBuilder.Entity<EpisodeModel>()
                 .HasMany(a => a.Prices)
-                .WithOne()
+                .WithOne()  
                 .HasForeignKey(x => x.EpisodeKey);
 
             // EpisodePrice
