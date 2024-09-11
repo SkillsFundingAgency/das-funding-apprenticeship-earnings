@@ -1,17 +1,15 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-[Table("Domain.Apprenticeship")]
-[System.ComponentModel.DataAnnotations.Schema.Table("Apprenticeship", Schema = "Domain")]
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+
+[Dapper.Contrib.Extensions.Table("Domain.Apprenticeship")]
+[Table("Apprenticeship", Schema = "Domain")]
 public class ApprenticeshipModel
 {
-	public ApprenticeshipModel()
-	{
-        Episodes = new List<EpisodeModel>();
-    }
-        
-	[Key]
-	public Guid Key { get; set; }
+    [Dapper.Contrib.Extensions.Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public Guid Key { get; set; }
     public long ApprovalsApprenticeshipId { get; set; }
 	public string Uln { get; set; } = null!;
-    public List<EpisodeModel> Episodes { get; set; }
+    public List<EpisodeModel> Episodes { get; set; } = new();
 }

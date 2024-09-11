@@ -324,6 +324,13 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
+    [Then("the new price is recorded")]
+    public void AssetNewPriceIsRecorded()
+    {
+        var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
+        currentEpisode.Prices.Count.Should().Be(2);
+    }
+
     [Then("the earnings are recalculated based on the funding band maximum")]
     public void AssertEarningsRecalculatedBasedOnBandMaximum()
     {

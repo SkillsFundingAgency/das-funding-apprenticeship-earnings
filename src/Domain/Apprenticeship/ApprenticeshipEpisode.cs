@@ -53,9 +53,8 @@ public class ApprenticeshipEpisode
 
     public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
     {
-        _prices = episodeUpdate.Prices
-            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
-            .ToList();
+        UpdatePrices(episodeUpdate);
+
         _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship;
         _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
         _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
@@ -63,6 +62,30 @@ public class ApprenticeshipEpisode
         _model.LegalEntityName = episodeUpdate.LegalEntityName;
         _model.TrainingCode = episodeUpdate.TrainingCode;
         _model.Ukprn = episodeUpdate.Ukprn;
+    }
+
+    private void UpdatePrices(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
+    {
+        foreach (var existingPrice in _prices.ToList())
+        {
+            var updatedPrice = episodeUpdate.Prices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
+            if (updatedPrice != null)
+            {
+                existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice, updatedPrice.FundingBandMaximum);
+            }
+            else
+            {
+                _prices.Remove(existingPrice);
+                _model.Prices.Remove(existingPrice.GetModel());
+            }
+        }
+
+        var newPrices = episodeUpdate.Prices
+            .Where(x => _prices.All(y => y.PriceKey != x.Key))
+            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
+            .ToList();
+        _model.Prices.AddRange(newPrices.Select(x => x.GetModel()));
+        _prices.AddRange(newPrices);
     }
 
     private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)

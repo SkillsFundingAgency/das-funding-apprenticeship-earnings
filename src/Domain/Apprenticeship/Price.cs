@@ -33,4 +33,17 @@ public class Price
     {
         return new Price(model);
     }
+
+    public void Update(DateTime startDate, DateTime endDate, decimal totalPrice, int fundingBandMaximum)
+    {
+        _model.StartDate = startDate;
+        _model.EndDate = endDate;
+        _model.AgreedPrice = totalPrice;
+        _model.FundingBandMaximum = fundingBandMaximum;
+    }
+
+    public EpisodePriceModel GetModel()
+    {
+        return _model;
+    }
 }

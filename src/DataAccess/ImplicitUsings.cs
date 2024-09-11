@@ -1,1 +1,1 @@
-﻿global using Dapper.Contrib.Extensions;
+﻿
