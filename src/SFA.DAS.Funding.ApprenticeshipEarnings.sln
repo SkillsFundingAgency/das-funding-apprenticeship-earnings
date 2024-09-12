@@ -21,11 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers", "TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj", "{44B8941D-9B56-4024-A04B-E819AFCECA1F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities", "DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj", "{DE9DC81B-42B9-4890-A3EF-8315CA9A6D43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers", "MessageHandlers\SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.csproj", "{DE9DC81B-42B9-4890-A3EF-8315CA9A6D43}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure", "Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj", "{BC323D44-59D1-48C6-B8A3-EC87A5901204}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests", "DurableEntities.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.UnitTests.csproj", "{C46F6030-5DFD-4688-98D8-428F3E035DAD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Types", "Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj", "{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}"
 EndProject
@@ -93,10 +91,6 @@ Global
 		{BC323D44-59D1-48C6-B8A3-EC87A5901204}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC323D44-59D1-48C6-B8A3-EC87A5901204}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC323D44-59D1-48C6-B8A3-EC87A5901204}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C46F6030-5DFD-4688-98D8-428F3E035DAD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF0CD92B-6380-48F4-8C5A-CE307DEC143A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -129,7 +123,6 @@ Global
 		{0E5FBB69-B1BA-4DDD-8CE2-228CA203C36E} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{A22E55BF-9071-42BE-9F66-80D21815AADD} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{44B8941D-9B56-4024-A04B-E819AFCECA1F} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
-		{C46F6030-5DFD-4688-98D8-428F3E035DAD} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{DF4CC130-1AC4-4991-A89E-8D8EB4444B80} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{CFA5FCF1-6C6F-4566-9CAD-8EA554FD844C} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{A9ACFCA1-FBD3-40DA-9AC0-116341E72F02} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
