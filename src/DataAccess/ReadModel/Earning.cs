@@ -3,7 +3,7 @@ using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
 {
-    [Table("Earning", Schema = "Query")]
+    [System.ComponentModel.DataAnnotations.Schema.Table("Earning", Schema = "Query")]
     public class Earning
     {
         public Guid Id { get; set; }

@@ -10,7 +10,7 @@
     [FundingType] NVARCHAR(50) NOT NULL, 
     [DeliveryPeriod] TINYINT NULL,
 	[AcademicYear] SMALLINT NULL,
-    [Amount] DECIMAL(9, 2) NOT NULL, 
+    [Amount] DECIMAL(15,5) NOT NULL, 
     [ApprenticeshipEpisodeKey] UNIQUEIDENTIFIER NULL
 )
 GO

@@ -40,7 +40,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [Then(@"Earnings are not generated for that apprenticeship")]
     public async Task AssertNoEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForUnexpected(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(x => x.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString()), "Found published EarningsGenerated event when expecting no earnings to be generated");
+        await WaitHelper.WaitForUnexpected(() => EarningsGeneratedEventHandler.ReceivedEvents.Any(x => x.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString()), "Found published EarningsGenerated event when expecting no earnings to be generated", TimeSpan.FromSeconds(10));
     }
 
     [Then(@"the funding line type 16-18 must be used in the calculation")]

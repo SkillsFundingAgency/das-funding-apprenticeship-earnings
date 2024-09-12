@@ -16,6 +16,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="Functions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="Functions\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="Functions\**" />
+    <SpecFlowFeatureFiles Remove="Extensions\**" />
+    <SpecFlowFeatureFiles Remove="Functions\**" />
+    <SpecFlowObsoleteCodeBehindFiles Remove="Extensions\**" />
+    <SpecFlowObsoleteCodeBehindFiles Remove="Functions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <SpecFlowObsoleteCodeBehindFiles Remove="Features\RecalculateEarningsFollowingPriceChange - Copy.feature.cs" />
   </ItemGroup>
 
@@ -48,7 +61,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DurableEntities\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.csproj" />
+    <ProjectReference Include="..\MessageHandlers\SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.csproj" />
     <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>

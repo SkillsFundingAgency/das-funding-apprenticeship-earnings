@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -19,10 +18,5 @@ public static class ApprenticeshipExtensions
             instalment.Amount,
             currentEpisode.FundingLineType
         )).ToList();
-    }
-
-    public static Apprenticeship GetDomainModel(this ApprenticeshipEntityModel entityModel)
-    {
-        return new Apprenticeship(entityModel);
     }
 }

@@ -6,9 +6,9 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
@@ -28,22 +28,22 @@ public class WhenRecalculatingEarningsForStartDateChange
         _mockSystemClockService = new Mock<ISystemClockService>();
         _mockSystemClockService.Setup(x => x.UtcNow).Returns(new DateTimeOffset(new DateTime(2023, 11, 1)));
 
-        var apprenticeshipEpisode = _fixture.Create<ApprenticeshipEpisodeModel>();
-        var prices = _fixture.CreateMany<PriceModel>(3).ToList();
-        prices[0].ActualStartDate = new DateTime(2023, 2, 1);
-        prices[0].PlannedEndDate = new DateTime(2023, 5, 1);
-        prices[1].ActualStartDate = new DateTime(2023, 5, 1);
-        prices[1].PlannedEndDate = new DateTime(2023, 7, 1);
-        prices[2].ActualStartDate = new DateTime(2023, 7, 1);
-        prices[2].PlannedEndDate = new DateTime(2024, 2, 1);
+        var apprenticeshipEpisode = _fixture.Create<EpisodeModel>();
+        var prices = _fixture.CreateMany<EpisodePriceModel>(3).ToList();
+        prices[0].StartDate = new DateTime(2023, 2, 1);
+        prices[0].EndDate = new DateTime(2023, 5, 1);
+        prices[1].StartDate = new DateTime(2023, 5, 1);
+        prices[1].EndDate = new DateTime(2023, 7, 1);
+        prices[2].StartDate = new DateTime(2023, 7, 1);
+        prices[2].EndDate = new DateTime(2024, 2, 1);
         apprenticeshipEpisode.Prices = prices;
 
         var apprenticeshipEntityModel = _fixture
-            .Build<ApprenticeshipEntityModel>()
-            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeModel> { apprenticeshipEpisode })
+            .Build<ApprenticeshipModel>()
+            .With(x => x.Episodes, new List<EpisodeModel> { apprenticeshipEpisode })
             .Create();
 
-        _apprenticeship = new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
+        _apprenticeship = Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);
         _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
 
         _apprenticeshipStartDateChangedEvent = new ApprenticeshipStartDateChangedEvent
@@ -73,7 +73,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _apprenticeship.RecalculateEarnings(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        var updatedPrice = _currentEpisode.Prices.Find(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
+        var updatedPrice = _currentEpisode.Prices.FirstOrDefault(p => p.PriceKey == _apprenticeshipStartDateChangedEvent.Episode.Prices.First().Key);
         updatedPrice.Should().NotBeNull();
         updatedPrice!.StartDate.Should().Be(_apprenticeshipStartDateChangedEvent.StartDate);
         updatedPrice.EndDate.Should().Be(_apprenticeshipStartDateChangedEvent.Episode.Prices.First().EndDate);

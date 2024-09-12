@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Moq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Mappers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Mappers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.Mappers;
 
@@ -23,22 +23,22 @@ public class WhenMappingApprenticeshipToEarningsReadModels
     public void ThenEarningsAreMappedCorrectly()
     {
         // Arrange
-        var currentEpisodeModel = _fixture.Create<ApprenticeshipEpisodeModel>();
-        currentEpisodeModel.Prices = new List<PriceModel>
+        var currentEpisodeModel = _fixture.Create<EpisodeModel>();
+        currentEpisodeModel.Prices = new List<EpisodePriceModel>
         {
             new()
             {
-                ActualStartDate = DateTime.UtcNow.AddMonths(-10),
-                PlannedEndDate = DateTime.UtcNow.AddMonths(10),
+                StartDate = DateTime.UtcNow.AddMonths(-10),
+                EndDate = DateTime.UtcNow.AddMonths(10),
             }
         };
 
         var apprenticeshipEntityModel = _fixture
-            .Build<ApprenticeshipEntityModel>()
-            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeModel>{ currentEpisodeModel })
+            .Build<ApprenticeshipModel>()
+            .With(x => x.Episodes, new List<EpisodeModel>{ currentEpisodeModel })
             .Create();
 
-        var apprenticeship = new Apprenticeship(apprenticeshipEntityModel);
+        var apprenticeship = Apprenticeship.Get(apprenticeshipEntityModel);
 
         var expectedEarnings = currentEpisodeModel.EarningsProfile?.Instalments.Select(x => new Earning
         {
@@ -50,9 +50,9 @@ public class WhenMappingApprenticeshipToEarningsReadModels
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EmployerAccountId = currentEpisodeModel.EmployerAccountId,
             FundingType = currentEpisodeModel.FundingType,
-            UKPRN = currentEpisodeModel.UKPRN,
+            UKPRN = currentEpisodeModel.Ukprn,
             Uln = apprenticeship.Uln,
-            ApprenticeshipEpisodeKey = currentEpisodeModel.ApprenticeshipEpisodeKey
+            ApprenticeshipEpisodeKey = currentEpisodeModel.Key
         }).ToList();
 
         _systemClockService.Setup(x => x.UtcNow).Returns(DateTimeOffset.UtcNow);

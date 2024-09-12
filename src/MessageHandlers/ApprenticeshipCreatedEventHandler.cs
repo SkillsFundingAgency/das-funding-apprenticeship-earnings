@@ -1,21 +1,27 @@
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 public class ApprenticeshipCreatedEventHandler
 {
+    private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
+
+    public ApprenticeshipCreatedEventHandler(ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler)
+    {
+        _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
+    }
+
     [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
     public async Task ApprenticeshipLearnerEventServiceBusTrigger(
         [NServiceBusTrigger(Endpoint = QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
-        [DurableClient] IDurableEntityClient client,
         ILogger log)
     {
         try
@@ -32,15 +38,12 @@ public class ApprenticeshipCreatedEventHandler
                 return;
             }
 
-            var entityId = new EntityId(nameof(ApprenticeshipEntity), apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
-
-            await client.SignalEntityAsync(entityId, nameof(ApprenticeshipEntity.HandleApprenticeshipLearnerEvent), apprenticeshipCreatedEvent);
-
-            log.LogInformation($"Started {nameof(ApprenticeshipEntity)} with EntityId = '{entityId}'.");
+            var command = new CreateApprenticeshipCommand(apprenticeshipCreatedEvent);
+            await _createApprenticeshipCommandHandler.Create(command);
         }
         catch (Exception ex)
         {
-            log.LogError(ex, $"{nameof(ApprenticeshipEntity)} threw exception.");
+            log.LogError(ex, $"{nameof(CreateApprenticeshipCommand)} threw exception.");
             throw;
         }
     }

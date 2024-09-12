@@ -2,7 +2,7 @@
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.ApprenticeshipFactory;
 
@@ -22,37 +22,32 @@ public class WhenCreatingANewApprenticeship
     [Test]
     public void ThenTheApprenticeshipIsCreated()
     {
-        var apprenticeshipEntityModel = _fixture.Create<ApprenticeshipEntityModel>();
+        var apprenticeshipCreatedEvent = _fixture.Create<ApprenticeshipCreatedEvent>();
 
-        var apprenticeship = _factory.CreateNew(apprenticeshipEntityModel);
+        var apprenticeship = _factory.CreateNew(apprenticeshipCreatedEvent);
 
-        apprenticeshipEntityModel.ApprenticeshipKey.Should().Be(apprenticeship.ApprenticeshipKey);
-        apprenticeshipEntityModel.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
-        apprenticeshipEntityModel.Uln.Should().Be(apprenticeship.Uln);
+        apprenticeshipCreatedEvent.ApprenticeshipKey.Should().Be(apprenticeship.ApprenticeshipKey);
+        apprenticeshipCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
+        apprenticeshipCreatedEvent.Uln.Should().Be(apprenticeship.Uln);
+        
+        var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
+            x.UKPRN == apprenticeshipCreatedEvent.Episode.Ukprn &&
+            x.EmployerAccountId == apprenticeshipCreatedEvent.Episode.EmployerAccountId &&
+            x.TrainingCode == apprenticeshipCreatedEvent.Episode.TrainingCode &&
+            x.LegalEntityName == apprenticeshipCreatedEvent.Episode.LegalEntityName &&
+            x.AgeAtStartOfApprenticeship == apprenticeshipCreatedEvent.Episode.AgeAtStartOfApprenticeship &&
+            x.FundingEmployerAccountId == apprenticeshipCreatedEvent.Episode.FundingEmployerAccountId &&
+            x.ApprenticeshipEpisodeKey == apprenticeshipCreatedEvent.Episode.Key);
 
-        foreach (var apprenticeshipEpisode in apprenticeshipEntityModel.ApprenticeshipEpisodes)
-        {
-            var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
-                x.UKPRN == apprenticeshipEpisode.UKPRN &&
-                x.EmployerAccountId == apprenticeshipEpisode.EmployerAccountId &&
-                x.TrainingCode == apprenticeshipEpisode.TrainingCode &&
-                x.LegalEntityName == apprenticeshipEpisode.LegalEntityName &&
-                x.AgeAtStartOfApprenticeship == apprenticeshipEpisode.AgeAtStartOfApprenticeship &&
-                x.FundingEmployerAccountId == apprenticeshipEpisode.FundingEmployerAccountId &&
-                x.ApprenticeshipEpisodeKey == apprenticeshipEpisode.ApprenticeshipEpisodeKey);
+        episode.Should().NotBeNull();
 
-            episode.Should().NotBeNull();
-
-            foreach (var price in apprenticeshipEpisode.Prices)
-            {
-                episode.Prices.Should().ContainSingle(x =>
-                    x.PriceKey == price.PriceKey &&
-                    x.StartDate == price.ActualStartDate &&
-                    x.EndDate == price.PlannedEndDate &&
-                    x.AgreedPrice == price.AgreedPrice &&
-                    x.FundingBandMaximum == price.FundingBandMaximum);
-            }
-        }
-
+        var price = apprenticeshipCreatedEvent.Episode.Prices.First();
+        episode.Prices.Count.Should().Be(1);
+        episode.Prices.Should().ContainSingle(x =>
+            x.PriceKey == price.Key &&
+            x.StartDate == price.StartDate &&
+            x.EndDate == price.EndDate &&
+            x.AgreedPrice == price.TotalPrice &&
+            x.FundingBandMaximum == price.FundingBandMaximum);
     }
 }

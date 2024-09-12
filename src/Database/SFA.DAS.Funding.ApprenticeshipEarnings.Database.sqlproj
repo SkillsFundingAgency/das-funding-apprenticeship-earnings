@@ -62,5 +62,13 @@
   <ItemGroup>
     <Build Include="Schemas\Query.sql" />
     <Build Include="Tables\Earning.sql" />
+    <Build Include="Schemas\Domain.sql" />
+    <Build Include="Tables\Apprenticeship.sql" />
+    <Build Include="Tables\Episode.sql" />
+    <Build Include="Tables\EpisodePrice.sql" />
+    <Build Include="Tables\EarningsProfile.sql" />
+    <Build Include="Tables\Instalment.sql" />
+    <Build Include="Tables\EarningsProfileHistory.sql" />
+    <Build Include="Tables\InstalmentHistory.sql" />
   </ItemGroup>
 </Project>

@@ -6,11 +6,11 @@ public static class ApprenticeshipEpisodeExtensions
 {
     public static Price GetCurrentPrice(this ApprenticeshipEpisode episode, ISystemClockService systemClock)
     {
-        var price = episode?.Prices?.Find(x => x.StartDate <= systemClock.UtcNow && x.EndDate >= systemClock.UtcNow);
+        var price = episode?.Prices?.FirstOrDefault(x => x.StartDate <= systemClock.UtcNow && x.EndDate >= systemClock.UtcNow);
 
         if (price == null)
         {
-            price = episode?.Prices?.Find(x => x.StartDate >= systemClock.UtcNow);
+            price = episode?.Prices?.FirstOrDefault(x => x.StartDate >= systemClock.UtcNow);
         }
 
         if(price == null)
