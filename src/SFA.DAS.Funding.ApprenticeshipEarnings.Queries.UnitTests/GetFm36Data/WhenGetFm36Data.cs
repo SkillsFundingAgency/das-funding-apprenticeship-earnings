@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -34,7 +35,7 @@ public class WhenGetFm36Data
         _testTime = _fixture.Create<DateTime>();
         _mockSystemClockService.Setup(x=>x.UtcNow).Returns(_testTime);
 
-        _queryHandler = new GetFm36DataQueryHandler(_mockEarningsQueryRepository.Object, _mockSystemClockService.Object);
+        _queryHandler = new GetFm36DataQueryHandler(_mockEarningsQueryRepository.Object, _mockSystemClockService.Object, Mock.Of<ILogger<GetFm36DataQueryHandler>>());
     }
 
     [Test]
