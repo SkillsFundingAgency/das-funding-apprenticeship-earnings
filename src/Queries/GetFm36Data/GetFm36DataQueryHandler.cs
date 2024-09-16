@@ -49,7 +49,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 CompletionPayment = x.EarningsProfile.CompletionPayment,
                 OnProgramTotal = x.EarningsProfile.OnProgramTotal
             }).ToList(),
-            FundingLineType = currentEpisode.FundingType.ToString()
+            FundingLineType = currentEpisode.FundingLineType.ToString()
         };
     }
 }
