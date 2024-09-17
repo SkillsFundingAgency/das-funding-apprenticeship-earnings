@@ -42,6 +42,7 @@ public class WhenBuilding
         result.EarningsProfileId.Should().Be(currentEpisode.EarningsProfile!.EarningsProfileId);
         result.StartDate.Should().Be(currentEpisode.Prices!.OrderBy(x => x.StartDate).First().StartDate);
         result.PlannedEndDate.Should().Be(currentEpisode.Prices!.OrderBy(x => x.StartDate).Last().EndDate);
+        result.AgeAtStartOfApprenticeship.Should().Be(currentEpisode.AgeAtStartOfApprenticeship);
     }
 
     private void BuildApprenticeship()
