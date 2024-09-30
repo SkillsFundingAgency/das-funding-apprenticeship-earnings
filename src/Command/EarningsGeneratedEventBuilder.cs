@@ -38,7 +38,8 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             EmployerAccountId = currentEpisode.EmployerAccountId,
             PlannedEndDate = currentEpisode.Prices!.First().EndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId
+            EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
+            AgeAtStartOfApprenticeship = currentEpisode.AgeAtStartOfApprenticeship
         };
     }
 }

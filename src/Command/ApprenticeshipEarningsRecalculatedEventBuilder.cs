@@ -28,7 +28,8 @@ public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEar
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
             StartDate = currentEpisode.Prices.OrderBy(x => x.StartDate).First().StartDate,
-            PlannedEndDate = currentEpisode.Prices.OrderBy(x => x.StartDate).Last().EndDate
+            PlannedEndDate = currentEpisode.Prices.OrderBy(x => x.StartDate).Last().EndDate,
+            AgeAtStartOfApprenticeship = currentEpisode.AgeAtStartOfApprenticeship
         };
     }
 }

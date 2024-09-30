@@ -191,4 +191,10 @@ public class WhenBuildingEarningsGeneratedEvent
     {
         _result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
     }
+
+    [Test]
+    public void ShouldPopulateThe_AgeAtStartOfApprenticeship_Correctly()
+    {
+        _result.AgeAtStartOfApprenticeship.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+    }
 }
