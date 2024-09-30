@@ -1,25 +1,24 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 public static class ApprenticeshipEntityExtensions
 {
-    public static ApprenticeshipEpisodeModel GetCurrentEpisode(this ApprenticeshipEntity apprenticeship, ISystemClockService systemClock)
+    public static EpisodeModel GetCurrentEpisode(this ApprenticeshipModel apprenticeship, ISystemClockService systemClock)
     {
-        var episode = apprenticeship.Model.ApprenticeshipEpisodes.Find(x => x.Prices.Exists(price => price.ActualStartDate <= systemClock.UtcNow && price.PlannedEndDate >= systemClock.UtcNow));
+        var episode = apprenticeship.Episodes.Find(x => x.Prices.Exists(price => price.StartDate <= systemClock.UtcNow && price.EndDate >= systemClock.UtcNow));
 
         if (episode == null)
         {
             // if no episode is active for the current date, then there could be an episode for the apprenticeship that is yet to start
-            episode = apprenticeship.Model.ApprenticeshipEpisodes.SingleOrDefault(x => x.Prices.Exists(price => price.ActualStartDate >= systemClock.UtcNow));
+            episode = apprenticeship.Episodes.SingleOrDefault(x => x.Prices.Exists(price => price.StartDate >= systemClock.UtcNow));
         }
 
         if (episode == null)
         {
             // if no episode is active for the current date or future, then there could be an episode for the apprenticeship that has finished
-            episode = apprenticeship.Model.ApprenticeshipEpisodes.OrderByDescending(x => x.Prices.Select(y => y.PlannedEndDate)).First();
+            episode = apprenticeship.Episodes.OrderByDescending(x => x.Prices.Select(y => y.EndDate)).First();
         }
 
         if (episode == null)

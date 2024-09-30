@@ -9,15 +9,19 @@
   <ItemGroup>
 	  <PackageReference Include="Azure.Identity" Version="1.12.0" />
 	  <PackageReference Include="Microsoft.Identity.Client" Version="4.62.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="6.8.5-prerelease-71" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DurableEntities.Models\SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models.csproj" />
+    <ProjectReference Include="..\DataAccess\SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.csproj" />
     <ProjectReference Include="..\SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects\SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

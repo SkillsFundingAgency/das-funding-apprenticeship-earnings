@@ -4,8 +4,9 @@ using NServiceBus;
 using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using ApprenticeshipEpisode = SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode;
@@ -19,6 +20,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
     private readonly Mock<IMessageSession> _mockMessageSession = new();
     private readonly Mock<IApprenticeshipEarningsRecalculatedEventBuilder> _mockEventBuilder = new();
     private readonly Mock<ISystemClockService> _mockSystemClock = new();
+    private readonly Mock<IApprenticeshipRepository> _mockRepository = new();
 
     private void SetupMocks()
     {
@@ -32,21 +34,24 @@ public class WhenProcessEpisodeUpdatedCommandHandled
     public async Task ThenTheEarningsAreGenerated()
     {
         // Arrange
+        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
+        var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
         SetupMocks();
-        var command = BuildCommand();
-        var sut = new ProcessUpdatedEpisodeCommand.ProcessEpisodeUpdatedCommandHandler(_mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object);
+        var command = BuildCommand(apprenticeship);
+        _mockRepository.Setup(x => x.Get(command.EpisodeUpdatedEvent.ApprenticeshipKey)).ReturnsAsync(apprenticeship);
+        var sut = new ProcessUpdatedEpisodeCommand.ProcessEpisodeUpdatedCommandHandler(_mockRepository.Object, _mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object);
 
         // Act
-        var apprenticeship = await sut.RecalculateEarnings(command);
+        await sut.RecalculateEarnings(command);
 
         // Assert
         _mockEventBuilder.Verify(x => x.Build(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(apprenticeship), Times.Once);
     }
 
-    private ProcessEpisodeUpdatedCommand BuildCommand()
+    private ProcessEpisodeUpdatedCommand BuildCommand(Apprenticeship apprenticeship)
     {
-        var apprenticeship = _fixture.CreateApprenticeshipEntityModel();
-        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.Single();
+        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.First();
         var priceChangeApprovedEvent = new ApprenticeshipPriceChangedEvent
         {
             ApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
@@ -62,10 +67,10 @@ public class WhenProcessEpisodeUpdatedCommandHandled
                     new ApprenticeshipEpisodePrice
                     {
                         Key = Guid.NewGuid(),
-                        EndDate = currentEpisode.Prices.Single().PlannedEndDate,
+                        EndDate = currentEpisode.Prices.First().EndDate,
                         EndPointAssessmentPrice = 17000,
                         FundingBandMaximum = 21000,
-                        StartDate = currentEpisode.Prices.Single().ActualStartDate,
+                        StartDate = currentEpisode.Prices.First().StartDate,
                         TrainingPrice = 3000,
                         TotalPrice = 20000
                     }
@@ -75,6 +80,6 @@ public class WhenProcessEpisodeUpdatedCommandHandled
             }
         };
 
-        return new ProcessEpisodeUpdatedCommand(apprenticeship, priceChangeApprovedEvent);
+        return new ProcessEpisodeUpdatedCommand(priceChangeApprovedEvent);
     }
 }

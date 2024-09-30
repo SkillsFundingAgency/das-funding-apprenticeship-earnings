@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Moq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApprenticeshipEarningsRecalculatedEventBuilder;
 
@@ -13,7 +13,7 @@ public class WhenBuilding
     private Fixture _fixture;
     private Mock<ISystemClockService> _mockSystemClockService;
     private Apprenticeship? _apprenticeship;
-    private ApprenticeshipEntityModel? _apprenticeshipEntityModel;
+    private ApprenticeshipModel? _apprenticeshipEntityModel;
     private Command.ApprenticeshipEarningsRecalculatedEventBuilder _builder;
 
     [SetUp]
@@ -48,21 +48,21 @@ public class WhenBuilding
     private void BuildApprenticeship()
     {
         var episodeModel = _fixture
-            .Build<ApprenticeshipEpisodeModel>()
-            .With(x => x.Prices, new List<PriceModel>{ _fixture.Build<PriceModel>()
-                .With(x => x.ActualStartDate, DateTime.UtcNow.AddMonths(-10))
-                .With(x => x.PlannedEndDate, DateTime.UtcNow.AddMonths(10))
+            .Build<EpisodeModel>()
+            .With(x => x.Prices, new List<EpisodePriceModel>{ _fixture.Build<EpisodePriceModel>()
+                .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-10))
+                .With(x => x.EndDate, DateTime.UtcNow.AddMonths(10))
                 .Create() })
             .With(x => x.EarningsProfile, _fixture
-                .Build<EarningsProfileEntityModel>()
-                .With(x => x.Instalments, new List<InstalmentEntityModel>())
+                .Build<EarningsProfileModel>()
+                .With(x => x.Instalments, new List<InstalmentModel>())
                 .Create())
             .Create();
         _apprenticeshipEntityModel = _fixture
-            .Build<ApprenticeshipEntityModel>()
-            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeModel>{ episodeModel })
+            .Build<ApprenticeshipModel>()
+            .With(x => x.Episodes, new List<EpisodeModel>{ episodeModel })
             .Create();
         
-        _apprenticeship = new Apprenticeship(_apprenticeshipEntityModel);
+        _apprenticeship = Apprenticeship.Get(_apprenticeshipEntityModel);
     }
 }

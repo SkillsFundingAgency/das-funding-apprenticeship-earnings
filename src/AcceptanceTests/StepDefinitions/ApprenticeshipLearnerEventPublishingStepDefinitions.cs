@@ -1,9 +1,14 @@
+using Dapper.Contrib.Extensions;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.QueueNames;
+using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.QueueNames;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -74,6 +79,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             Episode = new ApprenticeshipEpisode
             {
+                Key = Guid.NewGuid(),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new()
@@ -112,6 +118,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             Episode = new ApprenticeshipEpisode
             {
+                Key = Guid.NewGuid(),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new()
@@ -139,14 +146,15 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     }
 
     [When(@"the adjusted price has been calculated")]
-    public void WhenTheAdjustedPriceHasBeenCalculated()
+    public async Task WhenTheAdjustedPriceHasBeenCalculated()
     {
+        await WaitHelper.WaitForItAsync(async () => await EnsureApprenticeshipExists(), "Failed to create Apprenticeship");
     }
 
     [Then(@"the total completion payment amount of 20% of the adjusted price must be calculated")]
     public async Task ThenTheCompletionPaymentAmountIsCalculated()
     {
-        var entity = await _testContext.TestFunction.GetEntity(nameof(ApprenticeshipEntity), _apprenticeshipCreatedEvent.ApprenticeshipKey.ToString());
+        var entity = await GetApprenticeshipEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
@@ -162,6 +170,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             DateOfBirth = _dateOfBirth,
             Episode = new ApprenticeshipEpisode
             {
+                Key = Guid.NewGuid(),
                 Prices = new List<ApprenticeshipEpisodePrice>
                 {
                     new()
@@ -187,5 +196,22 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
         _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
+    }
+
+    private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
+    {
+        return await _testContext.SqlDatabase.GetApprenticeship(_apprenticeshipCreatedEvent.ApprenticeshipKey);
+    }
+
+    private async Task<bool> EnsureApprenticeshipExists()
+    {
+        var apprenticeshipEntity = await GetApprenticeshipEntity();
+
+        if (apprenticeshipEntity == null)
+        {
+            return false;
+        }
+
+        return true;
     }
 }
