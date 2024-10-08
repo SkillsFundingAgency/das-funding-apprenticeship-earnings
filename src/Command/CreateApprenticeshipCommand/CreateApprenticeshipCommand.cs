@@ -1,14 +1,14 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DurableEntities.Models;
+﻿using SFA.DAS.Apprenticeships.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
     public class CreateApprenticeshipCommand
     {
-        public CreateApprenticeshipCommand(ApprenticeshipEntityModel apprenticeshipEntity)
+        public CreateApprenticeshipCommand(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
-            ApprenticeshipEntity = apprenticeshipEntity;
+            ApprenticeshipCreatedEvent = apprenticeshipCreatedEvent;
         }
 
-        public ApprenticeshipEntityModel ApprenticeshipEntity { get; }
+        public ApprenticeshipCreatedEvent ApprenticeshipCreatedEvent { get; }
     }
 }

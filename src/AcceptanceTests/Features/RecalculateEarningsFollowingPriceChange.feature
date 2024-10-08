@@ -8,6 +8,7 @@ Scenario: Price change approved in the year it was requested, below or at fundin
 	And the price change request is for a new total price up to or at the funding band maximum
 	When the price change is approved by the other party before the end of year
 	Then the earnings are recalculated based on the new price
+	And the new price is recorded
 	And the earnings prior to the effective-from date are 'frozen' and do not change as part of this calculation
 	And the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship
 	And the amount of each instalment is determined as: newPriceLessCompletion - earningsBeforeTheEffectiveFromDate / numberOfInstalments
@@ -22,6 +23,7 @@ Scenario: Price change approved in the year it was requested, above funding band
 	And the price change request is for a new total price above the funding band maximum
 	When the price change is approved by the other party before the end of year
 	Then the earnings are recalculated based on the funding band maximum
+	And the new price is recorded
 	And the earnings prior to the effective-from date are 'frozen' and do not change as part of this calculation
 	And the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship
 	And the amount of each instalment is determined as: newPriceLessCompletion - earningsBeforeTheEffectiveFromDate / numberOfInstalments

@@ -60,24 +60,4 @@ public static class JobHostExtensions
 
         return jobs;
     }
-
-    public static async Task<IJobHost> Purge(this Task<IJobHost> task)
-    {
-        var jobs = await task;
-        await jobs.CallAsync(nameof(PurgeFunction));
-
-        return jobs;
-    }
-
-    public static async Task<IJobHost> Purge(this IJobHost jobs)
-    {
-        await jobs.CallAsync(nameof(PurgeFunction));
-        return jobs;
-    }
-
-    public static async Task<IJobHost> Terminate(this IJobHost jobs)
-    {
-        await jobs.CallAsync(nameof(TerminateFunction));
-        return jobs;
-    }
 }
