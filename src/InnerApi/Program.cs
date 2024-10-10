@@ -17,6 +17,8 @@ builder.Configuration.AddAzureTableStorage(options =>
     options.PreFixConfigurationKeys = false;
 });
 
+builder.Services.AddApplicationInsightsTelemetry();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
