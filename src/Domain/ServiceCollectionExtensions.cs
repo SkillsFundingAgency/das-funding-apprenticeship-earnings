@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -15,12 +16,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
                         .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)))
                         .AsImplementedInterfaces()
                         .WithTransientLifetime();
-                })
-                .AddScoped<IDomainEventDispatcher, DomainEventDispatcher>()
-                .AddScoped<IAcademicYearService, AcademicYearService>()
-                .AddScoped<IDateService, DateService>();
+                });
+
+            serviceCollection.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+            serviceCollection.AddScoped<IAcademicYearService, AcademicYearService>();
+            serviceCollection.AddScoped<IDateService, DateService>();
 
             return serviceCollection;
         }
+
     }
 }
