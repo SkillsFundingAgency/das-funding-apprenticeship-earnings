@@ -34,6 +34,7 @@ public class ApprenticeshipEpisode
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
+    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19

@@ -7,9 +7,9 @@ public class CoInvestment
     public decimal GovernmentContribution { get; }
     public decimal EmployerContribution { get; }
 
-    public static CoInvestment Calculate(decimal amount)
+    public static CoInvestment Calculate(bool isNoneLevyFullyFunded, decimal amount)
     {
-        var governmentContribution = amount * GovernmentContributionPercentage;
+        var governmentContribution = isNoneLevyFullyFunded ? amount : amount * GovernmentContributionPercentage;
         var employerContribution = amount - governmentContribution;
         return new CoInvestment(governmentContribution, employerContribution);
     }
