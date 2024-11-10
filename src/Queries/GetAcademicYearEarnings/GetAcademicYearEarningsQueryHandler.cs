@@ -33,13 +33,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetAcademicYearEarnings
         {
             if (learner.FundingType == FundingType.NonLevy)
             {
-                learner.OnProgrammeEarnings.ForEach(e => CalculateCoInvestmentForEarning(e));
+                learner.OnProgrammeEarnings.ForEach(e => CalculateCoInvestmentForEarning(learner.IsNoneLevyFullyFunded, e));
             }
         }
 
-        private void CalculateCoInvestmentForEarning(OnProgrammeEarning onProgrammeEarning)
+        private void CalculateCoInvestmentForEarning(bool isNoneLevyFullyFunded, OnProgrammeEarning onProgrammeEarning)
         {
-            var coinvestment = CoInvestment.Calculate(onProgrammeEarning.Amount);
+            var coinvestment = CoInvestment.Calculate(isNoneLevyFullyFunded, onProgrammeEarning.Amount);
             onProgrammeEarning.GovernmentContribution = coinvestment.GovernmentContribution;
             onProgrammeEarning.EmployerContribution = coinvestment.EmployerContribution;
         }

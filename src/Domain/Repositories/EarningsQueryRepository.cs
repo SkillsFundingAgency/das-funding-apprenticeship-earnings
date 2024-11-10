@@ -44,19 +44,20 @@ public class EarningsQueryRepository : IEarningsQueryRepository
         var dbResponse = new
         {
             levyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Levy).SumAsync(x => x.Amount),
-            nonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy).SumAsync(x => x.Amount),
-            transferEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Transfer).SumAsync(x => x.Amount)
+            coinvestedNonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy && !x.IsNonLevyFullyFunded).SumAsync(x => x.Amount),
+            transferEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.Transfer).SumAsync(x => x.Amount),
+            fullyFundedNonLevyEarnings = await DbContext.Earning.Where(x => x.UKPRN == ukprn && x.AcademicYear == academicYear && x.FundingType == FundingType.NonLevy && x.IsNonLevyFullyFunded).SumAsync(x => x.Amount),
         };
 
         var summary = new ProviderEarningsSummary
         {
             TotalLevyEarningsForCurrentAcademicYear = dbResponse.levyEarnings + dbResponse.transferEarnings,
-            TotalNonLevyEarningsForCurrentAcademicYear = dbResponse.nonLevyEarnings
+            TotalNonLevyEarningsForCurrentAcademicYear = dbResponse.coinvestedNonLevyEarnings + dbResponse.fullyFundedNonLevyEarnings
         };
 
         summary.TotalEarningsForCurrentAcademicYear = summary.TotalLevyEarningsForCurrentAcademicYear + summary.TotalNonLevyEarningsForCurrentAcademicYear;
-        summary.TotalNonLevyEarningsForCurrentAcademicYearGovernment = summary.TotalNonLevyEarningsForCurrentAcademicYear * Constants.GovernmentContribution;
-        summary.TotalNonLevyEarningsForCurrentAcademicYearEmployer = summary.TotalNonLevyEarningsForCurrentAcademicYear * Constants.EmployerContribution;
+        summary.TotalNonLevyEarningsForCurrentAcademicYearGovernment = dbResponse.fullyFundedNonLevyEarnings + (dbResponse.coinvestedNonLevyEarnings * Constants.GovernmentContribution);
+        summary.TotalNonLevyEarningsForCurrentAcademicYearEmployer = dbResponse.coinvestedNonLevyEarnings * Constants.EmployerContribution;
 
         return summary;
     }
@@ -76,7 +77,8 @@ public class EarningsQueryRepository : IEarningsQueryRepository
                     DeliveryPeriod = y.DeliveryPeriod,
                     Amount = y.Amount
                 }).ToList(),
-                x.Sum(y => y.Amount)
+                x.Sum(y => y.Amount),
+                x.First().IsNonLevyFullyFunded
             )).ToListAsync()
         );
 

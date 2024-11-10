@@ -89,10 +89,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             var earnings = new Earning[]
             {
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1001).With(x => x.FundingType, FundingType.Levy).Create(), //Exclude - levy
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2010).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.IsNonLevyFullyFunded, false).With(x => x.Amount, 2010).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1100).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - wrong academic year
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2500).With(x => x.FundingType, FundingType.Transfer).Create(), //Exclude - transfer
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.FundingType, FundingType.NonLevy).Create() //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.IsNonLevyFullyFunded, true).With(x => x.Amount, 1000).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include
             };
 
             await _dbContext.AddRangeAsync(earnings);
@@ -102,7 +103,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             var result = await _sut.GetProviderSummary(providerId, currentAcademicYear);
 
             // Assert
-            result.TotalNonLevyEarningsForCurrentAcademicYear.Should().Be(2010);
+            result.TotalNonLevyEarningsForCurrentAcademicYear.Should().Be(3010);
         }
 
         [Test]
@@ -111,15 +112,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             var providerId = _fixture.Create<long>();
             short currentAcademicYear = 2223;
             decimal nonLevyLearnings = 2010;
-            decimal expectedGovernmentContribution = 1909.5m;
+            decimal expectedGovernmentContribution = 2909.5m;
 
             var earnings = new Earning[]
             {
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1001).With(x => x.FundingType, FundingType.Levy).Create(), //Exclude - levy
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, nonLevyLearnings).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.IsNonLevyFullyFunded, false).With(x => x.Amount, nonLevyLearnings).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include - 95%
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1100).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - wrong academic year
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2500).With(x => x.FundingType, FundingType.Transfer).Create(), //Exclude - transfer
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.FundingType, FundingType.NonLevy).Create() //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.IsNonLevyFullyFunded, true).With(x => x.Amount, 1000).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include - 100%
             };
 
             await _dbContext.AddRangeAsync(earnings);
@@ -143,10 +145,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             var earnings = new Earning[]
             {
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1001).With(x => x.FundingType, FundingType.Levy).Create(), //Exclude - levy
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, nonLevyLearnings).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.IsNonLevyFullyFunded, false).With(x => x.Amount, nonLevyLearnings).With(x => x.FundingType, FundingType.NonLevy).Create(), //Include
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1100).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - wrong academic year
                 _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2500).With(x => x.FundingType, FundingType.Transfer).Create(), //Exclude - transfer
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.FundingType, FundingType.NonLevy).Create() //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.AcademicYear, currentAcademicYear).With(x => x.IsNonLevyFullyFunded, true).With(x => x.Amount, 1000).With(x => x.FundingType, FundingType.NonLevy).Create(), //Exclude - fully funded
             };
 
             await _dbContext.AddRangeAsync(earnings);

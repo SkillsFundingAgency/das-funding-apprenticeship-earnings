@@ -11,7 +11,8 @@
     [DeliveryPeriod] TINYINT NULL,
 	[AcademicYear] SMALLINT NULL,
     [Amount] DECIMAL(15,5) NOT NULL, 
-    [ApprenticeshipEpisodeKey] UNIQUEIDENTIFIER NULL
+    [ApprenticeshipEpisodeKey] UNIQUEIDENTIFIER NULL, 
+    [IsNonLevyFullyFunded] BIT NOT NULL DEFAULT 0
 )
 GO
 CREATE INDEX IX_Earnings_ProviderAcademicYearFundingType ON [Query].[Earning] (Ukprn, AcademicYear, FundingType) INCLUDE (Amount)
