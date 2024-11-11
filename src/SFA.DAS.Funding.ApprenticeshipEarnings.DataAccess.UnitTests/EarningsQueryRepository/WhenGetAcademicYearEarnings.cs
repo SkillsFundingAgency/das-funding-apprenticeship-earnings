@@ -40,11 +40,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
 
             var earnings = new Earning[]
             {
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner1Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1001).Create(), //Include
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner1Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2010).Create(), //Include
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner1Uln).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1100).Create(), //Exclude - wrong academic year
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner2Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2500).Create(), //Include
-                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.Uln, learner2Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).Create() //Exclude - wrong provider
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner1Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1001).With(x => x.IsNonLevyFullyFunded, false).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner1Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2010).With(x => x.IsNonLevyFullyFunded, false).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner1Uln).With(x => x.AcademicYear, currentAcademicYear + 1).With(x => x.Amount, 1100).With(x => x.IsNonLevyFullyFunded, false).Create(), //Exclude - wrong academic year
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId).With(x => x.Uln, learner2Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 2500).With(x => x.IsNonLevyFullyFunded, true).Create(), //Include
+                _fixture.Build<Earning>().With(x => x.UKPRN, providerId + 1).With(x => x.Uln, learner2Uln).With(x => x.AcademicYear, currentAcademicYear).With(x => x.Amount, 1009).With(x => x.IsNonLevyFullyFunded, true).Create() //Exclude - wrong provider
             };
 
             await _dbContext.AddRangeAsync(earnings);
@@ -61,12 +61,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             learner1Result.OnProgrammeEarnings.Any(x => x.AcademicYear == currentAcademicYear && x.DeliveryPeriod == earnings[0].DeliveryPeriod && x.Amount == earnings[0].Amount).Should().BeTrue();
             learner1Result.OnProgrammeEarnings.Any(x => x.AcademicYear == currentAcademicYear && x.DeliveryPeriod == earnings[1].DeliveryPeriod && x.Amount == earnings[1].Amount).Should().BeTrue();
             learner1Result.TotalOnProgrammeEarnings.Should().Be(3011);
+            learner1Result.IsNoneLevyFullyFunded.Should().BeFalse();
 
             var learner2Result = result.Learners.Single(x => x.Uln == learner2Uln);
             learner2Result.Uln.Should().Be(learner2Uln);
             learner2Result.OnProgrammeEarnings.Count.Should().Be(1);
             learner2Result.OnProgrammeEarnings.Any(x => x.AcademicYear == currentAcademicYear && x.DeliveryPeriod == earnings[3].DeliveryPeriod && x.Amount == earnings[3].Amount).Should().BeTrue();
             learner2Result.TotalOnProgrammeEarnings.Should().Be(2500);
+            learner2Result.IsNoneLevyFullyFunded.Should().BeTrue();
         }
     }
 }
