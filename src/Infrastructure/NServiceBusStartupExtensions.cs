@@ -30,10 +30,8 @@ public static class NServiceBusStartupExtensions
 
         if (applicationSettings.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
         {
-            var learningTransportFolder =
-                Path.Combine(
-                    Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
-                    @"src\.learningtransport");
+            var learningTransportFolder = GetLearningTransportFolder(applicationSettings);
+
             endpointConfiguration
                 .UseTransport<LearningTransport>()
                 .StorageDirectory(learningTransportFolder);
@@ -56,5 +54,20 @@ public static class NServiceBusStartupExtensions
         serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
 
         return serviceCollection;
+    }
+
+    private static string GetLearningTransportFolder(ApplicationSettings applicationSettings)
+    {
+        if (string.IsNullOrEmpty(applicationSettings.LearningTransportStorageDirectory))
+        {
+            // Default to the .learningtransport folder in the src directory
+            return Path.Combine(
+                Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
+                @"src\.learningtransport");
+        }
+        else
+        {
+            return applicationSettings.LearningTransportStorageDirectory;
+        }
     }
 }

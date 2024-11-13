@@ -37,7 +37,7 @@ public class Startup : FunctionsStartup
             .AddEnvironmentVariables()
             .AddJsonFile("local.settings.json", true);
 
-        if (!configuration["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase))
+        if (NotAcceptanceTests(configuration))
         {
             configBuilder.AddAzureTableStorage(options =>
             {
@@ -59,7 +59,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton(_ => applicationSettings);
 
         builder.Services.AddNServiceBus(applicationSettings);
-        builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotAcceptanceTests(configuration));
+        builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLocal(configuration));
         builder.Services.AddCommandServices().AddEventServices();
 
         builder.Services.AddSingleton<ISystemClockService, SystemClockService>();
@@ -80,5 +80,13 @@ public class Startup : FunctionsStartup
     private static bool NotAcceptanceTests(IConfiguration configuration)
     {
         return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private static bool NotLocal(IConfiguration configuration)
+    {
+        var env = configuration!["EnvironmentName"];
+        var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
+        var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
+        return !isLocal && !isLocalAcceptanceTests;
     }
 }
