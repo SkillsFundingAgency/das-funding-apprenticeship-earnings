@@ -33,13 +33,19 @@ As well as data being stored in the durable function under the logical object of
 
 Most of the application configuration is taken from the [das-employer-config repository](https://github.com/SkillsFundingAgency/das-employer-config) and the default values can be used in most cases.  The config json will need to be added to the local Azure Storage instance with a a PartitionKey of LOCAL and a RowKey of SFA.DAS.Funding.ApprenticeshipEarnings_1.0.
 
+
+# local.settings.json
 ```
 {
-  "ApplicationSettings":
-  {
-    "NServiceBusConnectionString":"UseLearningEndpoint=true",
-    "NServiceBusLicense":"<LicenseKey>",
-    "DbConnectionString":"Data Source=YOUR_COMPUTER;Database=SFA.DAS.Funding.ApprenticeshipEarnings.Database;Integrated Security=true;Trusted_Connection=True;Pooling=False;Connect Timeout=30;MultipleActiveResultSets=True"
+  "IsEncrypted": false,
+  "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "EnvironmentName": "LOCAL",
+    "NServiceBusConnectionString": "UseLearningEndpoint=true",
+    "ApplicationSettings:LearningTransportStorageDirectory": "C:\\Git\\LocalMessageBus\\.learningtransport",
+    "ConfigNames": "SFA.DAS.Funding.ApprenticeshipEarnings",
+    "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;"
   }
 }
 ```
