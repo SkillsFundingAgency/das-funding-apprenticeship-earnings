@@ -91,6 +91,8 @@ public class EarningsQueryRepository : IEarningsQueryRepository
         var apprenticeships = DbContext.Apprenticeships
             .Where(x => x.Episodes.Any(y => y.Ukprn == ukprn))
             .Include(x => x.Episodes)
+            .ThenInclude(x => x.Prices)
+            .Include(x => x.Episodes)
             .ThenInclude(x => x.EarningsProfile)
             .ThenInclude(x => x.Instalments)
             .Select(z => Apprenticeship.Apprenticeship.Get(z))
