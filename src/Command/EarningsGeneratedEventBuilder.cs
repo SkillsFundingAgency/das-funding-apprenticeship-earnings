@@ -47,8 +47,8 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
     public EarningsGeneratedEvent ReGenerate(Apprenticeship apprenticeship)
     {
         var currentEpisode = apprenticeship.GetCurrentEpisode(_systemClock);
-        var deliveryPeriods = currentEpisode.BuildDeliveryPeriods()?.OrderBy(r => r.CalenderYear).ThenBy(r => r.CalendarMonth).ToList(); 
-        var latestPrice = currentEpisode.Prices.OrderBy(x=>x.EndDate).Last();
+        var deliveryPeriods = currentEpisode.BuildDeliveryPeriods()?.OrderBy(r => r.CalenderYear).ThenBy(r => r.CalendarMonth).ToList();
+        var latestPrice = currentEpisode.Prices.OrderBy(x => x.EndDate).Last();
         var firstPrice = currentEpisode.Prices.OrderBy(x => x.StartDate).First();
 
         return new EarningsGeneratedEvent
@@ -60,7 +60,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
             AgreedPrice = latestPrice.AgreedPrice,
             StartDate = firstPrice.StartDate,
-            TrainingCode = currentEpisode.TrainingCode.Trim(),
+            TrainingCode = currentEpisode.TrainingCode?.Trim(),
             EmployerType = currentEpisode.FundingType.ToOutboundEventEmployerType(),
             DeliveryPeriods = deliveryPeriods ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
