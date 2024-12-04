@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReReleaseEarningsGeneratedC
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 
+[Route("[controller]")]
 public class BackOfficeController : Controller
 {
     ILogger<BackOfficeController> _logger;
