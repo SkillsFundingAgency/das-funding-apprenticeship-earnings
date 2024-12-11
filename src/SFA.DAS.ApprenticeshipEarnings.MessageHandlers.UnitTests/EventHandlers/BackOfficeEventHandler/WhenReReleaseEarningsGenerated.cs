@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.MessageHandlers;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net.Http;
 
