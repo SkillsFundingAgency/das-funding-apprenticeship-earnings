@@ -42,7 +42,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
         var sut = new ProcessUpdatedEpisodeCommand.ProcessEpisodeUpdatedCommandHandler(_mockRepository.Object, _mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object);
 
         // Act
-        await sut.RecalculateEarnings(command);
+        await sut.Handle(command);
 
         // Assert
         _mockEventBuilder.Verify(x => x.Build(It.IsAny<Apprenticeship>()), Times.Once);

@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
-    public class CreateApprenticeshipCommand
+    public class CreateApprenticeshipCommand : ICommand
     {
         public CreateApprenticeshipCommand(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
