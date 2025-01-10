@@ -20,7 +20,7 @@ public class ApprenticeshipWithdrawnEventHandler
 
     [FunctionName(nameof(ApprenticeshipWithdrawnEventServiceBusTrigger))]
     public async Task ApprenticeshipWithdrawnEventServiceBusTrigger(
-        [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipWithdrawn, Connection = "NServiceBusConnectionString")] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent,
+        [NServiceBusTrigger(Endpoint = QueueNames.ApprenticeshipWithdrawn)] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent,
         [DurableClient] IDurableEntityClient client,
         ILogger log)
     {
