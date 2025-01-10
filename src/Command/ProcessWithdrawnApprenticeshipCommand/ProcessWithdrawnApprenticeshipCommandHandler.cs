@@ -26,5 +26,7 @@ public class ProcessWithdrawnApprenticeshipCommandHandler : IProcessWithdrawnApp
         apprenticeshipDomainModel.RemovalEarningsFollowingWithdrawal(command.LastDayOfLearning, _systemClock);
 
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
+
+        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
     }
 }
