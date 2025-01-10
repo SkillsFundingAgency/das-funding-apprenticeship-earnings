@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -83,17 +82,8 @@ public class ApprenticeshipEpisode
             || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
             .ToList();
 
-        var newEarningsProfile = new EarningsProfileModel
-        {
-            CompletionPayment = _model.EarningsProfile.CompletionPayment,
-            EarningsProfileId = Guid.NewGuid(),
-            EpisodeKey = _model.EarningsProfile.EpisodeKey,
-            OnProgramTotal = _model.EarningsProfile.OnProgramTotal,
-            Instalments = earningsToKeep
-        };
-
-        _model.EarningsProfile = newEarningsProfile;
-        _earningsProfile = EarningsProfile.Get(_model.EarningsProfile);
+        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
+        _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
     private void UpdatePrices(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)

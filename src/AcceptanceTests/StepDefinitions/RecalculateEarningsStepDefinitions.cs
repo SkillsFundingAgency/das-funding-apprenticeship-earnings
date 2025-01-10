@@ -76,7 +76,8 @@ public class RecalculateEarningsStepDefinitions
                 typeof(ApprenticeshipCreatedEvent), 
                 typeof(ApprenticeshipPriceChangedEvent), 
                 typeof(ApprenticeshipStartDateChangedEvent), 
-                typeof(EarningsRecalculatedEvent)
+                typeof(EarningsRecalculatedEvent),
+                typeof(ApprenticeshipWithdrawnEvent)
             });
     }
 
