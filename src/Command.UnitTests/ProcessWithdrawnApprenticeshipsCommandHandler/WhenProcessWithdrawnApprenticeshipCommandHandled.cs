@@ -58,6 +58,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
         _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
         _mockEventBuilder.Verify(x => x.Build(It.IsAny<Apprenticeship>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.IsAny<ApprenticeshipEarningsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
     }
 
     private ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand BuildCommand(Apprenticeship apprenticeship)
