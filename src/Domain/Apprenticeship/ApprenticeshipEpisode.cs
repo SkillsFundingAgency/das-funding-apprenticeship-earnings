@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -63,6 +64,36 @@ public class ApprenticeshipEpisode
         _model.LegalEntityName = episodeUpdate.LegalEntityName;
         _model.TrainingCode = episodeUpdate.TrainingCode;
         _model.Ukprn = episodeUpdate.Ukprn;
+    }
+
+    public void RemoveEarningsAfter(DateTime lastDayOfLearning, ISystemClockService systemClock)
+    {
+        if (EarningsProfile != null)
+        {
+            var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
+            _model.EarningsProfileHistory.Add(historyEntity);
+        }
+
+        var academicYear = lastDayOfLearning.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
+
+        var earningsToKeep = _model.EarningsProfile.Instalments.Where(x =>
+            x.AcademicYear < academicYear //keep earnings from previous academic years
+            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+            .ToList();
+
+        var newEarningsProfile = new EarningsProfileModel
+        {
+            CompletionPayment = _model.EarningsProfile.CompletionPayment,
+            EarningsProfileId = Guid.NewGuid(),
+            EpisodeKey = _model.EarningsProfile.EpisodeKey,
+            OnProgramTotal = _model.EarningsProfile.OnProgramTotal,
+            Instalments = earningsToKeep
+        };
+
+        _model.EarningsProfile = newEarningsProfile;
+        _earningsProfile = EarningsProfile.Get(_model.EarningsProfile);
     }
 
     private void UpdatePrices(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)

@@ -21,6 +21,7 @@ public class RecalculateEarningsStepDefinitions
     private ApprenticeshipCreatedEvent? _apprenticeshipCreatedEvent;
     private ApprenticeshipPriceChangedEvent? _apprenticeshipPriceChangedEvent;
     private ApprenticeshipStartDateChangedEvent? _startDateChangedEvent;
+    private ApprenticeshipWithdrawnEvent? _apprenticeshipWithdrawnEvent;
 
     #region Test Values
     private readonly DateTime _dateOfBirth = new DateTime(2000, 1, 1);
@@ -194,6 +195,13 @@ public class RecalculateEarningsStepDefinitions
                 FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
             }
         };
+
+        _apprenticeshipWithdrawnEvent = new ApprenticeshipWithdrawnEvent
+        { 
+            ApprenticeshipId = 123,
+            ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
+            Reason = "Withdrawal Test"
+        };
     }
 
     [Given("the total price is below or at the funding band maximum")]
@@ -308,10 +316,19 @@ public class RecalculateEarningsStepDefinitions
 		await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
 	}
 
-	#endregion
+    [When("a withdrawal was sent partway through the apprenticeship")]
+    public async Task PublishWithdrawnEvent()
+    {
+        _apprenticeshipWithdrawnEvent.LastDayOfLearning = new DateTime(2020, 08, 31);
+        _expectedNumberOfInstalments = 12;
+        await _endpointInstance.Publish(_apprenticeshipWithdrawnEvent);
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
+    }
 
-	#region Assert
-	[Then("the earnings are recalculated based on the new price")]
+    #endregion
+
+    #region Assert
+    [Then("the earnings are recalculated based on the new price")]
     public void AssertEarningsRecalculated()
     {
         var expectedTotal = _newTrainingPrice + _newAssessmentPrice; //todo
@@ -380,19 +397,9 @@ public class RecalculateEarningsStepDefinitions
     }
 
     [Then("the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship")]
-    public void AssertNumberOfInstalmentsForPriceChange()
-    {
-        var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        var numberOfInstalments = currentEpisode.EarningsProfile.Instalments.Count;
-
-        if (numberOfInstalments != _expectedNumberOfInstalments)
-        {
-            Assert.Fail($"Expected {_expectedNumberOfInstalments} but found {numberOfInstalments}");
-        }
-    }
-
     [Then("the number of instalments is determined by the number of census dates passed between the new start date and the planned end date of the apprenticeship")]
-    public void AssertNumberOfInstalmentsForStartDateChange()
+    [Then("the number of instalments is determined by the number of census dates passed between the start date and the withdrawal date")]
+    public void AssertNumberOfInstalments()
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
         var numberOfInstalments = currentEpisode.EarningsProfile.Instalments.Count;
