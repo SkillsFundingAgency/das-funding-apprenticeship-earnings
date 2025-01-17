@@ -6,7 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
-    public class CreateApprenticeshipCommandHandler : ICreateApprenticeshipCommandHandler
+    public class CreateApprenticeshipCommandHandler : ICommandHandler<CreateApprenticeshipCommand, Apprenticeship>
     {
         private readonly IApprenticeshipFactory _apprenticeshipFactory;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
@@ -23,7 +23,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
             _systemClock = systemClock;
         }
 
-        public async Task<Apprenticeship> Create(CreateApprenticeshipCommand command)
+        public async Task<Apprenticeship> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
         {
             var apprenticeship = _apprenticeshipFactory.CreateNew(command.ApprenticeshipCreatedEvent);
             apprenticeship.CalculateEarnings(_systemClock);
