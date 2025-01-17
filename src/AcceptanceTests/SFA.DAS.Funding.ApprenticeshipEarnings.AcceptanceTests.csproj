@@ -67,12 +67,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Features\RecalculateEarningsFollowingWithdrawal.feature.cs">
+      <DependentUpon>RecalculateEarningsFollowingWithdrawal.feature</DependentUpon>
+    </Compile>
     <Compile Update="Features\RecalculateEarningsFollowingStartDateChange.feature.cs">
       <DependentUpon>RecalculateEarningsFollowingStartDateChange.feature</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
+    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingWithdrawal.feature">
+      <Visible>$(UsingMicrosoftNETSdk)</Visible>
+      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
+    </SpecFlowFeatureFiles>
     <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingStartDateChange.feature">
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
       <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>

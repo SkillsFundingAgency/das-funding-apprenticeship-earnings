@@ -59,4 +59,13 @@ public class Apprenticeship : AggregateRoot
         episode.CalculateEpisodeEarnings(systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
+
+    public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
+    {
+        foreach (var episode in ApprenticeshipEpisodes)
+        {
+            episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
+        }
+        AddEvent(new EarningsRecalculatedEvent(this));
+    }
 }
