@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -15,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries
             serviceCollection
                 .Scan(scan =>
                 {
-                    scan.FromExecutingAssembly()
+                    scan.FromAssemblies(Assembly.GetExecutingAssembly())
                         .AddClasses(classes => classes.AssignableTo(typeof(IQuery)))
                         .AsImplementedInterfaces()
                         .WithTransientLifetime();

@@ -4,10 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using SFA.DAS.NServiceBus.AzureFunction.Hosting;
-using SFA.DAS.NServiceBus.Configuration;
-using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
-using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.NServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
@@ -48,8 +46,8 @@ public static class NServiceBusStartupExtensions
         {
             endpointConfiguration.License(applicationSettings.NServiceBusLicense);
         }
-
-        var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
+        
+        var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, (global::NServiceBus.ObjectBuilder.IConfigureComponents)serviceCollection);
         endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
         serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
 

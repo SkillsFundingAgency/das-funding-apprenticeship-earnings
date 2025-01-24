@@ -1,5 +1,5 @@
 ﻿using NServiceBus;
-using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.NServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers
 {

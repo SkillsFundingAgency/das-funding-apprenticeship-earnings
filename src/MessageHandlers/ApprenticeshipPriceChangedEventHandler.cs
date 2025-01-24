@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
-using SFA.DAS.NServiceBus.AzureFunction.Attributes;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.NServiceBus;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;

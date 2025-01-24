@@ -7,7 +7,7 @@ using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.NServiceBus.AzureFunction.Attributes;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.NServiceBus;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
