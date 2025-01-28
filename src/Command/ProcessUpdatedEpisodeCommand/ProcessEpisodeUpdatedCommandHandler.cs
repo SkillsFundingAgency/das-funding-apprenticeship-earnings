@@ -4,7 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 
-public class ProcessEpisodeUpdatedCommandHandler : IProcessEpisodeUpdatedCommandHandler
+public class ProcessEpisodeUpdatedCommandHandler : ICommandHandler<ProcessEpisodeUpdatedCommand>
 {
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly IMessageSession _messageSession;
@@ -19,7 +19,7 @@ public class ProcessEpisodeUpdatedCommandHandler : IProcessEpisodeUpdatedCommand
         _systemClock = systemClock;
     }
 
-    public async Task RecalculateEarnings(ProcessEpisodeUpdatedCommand command)
+    public async Task Handle(ProcessEpisodeUpdatedCommand command, CancellationToken cancellationToken = default)
     {
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.EpisodeUpdatedEvent.ApprenticeshipKey);
 

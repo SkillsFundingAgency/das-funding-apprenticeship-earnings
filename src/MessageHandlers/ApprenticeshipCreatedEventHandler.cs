@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -12,9 +14,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 public class ApprenticeshipCreatedEventHandler
 {
-    private readonly ICreateApprenticeshipCommandHandler _createApprenticeshipCommandHandler;
+    private readonly ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> _createApprenticeshipCommandHandler;
 
-    public ApprenticeshipCreatedEventHandler(ICreateApprenticeshipCommandHandler createApprenticeshipCommandHandler)
+    public ApprenticeshipCreatedEventHandler(ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler)
     {
         _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
     }
@@ -39,7 +41,7 @@ public class ApprenticeshipCreatedEventHandler
             }
 
             var command = new CreateApprenticeshipCommand(apprenticeshipCreatedEvent);
-            await _createApprenticeshipCommandHandler.Create(command);
+            await _createApprenticeshipCommandHandler.Handle(command);
         }
         catch (Exception ex)
         {

@@ -27,7 +27,8 @@ var applicationSettings = new ApplicationSettings();
 builder.Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
 builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLocal(builder.Configuration));
 builder.Services.AddSingleton(x => applicationSettings);
-builder.Services.AddCommandServices().AddEventServices().AddQueryServices();
+builder.Services.AddNServiceBus(applicationSettings);
+builder.Services.AddCommandServices().AddEventServices().AddQueryServices().AddCommandDependencies();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();

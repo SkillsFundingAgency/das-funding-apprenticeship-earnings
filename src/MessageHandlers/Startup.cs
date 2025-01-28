@@ -11,6 +11,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -61,15 +62,9 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddNServiceBus(applicationSettings);
         builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLocal(configuration));
-        builder.Services.AddCommandServices().AddEventServices();
+        builder.Services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         builder.Services.AddSingleton<ISystemClockService, SystemClockService>();
-        builder.Services.AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
-        builder.Services.AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>();
-        builder.Services.AddScoped<ICreateApprenticeshipCommandHandler, CreateApprenticeshipCommandHandler>();
-        builder.Services.AddScoped<IProcessEpisodeUpdatedCommandHandler, ProcessEpisodeUpdatedCommandHandler>();
-        builder.Services.AddScoped<IApprenticeshipFactory, ApprenticeshipFactory>();
-        builder.Services.AddScoped<IApprenticeshipRepository, ApprenticeshipRepository>();
         builder.Services.AddScoped<IProcessWithdrawnApprenticeshipCommandHandler, ProcessWithdrawnApprenticeshipCommandHandler>();
     }
 
