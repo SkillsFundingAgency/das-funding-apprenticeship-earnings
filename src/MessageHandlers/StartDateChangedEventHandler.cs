@@ -1,12 +1,10 @@
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.NServiceBus;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
@@ -20,10 +18,9 @@ public class StartDateChangedEventHandler
         _processEpisodeUpdatedCommandHandler = processEpisodeUpdatedCommandHandler;
     }
 
-    [FunctionName(nameof(StartDateChangedEventServiceBusTrigger))]
+    [Function(nameof(StartDateChangedEventServiceBusTrigger))]
     public async Task StartDateChangedEventServiceBusTrigger(
-        [NServiceBusTrigger(Endpoint = QueueNames.StartDateChangeApproved)] ApprenticeshipStartDateChangedEvent startDateChangedEvent,
-        [DurableClient] IDurableEntityClient client,
+        [QueueTrigger(QueueNames.StartDateChangeApproved)] ApprenticeshipStartDateChangedEvent startDateChangedEvent,
         ILogger log)
     {
         log.LogInformation("{functionName} processing...", nameof(StartDateChangedEventServiceBusTrigger));

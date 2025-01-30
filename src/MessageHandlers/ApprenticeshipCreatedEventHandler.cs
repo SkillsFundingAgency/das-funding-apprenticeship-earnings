@@ -1,13 +1,12 @@
-using System;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.NServiceBus;
+using System;
+using System.Text.Json;
+using System.Threading.Tasks;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
@@ -21,9 +20,9 @@ public class ApprenticeshipCreatedEventHandler
         _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
     }
 
-    [FunctionName(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
+    [Function(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
     public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-        [NServiceBusTrigger(Endpoint = QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
+        [QueueTrigger(QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
         ILogger log)
     {
         try

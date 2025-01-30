@@ -1,47 +1,55 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Azure.Identity;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
+using NServiceBus;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
-[assembly: FunctionsStartup(typeof(Startup))]
+[assembly: NServiceBusTriggerFunction("SFA.DAS.Funding.ApprenticeshipEarnings")]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 [ExcludeFromCodeCoverage]
-public class Startup : FunctionsStartup
+public class Startup
 {
-    public IConfiguration Configuration { get; set; }
+    private IConfiguration Configuration { get; set; }
+    private ApplicationSettings ApplicationSettings { get; set; }
 
-    public override void Configure(IFunctionsHostBuilder builder)
+    public void Configure(IHostBuilder builder)
     {
-        var serviceProvider = builder.Services.BuildServiceProvider();
-            
-        var configuration = serviceProvider.GetService<IConfiguration>();
+        ForceAssemblyLoad();
 
-        var configBuilder = new ConfigurationBuilder()
-            .AddConfiguration(configuration)
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddEnvironmentVariables()
-            .AddJsonFile("local.settings.json", true);
+        builder
+            .ConfigureAppConfiguration(PopulateConfig)
+            .ConfigureNServiceBusForSubscribe()
+            .ConfigureServices(ConfigureServices);
+    }
 
+    private void PopulateConfig(IConfigurationBuilder configurationBuilder)
+    {
+        Environment.SetEnvironmentVariable("ENDPOINT_NAME", "SFA.DAS.Funding.ApprenticeshipEarnings");
+
+        configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
+                .AddEnvironmentVariables()
+                .AddJsonFile("local.settings.json", true);
+
+        var configuration = configurationBuilder.Build();
         if (NotAcceptanceTests(configuration))
         {
-            configBuilder.AddAzureTableStorage(options =>
+            configurationBuilder.AddAzureTableStorage(options =>
             {
                 options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
                 options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
@@ -50,22 +58,38 @@ public class Startup : FunctionsStartup
             });
         }
 
-        Configuration = configBuilder.Build();
+        
+        Configuration = configurationBuilder.Build();
 
-        var applicationSettings = new ApplicationSettings();
-        Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
-        EnsureConfig(applicationSettings);
-        Environment.SetEnvironmentVariable("NServiceBusConnectionString", applicationSettings.NServiceBusConnectionString);
-       
-        builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
-        builder.Services.AddSingleton(_ => applicationSettings);
+        ApplicationSettings = new ApplicationSettings();
+        Configuration.Bind(nameof(ApplicationSettings), ApplicationSettings);
+        EnsureConfig(ApplicationSettings);
+    }
 
-        builder.Services.AddNServiceBus(applicationSettings);
-        builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLocal(configuration));
-        builder.Services.AddCommandServices().AddEventServices().AddCommandDependencies();
+    private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    {
 
-        builder.Services.AddSingleton<ISystemClockService, SystemClockService>();
-        builder.Services.AddScoped<IProcessWithdrawnApprenticeshipCommandHandler, ProcessWithdrawnApprenticeshipCommandHandler>();
+        services.AddLogging(builder =>
+        {
+            builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+            builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
+
+            builder.AddFilter(typeof(Program).Namespace, LogLevel.Information);
+            builder.SetMinimumLevel(LogLevel.Trace);
+            builder.AddConsole();
+
+        });
+
+        services
+            .AddApplicationInsightsTelemetryWorkerService()
+            .ConfigureFunctionsApplicationInsights();
+
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, NotLocal(Configuration));
+        services.AddCommandServices().AddEventServices().AddCommandDependencies();
+
+        services.AddSingleton<ISystemClockService, SystemClockService>();
+
+        services.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
@@ -85,5 +109,14 @@ public class Startup : FunctionsStartup
         var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
         var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
         return !isLocal && !isLocalAcceptanceTests;
+    }
+
+    /// <summary>
+    /// This method is used to force the assembly to load so that the NServiceBus assembly scanner can find the events.
+    /// This has to be called before builder configuration steps are called as these don't get executed until build() is called.
+    /// </summary>
+    private static void ForceAssemblyLoad()
+    {
+        var apprenticeshipEarningsTypes = new ApprenticeshipEarningsRecalculatedEvent();
     }
 }
