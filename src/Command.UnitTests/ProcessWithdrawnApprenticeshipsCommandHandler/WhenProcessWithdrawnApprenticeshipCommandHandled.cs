@@ -57,7 +57,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
         // Assert
         _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
         _mockEventBuilder.Verify(x => x.Build(It.IsAny<Apprenticeship>()), Times.Once);
-        _mockMessageSession.Verify(x => x.Publish(It.IsAny<ApprenticeshipEarningsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Publish(It.IsAny<ApprenticeshipEarningsRecalculatedEvent>(), It.IsAny<PublishOptions>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
     }
 

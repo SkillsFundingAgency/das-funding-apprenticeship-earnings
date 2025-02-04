@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using NServiceBus;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
@@ -25,29 +26,48 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 [ExcludeFromCodeCoverage]
 public class Startup
 {
-    private IConfiguration Configuration { get; set; }
-    private ApplicationSettings ApplicationSettings { get; set; }
+    public IConfiguration Configuration { get; set; }
+
+    private ApplicationSettings _applicationSettings;
+
+    public ApplicationSettings ApplicationSettings
+    {
+        get
+        {
+            if (_applicationSettings == null)
+            {
+                _applicationSettings = new ApplicationSettings();
+                Configuration.Bind(nameof(ApplicationSettings), _applicationSettings);
+            }
+            return _applicationSettings;
+        }
+    }
+
+    public Startup()
+    {
+        ForceAssemblyLoad();
+    }
 
     public void Configure(IHostBuilder builder)
     {
-        ForceAssemblyLoad();
-
         builder
             .ConfigureAppConfiguration(PopulateConfig)
             .ConfigureNServiceBusForSubscribe()
-            .ConfigureServices(ConfigureServices);
+            .ConfigureServices((c, s) =>
+            {
+                SetupServices(s);
+                s.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
+            });
     }
 
     private void PopulateConfig(IConfigurationBuilder configurationBuilder)
     {
-        Environment.SetEnvironmentVariable("ENDPOINT_NAME", "SFA.DAS.Funding.ApprenticeshipEarnings");
-
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", true);
 
         var configuration = configurationBuilder.Build();
-        if (NotAcceptanceTests(configuration))
+        if (NotAcceptanceTests(configuration))// May not need this check, Fail PR if this comment is still here
         {
             configurationBuilder.AddAzureTableStorage(options =>
             {
@@ -58,15 +78,11 @@ public class Startup
             });
         }
 
-        
         Configuration = configurationBuilder.Build();
-
-        ApplicationSettings = new ApplicationSettings();
-        Configuration.Bind(nameof(ApplicationSettings), ApplicationSettings);
         EnsureConfig(ApplicationSettings);
     }
 
-    private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    public void SetupServices(IServiceCollection services)
     {
 
         services.AddLogging(builder =>
@@ -88,8 +104,7 @@ public class Startup
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-
-        services.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
+        services.AddScoped<IProcessWithdrawnApprenticeshipCommandHandler, ProcessWithdrawnApprenticeshipCommandHandler>();
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)

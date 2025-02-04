@@ -1,4 +1,20 @@
+using Azure;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Moq;
 using System.Diagnostics;
+using Microsoft.AspNetCore.TestHost;
+using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
+using Microsoft.Extensions.Configuration.Memory;
+using Microsoft.Extensions.Configuration;
+using NUnit.Framework;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using Microsoft.Extensions.Azure;
+using Google.Protobuf.WellKnownTypes;
+using SFA.DAS.Apprenticeships.Types;
+using Castle.Components.DictionaryAdapter.Xml;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -7,6 +23,7 @@ public class HostingStepDefinitions
 {
     private readonly TestContext _testContext;
     private readonly FeatureContext _featureContext;
+    private static Startup _startUp;
 
     public HostingStepDefinitions(TestContext testContext, FeatureContext featureContext)
     {
@@ -15,7 +32,7 @@ public class HostingStepDefinitions
     }
 
     [BeforeScenario(Order = 3)]
-    public async Task CreateConfig()
+    public async Task StartFunctionApp()
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();

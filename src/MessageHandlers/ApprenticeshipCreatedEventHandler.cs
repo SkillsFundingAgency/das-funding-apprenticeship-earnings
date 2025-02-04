@@ -7,35 +7,37 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 public class ApprenticeshipCreatedEventHandler
 {
     private readonly ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> _createApprenticeshipCommandHandler;
+    private readonly ILogger<ApprenticeshipCreatedEventHandler> _logger;
 
-    public ApprenticeshipCreatedEventHandler(ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler)
+    public ApprenticeshipCreatedEventHandler(
+        ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler,
+        ILogger<ApprenticeshipCreatedEventHandler> logger)
     {
         _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
+        _logger = logger;
     }
 
     [Function(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
     public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-        [QueueTrigger(QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent,
-        ILogger log)
+        [QueueTrigger(QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
     {
         try
         {
-            log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
+            _logger.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
 
-            log.LogInformation("ApprenticeshipKey: {0} Received ApprenticeshipCreatedEvent: {1}",
+            _logger.LogInformation("ApprenticeshipKey: {0} Received ApprenticeshipCreatedEvent: {1}",
                 apprenticeshipCreatedEvent.ApprenticeshipKey,
                 JsonSerializer.Serialize(apprenticeshipCreatedEvent, new JsonSerializerOptions { WriteIndented = true }));
 
             if (!(apprenticeshipCreatedEvent.Episode.FundingPlatform.HasValue && Enum.Parse<FundingPlatform>(apprenticeshipCreatedEvent.Episode.FundingPlatform.Value.ToString()) == FundingPlatform.DAS))
             {
-                log.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {apprenticeshipCreatedEvent.ApprenticeshipKey}");
+                _logger.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {apprenticeshipCreatedEvent.ApprenticeshipKey}");
                 return;
             }
 
@@ -44,7 +46,7 @@ public class ApprenticeshipCreatedEventHandler
         }
         catch (Exception ex)
         {
-            log.LogError(ex, $"{nameof(CreateApprenticeshipCommand)} threw exception.");
+            _logger.LogError(ex, $"{nameof(CreateApprenticeshipCommand)} threw exception.");
             throw;
         }
     }

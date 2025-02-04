@@ -41,10 +41,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.41" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="3.0.2" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Host.Storage" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.10" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
@@ -60,14 +57,6 @@
     <PackageReference Include="System.IO.Packaging" Version="8.0.1" />
     <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="NServiceBus" Version="7.8.4" />
-    <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
-    <PackageReference Include="NServiceBus.Heartbeat" Version="3.0.1" />
-    <PackageReference Include="NServiceBus.Metrics.ServiceControl" Version="3.0.6" />
-    <PackageReference Include="NServiceBus.MSDependencyInjection" Version="0.1.4" />
-    <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="2.4.0" />
-    <PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="2.0.2" />
-    <PackageReference Include="NServiceBus.Raw" Version="3.2.5" />
   </ItemGroup>
 
   <ItemGroup>

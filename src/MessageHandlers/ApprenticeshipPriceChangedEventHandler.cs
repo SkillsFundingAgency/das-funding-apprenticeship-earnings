@@ -23,7 +23,7 @@ public class ApprenticeshipPriceChangedEventHandler
 
     [Function(nameof(PriceChangeApprovedEventServiceBusTrigger))]
     public async Task PriceChangeApprovedEventServiceBusTrigger(
-        [ServiceBusTrigger(QueueNames.PriceChangeApproved)] ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
+        [QueueTrigger(QueueNames.PriceChangeApproved)] ApprenticeshipPriceChangedEvent apprenticeshipPriceChangedEvent)
     {
         _logger.LogInformation($"{nameof(PriceChangeApprovedEventServiceBusTrigger)} processing...");
         _logger.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",

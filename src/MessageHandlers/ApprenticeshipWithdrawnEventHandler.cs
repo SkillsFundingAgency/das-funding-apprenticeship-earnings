@@ -10,19 +10,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 public class ApprenticeshipWithdrawnEventHandler
 {
     private readonly IProcessWithdrawnApprenticeshipCommandHandler _processWithdrawnApprenticeshipCommandHandler;
+    private readonly ILogger<ApprenticeshipWithdrawnEventHandler> _logger;
 
-    public ApprenticeshipWithdrawnEventHandler(IProcessWithdrawnApprenticeshipCommandHandler processWithdrawnApprenticeshipCommandHandler)
+    public ApprenticeshipWithdrawnEventHandler(
+        IProcessWithdrawnApprenticeshipCommandHandler processWithdrawnApprenticeshipCommandHandler,
+        ILogger<ApprenticeshipWithdrawnEventHandler> logger)
     {
         _processWithdrawnApprenticeshipCommandHandler = processWithdrawnApprenticeshipCommandHandler;
+        _logger = logger;
     }
 
     [Function(nameof(ApprenticeshipWithdrawnEventServiceBusTrigger))]
     public async Task ApprenticeshipWithdrawnEventServiceBusTrigger(
-        [QueueTrigger(QueueNames.ApprenticeshipWithdrawn)] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent,
-        ILogger log)
+        [QueueTrigger(QueueNames.ApprenticeshipWithdrawn)] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent)
     {
-        log.LogInformation($"{nameof(ApprenticeshipWithdrawnEventServiceBusTrigger)} processing...");
-        log.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
+        _logger.LogInformation($"{nameof(ApprenticeshipWithdrawnEventServiceBusTrigger)} processing...");
+        _logger.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
             apprenticeshipWithdrawnEvent.ApprenticeshipKey,
             nameof(ApprenticeshipWithdrawnEvent),
             JsonSerializer.Serialize(apprenticeshipWithdrawnEvent, new JsonSerializerOptions { WriteIndented = true }));

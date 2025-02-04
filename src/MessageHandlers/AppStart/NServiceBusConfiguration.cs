@@ -1,17 +1,14 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus.Administration;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
 using System.Net;
-using Azure.Messaging.ServiceBus.Administration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using Azure.Identity;
-using System.Collections;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
