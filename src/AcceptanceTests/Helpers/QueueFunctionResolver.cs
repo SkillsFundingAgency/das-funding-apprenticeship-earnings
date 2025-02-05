@@ -20,7 +20,7 @@ internal static class QueueFunctionResolver
             .Where(type => type
                 .GetMethods()
                 .Any(method => method.GetParameters()
-                .Any(parameter => parameter.GetCustomAttributes(typeof(QueueTriggerAttribute), false)
+                .Any(parameter => parameter.GetCustomAttributes(typeof(ServiceBusTriggerAttribute), false)
                 .Any())));
 
         var queueTriggeredFunctions = new List<QueueTriggeredFunction>();
@@ -28,7 +28,7 @@ internal static class QueueFunctionResolver
         {
             var endpoints = matchingClass.GetMethods()
                 .SelectMany(method => method.GetParameters()
-                .Where(parameter => parameter.GetCustomAttributes(typeof(QueueTriggerAttribute), false)
+                .Where(parameter => parameter.GetCustomAttributes(typeof(ServiceBusTriggerAttribute), false)
                 .Any())
                 .Select(parameter => new QueueTriggerEndpoint
                 {

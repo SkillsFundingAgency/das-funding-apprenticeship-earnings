@@ -25,7 +25,7 @@ public class ApprenticeshipCreatedEventHandler
 
     [Function(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
     public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-        [QueueTrigger(QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        [ServiceBusTrigger(QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
     {
         try
         {

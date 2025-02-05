@@ -63,7 +63,7 @@ internal static class NServiceBusConfiguration
         }
     }
 
-    private static IEnumerable<QueueTriggerAttribute> GetQueueTriggers()
+    private static IEnumerable<ServiceBusTriggerAttribute> GetQueueTriggers()
     {
         var allAssemblies = AppDomain.CurrentDomain.GetAssemblies()
             .Where(x => x.GetName().FullName.Contains("SFA.DAS"));
@@ -72,8 +72,8 @@ internal static class NServiceBusConfiguration
             .SelectMany(assembly => assembly.GetTypes())
             .SelectMany(type => type.GetMethods())
             .SelectMany(method => method.GetParameters())
-            .SelectMany(parameter => parameter.GetCustomAttributes(typeof(QueueTriggerAttribute), false))
-            .Cast<QueueTriggerAttribute>();
+            .SelectMany(parameter => parameter.GetCustomAttributes(typeof(ServiceBusTriggerAttribute), false))
+            .Cast<ServiceBusTriggerAttribute>();
 
         return queueTriggers;
     }

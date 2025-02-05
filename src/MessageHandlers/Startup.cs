@@ -62,6 +62,8 @@ public class Startup
 
     private void PopulateConfig(IConfigurationBuilder configurationBuilder)
     {
+        Environment.SetEnvironmentVariable("ENDPOINT_NAME", "SFA.DAS.Funding.ApprenticeshipEarnings");
+
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", true);

@@ -24,7 +24,7 @@ public class ApprenticeshipWithdrawnEventHandler
 
     [Function(nameof(ApprenticeshipWithdrawnEventServiceBusTrigger))]
     public async Task ApprenticeshipWithdrawnEventServiceBusTrigger(
-        [QueueTrigger(QueueNames.ApprenticeshipWithdrawn)] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent)
+        [ServiceBusTrigger(QueueNames.ApprenticeshipWithdrawn)] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent)
     {
         _logger.LogInformation($"{nameof(ApprenticeshipWithdrawnEventServiceBusTrigger)} processing...");
         _logger.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",

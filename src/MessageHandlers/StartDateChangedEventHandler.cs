@@ -23,7 +23,7 @@ public class StartDateChangedEventHandler
 
     [Function(nameof(StartDateChangedEventServiceBusTrigger))]
     public async Task StartDateChangedEventServiceBusTrigger(
-        [QueueTrigger(QueueNames.StartDateChangeApproved)] ApprenticeshipStartDateChangedEvent startDateChangedEvent)
+        [ServiceBusTrigger(QueueNames.StartDateChangeApproved)] ApprenticeshipStartDateChangedEvent startDateChangedEvent)
     {
         _logger.LogInformation("{functionName} processing...", nameof(StartDateChangedEventServiceBusTrigger));
         _logger.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
