@@ -104,7 +104,6 @@ public class Startup
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-        services.AddScoped<IProcessWithdrawnApprenticeshipCommandHandler, ProcessWithdrawnApprenticeshipCommandHandler>();
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)

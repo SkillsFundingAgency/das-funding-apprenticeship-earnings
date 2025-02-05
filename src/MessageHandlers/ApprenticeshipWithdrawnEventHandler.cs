@@ -3,17 +3,19 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 public class ApprenticeshipWithdrawnEventHandler
 {
-    private readonly IProcessWithdrawnApprenticeshipCommandHandler _processWithdrawnApprenticeshipCommandHandler;
+    private readonly ICommandHandler<ProcessWithdrawnApprenticeshipCommand> _processWithdrawnApprenticeshipCommandHandler;
     private readonly ILogger<ApprenticeshipWithdrawnEventHandler> _logger;
 
     public ApprenticeshipWithdrawnEventHandler(
-        IProcessWithdrawnApprenticeshipCommandHandler processWithdrawnApprenticeshipCommandHandler,
+        ICommandHandler<ProcessWithdrawnApprenticeshipCommand> processWithdrawnApprenticeshipCommandHandler,
         ILogger<ApprenticeshipWithdrawnEventHandler> logger)
     {
         _processWithdrawnApprenticeshipCommandHandler = processWithdrawnApprenticeshipCommandHandler;
@@ -30,6 +32,6 @@ public class ApprenticeshipWithdrawnEventHandler
             nameof(ApprenticeshipWithdrawnEvent),
             JsonSerializer.Serialize(apprenticeshipWithdrawnEvent, new JsonSerializerOptions { WriteIndented = true }));
 
-        await _processWithdrawnApprenticeshipCommandHandler.Process(new ProcessWithdrawnApprenticeshipCommand(apprenticeshipWithdrawnEvent));
+        await _processWithdrawnApprenticeshipCommandHandler.Handle(new ProcessWithdrawnApprenticeshipCommand(apprenticeshipWithdrawnEvent));
     }
 }

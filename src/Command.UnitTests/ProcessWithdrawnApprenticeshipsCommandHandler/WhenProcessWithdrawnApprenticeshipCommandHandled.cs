@@ -52,7 +52,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
         );
 
         // Act
-        await sut.Process(command);
+        await sut.Handle(command);
 
         // Assert
         _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
