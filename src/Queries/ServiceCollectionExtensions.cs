@@ -16,11 +16,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries
             serviceCollection
                 .Scan(scan =>
                 {
-                    scan.FromAssemblies(Assembly.GetExecutingAssembly())
-                        .AddClasses(classes => classes.AssignableTo(typeof(IQuery)))
-                        .AsImplementedInterfaces()
-                        .WithTransientLifetime();
-
                     scan.FromAssembliesOf(typeof(GetProviderEarningSummaryQueryHandler))
                         .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
                         .AsImplementedInterfaces()
