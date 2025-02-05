@@ -76,28 +76,6 @@ public class TestFunction : IDisposable
         }
     }
 
-    public async Task StartHost()
-    {
-
-        //var timeout = new TimeSpan(0, 2, 10);
-        //var delayTask = Task.Delay(timeout);
-
-       // var app = _host.Build();
-
-        //var messageSession = app.Services.GetService<IMessageSession>();
-
-      //  app.Run();
-
-      //  await messageSession.SendLocal(new ApprenticeshipCreatedEvent());
-
-        //await Task.WhenAny(Task.WhenAll(_host.StartAsync()), delayTask);
-
-        //if (delayTask.IsCompleted)
-        //{
-        //    throw new Exception($"Failed to start test function host within {timeout.Seconds} seconds.  Check the AzureStorageEmulator is running. ");
-        //}
-    }
-    
     public async Task DisposeAsync()
     {
         Dispose();
