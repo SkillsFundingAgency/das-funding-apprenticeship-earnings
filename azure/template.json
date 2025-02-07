@@ -385,7 +385,7 @@
                                 },
                                 {
                                     "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
-                                    "value": "[parameters('sharedServiceBusName')]"
+                                    "value": "[parameters('sharedServiceBusName')].servicebus.windows.net"
                                 },
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
