@@ -384,6 +384,10 @@
                                     "value": "dotnet-isolated"
                                 },
                                 {
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('sharedServiceBusName')]"
+                                },
+                                {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
                                 }
