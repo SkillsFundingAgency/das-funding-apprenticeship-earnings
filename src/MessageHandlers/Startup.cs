@@ -9,6 +9,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
@@ -64,6 +65,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         builder.Services.AddSingleton<ISystemClockService, SystemClockService>();
+        builder.Services.AddScoped<IProcessWithdrawnApprenticeshipCommandHandler, ProcessWithdrawnApprenticeshipCommandHandler>();
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)

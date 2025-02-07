@@ -9,7 +9,7 @@
   <ItemGroup>
 	  <PackageReference Include="Azure.Identity" Version="1.12.0" />
 	  <PackageReference Include="Microsoft.Identity.Client" Version="4.62.0" />
-    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="6.8.5-prerelease-71" />
+    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="6.8.11-prerelease-14" />
   </ItemGroup>
 
 </Project>
