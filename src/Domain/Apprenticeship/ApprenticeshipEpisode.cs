@@ -76,11 +76,24 @@ public class ApprenticeshipEpisode
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
-        var earningsToKeep = _model.EarningsProfile.Instalments.Where(x =>
-            x.AcademicYear < academicYear //keep earnings from previous academic years
-            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            .ToList();
+        var earningsToKeep = new List<InstalmentModel>();
+
+        var startDate = _model.Prices.Min(x => x.StartDate); //todo: check this is safe
+        var qualifyingDate = startDate.AddDays(42); //todo: get 42 from somewhere
+        if (lastDayOfLearning < qualifyingDate)
+        {
+            earningsToKeep = _model.EarningsProfile.Instalments.Where(x =>
+                    x.AcademicYear < academicYear) //keep earnings from previous academic years
+                .ToList();
+        }
+        else
+        {
+            earningsToKeep = _model.EarningsProfile.Instalments.Where(x =>
+                    x.AcademicYear < academicYear //keep earnings from previous academic years
+                    || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+                    || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+                .ToList();
+        }
 
         _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
