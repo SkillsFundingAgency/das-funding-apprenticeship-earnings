@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
 
@@ -48,7 +49,7 @@ public class ApprenticeshipEpisode
 
     public void CalculateEpisodeEarnings(ISystemClockService systemClock)
     {
-        var earnings = InstalmentsGenerator.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
+        var earnings = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
         UpdateEarningsProfile(earnings, systemClock, onProgramTotal, completionPayment);
     }
 
