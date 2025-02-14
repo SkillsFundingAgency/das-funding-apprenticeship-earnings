@@ -24,12 +24,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
     {
         private List<Instalment> _instalments;
 
-        public EarningsProfile(decimal onProgramTotal, List<Instalment> instalments, decimal completionPayment, Guid episodeKey)
+        public EarningsProfile(decimal onProgramTotal, List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal completionPayment, Guid episodeKey)
         {
             Model = new EarningsProfileModel();
             Model.EarningsProfileId = Guid.NewGuid();
             Model.OnProgramTotal = onProgramTotal;
             Model.Instalments = instalments.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+            Model.AdditionalPayments = additionalPayments.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
             _instalments = instalments;
             Model.CompletionPayment = completionPayment;
             Model.EpisodeKey = episodeKey;

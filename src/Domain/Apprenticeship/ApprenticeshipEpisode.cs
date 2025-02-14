@@ -50,7 +50,8 @@ public class ApprenticeshipEpisode
     public void CalculateEpisodeEarnings(ISystemClockService systemClock)
     {
         var earnings = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
-        UpdateEarningsProfile(earnings, systemClock, onProgramTotal, completionPayment);
+        var additionalPayments = IncentivePayments.GenerateIncentivePayments(AgeAtStartOfApprenticeship, _prices.Min(p => p.StartDate));
+        UpdateEarningsProfile(earnings, additionalPayments, systemClock, onProgramTotal, completionPayment);
     }
 
     public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
@@ -76,7 +77,14 @@ public class ApprenticeshipEpisode
 
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
 
-        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
+        //todo: what about additional payments??
+        //Do we need to wipe 'em all out and recalculate what they should be??
+        var additionalPayments = _model.EarningsProfile.AdditionalPayments
+            .Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList();
+
+        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(),
+            additionalPayments,
+            _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -131,14 +139,20 @@ public class ApprenticeshipEpisode
         _prices.AddRange(newPrices);
     }
 
-    private void UpdateEarningsProfile(IEnumerable<Earning> earnings, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
+    private void UpdateEarningsProfile(IEnumerable<Earning> earnings, IEnumerable<IncentivePayment> incentivePayments, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
         if (EarningsProfile != null)
         {
             var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
             _model.EarningsProfileHistory.Add(historyEntity);
         }
-        _earningsProfile = new EarningsProfile(onProgramTotal, earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(), completionPayment, ApprenticeshipEpisodeKey);
+
+        var instalments = earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList();
+
+        var additionalPayments = incentivePayments.Select(x =>
+            new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
+
+        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, completionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 }
