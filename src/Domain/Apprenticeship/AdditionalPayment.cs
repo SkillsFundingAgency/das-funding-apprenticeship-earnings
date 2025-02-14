@@ -21,6 +21,7 @@ public class AdditionalPayment
     {
         _model = new AdditionalPaymentModel
         {
+            Key = Guid.NewGuid(),
             AcademicYear = academicYear,
             Amount = amount,
             DeliveryPeriod = deliveryPeriod,
