@@ -305,6 +305,15 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
 
+    [When("a withdrawal was sent prior to completion of qualifying period")]
+    public async Task PublishWithdrawnEventPriorToQualifyingPeriodCompletion()
+    {
+        _apprenticeshipWithdrawnEvent.LastDayOfLearning = new DateTime(2019, 10, 4);
+        _expectedNumberOfInstalments = 0;
+        await _testContext.TestFunction.PublishEvent(_apprenticeshipWithdrawnEvent);
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
+    }
+
     #endregion
 
     #region Assert
@@ -379,6 +388,7 @@ public class RecalculateEarningsStepDefinitions
     [Then("the number of instalments is determined by the number of census dates passed between the effective-from date and the planned end date of the apprenticeship")]
     [Then("the number of instalments is determined by the number of census dates passed between the new start date and the planned end date of the apprenticeship")]
     [Then("the number of instalments is determined by the number of census dates passed between the start date and the withdrawal date")]
+    [Then("the number of instalments is zero")]
     public void AssertNumberOfInstalments()
     {
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
@@ -485,11 +495,6 @@ public class RecalculateEarningsStepDefinitions
 
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
         if (!currentEpisode.EarningsProfileHistory.Any())
-        {
-            return false;
-        }
-
-        if (!currentEpisode.EarningsProfile.Instalments.Any())
         {
             return false;
         }
