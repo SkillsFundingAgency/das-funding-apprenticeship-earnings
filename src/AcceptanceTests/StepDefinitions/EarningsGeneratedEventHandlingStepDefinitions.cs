@@ -1,7 +1,11 @@
 using NServiceBus;
+using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -53,5 +57,47 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) &&
                earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString() &&
                earningsGeneratedEvent.EarningsProfileId != Guid.Empty;
+    }
+
+    [Then(@"Additional Payments are persisted as follows")]
+    public async Task ThenAdditionalPaymentsArePersistedAsFollows(Table table)
+    {
+        var data = table.CreateSet<AdditionalPaymentDbExpectationModel>().ToList();
+
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        foreach (var expectedAdditionalPayment in data)
+        {
+            updatedEntity.Episodes.First()
+                .EarningsProfile.AdditionalPayments.Should()
+                .Contain(x => x.Amount == expectedAdditionalPayment.Amount
+                && x.DueDate == expectedAdditionalPayment.DueDate
+                && x.AdditionalPaymentType == expectedAdditionalPayment.Type);
+        }
+    }
+
+    [Then(@"an EarningsGeneratedEvent is raised with the following Delivery Periods")]
+    public async Task ThenAdditionalPaymentsAreGeneratedWithTheFollowingInformation(Table table)
+    {
+        var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
+        var tasks = data.Select(expectation =>
+            WaitHelper.WaitForIt(() =>
+                    _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => HasIncentivePayment(x, expectation)),
+                "Failed to find published Additional Payment"
+            )
+        ).ToList();
+
+        await Task.WhenAll(tasks);
+    }
+
+    private bool HasIncentivePayment(EarningsGeneratedEvent earningsGeneratedEvent, AdditionalPaymentExpectationModel expected)
+    {
+        return earningsGeneratedEvent.DeliveryPeriods.Any(x =>
+            x.InstalmentType == expected.Type &&
+            x.LearningAmount == expected.Amount &&
+            x.CalendarMonth == expected.CalendarMonth &&
+            x.CalenderYear == expected.CalendarYear);
     }
 }

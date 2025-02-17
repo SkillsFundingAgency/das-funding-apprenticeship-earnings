@@ -26,7 +26,7 @@ public class AdditionalPayment
             Amount = amount,
             DeliveryPeriod = deliveryPeriod,
             DueDate = dueDate,
-            AdditionalPaymentType = incentiveType //Todo: This is confusing, because what comes in is an IncentiveType, but we're then just mapping it over :-/
+            AdditionalPaymentType = incentiveType
         };
     }
 

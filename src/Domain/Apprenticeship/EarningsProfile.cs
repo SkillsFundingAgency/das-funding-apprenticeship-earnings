@@ -45,6 +45,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public Guid EarningsProfileId => Model.EarningsProfileId;
         public decimal OnProgramTotal => Model.OnProgramTotal;
         public IReadOnlyCollection<Instalment> Instalments => new ReadOnlyCollection<Instalment>(_instalments);
+        public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Model.AdditionalPayments.Select((AdditionalPayment.Get)).ToList().AsReadOnly();
         public decimal CompletionPayment => Model.CompletionPayment;
 
         public void AddInstalments(List<Instalment> instalments)
