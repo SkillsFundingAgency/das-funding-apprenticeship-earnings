@@ -77,8 +77,6 @@ public class ApprenticeshipEpisode
 
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
 
-        //todo: what about additional payments??
-        //Do we need to wipe 'em all out and recalculate what they should be??
         var additionalPayments = _model.EarningsProfile.AdditionalPayments
             .Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList();
 

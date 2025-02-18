@@ -23,14 +23,14 @@ public static class ApprenticeshipExtensions
                 "OnProgramme"
             )));
 
-            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.AdditionalPayments.Select(additionalPayment => new DeliveryPeriod(
-                additionalPayment.DeliveryPeriod.ToCalendarMonth(),
-                additionalPayment.AcademicYear.ToCalendarYear(additionalPayment.DeliveryPeriod),
-                additionalPayment.DeliveryPeriod,
-                additionalPayment.AcademicYear,
-                additionalPayment.Amount,
-                currentEpisode.FundingLineType,
-                additionalPayment.AdditionalPaymentType)));
+            //deliveryPeriods.AddRange(currentEpisode.EarningsProfile.AdditionalPayments.Select(additionalPayment => new DeliveryPeriod(
+            //    additionalPayment.DeliveryPeriod.ToCalendarMonth(),
+            //    additionalPayment.AcademicYear.ToCalendarYear(additionalPayment.DeliveryPeriod),
+            //    additionalPayment.DeliveryPeriod,
+            //    additionalPayment.AcademicYear,
+            //    additionalPayment.Amount,
+            //    currentEpisode.FundingLineType,
+            //    additionalPayment.AdditionalPaymentType)));
         }
 
         return deliveryPeriods;
