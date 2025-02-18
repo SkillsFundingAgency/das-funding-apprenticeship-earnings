@@ -199,7 +199,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             Episode = new ApprenticeshipEpisode
             {
                 Key = Guid.NewGuid(),
-                Prices = new List<ApprenticeshipEpisodePrice>(),
+                Prices = [],
                 EmployerAccountId = 114,
                 FundingType = Apprenticeships.Enums.FundingType.Levy,
                 Ukprn = 116,

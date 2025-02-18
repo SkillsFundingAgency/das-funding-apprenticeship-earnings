@@ -3,6 +3,7 @@ using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
@@ -78,26 +79,60 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         }
     }
 
-    [Then(@"an EarningsGeneratedEvent is raised with the following Delivery Periods")]
-    public async Task ThenAdditionalPaymentsAreGeneratedWithTheFollowingInformation(Table table)
+    [Then(@"an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods")]
+    public async Task ThenAdditionalPaymentsAreGeneratedWithTheFollowingIncentivesAsDeliveryPeriods(Table table)
     {
-        var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
-        var tasks = data.Select(expectation =>
-            WaitHelper.WaitForIt(() =>
-                    _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => HasIncentivePayment(x, expectation)),
-                "Failed to find published Additional Payment"
-            )
-        ).ToList();
+        await WaitHelper.WaitForIt(() =>
+                _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(),
+            "Failed to find any EarningsGeneratedEvent"
+        );
 
-        await Task.WhenAll(tasks);
+        var expected = table.CreateSet<AdditionalPaymentExpectationModel>()
+            .Select(e => new
+            {
+                e.Type,
+                e.Amount,
+                e.CalendarMonth,
+                e.CalendarYear
+            }).ToList();
+
+        var allActualIncentives = _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>()
+            .SelectMany(e => e.DeliveryPeriods)
+            .Where(x => x.InstalmentType is "ProviderIncentive" or "EmployerIncentive")
+            .Select(dp => new
+            {
+                Type = dp.InstalmentType,
+                Amount = dp.LearningAmount,
+                dp.CalendarMonth,
+                CalendarYear = dp.CalenderYear
+            }).ToList();
+
+        allActualIncentives.Should().BeEquivalentTo(expected, options => options.IncludingFields());
     }
 
-    private bool HasIncentivePayment(EarningsGeneratedEvent earningsGeneratedEvent, AdditionalPaymentExpectationModel expected)
+    [Then(@"no Additional Payments are persisted")]
+    public async Task ThenNoAdditionalPaymentsArePersisted()
     {
-        return earningsGeneratedEvent.DeliveryPeriods.Any(x =>
-            x.InstalmentType == expected.Type &&
-            x.LearningAmount == expected.Amount &&
-            x.CalendarMonth == expected.CalendarMonth &&
-            x.CalenderYear == expected.CalendarYear);
+     var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
+    }
+
+    [Then(@"an EarningsGeneratedEvent is raised with no incentives as Delivery Periods")]
+    public async Task ThenAnEarningsGeneratedEventIsRaisedWithNoIncentivesAsDeliveryPeriods()
+    {
+        await WaitHelper.WaitForIt(() =>
+                _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(),
+            "Failed to find any EarningsGeneratedEvent"
+        );
+
+        var allActualIncentives = _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>()
+            .SelectMany(e => e.DeliveryPeriods)
+            .Where(x => x.InstalmentType is "ProviderIncentive" or "EmployerIncentive")
+            .ToList();
+
+        allActualIncentives.Should().BeEmpty();
     }
 }
