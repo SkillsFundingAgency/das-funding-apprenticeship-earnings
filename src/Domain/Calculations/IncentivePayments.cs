@@ -4,12 +4,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class IncentivePayments
 {
-    //todo: make this a 16-18 incentive generator, to differentiate from others still to come
-    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
+    public static List<IncentivePayment> Generate16to18IncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
     {
         var incentivePayments = new List<IncentivePayment>();
 
-        if (ageAtStartOfApprenticeship < 16 || ageAtStartOfApprenticeship > 18)
+        if (ageAtStartOfApprenticeship is < 16 or > 18)
         {
             return incentivePayments;
         }
