@@ -20,7 +20,7 @@ public static class ApprenticeshipExtensions
                 instalment.AcademicYear,
                 instalment.Amount,
                 currentEpisode.FundingLineType,
-                "OnProgram"
+                "OnProgramme"
             )));
 
             deliveryPeriods.AddRange(currentEpisode.EarningsProfile.AdditionalPayments.Select(additionalPayment => new DeliveryPeriod(
@@ -35,6 +35,4 @@ public static class ApprenticeshipExtensions
 
         return deliveryPeriods;
     }
-
-
 }
