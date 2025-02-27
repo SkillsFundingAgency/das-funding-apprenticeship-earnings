@@ -35,9 +35,9 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfileHistory)
             .ThenInclude(y => y.Instalments)
-            .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.AdditionalPayments)
+            //.Include(x => x.Episodes)
+            //.ThenInclude(y => y.EarningsProfile)
+            //.ThenInclude(y => y.AdditionalPayments)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.Prices)
             .SingleAsync(x => x.Key == key);
