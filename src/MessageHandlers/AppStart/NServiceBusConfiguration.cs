@@ -19,8 +19,8 @@ internal static class NServiceBusConfiguration
 
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
-            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions(); 
-
+            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
+            
             var value = config["ApplicationSettings:NServiceBusLicense"];
             if (!string.IsNullOrEmpty(value))
             {
@@ -47,10 +47,10 @@ internal static class NServiceBusConfiguration
 
         foreach (var queueTrigger in queueTriggers)
         {
+            var errorQueue = $"{queueTrigger.QueueName}-error";
+
             if (!adminClient.QueueExistsAsync(queueTrigger.QueueName).GetAwaiter().GetResult())
             {
-                var errorQueue = $"{queueTrigger.QueueName}-error";
-
                 adminClient.CreateQueueAsync(errorQueue).GetAwaiter().GetResult();
 
                 var queue = new CreateQueueOptions(queueTrigger.QueueName)
@@ -59,6 +59,17 @@ internal static class NServiceBusConfiguration
                 };
 
                 adminClient.CreateQueueAsync(queue).GetAwaiter().GetResult();
+            }
+            else
+            {
+                var queueProperties = adminClient.GetQueueAsync(queueTrigger.QueueName).GetAwaiter().GetResult();
+
+                if (string.IsNullOrEmpty(queueProperties.Value.ForwardDeadLetteredMessagesTo))
+                {
+                    queueProperties.Value.ForwardDeadLetteredMessagesTo = errorQueue;
+
+                    adminClient.UpdateQueueAsync(queueProperties.Value).GetAwaiter().GetResult();
+                }
             }
         }
     }
