@@ -9,18 +9,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using NServiceBus.Transport;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 internal static class NServiceBusConfiguration
 {
+    private const int ImmediateRetryCount = 3;
+
     internal static IHostBuilder ConfigureNServiceBusForSubscribe(this IHostBuilder hostBuilder)
     {
-
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
             endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
-            
+
+            // Configure custom recoverability policy
+            endpointConfiguration.AdvancedConfiguration.Recoverability()
+                .CustomPolicy(CustomRecoverabilityPolicy.RecoverabilityPolicy)
+                .Immediate(immediate => immediate.NumberOfRetries(ImmediateRetryCount)) // Set the number of immediate retries
+                .Delayed(delayed => delayed.NumberOfRetries(2).TimeIncrease(TimeSpan.FromSeconds(10))); // Set the number of delayed retries and time increase
+
             var value = config["ApplicationSettings:NServiceBusLicense"];
             if (!string.IsNullOrEmpty(value))
             {
@@ -33,6 +41,7 @@ internal static class NServiceBusConfiguration
 
         return hostBuilder;
     }
+
 
     /// <summary>
     /// Check if the queues exist and create them if they don't
@@ -73,6 +82,20 @@ internal static class NServiceBusConfiguration
             }
         }
     }
+
+    public static class CustomRecoverabilityPolicy
+    {
+        public static RecoverabilityAction RecoverabilityPolicy(RecoverabilityConfig config, ErrorContext context)
+        {
+            // Get the queue name from the context
+            var queueName = context.ReceiveAddress;
+            var errorQueueName = $"{queueName}-error";
+
+            // Move the failed message to the individual error queue
+            return RecoverabilityAction.MoveToError(errorQueueName);
+        }
+    }
+
 
     private static IEnumerable<ServiceBusTriggerAttribute> GetQueueTriggers()
     {
