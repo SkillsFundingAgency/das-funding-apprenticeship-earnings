@@ -18,6 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
         public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
         public virtual DbSet<InstalmentModel> Instalments { get; set; }
+        public virtual DbSet<AdditionalPaymentModel> AdditionalPayments { get; set; }
 
         public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
         public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
@@ -79,6 +80,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
             modelBuilder.Entity<EarningsProfileHistoryModel>()
                 .HasMany(x => x.Instalments)
+                .WithOne()
+                .HasForeignKey(fk => fk.EarningsProfileId);
+
+            modelBuilder.Entity<EarningsProfileHistoryModel>()
+                .HasMany(x => x.AdditionalPayments)
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
 
