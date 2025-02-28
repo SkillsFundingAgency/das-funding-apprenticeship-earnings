@@ -39,8 +39,6 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.Prices)
             .SingleAsync(x => x.Key == key);
 
-        throw new InvalidOperationException("Test exception");
-
         return _apprenticeshipFactory.GetExisting(apprenticeship);
     }
 

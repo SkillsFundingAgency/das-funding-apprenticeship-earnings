@@ -20,7 +20,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
-[assembly: NServiceBusTriggerFunction("SFA.DAS.Funding.ApprenticeshipEarnings")]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 [ExcludeFromCodeCoverage]
@@ -51,6 +50,8 @@ public class Startup
     public void Configure(IHostBuilder builder)
     {
         builder
+            .ConfigureFunctionsWebApplication()
+            .ConfigureFunctionsWorkerDefaults()
             .ConfigureAppConfiguration(PopulateConfig)
             .ConfigureNServiceBusForSubscribe()
             .ConfigureServices((c, s) =>
@@ -86,7 +87,6 @@ public class Startup
 
     public void SetupServices(IServiceCollection services)
     {
-
         services.AddLogging(builder =>
         {
             builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
@@ -94,8 +94,6 @@ public class Startup
 
             builder.AddFilter(typeof(Program).Namespace, LogLevel.Information);
             builder.SetMinimumLevel(LogLevel.Trace);
-            builder.AddConsole();
-
         });
 
         services

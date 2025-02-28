@@ -1,4 +1,3 @@
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -7,46 +6,37 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
-public class ApprenticeshipCreatedEventHandler
+public class ApprenticeshipCreatedEventHandler(
+    ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler,
+    ILogger<ApprenticeshipCreatedEventHandler> logger)
+    : IHandleMessages<ApprenticeshipCreatedEvent>
 {
-    private readonly ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> _createApprenticeshipCommandHandler;
-    private readonly ILogger<ApprenticeshipCreatedEventHandler> _logger;
-
-    public ApprenticeshipCreatedEventHandler(
-        ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler,
-        ILogger<ApprenticeshipCreatedEventHandler> logger)
-    {
-        _createApprenticeshipCommandHandler = createApprenticeshipCommandHandler;
-        _logger = logger;
-    }
-
-    [Function(nameof(ApprenticeshipLearnerEventServiceBusTrigger))]
-    public async Task ApprenticeshipLearnerEventServiceBusTrigger(
-        [ServiceBusTrigger(QueueNames.ApprovalCreated)] ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+    public async Task Handle(ApprenticeshipCreatedEvent message, IMessageHandlerContext context)
     {
         try
         {
-            _logger.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} processing...");
+            logger.LogInformation($"{nameof(ApprenticeshipCreatedEventHandler)} processing...");
 
-            _logger.LogInformation("ApprenticeshipKey: {0} Received ApprenticeshipCreatedEvent: {1}",
-                apprenticeshipCreatedEvent.ApprenticeshipKey,
-                JsonSerializer.Serialize(apprenticeshipCreatedEvent, new JsonSerializerOptions { WriteIndented = true }));
+            logger.LogInformation("ApprenticeshipKey: {0} Received ApprenticeshipCreatedEvent: {1}",
+                message.ApprenticeshipKey,
+                JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
 
-            if (!(apprenticeshipCreatedEvent.Episode.FundingPlatform.HasValue && Enum.Parse<FundingPlatform>(apprenticeshipCreatedEvent.Episode.FundingPlatform.Value.ToString()) == FundingPlatform.DAS))
+            if (!(message.Episode.FundingPlatform.HasValue && Enum.Parse<FundingPlatform>(message.Episode.FundingPlatform.Value.ToString()) == FundingPlatform.DAS))
             {
-                _logger.LogInformation($"{nameof(ApprenticeshipLearnerEventServiceBusTrigger)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {apprenticeshipCreatedEvent.ApprenticeshipKey}");
+                logger.LogInformation($"{nameof(ApprenticeshipCreatedEventHandler)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {message.ApprenticeshipKey}");
                 return;
             }
 
-            var command = new CreateApprenticeshipCommand(apprenticeshipCreatedEvent);
-            await _createApprenticeshipCommandHandler.Handle(command);
+            var command = new CreateApprenticeshipCommand(message);
+            await createApprenticeshipCommandHandler.Handle(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateApprenticeshipCommand)} threw exception.");
+            logger.LogError(ex, $"{nameof(CreateApprenticeshipCommand)} threw exception.");
             throw;
         }
     }

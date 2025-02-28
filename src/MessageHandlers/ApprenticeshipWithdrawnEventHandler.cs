@@ -1,37 +1,25 @@
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
-public class ApprenticeshipWithdrawnEventHandler
+public class ApprenticeshipWithdrawnEventHandler(
+    ICommandHandler<ProcessWithdrawnApprenticeshipCommand> processWithdrawnApprenticeshipCommandHandler,
+    ILogger<ApprenticeshipWithdrawnEventHandler> logger)
+    : IHandleMessages<ApprenticeshipWithdrawnEvent>
 {
-    private readonly ICommandHandler<ProcessWithdrawnApprenticeshipCommand> _processWithdrawnApprenticeshipCommandHandler;
-    private readonly ILogger<ApprenticeshipWithdrawnEventHandler> _logger;
-
-    public ApprenticeshipWithdrawnEventHandler(
-        ICommandHandler<ProcessWithdrawnApprenticeshipCommand> processWithdrawnApprenticeshipCommandHandler,
-        ILogger<ApprenticeshipWithdrawnEventHandler> logger)
+    public async Task Handle(ApprenticeshipWithdrawnEvent message, IMessageHandlerContext context)
     {
-        _processWithdrawnApprenticeshipCommandHandler = processWithdrawnApprenticeshipCommandHandler;
-        _logger = logger;
-    }
+        var json = JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true });
 
-    [Function(nameof(ApprenticeshipWithdrawnEventServiceBusTrigger))]
-    public async Task ApprenticeshipWithdrawnEventServiceBusTrigger(
-        [ServiceBusTrigger(QueueNames.ApprenticeshipWithdrawn)] ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent)
-    {
-        _logger.LogInformation($"{nameof(ApprenticeshipWithdrawnEventServiceBusTrigger)} processing...");
-        _logger.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
-            apprenticeshipWithdrawnEvent.ApprenticeshipKey,
-            nameof(ApprenticeshipWithdrawnEvent),
-            JsonSerializer.Serialize(apprenticeshipWithdrawnEvent, new JsonSerializerOptions { WriteIndented = true }));
+        logger.LogInformation($"{nameof(ApprenticeshipWithdrawnEventHandler)} processing...");
+        logger.LogInformation($"ApprenticeshipKey: {message.ApprenticeshipKey} Received {nameof(ApprenticeshipWithdrawnEvent)}: {json}");
 
-        await _processWithdrawnApprenticeshipCommandHandler.Handle(new ProcessWithdrawnApprenticeshipCommand(apprenticeshipWithdrawnEvent));
+        await processWithdrawnApprenticeshipCommandHandler.Handle(new ProcessWithdrawnApprenticeshipCommand(message));
     }
 }

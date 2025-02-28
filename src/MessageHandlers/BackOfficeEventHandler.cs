@@ -10,15 +10,8 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
-public class BackOfficeEventHandler
+public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
 {
-    private readonly ICommandDispatcher _commandDispatcher;
-
-    public BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
-    {
-        _commandDispatcher = commandDispatcher;
-    }
-
     [Function(nameof(ReReleaseEarningsGenerated))]
     public async Task<IActionResult> ReReleaseEarningsGenerated([HttpTrigger(AuthorizationLevel.Function, "post", Route = "BackOffice/ReReleaseEarningsGenerated/{ukprn}")] HttpRequestMessage req,
                 long ukprn,
@@ -37,8 +30,8 @@ public class BackOfficeEventHandler
 
             log.LogInformation("UkPrn: {0}");
 
-            await _commandDispatcher.Send(new ReReleaseEarningsGeneratedCommand(ukprn));
-            var message = String.Format($"ReRelease Earnings for ukprn {ukprn} successful");
+            await commandDispatcher.Send(new ReReleaseEarningsGeneratedCommand(ukprn));
+            var message = $"ReRelease Earnings for ukprn {ukprn} successful";
             return new OkObjectResult(message);
         }
         catch (Exception ex)
