@@ -12,7 +12,7 @@ internal static class NServiceBusConfiguration
     {
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
-            //endpointConfiguration.LogDiagnostics();
+            endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo("SFA.DAS.Funding.ApprenticeshipEarnings-error");
