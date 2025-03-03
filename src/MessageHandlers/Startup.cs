@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using NServiceBus;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
