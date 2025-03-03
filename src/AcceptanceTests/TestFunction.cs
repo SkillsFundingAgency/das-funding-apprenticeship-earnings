@@ -35,20 +35,21 @@ public class TestFunction : IDisposable
 {
     private readonly TestContext _testContext;
     private readonly TestServer _testServer;
-    private readonly IEnumerable<QueueTriggeredFunction> _queueTriggeredFunctions;
+    private readonly IEnumerable<MessageHandler> _queueTriggeredFunctions;
     private bool _isDisposed;
 
     public string HubName { get; }
 
     public TestFunction(TestContext testContext, string hubName)
     {
+        var _ = new Startup();// This forces the AzureFunction assembly to load
+        _queueTriggeredFunctions = MessageHandlerHelper.GetMessageHandlers();
+
+
         AzureStorageEmulatorManager.StartStorageEmulator();
-        
 
         HubName = hubName;
         _testContext = testContext;
-        var _ = new Startup();// This forces the AzureFunction assembly to load
-        _queueTriggeredFunctions = QueueFunctionResolver.GetQueueTriggeredFunctions();
 
         _testServer = new TestServer(new WebHostBuilder()
             .UseEnvironment(Environments.Development)
@@ -58,22 +59,9 @@ public class TestFunction : IDisposable
 
     public async Task PublishEvent<T>(T eventObject)
     {
-        var function = _queueTriggeredFunctions.FirstOrDefault(x => x.Endpoints.Where(e => e.EventType == typeof(T)).Any());
-        var handler = _testServer.Services.GetService(function.ClassType);
-        var method = function.Endpoints.FirstOrDefault(x => x.EventType == typeof(T)).MethodInfo;
-
-        if (method.GetParameters().Length != 1)
-        {
-            throw new InvalidOperationException("To trigger events for functions with multiple parameters more development is required");
-        }
-        try
-        {
-            await (Task)method.Invoke(handler, new object[] { eventObject });
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Failed to invoke method {method.Name} on class {function.ClassType.Name}", ex);
-        }
+        var function = _queueTriggeredFunctions.FirstOrDefault(x => x.HandledEventType == typeof(T));
+        var handler = _testServer.Services.GetService(function.HandlerType) as IHandleMessages<T>;
+        await handler.Handle(eventObject, null);
     }
 
     public async Task DisposeAsync()
