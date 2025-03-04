@@ -39,11 +39,6 @@ public class Startup
         }
     }
 
-    public Startup()
-    {
-        ForceAssemblyLoad();
-    }
-
     public void Configure(IHostBuilder builder)
     {
         builder
@@ -60,7 +55,7 @@ public class Startup
 
     private void PopulateConfig(IConfigurationBuilder configurationBuilder)
     {
-        Environment.SetEnvironmentVariable("ENDPOINT_NAME", "SFA.DAS.Funding.ApprenticeshipEarnings");
+        Environment.SetEnvironmentVariable("ENDPOINT_NAME", Constants.EndpointName);
 
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()
@@ -120,14 +115,5 @@ public class Startup
         var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
         var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
         return !isLocal && !isLocalAcceptanceTests;
-    }
-
-    /// <summary>
-    /// This method is used to force the assembly to load so that the NServiceBus assembly scanner can find the events.
-    /// This has to be called before builder configuration steps are called as these don't get executed until build() is called.
-    /// </summary>
-    private static void ForceAssemblyLoad()
-    {
-        var apprenticeshipEarningsTypes = new ApprenticeshipEarningsRecalculatedEvent();
     }
 }
