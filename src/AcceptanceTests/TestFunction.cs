@@ -1,35 +1,11 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.Apprenticeships.Types;
-using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Testing.AzureStorageEmulator;
-using System;
-using System.Linq;
-using System.Net;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
-
-public class Settings
-{
-    public string AzureWebJobsStorage { get; set; }
-    public string NServiceBusConnectionString { get; set; }
-    public string TopicPath { get; set; }
-    public string QueueName { get; set; }
-}
 
 public class TestFunction : IDisposable
 {

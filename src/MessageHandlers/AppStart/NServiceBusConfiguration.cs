@@ -15,7 +15,7 @@ internal static class NServiceBusConfiguration
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
-            endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo("SFA.DAS.Funding.ApprenticeshipEarnings-error");
+            endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
             endpointConfiguration.AdvancedConfiguration.Conventions()
                 .DefiningEventsAs(IsEvent)
                 .DefiningCommandsAs(IsCommand)

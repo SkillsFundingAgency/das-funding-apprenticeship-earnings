@@ -1,7 +1,8 @@
 ﻿using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 public static class ConfigureNServiceBusExtension
 {

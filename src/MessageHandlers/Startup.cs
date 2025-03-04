@@ -10,7 +10,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
@@ -43,7 +42,6 @@ public class Startup
     {
         builder
             .ConfigureFunctionsWebApplication()
-            .ConfigureFunctionsWorkerDefaults()
             .ConfigureAppConfiguration(PopulateConfig)
             .ConfigureNServiceBusForSubscribe()
             .ConfigureServices((c, s) =>

@@ -1,6 +1,8 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
+using NServiceBus;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 public static class NServiceBusExtensions
 {
