@@ -40,26 +40,49 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
 
     private Apprenticeship MapApprenticeship(Domain.Apprenticeship.Apprenticeship source)
     {
-        var currentEpisode = source.GetCurrentEpisode(_systemClockService);
-
-        return new Apprenticeship
+        try
         {
-            Key = source.ApprenticeshipKey,
-            Ukprn = currentEpisode.UKPRN,
-            Episodes = source.ApprenticeshipEpisodes.Select(x => new Episode
+            var currentEpisode = source.GetCurrentEpisode(_systemClockService);
+
+            return new Apprenticeship
             {
-                Key = x.ApprenticeshipEpisodeKey,
-                NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
-                Instalments = x.EarningsProfile.Instalments.Select(i => new Instalment
+                Key = source.ApprenticeshipKey,
+                Ukprn = currentEpisode.UKPRN,
+                Episodes = source.ApprenticeshipEpisodes.Select(x => new Episode
                 {
-                    AcademicYear = i.AcademicYear,
-                    DeliveryPeriod = i.DeliveryPeriod,
-                    Amount = i.Amount
+                    Key = x.ApprenticeshipEpisodeKey,
+                    NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
+                    Instalments = GetInstalmentsFromEpisode(x),
+                    CompletionPayment = x.EarningsProfile.CompletionPayment,
+                    OnProgramTotal = x.EarningsProfile.OnProgramTotal
                 }).ToList(),
-                CompletionPayment = x.EarningsProfile.CompletionPayment,
-                OnProgramTotal = x.EarningsProfile.OnProgramTotal
-            }).ToList(),
-            FundingLineType = currentEpisode.FundingLineType.ToString()
-        };
+                FundingLineType = currentEpisode.FundingLineType.ToString()
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error mapping apprenticeship: {apprenticeshipKey} message:{innerMsg}", source.ApprenticeshipKey, ex.Message);
+            throw;
+        }
+
+    }
+
+    // At the moment this throws exceptions if an episode is missing instalments
+    // if later we there are scenarios where this is valid we can change this to return an empty list
+    private static List<Instalment> GetInstalmentsFromEpisode(ApprenticeshipEpisode apprenticeshipEpisode)
+    {
+        if(apprenticeshipEpisode.EarningsProfile == null)
+            throw new InvalidOperationException("Cannot GetInstalmentsFromEpisode EarningsProfile is null");
+
+        if(apprenticeshipEpisode.EarningsProfile.Instalments == null)
+            throw new InvalidOperationException("Cannot GetInstalmentsFromEpisode instalments are null");
+
+        return apprenticeshipEpisode.EarningsProfile.Instalments.Select(i => new Instalment
+        {
+            AcademicYear = i.AcademicYear,
+            DeliveryPeriod = i.DeliveryPeriod,
+            Amount = i.Amount
+        }).ToList();
+
     }
 }
