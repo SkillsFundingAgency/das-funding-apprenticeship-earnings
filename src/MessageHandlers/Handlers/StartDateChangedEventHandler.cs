@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using NServiceBus;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
 public class StartDateChangedEventHandler(
     ICommandHandler<ProcessEpisodeUpdatedCommand> processEpisodeUpdatedCommandHandler,

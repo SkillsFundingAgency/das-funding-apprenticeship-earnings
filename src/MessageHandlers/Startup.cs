@@ -1,11 +1,9 @@
-﻿using Azure.Identity;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-using NServiceBus;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;

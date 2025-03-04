@@ -8,7 +8,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 using System.Net.Http;
 using Microsoft.Azure.Functions.Worker;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
 public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
 {

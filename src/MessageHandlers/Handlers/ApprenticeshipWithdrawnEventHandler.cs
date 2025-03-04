@@ -6,7 +6,7 @@ using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
 public class ApprenticeshipWithdrawnEventHandler(
     ICommandHandler<ProcessWithdrawnApprenticeshipCommand> processWithdrawnApprenticeshipCommandHandler,

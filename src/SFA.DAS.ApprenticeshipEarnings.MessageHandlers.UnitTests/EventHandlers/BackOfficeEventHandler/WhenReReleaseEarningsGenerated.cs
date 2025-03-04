@@ -17,14 +17,14 @@ public class WhenReReleaseEarningsGenerated
 {
     private Mock<ILogger> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
-    private MessageHandlers.BackOfficeEventHandler _eventHandler;
+    private Handlers.BackOfficeEventHandler _eventHandler;
 
     [SetUp]
     public void SetUp()
     {
         _loggerMock = new Mock<ILogger>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
-        _eventHandler = new MessageHandlers.BackOfficeEventHandler(_commandDispatcherMock.Object);
+        _eventHandler = new MessageHandlers.Handlers.BackOfficeEventHandler(_commandDispatcherMock.Object);
     }
 
     [Test]
