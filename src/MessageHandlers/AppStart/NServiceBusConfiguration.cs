@@ -16,10 +16,7 @@ internal static class NServiceBusConfiguration
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
-            endpointConfiguration.AdvancedConfiguration.Conventions()
-                .DefiningEventsAs(IsEvent)
-                .DefiningCommandsAs(IsCommand)
-                .DefiningMessagesAs(IsMessage);
+            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
 
             endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
@@ -54,9 +51,4 @@ internal static class NServiceBusConfiguration
         }
     }
 
-    private static bool IsMessage(Type t) => t.Name.EndsWith("Message");
-
-    private static bool IsEvent(Type t) => t.Name.EndsWith("Event");
-
-    private static bool IsCommand(Type t) => t.Name.EndsWith("Command");
 }

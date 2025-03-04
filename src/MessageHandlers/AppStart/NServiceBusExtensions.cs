@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using NServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
@@ -9,8 +8,8 @@ public static class NServiceBusExtensions
     public static void SetConventions(this ConventionsBuilder conventions)
     {
         conventions.DefiningEventsAs(IsEvent);
-        conventions.DefiningCommandsAs(t => false);
-        conventions.DefiningMessagesAs(t => false);
+        conventions.DefiningCommandsAs(IsCommand);
+        conventions.DefiningMessagesAs(IsMessage);
     }
 
     public static string GetFullyQualifiedNamespace(this string serviceBusConnectionString)
@@ -33,13 +32,11 @@ public static class NServiceBusExtensions
         throw new FormatException("Invalid Service Bus connection string: Fully Qualified Namespace not found.");
     }
 
-    private static bool IsEvent(Type t)
-    {
-        if (t.Namespace != null && (t.Namespace.StartsWith("SFA.DAS.Funding.ApprenticeshipEarnings.Types", StringComparison.CurrentCultureIgnoreCase)) && Regex.IsMatch(t.Name, "Event(V\\d+)?$"))
-        {
-            return true;
-        }
-        return false;
-    }
+
+    private static bool IsMessage(Type t) => t.Name.EndsWith("Message");
+
+    private static bool IsEvent(Type t) => t.Name.EndsWith("Event");
+
+    private static bool IsCommand(Type t) => t.Name.EndsWith("Command");
 
 }
