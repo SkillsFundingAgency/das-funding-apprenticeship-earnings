@@ -32,7 +32,7 @@ public class ApprenticeshipCreatedEventHandler(
             }
 
             var command = new CreateApprenticeshipCommand(message);
-            await createApprenticeshipCommandHandler.Handle(command);
+            await createApprenticeshipCommandHandler.Handle(command, context.CancellationToken);
         }
         catch (Exception ex)
         {

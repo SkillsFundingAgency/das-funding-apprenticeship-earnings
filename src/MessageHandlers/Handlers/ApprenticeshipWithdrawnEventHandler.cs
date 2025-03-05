@@ -20,6 +20,6 @@ public class ApprenticeshipWithdrawnEventHandler(
         logger.LogInformation($"{nameof(ApprenticeshipWithdrawnEventHandler)} processing...");
         logger.LogInformation($"ApprenticeshipKey: {message.ApprenticeshipKey} Received {nameof(ApprenticeshipWithdrawnEvent)}: {json}");
 
-        await processWithdrawnApprenticeshipCommandHandler.Handle(new ProcessWithdrawnApprenticeshipCommand(message));
+        await processWithdrawnApprenticeshipCommandHandler.Handle(new ProcessWithdrawnApprenticeshipCommand(message), context.CancellationToken);
     }
 }

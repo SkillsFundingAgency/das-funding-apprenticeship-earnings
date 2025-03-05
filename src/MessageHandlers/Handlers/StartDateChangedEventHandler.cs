@@ -21,6 +21,6 @@ public class StartDateChangedEventHandler(
             nameof(ApprenticeshipStartDateChangedEvent),
             JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
 
-        await processEpisodeUpdatedCommandHandler.Handle(new ProcessEpisodeUpdatedCommand(message));
+        await processEpisodeUpdatedCommandHandler.Handle(new ProcessEpisodeUpdatedCommand(message), context.CancellationToken);
     }
 }

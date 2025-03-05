@@ -28,7 +28,7 @@ public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
                 return new BadRequestObjectResult(noPrnProvided);
             }
 
-            log.LogInformation("UkPrn: {0}");
+            log.LogInformation($"UkPrn: {ukprn}");
 
             await commandDispatcher.Send(new ReReleaseEarningsGeneratedCommand(ukprn));
             var message = $"ReRelease Earnings for ukprn {ukprn} successful";
