@@ -1,13 +1,14 @@
 ﻿using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 public static class ConfigureNServiceBusExtension
 {
     public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
     {
-        var endpointConfiguration = new EndpointConfiguration("SFA.DAS.Funding.ApprenticeshipEarnings");
+        var endpointConfiguration = new EndpointConfiguration(Constants.EndpointName);
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         endpointConfiguration.SendOnly();
 

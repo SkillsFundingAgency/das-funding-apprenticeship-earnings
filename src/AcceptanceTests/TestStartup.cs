@@ -21,12 +21,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 internal class TestStartup
 {
     private readonly Startup _startUp;
-    private readonly IEnumerable<QueueTriggeredFunction> _queueTriggeredFunctions;
+    private readonly IEnumerable<MessageHandler> _queueTriggeredFunctions;
     private readonly IMessageSession _messageSession;
 
     public TestStartup(
         TestContext testContext, 
-        IEnumerable<QueueTriggeredFunction> queueTriggeredFunctions,
+        IEnumerable<MessageHandler> queueTriggeredFunctions,
         IMessageSession messageSession)
     {
         _startUp = new Startup();
@@ -48,7 +48,7 @@ internal class TestStartup
 
         foreach (var queueTriggeredFunction in _queueTriggeredFunctions)
         {
-            collection.AddTransient(queueTriggeredFunction.ClassType);
+            collection.AddTransient(queueTriggeredFunction.HandlerType);
         }
 
         collection.AddSingleton<ISystemClockService, TestSystemClock>();// override DI in Startup
