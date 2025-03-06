@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
+using NServiceBus.Testing;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 using SFA.DAS.Testing.AzureStorageEmulator;
@@ -37,8 +38,13 @@ public class TestFunction : IDisposable
     {
         var function = _queueTriggeredFunctions.FirstOrDefault(x => x.HandledEventType == typeof(T));
         var handler = _testServer.Services.GetService(function.HandlerType) as IHandleMessages<T>;
-        await handler.Handle(eventObject, null);
+        var context = new TestableMessageHandlerContext
+        {
+            CancellationToken = new CancellationToken()
+        };
+        await handler.Handle(eventObject, context);
     }
+
 
     public async Task DisposeAsync()
     {
