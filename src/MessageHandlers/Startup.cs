@@ -1,26 +1,21 @@
-﻿using Azure.Identity;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-using NServiceBus;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
-[assembly: NServiceBusTriggerFunction("SFA.DAS.Funding.ApprenticeshipEarnings")]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
 [ExcludeFromCodeCoverage]
@@ -43,14 +38,10 @@ public class Startup
         }
     }
 
-    public Startup()
-    {
-        ForceAssemblyLoad();
-    }
-
     public void Configure(IHostBuilder builder)
     {
         builder
+            .ConfigureFunctionsWebApplication()
             .ConfigureAppConfiguration(PopulateConfig)
             .ConfigureNServiceBusForSubscribe()
             .ConfigureServices((c, s) =>
@@ -62,7 +53,7 @@ public class Startup
 
     private void PopulateConfig(IConfigurationBuilder configurationBuilder)
     {
-        Environment.SetEnvironmentVariable("ENDPOINT_NAME", "SFA.DAS.Funding.ApprenticeshipEarnings");
+        Environment.SetEnvironmentVariable("ENDPOINT_NAME", Constants.EndpointName);
 
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()
@@ -86,7 +77,6 @@ public class Startup
 
     public void SetupServices(IServiceCollection services)
     {
-
         services.AddLogging(builder =>
         {
             builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
@@ -94,8 +84,6 @@ public class Startup
 
             builder.AddFilter(typeof(Program).Namespace, LogLevel.Information);
             builder.SetMinimumLevel(LogLevel.Trace);
-            builder.AddConsole();
-
         });
 
         services
@@ -125,14 +113,5 @@ public class Startup
         var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
         var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
         return !isLocal && !isLocalAcceptanceTests;
-    }
-
-    /// <summary>
-    /// This method is used to force the assembly to load so that the NServiceBus assembly scanner can find the events.
-    /// This has to be called before builder configuration steps are called as these don't get executed until build() is called.
-    /// </summary>
-    private static void ForceAssemblyLoad()
-    {
-        var apprenticeshipEarningsTypes = new ApprenticeshipEarningsRecalculatedEvent();
     }
 }
