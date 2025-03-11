@@ -16,15 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Extensions\**" />
     <Compile Remove="Functions\**" />
-    <EmbeddedResource Remove="Extensions\**" />
     <EmbeddedResource Remove="Functions\**" />
-    <None Remove="Extensions\**" />
     <None Remove="Functions\**" />
-    <SpecFlowFeatureFiles Remove="Extensions\**" />
     <SpecFlowFeatureFiles Remove="Functions\**" />
-    <SpecFlowObsoleteCodeBehindFiles Remove="Extensions\**" />
     <SpecFlowObsoleteCodeBehindFiles Remove="Functions\**" />
   </ItemGroup>
 
