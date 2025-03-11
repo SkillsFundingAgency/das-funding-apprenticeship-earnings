@@ -33,14 +33,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
         }
 
         [Test]
-        public void Should_Return_90_Day_Incentives_For_Each_Party_When_Short_Apprenticeship()
+        public void Should_Return_90_Day_Incentives_For_Each_Party_When_Less_Than_365_Apprenticeship()
         {
             // Arrange
             var ageAtStartOfApprenticeship = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddMonths(6);
 
-            var expectedIncentiveDate = apprenticeshipStartDate.AddDays(89);
+            var expectedIncentiveDate = apprenticeshipStartDate.AddDays(90);
 
             // Act
             var result = Calculations.IncentivePayments.Generate16to18IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
@@ -73,8 +73,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddYears(1);
 
-            var firstIncentiveDate = apprenticeshipStartDate.AddDays(89);
-            var secondIncentiveDate = apprenticeshipStartDate.AddDays(364);
+            var firstIncentiveDate = apprenticeshipStartDate.AddDays(90);
+            var secondIncentiveDate = apprenticeshipStartDate.AddDays(365);
 
             // Act
             var result = Calculations.IncentivePayments.Generate16to18IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
@@ -113,6 +113,23 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
                 DeliveryPeriod = secondIncentiveDate.ToDeliveryPeriod(),
                 IncentiveType = "EmployerIncentive"
             });
+        }
+
+        [Test]
+        public void Should_Return_No_Incentives_When_Less_Than_90_Day_Apprenticeship()
+        {
+            // Arrange
+            var ageAtStartOfApprenticeship = 17;
+            var apprenticeshipStartDate = _fixture.Create<DateTime>();
+            var apprenticeshipEndDate = apprenticeshipStartDate.AddMonths(2);
+
+            var expectedIncentiveDate = apprenticeshipStartDate.AddDays(90);
+
+            // Act
+            var result = Calculations.IncentivePayments.Generate16to18IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+
+            // Assert
+            result.Should().BeEmpty();
         }
     }
 }

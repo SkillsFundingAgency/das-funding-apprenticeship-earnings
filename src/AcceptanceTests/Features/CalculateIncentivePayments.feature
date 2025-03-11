@@ -10,10 +10,10 @@ Scenario: 16-18 Incentive Payments Generation
 	When earnings are calculated
 	Then Additional Payments are persisted as follows
 	| Type              | Amount | DueDate    |
-	| ProviderIncentive | 500    | 2020-10-29 |
-	| EmployerIncentive | 500    | 2020-10-29 |
-	| ProviderIncentive | 500    | 2021-07-31 |
-	| EmployerIncentive | 500    | 2021-07-31 |
+	| ProviderIncentive | 500    | 2020-10-30 |
+	| EmployerIncentive | 500    | 2020-10-30 |
+	| ProviderIncentive | 500    | 2021-08-01 |
+	| EmployerIncentive | 500    | 2021-08-01 |
 	#And an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods
 	#| Type              | Amount | CalendarMonth | CalendarYear |
 	#| EmployerIncentive | 500    | 10            | 2020         |
@@ -27,12 +27,12 @@ Scenario: 16-18 Incentive Payments Generation - 90 day apprenticeship
 	| 18  |
 	And the following Price Episodes
 	| StartDate  | EndDate    | Price |
-	| 2020-08-01 | 2020-10-29 | 10000 |
+	| 2020-08-01 | 2020-10-30 | 10000 |
 	When earnings are calculated
 	Then Additional Payments are persisted as follows
 	| Type              | Amount | DueDate    |
-	| ProviderIncentive | 500    | 2020-10-29 |
-	| EmployerIncentive | 500    | 2020-10-29 |
+	| ProviderIncentive | 500    | 2020-10-30 |
+	| EmployerIncentive | 500    | 2020-10-30 |
 	#And an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods
 	#| Type              | Amount | CalendarMonth | CalendarYear |
 	#| EmployerIncentive | 500    | 10            | 2020         |

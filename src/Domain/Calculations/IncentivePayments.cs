@@ -13,7 +13,13 @@ public static class IncentivePayments
             return incentivePayments;
         }
 
-        var incentiveDate = apprenticeshipStartDate.AddDays(89);
+        var duration = apprenticeshipEndDate - apprenticeshipStartDate;
+        if (duration.Days < 90)
+        {
+            return incentivePayments;
+        }
+
+        var incentiveDate = apprenticeshipStartDate.AddDays(90);
         incentivePayments.Add(new IncentivePayment
         {
             AcademicYear = incentiveDate.ToAcademicYear(),
@@ -32,13 +38,12 @@ public static class IncentivePayments
             IncentiveType = "EmployerIncentive"
         });
 
-        var duration = apprenticeshipEndDate - apprenticeshipStartDate;
         if (duration.Days < 365)
         {
             return incentivePayments;
         }
 
-        incentiveDate = apprenticeshipStartDate.AddDays(364);
+        incentiveDate = apprenticeshipStartDate.AddDays(365);
         incentivePayments.Add(new IncentivePayment
         {
             AcademicYear = incentiveDate.ToAcademicYear(),
