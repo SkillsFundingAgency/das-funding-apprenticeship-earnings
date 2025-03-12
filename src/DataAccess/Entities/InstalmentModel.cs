@@ -9,6 +9,7 @@ public abstract class InstalmentModelBase
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Key { get; set; }
     public Guid EarningsProfileId { get; set; }
+    public Guid EpisodePriceKey { get; set; }
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
     [Precision(15, 5)]
