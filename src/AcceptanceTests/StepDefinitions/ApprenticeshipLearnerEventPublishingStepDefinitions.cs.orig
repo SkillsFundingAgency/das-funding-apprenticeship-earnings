@@ -1,8 +1,19 @@
+using Dapper.Contrib.Extensions;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Apprenticeships.Types;
+<<<<<<< HEAD
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+=======
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using TechTalk.SpecFlow.Assist;
+using QueueNames = SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.QueueNames;
+>>>>>>> cf5596614151baec3a1b0e1d2e3121aa77607522
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
