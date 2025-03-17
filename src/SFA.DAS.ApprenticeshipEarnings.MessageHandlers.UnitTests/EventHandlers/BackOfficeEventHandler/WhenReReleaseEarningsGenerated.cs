@@ -2,18 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReReleaseEarningsGeneratedCommand;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using System.Net.Http;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.UnitTests.EventHandlers.BackOfficeEventHandler;
@@ -24,14 +17,14 @@ public class WhenReReleaseEarningsGenerated
 {
     private Mock<ILogger> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
-    private MessageHandlers.BackOfficeEventHandler _eventHandler;
+    private Handlers.BackOfficeEventHandler _eventHandler;
 
     [SetUp]
     public void SetUp()
     {
         _loggerMock = new Mock<ILogger>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
-        _eventHandler = new MessageHandlers.BackOfficeEventHandler(_commandDispatcherMock.Object);
+        _eventHandler = new MessageHandlers.Handlers.BackOfficeEventHandler(_commandDispatcherMock.Object);
     }
 
     [Test]

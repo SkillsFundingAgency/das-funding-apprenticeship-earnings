@@ -95,6 +95,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST2 DevTest Shared Resources
+  - group: TEST2 das-funding-apprenticeship-earnings
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -152,6 +153,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: DEMO DevTest Shared Resources
+  - group: DEMO das-funding-apprenticeship-earnings
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:

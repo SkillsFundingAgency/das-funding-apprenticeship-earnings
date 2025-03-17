@@ -1,5 +1,4 @@
-﻿using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
