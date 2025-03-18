@@ -33,7 +33,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
         }
 
         [Test]
-        public void Should_Return_90_Day_Incentives_For_Each_Party_When_Short_Apprenticeship()
+        public void Should_Return_90_Day_Incentives_For_Each_Party_When_Less_Than_365_Apprenticeship()
         {
             // Arrange
             var ageAtStartOfApprenticeship = 17;
@@ -113,6 +113,75 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
                 DeliveryPeriod = secondIncentiveDate.ToDeliveryPeriod(),
                 IncentiveType = "EmployerIncentive"
             });
+        }
+
+        [Test]
+        public void Should_Return_90_Day_and_365_Day_Incentives_For_Each_Party_When_Apprenticeship_Exactly_One_Year()
+        {
+            // Arrange
+            //Given
+            var ageAtStartOfApprenticeship = 17;
+            var apprenticeshipStartDate = new DateTime(2024, 8, 1);
+            var apprenticeshipEndDate = new DateTime(2025, 7, 31);
+
+            //Then
+            var firstIncentiveDate = new DateTime(2024, 10, 29);
+            var secondIncentiveDate = new DateTime(2025, 7, 31);
+
+            // Act
+            var result = Calculations.IncentivePayments.Generate16to18IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+
+            // Assert
+            result.Should().HaveCount(4);
+            result.Should().ContainEquivalentOf(new IncentivePayment
+            {
+                AcademicYear = firstIncentiveDate.ToAcademicYear(),
+                DueDate = firstIncentiveDate,
+                Amount = 500,
+                DeliveryPeriod = firstIncentiveDate.ToDeliveryPeriod(),
+                IncentiveType = "ProviderIncentive"
+            });
+            result.Should().ContainEquivalentOf(new IncentivePayment
+            {
+                AcademicYear = firstIncentiveDate.ToAcademicYear(),
+                DueDate = firstIncentiveDate,
+                Amount = 500,
+                DeliveryPeriod = firstIncentiveDate.ToDeliveryPeriod(),
+                IncentiveType = "EmployerIncentive"
+            });
+            result.Should().ContainEquivalentOf(new IncentivePayment
+            {
+                AcademicYear = secondIncentiveDate.ToAcademicYear(),
+                DueDate = secondIncentiveDate,
+                Amount = 500,
+                DeliveryPeriod = secondIncentiveDate.ToDeliveryPeriod(),
+                IncentiveType = "ProviderIncentive"
+            });
+            result.Should().ContainEquivalentOf(new IncentivePayment
+            {
+                AcademicYear = secondIncentiveDate.ToAcademicYear(),
+                DueDate = secondIncentiveDate,
+                Amount = 500,
+                DeliveryPeriod = secondIncentiveDate.ToDeliveryPeriod(),
+                IncentiveType = "EmployerIncentive"
+            });
+        }
+
+        [Test]
+        public void Should_Return_No_Incentives_When_Less_Than_90_Day_Apprenticeship()
+        {
+            // Arrange
+            var ageAtStartOfApprenticeship = 17;
+            var apprenticeshipStartDate = _fixture.Create<DateTime>();
+            var apprenticeshipEndDate = apprenticeshipStartDate.AddMonths(2);
+
+            var expectedIncentiveDate = apprenticeshipStartDate.AddDays(90);
+
+            // Act
+            var result = Calculations.IncentivePayments.Generate16to18IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+
+            // Assert
+            result.Should().BeEmpty();
         }
     }
 }

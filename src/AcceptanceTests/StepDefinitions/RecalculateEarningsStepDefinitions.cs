@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
@@ -23,8 +24,8 @@ public class RecalculateEarningsStepDefinitions
     private ApprenticeshipWithdrawnEvent? _apprenticeshipWithdrawnEvent;
 
     #region Test Values
-    private readonly DateTime _dateOfBirth = new DateTime(2000, 1, 1);
-    private readonly int _ageAtStartOfApprenticeship = 21;
+    private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
+    private int _ageAtStartOfApprenticeship = 21;
 
     private readonly DateTime _startDate = new DateTime(2019, 09, 01);
     private readonly DateTime _endDate = new DateTime(2022, 1, 1);
@@ -68,6 +69,13 @@ public class RecalculateEarningsStepDefinitions
 
 
     #region Arrange
+    [Given("a learner is (.*)")]
+    public void SetLearnerToAgeAtStartOfApprenticeship(int age)
+    {
+        _dateOfBirth = _startDate.AddYears(age * -1);
+        _ageAtStartOfApprenticeship = age;
+    }
+
     [Given("an apprenticeship has been created")]
     public void ApprenticeshipCreated()
     {
@@ -314,6 +322,17 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
 
+    [When("a start date change is approved resulting in a duration of (.*) days")]
+    public async Task ApproveStartDateChangeToMakeDuration(int days)
+    {
+        _startDateChangedEvent!.ApprovedDate = _changeRequestDate;
+        _startDateChangedEvent!.Episode.Prices.First().StartDate = _endDate.AddDays(days*-1);
+        _startDateChangedEvent!.StartDate = _endDate.AddDays(days*-1);
+
+        await _testContext.TestFunction.PublishEvent(_startDateChangedEvent);
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
+    }
+
     #endregion
 
     #region Assert
@@ -470,6 +489,34 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
+    [Then("a first incentive payment is generated")]
+    public void AssertFirstIncentivePayment()
+    {
+        AssertIncentivePayment("ProviderIncentive", false, true);
+        AssertIncentivePayment("EmployerIncentive", false, true);
+    }
+
+    [Then("no first incentive payment is generated")]
+    public void AssertNoFirstIncentivePayment()
+    {
+        AssertIncentivePayment("ProviderIncentive", false, false);
+        AssertIncentivePayment("EmployerIncentive", false, false);
+    }
+
+    [Then("a second incentive payment is generated")]
+    public void AssertSecondIncentivePayment()
+    {
+        AssertIncentivePayment("ProviderIncentive", true, true);
+        AssertIncentivePayment("EmployerIncentive", true, true);
+    }
+
+    [Then("no second incentive payment is generated")]
+    public void AssertNoSecondIncentivePayment()
+    {
+        AssertIncentivePayment("ProviderIncentive", true, false);
+        AssertIncentivePayment("EmployerIncentive", true, false);
+    }
+
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
     {
@@ -515,6 +562,28 @@ public class RecalculateEarningsStepDefinitions
                 (x.AcademicYear == fromYear && x.DeliveryPeriod < fromPeriod) ||
                 x.AcademicYear < fromYear
              ).ToList();
+    }
+
+    private void AssertIncentivePayment(string type, bool second, bool expectedPayment)
+    {
+        var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
+
+        var expectedPeriod = second 
+            ? _startDateChangedEvent.StartDate.AddDays(365).ToAcademicYearAndPeriod()
+            : _startDateChangedEvent.StartDate.AddDays(90).ToAcademicYearAndPeriod();
+
+        if(expectedPayment)
+            currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
+                x.AcademicYear == expectedPeriod.AcademicYear
+                && x.DeliveryPeriod == expectedPeriod.Period
+                && x.AdditionalPaymentType == type
+                && x.Amount == 500);
+        else
+            currentEpisode.EarningsProfile.AdditionalPayments.Should().NotContain(x =>
+                x.AcademicYear == expectedPeriod.AcademicYear
+                && x.DeliveryPeriod == expectedPeriod.Period
+                && x.AdditionalPaymentType == type
+                && x.Amount == 500);
     }
 
     #endregion
