@@ -15,14 +15,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.UnitTests.Event
 [TestFixture]
 public class WhenReReleaseEarningsGenerated
 {
-    private Mock<ILogger> _loggerMock;
+    private Mock<ILogger<Handlers.BackOfficeEventHandler>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
     private Handlers.BackOfficeEventHandler _eventHandler;
 
     [SetUp]
     public void SetUp()
     {
-        _loggerMock = new Mock<ILogger>();
+        _loggerMock = new Mock<ILogger<Handlers.BackOfficeEventHandler>>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
         _eventHandler = new MessageHandlers.Handlers.BackOfficeEventHandler(_commandDispatcherMock.Object);
     }

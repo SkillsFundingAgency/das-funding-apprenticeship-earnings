@@ -4,7 +4,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReReleaseEarningsGeneratedCommand;
 using System;
 using System.Threading.Tasks;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 using System.Net.Http;
 using Microsoft.Azure.Functions.Worker;
 
@@ -15,7 +14,7 @@ public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
     [Function(nameof(ReReleaseEarningsGenerated))]
     public async Task<IActionResult> ReReleaseEarningsGenerated([HttpTrigger(AuthorizationLevel.Function, "post", Route = "BackOffice/ReReleaseEarningsGenerated/{ukprn}")] HttpRequestMessage req,
                 long ukprn,
-                ILogger log)
+                ILogger<BackOfficeEventHandler> log)
     {
         try
         {
