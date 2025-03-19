@@ -24,7 +24,7 @@ public class WhenReReleaseEarningsGenerated
     {
         _loggerMock = new Mock<ILogger<Handlers.BackOfficeEventHandler>>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
-        _eventHandler = new MessageHandlers.Handlers.BackOfficeEventHandler(_commandDispatcherMock.Object);
+        _eventHandler = new MessageHandlers.Handlers.BackOfficeEventHandler(_commandDispatcherMock.Object, _loggerMock.Object);
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class WhenReReleaseEarningsGenerated
         var requestData = new HttpRequestMessage();
 
         // Act
-        var result = await _eventHandler.ReReleaseEarningsGenerated(requestData, ukprn, _loggerMock.Object);
+        var result = await _eventHandler.ReReleaseEarningsGenerated(requestData, ukprn);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
@@ -50,7 +50,7 @@ public class WhenReReleaseEarningsGenerated
         var requestData = new HttpRequestMessage();
 
         // Act
-        var result = await _eventHandler.ReReleaseEarningsGenerated(requestData, ukprn, _loggerMock.Object);
+        var result = await _eventHandler.ReReleaseEarningsGenerated(requestData, ukprn);
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
@@ -67,7 +67,7 @@ public class WhenReReleaseEarningsGenerated
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = _eventHandler.ReReleaseEarningsGenerated(requestData, ukprn, _loggerMock.Object);
+        var result = _eventHandler.ReReleaseEarningsGenerated(requestData, ukprn);
         Action act = () => result.GetAwaiter().GetResult();
 
         // Assert
