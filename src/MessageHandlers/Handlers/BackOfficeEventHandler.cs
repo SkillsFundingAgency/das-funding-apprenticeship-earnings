@@ -4,31 +4,29 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReReleaseEarningsGeneratedCommand;
 using System;
 using System.Threading.Tasks;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 using System.Net.Http;
 using Microsoft.Azure.Functions.Worker;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
-public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
+public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher, ILogger<BackOfficeEventHandler> logger)
 {
     [Function(nameof(ReReleaseEarningsGenerated))]
     public async Task<IActionResult> ReReleaseEarningsGenerated([HttpTrigger(AuthorizationLevel.Function, "post", Route = "BackOffice/ReReleaseEarningsGenerated/{ukprn}")] HttpRequestMessage req,
-                long ukprn,
-                ILogger log)
+                long ukprn)
     {
         try
         {
-            log.LogInformation($"{nameof(ReReleaseEarningsGenerated)} processing...");
+            logger.LogInformation($"{nameof(ReReleaseEarningsGenerated)} processing...");
 
             if (ukprn == 0)
             {
                 var noPrnProvided = "ukprn has not been provided";
-                log.LogError(noPrnProvided);
+                logger.LogError(noPrnProvided);
                 return new BadRequestObjectResult(noPrnProvided);
             }
 
-            log.LogInformation($"UkPrn: {ukprn}");
+            logger.LogInformation($"UkPrn: {ukprn}");
 
             await commandDispatcher.Send(new ReReleaseEarningsGeneratedCommand(ukprn));
             var message = $"ReRelease Earnings for ukprn {ukprn} successful";
@@ -36,7 +34,7 @@ public class BackOfficeEventHandler(ICommandDispatcher commandDispatcher)
         }
         catch (Exception ex)
         {
-            log.LogError(ex, $"{nameof(ReReleaseEarningsGenerated)} threw exception.");
+            logger.LogError(ex, $"{nameof(ReReleaseEarningsGenerated)} threw exception.");
             throw;
         }
     }
