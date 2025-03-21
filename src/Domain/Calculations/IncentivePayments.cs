@@ -13,6 +13,12 @@ public static class IncentivePayments
             return incentivePayments;
         }
 
+        var duration = (apprenticeshipEndDate - apprenticeshipStartDate).Add(TimeSpan.FromDays(1));
+        if (duration.Days < 90)
+        {
+            return incentivePayments;
+        }
+
         var incentiveDate = apprenticeshipStartDate.AddDays(89);
         incentivePayments.Add(new IncentivePayment
         {
@@ -32,7 +38,6 @@ public static class IncentivePayments
             IncentiveType = "EmployerIncentive"
         });
 
-        var duration = apprenticeshipEndDate - apprenticeshipStartDate;
         if (duration.Days < 365)
         {
             return incentivePayments;
