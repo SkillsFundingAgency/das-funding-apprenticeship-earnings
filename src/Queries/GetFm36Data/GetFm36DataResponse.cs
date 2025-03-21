@@ -46,6 +46,7 @@ public class Instalment
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
+    public Guid EpisodePriceKey { get; set; }
 }
 
 #pragma warning restore CS8618

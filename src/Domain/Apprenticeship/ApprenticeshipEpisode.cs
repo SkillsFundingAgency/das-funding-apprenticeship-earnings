@@ -80,7 +80,7 @@ public class ApprenticeshipEpisode
         var additionalPayments = _model.EarningsProfile.AdditionalPayments
             .Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList();
 
-        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList(),
+        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             additionalPayments,
             _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
@@ -137,7 +137,7 @@ public class ApprenticeshipEpisode
         _prices.AddRange(newPrices);
     }
 
-    private void UpdateEarningsProfile(IEnumerable<Earning> earnings, IEnumerable<IncentivePayment> incentivePayments, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
+    private void UpdateEarningsProfile(IEnumerable<OnProgramPayment> onProgramPayments, IEnumerable<IncentivePayment> incentivePayments, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
         if (EarningsProfile != null)
         {
@@ -145,7 +145,7 @@ public class ApprenticeshipEpisode
             _model.EarningsProfileHistory.Add(historyEntity);
         }
 
-        var instalments = earnings.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount)).ToList();
+        var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var additionalPayments = incentivePayments.Select(x =>
             new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
