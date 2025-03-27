@@ -15,16 +15,17 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
     {
         private ApprenticeshipEarningsDataContext _dbContext;
         private Domain.Repositories.EarningsQueryRepository _sut;
+        private Mock<IAcademicYearService> _mockAcademicYearService;
         private Fixture _fixture;
 
         [SetUp]
         public void Setup()
         {
             _fixture = new Fixture();
-
+            _mockAcademicYearService = new Mock<IAcademicYearService>();
             var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>().UseInMemoryDatabase("EmployerIncentivesDbContext" + Guid.NewGuid()).Options;
             _dbContext = new ApprenticeshipEarningsDataContext(options);
-            _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), Mock.Of<ISystemClockService>());
+            _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), Mock.Of<ISystemClockService>(), _mockAcademicYearService.Object);
         }
 
         [TearDown]

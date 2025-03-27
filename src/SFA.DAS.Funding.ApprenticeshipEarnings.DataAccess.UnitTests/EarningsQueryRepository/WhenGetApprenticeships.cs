@@ -13,86 +13,91 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQueryRepository
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQueryRepository;
+
+public class WhenGetApprenticeships
 {
-    public class WhenGetApprenticeships
+    private ApprenticeshipEarningsDataContext _dbContext;
+    private Domain.Repositories.EarningsQueryRepository _sut;
+    private Mock<ISystemClockService> _mockSystemClockService;
+    private Mock<IAcademicYearService> _mockAcademicYearService;
+    private Fixture _fixture;
+
+    [SetUp]
+    public void Setup()
     {
-        private ApprenticeshipEarningsDataContext _dbContext;
-        private Domain.Repositories.EarningsQueryRepository _sut;
-        private Mock<ISystemClockService> _mockSystemClockService;
-        private Fixture _fixture;
+        _fixture = new Fixture();
 
-        [SetUp]
-        public void Setup()
+        _mockSystemClockService = new Mock<ISystemClockService>();
+        _mockAcademicYearService = new Mock<IAcademicYearService>();
+        var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>().UseInMemoryDatabase("EmployerIncentivesDbContext" + Guid.NewGuid()).Options;
+        _dbContext = new ApprenticeshipEarningsDataContext(options);
+        _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), _mockSystemClockService.Object, _mockAcademicYearService.Object);
+    }
+
+    [TearDown]
+    public void CleanUp() => _dbContext.Dispose();
+
+    [Test]
+    public void GetApprenticeships_NoApprenticeships_ReturnsNull()
+    {
+        // Arrange
+        var ukprn = _fixture.Create<long>();
+
+        // Act
+        var result = _sut.GetApprenticeships(ukprn, _fixture.Create<DateTime>(), false);
+
+        // Assert
+        result.Should().BeNullOrEmpty();
+    }
+
+    [Test]
+    public async Task GetApprenticeships_ApprenticeshipsExistButNoneMatchUKPRN_ReturnsNull()
+    {
+        // Arrange
+        var ukprn = _fixture.Create<long>();
+        var apprenticeships = _fixture.Create<List<ApprenticeshipModel>>();
+        await PopulateDb(apprenticeships);
+
+        // Act
+        var result = _sut.GetApprenticeships(ukprn, _fixture.Create<DateTime>(), false);
+
+        // Assert
+        result.Should().BeNullOrEmpty();
+    }
+
+    [Test]
+    public async Task GetApprenticeships_CurrentApprenticeshipsMatchUKPRN_ReturnsList()
+    {
+        // Arrange
+        var ukprn = _fixture.Create<long>();
+        var testDateTime = _fixture.Create<DateTime>();
+        var apprenticeships = _fixture.Create<List<ApprenticeshipModel>>();
+
+        _mockSystemClockService.Setup(x=>x.UtcNow).Returns(testDateTime);
+
+        foreach (var apprenticeship in apprenticeships)
         {
-            _fixture = new Fixture();
+            var episode = _fixture.Create<EpisodeModel>();
+            
+            episode.Ukprn = ukprn;
+            episode.Prices.First().StartDate = testDateTime.AddDays(-60);
+            episode.Prices.First().EndDate = testDateTime.AddDays(60);
 
-            _mockSystemClockService = new Mock<ISystemClockService>();
-            var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>().UseInMemoryDatabase("EmployerIncentivesDbContext" + Guid.NewGuid()).Options;
-            _dbContext = new ApprenticeshipEarningsDataContext(options);
-            _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), _mockSystemClockService.Object);
+            apprenticeship.Episodes = new List<EpisodeModel> { episode };
         }
+        await PopulateDb(apprenticeships);
 
-        [TearDown]
-        public void CleanUp() => _dbContext.Dispose();
+        // Act
+        var result = _sut.GetApprenticeships(ukprn, _fixture.Create<DateTime>(), false);
 
-        [Test]
-        public void GetApprenticeships_NoApprenticeships_ReturnsNull()
-        {
-            // Arrange
-            var ukprn = _fixture.Create<long>();
+        // Assert
+        result.Count.Should().Be(apprenticeships.Count);
+    }
 
-            // Act
-            var result = _sut.GetApprenticeships(ukprn);
-
-            // Assert
-            result.Should().BeNullOrEmpty();
-        }
-
-        [Test]
-        public async Task GetApprenticeships_ApprenticeshipsExistButNoneMatchUKPRN_ReturnsNull()
-        {
-            // Arrange
-            var ukprn = _fixture.Create<long>();
-            var apprenticeships = _fixture.Create<List<ApprenticeshipModel>>();
-            await PopulateDb(apprenticeships);
-
-            // Act
-            var result = _sut.GetApprenticeships(ukprn);
-
-            // Assert
-            result.Should().BeNullOrEmpty();
-        }
-
-        [Test]
-        public async Task GetApprenticeships_CurrentApprenticeshipsMatchUKPRN_ReturnsList()
-        {
-            // Arrange
-            var ukprn = _fixture.Create<long>();
-            var testDateTime = _fixture.Create<DateTime>();
-            var apprenticeships = _fixture.Create<List<ApprenticeshipModel>>();
-
-            _mockSystemClockService.Setup(x=>x.UtcNow).Returns(testDateTime);
-
-            foreach (var episode in apprenticeships.SelectMany(x => x.Episodes))
-            {
-                episode.Ukprn = ukprn;
-                episode.Prices.First().StartDate = testDateTime.AddDays(-60);
-                episode.Prices.First().EndDate = testDateTime.AddDays(60);
-            }
-            await PopulateDb(apprenticeships);
-
-            // Act
-            var result = _sut.GetApprenticeships(ukprn);
-
-            // Assert
-            result.Count.Should().Be(apprenticeships.Count);
-        }
-
-        private async Task PopulateDb(List<ApprenticeshipModel> apprenticeshipModels)
-        {
-            await _dbContext.AddRangeAsync(apprenticeshipModels);
-            await _dbContext.SaveChangesAsync();
-        }
+    private async Task PopulateDb(List<ApprenticeshipModel> apprenticeshipModels)
+    {
+        await _dbContext.AddRangeAsync(apprenticeshipModels);
+        await _dbContext.SaveChangesAsync();
     }
 }

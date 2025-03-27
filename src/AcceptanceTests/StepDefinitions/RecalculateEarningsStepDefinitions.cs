@@ -325,9 +325,10 @@ public class RecalculateEarningsStepDefinitions
     [When("a start date change is approved resulting in a duration of (.*) days")]
     public async Task ApproveStartDateChangeToMakeDuration(int days)
     {
+        var duration = days - 1;
         _startDateChangedEvent!.ApprovedDate = _changeRequestDate;
-        _startDateChangedEvent!.Episode.Prices.First().StartDate = _endDate.AddDays(days*-1);
-        _startDateChangedEvent!.StartDate = _endDate.AddDays(days*-1);
+        _startDateChangedEvent!.Episode.Prices.First().StartDate = _endDate.AddDays(-duration);
+        _startDateChangedEvent!.StartDate = _endDate.AddDays(-duration);
 
         await _testContext.TestFunction.PublishEvent(_startDateChangedEvent);
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
@@ -569,8 +570,8 @@ public class RecalculateEarningsStepDefinitions
         var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var expectedPeriod = second 
-            ? _startDateChangedEvent.StartDate.AddDays(365).ToAcademicYearAndPeriod()
-            : _startDateChangedEvent.StartDate.AddDays(90).ToAcademicYearAndPeriod();
+            ? _startDateChangedEvent.StartDate.AddDays(364).ToAcademicYearAndPeriod()
+            : _startDateChangedEvent.StartDate.AddDays(89).ToAcademicYearAndPeriod();
 
         if(expectedPayment)
             currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -21,9 +22,9 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
 
     public async Task<GetFm36DataResponse> Handle(GetFm36DataRequest query, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling GetFm36DataRequest for Ukprn: {ukprn}", query.Ukprn);
+        _logger.LogInformation("Handling GetFm36DataRequest for Ukprn: {ukprn} Year:{collectionYear} Period:{collectionPeriod}", query.Ukprn, query.CollectionYear, query.CollectionPeriod);
 
-        var domainApprenticeships = _earningsQueryRepository.GetApprenticeships(query.Ukprn);
+        var domainApprenticeships = _earningsQueryRepository.GetApprenticeships(query.Ukprn, query.CollectionYear.ToDateTime(query.CollectionPeriod), true);
 
         if (domainApprenticeships == null)
         {
