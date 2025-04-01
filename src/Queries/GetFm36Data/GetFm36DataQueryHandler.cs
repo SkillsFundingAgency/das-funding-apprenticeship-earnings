@@ -43,9 +43,6 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
     {
         var currentEpisode = source.GetCurrentEpisode(_systemClockService);
 
-        string json = JsonSerializer.Serialize(currentEpisode);
-        _logger.LogInformation(json);
-
         return new Apprenticeship
         {
             Key = source.ApprenticeshipKey,
