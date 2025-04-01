@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -41,6 +42,20 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
     private Apprenticeship MapApprenticeship(Domain.Apprenticeship.Apprenticeship source)
     {
         var currentEpisode = source.GetCurrentEpisode(_systemClockService);
+
+        _logger.LogInformation($"source is null: {source == null}");
+        _logger.LogInformation($"apprenticeship episodes is null: {source.ApprenticeshipEpisodes == null}");
+        foreach (var episode in source.ApprenticeshipEpisodes)
+        {
+            _logger.LogInformation($"Episode {episode.ApprenticeshipEpisodeKey}");
+            _logger.LogInformation($"Earnings Profile is null: {episode.EarningsProfile == null}");
+
+            _logger.LogInformation($"Instalments is null: {episode.EarningsProfile.Instalments == null}");
+            _logger.LogInformation($"Additional payments is null: {episode.EarningsProfile.AdditionalPayments == null}");
+        }
+
+        var json = JsonSerializer.Serialize(source);
+        _logger.LogInformation(json);
 
         return new Apprenticeship
         {
