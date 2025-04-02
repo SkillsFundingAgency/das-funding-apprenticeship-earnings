@@ -50,7 +50,7 @@ public class ApprenticeshipEpisode
     public void CalculateEpisodeEarnings(ISystemClockService systemClock)
     {
         var earnings = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
-        var additionalPayments = IncentivePayments.Generate16to18IncentivePayments(AgeAtStartOfApprenticeship, _prices.Min(p => p.StartDate), _prices.Max(p => p.EndDate));
+        var additionalPayments = IncentivePayments.GenerateUnder19sIncentivePayments(AgeAtStartOfApprenticeship, _prices.Min(p => p.StartDate), _prices.Max(p => p.EndDate));
         UpdateEarningsProfile(earnings, additionalPayments, systemClock, onProgramTotal, completionPayment);
     }
 
