@@ -32,6 +32,9 @@ public class Apprenticeship : AggregateRoot
     public Guid ApprenticeshipKey => _model.Key;
     public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
     public string Uln => _model.Uln;
+    public bool HasEHCP => _model?.HasEHCP ?? false;
+    public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
+    public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     
@@ -67,5 +70,12 @@ public class Apprenticeship : AggregateRoot
             episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
         }
         AddEvent(new EarningsRecalculatedEvent(this));
+    }
+
+    public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
+    {
+        _model.HasEHCP = hasEHCP;
+        _model.IsCareLeaver = isCareLeaver;
+        _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
     }
 }

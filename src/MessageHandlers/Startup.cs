@@ -53,7 +53,7 @@ public class Startup
 
     private void PopulateConfig(IConfigurationBuilder configurationBuilder)
     {
-        Environment.SetEnvironmentVariable("ENDPOINT_NAME", Constants.EndpointName);
+        Environment.SetEnvironmentVariable("ENDPOINT_NAME", Infrastructure.Constants.EndpointName);
 
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()
