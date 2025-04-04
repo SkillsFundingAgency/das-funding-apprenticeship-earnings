@@ -6,6 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ public class WhenHandleSaveCareDetails
     private readonly Fixture _fixture = new();
     private Mock<ILogger<SaveCareDetailsCommand.SaveCareDetailsCommandHandler>> _loggerMock;
     private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
+    private Mock<ISystemClockService> _systemClockServiceMock;
     private SaveCareDetailsCommand.SaveCareDetailsCommandHandler _handler;
 
     [SetUp]
@@ -28,7 +30,9 @@ public class WhenHandleSaveCareDetails
     {
         _loggerMock = new Mock<ILogger<SaveCareDetailsCommand.SaveCareDetailsCommandHandler>>();
         _apprenticeshipRepositoryMock = new Mock<IApprenticeshipRepository>();
-        _handler = new SaveCareDetailsCommand.SaveCareDetailsCommandHandler(_loggerMock.Object, _apprenticeshipRepositoryMock.Object);
+        _systemClockServiceMock = new Mock<ISystemClockService>();
+        _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
+        _handler = new SaveCareDetailsCommand.SaveCareDetailsCommandHandler(_loggerMock.Object, _apprenticeshipRepositoryMock.Object, _systemClockServiceMock.Object);
     }
 
     [Test]

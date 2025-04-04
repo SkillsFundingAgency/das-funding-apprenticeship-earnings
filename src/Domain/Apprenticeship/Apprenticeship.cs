@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -51,7 +52,7 @@ public class Apprenticeship : AggregateRoot
     public void CalculateEarnings(ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.CalculateEpisodeEarnings(systemClock);
+        currentEpisode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
@@ -59,7 +60,7 @@ public class Apprenticeship : AggregateRoot
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
-        episode.CalculateEpisodeEarnings(systemClock);
+        episode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
@@ -72,10 +73,12 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
-    public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
+    public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
     {
         _model.HasEHCP = hasEHCP;
         _model.IsCareLeaver = isCareLeaver;
         _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
+        this.GetCurrentEpisode(systemClock).CalculateEpisodeEarnings(this, systemClock);
+        AddEvent(new EarningsRecalculatedEvent(this));
     }
 }
