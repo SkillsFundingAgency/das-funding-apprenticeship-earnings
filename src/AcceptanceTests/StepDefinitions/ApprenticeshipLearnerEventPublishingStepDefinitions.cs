@@ -228,6 +228,12 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent); 
     }
 
+    [Given(@"earnings have been calculated")]
+    public async Task GivenEarningsHaveBeenCalculated()
+    {
+        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
+    }
+
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
         return await _testContext.SqlDatabase.GetApprenticeship(_apprenticeshipCreatedEvent.ApprenticeshipKey);

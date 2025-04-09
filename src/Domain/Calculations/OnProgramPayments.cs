@@ -5,9 +5,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class OnProgramPayments
 {
-    public static List<Earning> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
+    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
     {
-        var earnings = new List<Earning>();
+        var onProgramPayments = new List<OnProgramPayment>();
         onProgramTotal = 0;
         completionPayment = 0;
 
@@ -22,41 +22,43 @@ public static class OnProgramPayments
             onProgramTotal = apprenticeshipFunding.OnProgramTotal;
             completionPayment = apprenticeshipFunding.CompletionPayment;
 
-            var remainingCostToDistribute = onProgramTotal - earnings.Sum(x => x.Amount);
+            var remainingCostToDistribute = onProgramTotal - onProgramPayments.Sum(x => x.Amount);
             var earningsForPricePeriod = GenerateEarningsForPeriod(
                 remainingCostToDistribute,
                 price.StartDate,
                 price.EndDate,
-                apprenticeshipEndDate);
-            earnings.AddRange(earningsForPricePeriod);
+                apprenticeshipEndDate,
+                price.PriceKey);
+            onProgramPayments.AddRange(earningsForPricePeriod);
         }
 
-        return earnings;
+        return onProgramPayments;
     }
 
-    private static IEnumerable<Earning> GenerateEarningsForPeriod(decimal total, DateTime periodStartDate, DateTime periodEndDate, DateTime apprenticeshipEndDate)
+    private static IEnumerable<OnProgramPayment> GenerateEarningsForPeriod(decimal total, DateTime periodStartDate, DateTime periodEndDate, DateTime apprenticeshipEndDate, Guid priceKey)
     {
         var periodInstalmentCount = CalculateInstalmentCount(periodStartDate, periodEndDate);
         var remainingInstalmentCount = CalculateInstalmentCount(periodStartDate, apprenticeshipEndDate);
         var instalmentAmount = decimal.Round(total / remainingInstalmentCount, 5);
 
-        var earnings = new List<Earning>();
+        var onProgramPayments = new List<OnProgramPayment>();
         var currentMonth = new DateTime(periodStartDate.Year, periodStartDate.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
         for (var i = 0; i < periodInstalmentCount; i++)
         {
-            var earning = new Earning
+            var earning = new OnProgramPayment
             {
+                PriceKey = priceKey,
                 DeliveryPeriod = currentMonth.ToDeliveryPeriod(),
                 AcademicYear = currentMonth.ToAcademicYear(),
                 Amount = instalmentAmount
             };
 
-            earnings.Add(earning);
+            onProgramPayments.Add(earning);
             currentMonth = currentMonth.AddMonths(1);
         }
 
-        return earnings;
+        return onProgramPayments;
     }
 
     private static int CalculateInstalmentCount(DateTime startDate, DateTime endDate)
