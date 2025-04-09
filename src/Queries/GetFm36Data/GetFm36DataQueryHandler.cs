@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -54,7 +55,8 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 {
                     AcademicYear = i.AcademicYear,
                     DeliveryPeriod = i.DeliveryPeriod,
-                    Amount = i.Amount
+                    Amount = i.Amount,
+                    EpisodePriceKey = i.EpisodePriceKey
                 }).ToList(),
                 AdditionalPayments = x.EarningsProfile!.AdditionalPayments.Select(p => new AdditionalPayment
                 {
