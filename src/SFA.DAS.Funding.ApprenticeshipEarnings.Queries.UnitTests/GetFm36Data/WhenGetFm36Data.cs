@@ -41,8 +41,8 @@ public class WhenGetFm36Data
     public async Task Handle_NoApprenticeships_ReturnsEmptyResponse()
     {
         // Arrange
-        var query = _fixture.Create<GetFm36DataRequest>();
-        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn)).Returns((List<Domain.Apprenticeship.Apprenticeship>)null);
+        var query = new GetFm36DataRequest(_fixture.Create<long>(), 2021, 1);
+        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns((List<Domain.Apprenticeship.Apprenticeship>)null);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -55,12 +55,12 @@ public class WhenGetFm36Data
     public async Task Handle_ApprenticeshipsExist_ReturnsMappedResponse()
     {
         // Arrange
-        var query = _fixture.Create<GetFm36DataRequest>();
+        var query = new GetFm36DataRequest( _fixture.Create<long>(), 2021, 1);
         var currentEpisode = CreateCurrentEpisode();
         var expectedApprenticeship = CreateApprenticeship(query.Ukprn, currentEpisode);
         var domainApprenticeships = new List<Domain.Apprenticeship.Apprenticeship> { expectedApprenticeship };
 
-        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn)).Returns(domainApprenticeships);
+        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns(domainApprenticeships);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
