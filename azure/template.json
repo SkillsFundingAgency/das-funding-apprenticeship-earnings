@@ -96,6 +96,19 @@
         },
         "logAnalyticsWorkspaceName": {
             "type": "string"
+        },
+        "EnableRouteTableAssociation": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Determines whether to enable route table association on subnet"
+            }
+        },
+        "SharedRouteTableName": {
+            "type": "string",
+            "metadata": {
+                "description": "Determines whether to enable route table association on subnet"
+            }
         }
     },
     "variables": {
@@ -106,7 +119,11 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
-        "configNames": "SFA.DAS.Funding.ApprenticeshipEarnings"
+        "configNames": "SFA.DAS.Funding.ApprenticeshipEarnings",
+        "routeTableId": {
+            "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
+        },
+        "emptyObject": {}
     },
     "resources": [
         {
@@ -264,6 +281,9 @@
                     },
                     "delegations": {
                         "value": "[parameters('subnetDelegations')]"
+                    },
+                    "routeTable": {
+                        "value": "[if(parameters('enableRouteTableAssociation'), variables('routeTableId') , variables('emptyObject'))]"
                     }
                 }
             }
