@@ -12,4 +12,7 @@ public class ApprenticeshipModel
     public long ApprovalsApprenticeshipId { get; set; }
 	public string Uln { get; set; } = null!;
     public List<EpisodeModel> Episodes { get; set; } = new();
+    public bool? HasEHCP { get; set; }
+    public bool? IsCareLeaver { get; set; }
+    public bool? CareLeaverEmployerConsentGiven { get; set; }
 }

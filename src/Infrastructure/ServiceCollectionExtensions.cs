@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
                 var dataContext = provider.GetService<ApprenticeshipEarningsDataContext>() ?? throw new ArgumentNullException("ApprenticeshipEarningsDataContext");
                 return new Lazy<ApprenticeshipEarningsDataContext>(dataContext);
             });
+        }
+
+        public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
+        {
+            var endpointConfiguration = new EndpointConfiguration(Constants.EndpointName);
+            endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+            endpointConfiguration.SendOnly();
+
+            var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
+            transport.CustomTokenCredential(fullyQualifiedNamespace, new DefaultAzureCredential());
+            endpointConfiguration.Conventions().SetConventions();
+
+            var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+            services.AddSingleton<IMessageSession>(endpointInstance);
         }
     }
 }

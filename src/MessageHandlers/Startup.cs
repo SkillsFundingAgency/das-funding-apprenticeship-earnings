@@ -11,7 +11,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -53,7 +52,7 @@ public class Startup
 
     private void PopulateConfig(IConfigurationBuilder configurationBuilder)
     {
-        Environment.SetEnvironmentVariable("ENDPOINT_NAME", Constants.EndpointName);
+        Environment.SetEnvironmentVariable("ENDPOINT_NAME", Infrastructure.Constants.EndpointName);
 
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()

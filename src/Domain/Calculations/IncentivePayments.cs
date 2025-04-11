@@ -4,6 +4,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class IncentivePayments
 {
+    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
+    {
+        var incentivePayments = new List<IncentivePayment>();
+        incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate));
+        incentivePayments.AddRange(Generate19To24IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate, hasEHCP, isCareLeaver, careLeaverEmployerConsentGiven));
+        return incentivePayments;
+    }
+
     public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
     {
         var incentivePayments = new List<IncentivePayment>();
@@ -13,55 +21,89 @@ public static class IncentivePayments
             return incentivePayments;
         }
 
+        if(IsEligibleFor90DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
+        {
+            var incentiveDate = apprenticeshipStartDate.AddDays(89);
+            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
+            incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+        }
+
+        if(IsEligibleFor365DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
+        {
+            var incentiveDate = apprenticeshipStartDate.AddDays(364);
+            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
+            incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+        }
+
+        return incentivePayments;
+    }
+
+    public static List<IncentivePayment> Generate19To24IncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
+    {
+        var incentivePayments = new List<IncentivePayment>();
+
+        // Does not fit age criteria
+        if (ageAtStartOfApprenticeship is < 19 || ageAtStartOfApprenticeship is > 24)
+            return incentivePayments;
+
+        // Is not eligible for incentive payments
+        if(!hasEHCP && !isCareLeaver)
+            return incentivePayments;
+
+        if (IsEligibleFor90DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
+        {
+            var incentiveDate = apprenticeshipStartDate.AddDays(89);
+            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
+            if((careLeaverEmployerConsentGiven && isCareLeaver) || hasEHCP)
+            {
+                incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+            }
+        }
+
+        if (IsEligibleFor365DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
+        {
+            var incentiveDate = apprenticeshipStartDate.AddDays(364);
+            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
+            if ((careLeaverEmployerConsentGiven && isCareLeaver) || hasEHCP)
+            {
+                incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+            }
+        }
+
+        return incentivePayments;
+    }
+
+    private static bool IsEligibleFor90DayIncentive(DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
+    {
         var duration = (apprenticeshipEndDate - apprenticeshipStartDate).Add(TimeSpan.FromDays(1));
         if (duration.Days < 90)
         {
-            return incentivePayments;
+            return false;
         }
 
-        var incentiveDate = apprenticeshipStartDate.AddDays(89);
-        incentivePayments.Add(new IncentivePayment
-        {
-            AcademicYear = incentiveDate.ToAcademicYear(),
-            DueDate = incentiveDate,
-            Amount = 500,
-            DeliveryPeriod = incentiveDate.ToDeliveryPeriod(),
-            IncentiveType = "ProviderIncentive"
-        });
+        return true;
+    }
 
-        incentivePayments.Add(new IncentivePayment
-        {
-            AcademicYear = incentiveDate.ToAcademicYear(),
-            DueDate = incentiveDate,
-            Amount = 500,
-            DeliveryPeriod = incentiveDate.ToDeliveryPeriod(),
-            IncentiveType = "EmployerIncentive"
-        });
-
+    private static bool IsEligibleFor365DayIncentive(DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
+    {
+        var duration = (apprenticeshipEndDate - apprenticeshipStartDate).Add(TimeSpan.FromDays(1));
         if (duration.Days < 365)
         {
-            return incentivePayments;
+            return false;
         }
 
-        incentiveDate = apprenticeshipStartDate.AddDays(364);
+        return true;
+    }
+
+    private static void AddIncentivePayment(this List<IncentivePayment> incentivePayments, DateTime dueDate, decimal amount, string incentiveType)
+    {
         incentivePayments.Add(new IncentivePayment
         {
-            AcademicYear = incentiveDate.ToAcademicYear(),
-            DueDate = incentiveDate,
-            Amount = 500,
-            DeliveryPeriod = incentiveDate.ToDeliveryPeriod(),
-            IncentiveType = "ProviderIncentive"
+            AcademicYear = dueDate.ToAcademicYear(),
+            DueDate = dueDate,
+            Amount = amount,
+            DeliveryPeriod = dueDate.ToDeliveryPeriod(),
+            IncentiveType = incentiveType
         });
-
-        incentivePayments.Add(new IncentivePayment
-        {
-            AcademicYear = incentiveDate.ToAcademicYear(),
-            DueDate = incentiveDate,
-            Amount = 500,
-            DeliveryPeriod = incentiveDate.ToDeliveryPeriod(),
-            IncentiveType = "EmployerIncentive"
-        });
-
-        return incentivePayments;
     }
 }

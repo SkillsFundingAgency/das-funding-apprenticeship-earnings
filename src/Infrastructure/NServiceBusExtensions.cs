@@ -1,7 +1,4 @@
-﻿using System;
-using NServiceBus;
-
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
 public static class NServiceBusExtensions
 {

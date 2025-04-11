@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using System;
 using System.Net;
 using System.Security.Cryptography;

@@ -49,3 +49,53 @@ Scenario: 16-18 Incentive Payments Generation - learner outside of age range
 	When earnings are calculated
 	Then no Additional Payments are persisted
 	#And an EarningsGeneratedEvent is raised with no incentives as Delivery Periods
+
+Scenario: 19-24 Incentive Payments Generation - Provider and employer payments
+	Given an apprenticeship has been created with the following information
+	| Age |
+	| 20  |
+	And the following Price Episodes
+	| StartDate  | EndDate    | Price |
+	| 2020-08-01 | 2024-07-31 | 15000 |
+	When earnings are calculated
+	And care details are saved with <care_leaver_employer_consent_given> <is_care_leaver> <has_ehcp>
+	Then Additional Payments are persisted as follows
+	| Type              | Amount | DueDate    |
+	| ProviderIncentive | 500    | 2020-10-29 |
+	| EmployerIncentive | 500    | 2020-10-29 |
+	| ProviderIncentive | 500    | 2021-07-31 |
+	| EmployerIncentive | 500    | 2021-07-31 |
+Examples:
+	| care_leaver_employer_consent_given | is_care_leaver | has_ehcp |
+	| true                               | true           | false    |
+	| true                               | false          | true     |
+	| false                              | false          | true     |
+	| true                               | true           | true     |
+
+Scenario: 19-24 Incentive Payments Generation - Only provider payments
+	Given an apprenticeship has been created with the following information
+	| Age |
+	| 20  |
+	And the following Price Episodes
+	| StartDate  | EndDate    | Price |
+	| 2020-08-01 | 2024-07-31 | 15000 |
+	When earnings are calculated
+	And care details are saved with <care_leaver_employer_consent_given> <is_care_leaver> <has_ehcp>
+	Then Additional Payments are persisted as follows
+	| Type              | Amount | DueDate    |
+	| ProviderIncentive | 500    | 2020-10-29 |
+	| ProviderIncentive | 500    | 2021-07-31 |
+Examples:
+	| care_leaver_employer_consent_given | is_care_leaver | has_ehcp |
+	| false                              | true           | false    |
+
+Scenario: 19-24 Incentive Payments Generation - Is not eligible for incentive
+	Given an apprenticeship has been created with the following information
+	| Age |
+	| 20  |
+	And the following Price Episodes
+	| StartDate  | EndDate    | Price |
+	| 2020-08-01 | 2024-07-31 | 15000 |
+	When earnings are calculated
+	And care details are saved with false false false
+	Then no Additional Payments are persisted
