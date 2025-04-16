@@ -65,6 +65,12 @@ Scenario: 19-24 Incentive Payments Generation - Provider and employer payments
 	| EmployerIncentive | 500    | 2020-10-29 |
 	| ProviderIncentive | 500    | 2021-07-31 |
 	| EmployerIncentive | 500    | 2021-07-31 |
+	And recalculate event is sent with the following incentives
+	| Type              | Amount | DueDate    |
+	| ProviderIncentive | 500    | 2020-10-29 |
+	| EmployerIncentive | 500    | 2020-10-29 |
+	| ProviderIncentive | 500    | 2021-07-31 |
+	| EmployerIncentive | 500    | 2021-07-31 |
 Examples:
 	| care_leaver_employer_consent_given | is_care_leaver | has_ehcp |
 	| true                               | true           | false    |
@@ -85,6 +91,11 @@ Scenario: 19-24 Incentive Payments Generation - Only provider payments
 	| Type              | Amount | DueDate    |
 	| ProviderIncentive | 500    | 2020-10-29 |
 	| ProviderIncentive | 500    | 2021-07-31 |
+	And recalculate event is sent with the following incentives
+	| Type              | Amount | DueDate    |
+	| ProviderIncentive | 500    | 2020-10-29 |
+	| ProviderIncentive | 500    | 2021-07-31 |
+
 Examples:
 	| care_leaver_employer_consent_given | is_care_leaver | has_ehcp |
 	| false                              | true           | false    |

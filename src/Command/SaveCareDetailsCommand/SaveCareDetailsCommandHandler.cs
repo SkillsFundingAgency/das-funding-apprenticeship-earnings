@@ -9,12 +9,21 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
     private readonly ILogger<SaveCareDetailsCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClockService;
+    private readonly IMessageSession _messageSession;
+    private readonly IApprenticeshipEarningsRecalculatedEventBuilder _earningsRecalculatedEventBuilder;
 
-    public SaveCareDetailsCommandHandler(ILogger<SaveCareDetailsCommandHandler> logger, IApprenticeshipRepository apprenticeshipRepository, ISystemClockService systemClock)
+    public SaveCareDetailsCommandHandler(
+        ILogger<SaveCareDetailsCommandHandler> logger, 
+        IApprenticeshipRepository apprenticeshipRepository, 
+        ISystemClockService systemClock,
+        IMessageSession messageSession,
+        IApprenticeshipEarningsRecalculatedEventBuilder earningsRecalculatedEventBuilder)
     {
         _logger = logger;
         _apprenticeshipRepository = apprenticeshipRepository;
         _systemClockService = systemClock;
+        _messageSession = messageSession;
+        _earningsRecalculatedEventBuilder = earningsRecalculatedEventBuilder;
     }
 
     public async Task Handle(SaveCareDetailsCommand command, CancellationToken cancellationToken = default)
@@ -24,6 +33,9 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
         apprenticeshipDomainModel.UpdateCareDetails(command.HasEHCP, command.IsCareLeaver, command.CareLeaverEmployerConsentGiven, _systemClockService);
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+
+
+        await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
 
         _logger.LogInformation("Successfully handled SaveCareDetailsCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
     }

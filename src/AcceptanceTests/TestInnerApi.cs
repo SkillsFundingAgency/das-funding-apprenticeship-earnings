@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using NServiceBus;
 using NServiceBus.Testing;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
@@ -40,7 +41,8 @@ public class TestInnerApi : IDisposable
                     .AddApplicationPart(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers.ApprenticeshipController).Assembly);
                 
                 services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
-                
+                services.AddSingleton<IMessageSession>(_testContext.MessageSession);
+
                 AddEntityFrameworkForApprenticeships(services, testContext.SqlDatabase?.DatabaseInfo.ConnectionString!);
             })
             .Configure(app =>
