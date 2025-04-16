@@ -78,7 +78,13 @@ public class Apprenticeship : AggregateRoot
         _model.HasEHCP = hasEHCP;
         _model.IsCareLeaver = isCareLeaver;
         _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
-        this.GetCurrentEpisode(systemClock).CalculateEpisodeEarnings(this, systemClock);
-        AddEvent(new EarningsRecalculatedEvent(this));
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+
+        if(currentEpisode.AgeAtStartOfApprenticeship > 18) // Only recalculate if the age is 19 or older
+        {
+            currentEpisode.CalculateEpisodeEarnings(this, systemClock);
+            AddEvent(new EarningsRecalculatedEvent(this));
+        }
+
     }
 }
