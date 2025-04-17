@@ -1,3 +1,6 @@
+using SFA.DAS.Api.Common.AppStart;
+using SFA.DAS.Api.Common.Configuration;
+using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
@@ -29,6 +32,21 @@ builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLo
 builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices();
 builder.Services.AddHealthChecks();
+
+//Add MI authentication
+if(NotLocal(builder.Configuration))
+{
+    var azureAdConfiguration = builder.Configuration
+        .GetSection("AzureAd")
+        .Get<AzureActiveDirectoryConfiguration>();
+
+    var policies = new Dictionary<string, string>
+    {
+        {PolicyNames.Default, "Default"}
+    };
+
+    builder.Services.AddAuthentication(azureAdConfiguration, policies);
+}
 
 var app = builder.Build();
 
