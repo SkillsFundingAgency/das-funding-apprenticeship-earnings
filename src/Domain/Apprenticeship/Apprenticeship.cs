@@ -75,6 +75,11 @@ public class Apprenticeship : AggregateRoot
 
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
     {
+        if(HasEHCP == hasEHCP && IsCareLeaver == isCareLeaver && CareLeaverEmployerConsentGiven == careLeaverEmployerConsentGiven)
+        {
+            return;
+        }
+
         _model.HasEHCP = hasEHCP;
         _model.IsCareLeaver = isCareLeaver;
         _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;

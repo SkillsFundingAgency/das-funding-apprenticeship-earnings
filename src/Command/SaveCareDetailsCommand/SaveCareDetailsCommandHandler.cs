@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -32,11 +33,19 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
         apprenticeshipDomainModel.UpdateCareDetails(command.HasEHCP, command.IsCareLeaver, command.CareLeaverEmployerConsentGiven, _systemClockService);
+        var hasRecalculatedEarnings = apprenticeshipDomainModel.HasEvent<EarningsRecalculatedEvent>();
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-
-        await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
-
+        if (hasRecalculatedEarnings)
+        {
+            _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
+            await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
+        }
+        else
+        {
+            _logger.LogInformation("No EarningsRecalculatedEvent to publish for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
+        }
+       
         _logger.LogInformation("Successfully handled SaveCareDetailsCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
     }
 

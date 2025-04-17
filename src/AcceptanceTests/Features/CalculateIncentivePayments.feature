@@ -110,3 +110,4 @@ Scenario: 19-24 Incentive Payments Generation - Is not eligible for incentive
 	When earnings are calculated
 	And care details are saved with false false false
 	Then no Additional Payments are persisted
+	And Earnings are not recalculated for that apprenticeship
