@@ -56,6 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InnerApi\SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.csproj" />
     <ProjectReference Include="..\MessageHandlers\SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.csproj" />
     <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />

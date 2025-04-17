@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -32,6 +33,9 @@ public class Apprenticeship : AggregateRoot
     public Guid ApprenticeshipKey => _model.Key;
     public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
     public string Uln => _model.Uln;
+    public bool HasEHCP => _model?.HasEHCP ?? false;
+    public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
+    public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     
@@ -48,7 +52,7 @@ public class Apprenticeship : AggregateRoot
     public void CalculateEarnings(ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.CalculateEpisodeEarnings(systemClock);
+        currentEpisode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
@@ -56,7 +60,7 @@ public class Apprenticeship : AggregateRoot
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
-        episode.CalculateEpisodeEarnings(systemClock);
+        episode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
@@ -67,5 +71,20 @@ public class Apprenticeship : AggregateRoot
             episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
         }
         AddEvent(new EarningsRecalculatedEvent(this));
+    }
+
+    public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
+    {
+        _model.HasEHCP = hasEHCP;
+        _model.IsCareLeaver = isCareLeaver;
+        _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+
+        if(currentEpisode.AgeAtStartOfApprenticeship > 18) // Only recalculate if the age is 19 or older
+        {
+            currentEpisode.CalculateEpisodeEarnings(this, systemClock);
+            AddEvent(new EarningsRecalculatedEvent(this));
+        }
+
     }
 }
