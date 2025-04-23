@@ -1,5 +1,6 @@
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using TechTalk.SpecFlow.Assist;
@@ -84,6 +85,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 500;
         _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
+
+        await _testContext.TestInnerApi.PublishEvent(_apprenticeshipCreatedEvent);
     }
 
     [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
@@ -232,6 +235,15 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public async Task GivenEarningsHaveBeenCalculated()
     {
         await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
+    }
+
+    [When(@"care details are saved with (.*) (.*) (.*)")]
+    [Given(@"care details are saved with (.*) (.*) (.*)")]
+    public async Task GivenEarningsHaveBeenCalculated(bool careLeaverEmployerConsentGiven, bool isCareLeaver, bool hasEHCP)
+    {
+        var request = new SaveCareDetailsRequest { CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven, IsCareLeaver = isCareLeaver, HasEHCP = hasEHCP };
+        var apprenticehipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey;
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{apprenticehipKey}/careDetails", request);
     }
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
