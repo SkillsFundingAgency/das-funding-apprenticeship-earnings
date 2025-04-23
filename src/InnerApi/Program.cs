@@ -48,6 +48,14 @@ if(NotLocal(builder.Configuration))
     builder.Services.AddAuthentication(azureAdConfiguration, policies);
 }
 
+builder.Services.AddMvc(o =>
+{
+    if (NotLocal(builder.Configuration))
+    {
+        o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>()));
+    }
+});
+
 var app = builder.Build();
 
 app.MapHealthChecks("/ping");
