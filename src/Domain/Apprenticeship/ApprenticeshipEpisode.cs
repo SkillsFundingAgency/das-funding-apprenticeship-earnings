@@ -92,6 +92,15 @@ public class ApprenticeshipEpisode
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
+    /// <summary>
+    /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
+    /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
+    /// </summary>
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments)
+    {
+        _earningsProfile.AddAdditionalEarnings(additionalPayments);
+    }
+
     private List<InstalmentModel> GetEarningsToKeep(DateTime lastDayOfLearning)
     {
         List<InstalmentModel> result;

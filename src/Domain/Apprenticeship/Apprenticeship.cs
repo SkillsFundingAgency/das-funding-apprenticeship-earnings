@@ -92,4 +92,15 @@ public class Apprenticeship : AggregateRoot
         }
 
     }
+
+    /// <summary>
+    /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
+    /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
+    /// </summary>
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.AddAdditionalEarnings(additionalPayments);
+        AddEvent(new EarningsRecalculatedEvent(this));
+    }
 }

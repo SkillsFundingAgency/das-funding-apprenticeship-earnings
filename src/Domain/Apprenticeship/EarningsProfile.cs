@@ -48,9 +48,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Model.AdditionalPayments.Select((AdditionalPayment.Get)).ToList().AsReadOnly();
         public decimal CompletionPayment => Model.CompletionPayment;
 
-        public void AddInstalments(List<Instalment> instalments)
+        /// <summary>
+        /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
+        /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
+        /// </summary>
+        public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments)
         {
-
+            Model.AdditionalPayments.AddRange(additionalPayments.Select(x => x.GetModel(Model.EarningsProfileId)));
         }
 
         public static EarningsProfile Get(EarningsProfileModel model)
