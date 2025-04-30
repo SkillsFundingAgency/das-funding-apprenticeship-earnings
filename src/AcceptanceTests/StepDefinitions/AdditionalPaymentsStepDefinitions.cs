@@ -71,10 +71,13 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
 
+        var additionalPaymentsInDb = updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments;
+
+        additionalPaymentsInDb.Should().HaveCount(data.Count);
+
         foreach (var expectedAdditionalPayment in data)
         {
-            updatedEntity.Episodes.First()
-                .EarningsProfile.AdditionalPayments.Should()
+            additionalPaymentsInDb.Should()
                 .Contain(x => x.Amount == expectedAdditionalPayment.Amount
                 && x.DueDate == expectedAdditionalPayment.DueDate
                 && x.AdditionalPaymentType == expectedAdditionalPayment.Type);

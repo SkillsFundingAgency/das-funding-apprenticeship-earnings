@@ -57,6 +57,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             Model.AdditionalPayments.AddRange(additionalPayments.Select(x => x.GetModel(Model.EarningsProfileId)));
         }
 
+        public void RemoveAdditionalEarnings(string additionalPaymentType)
+        {
+            Model.AdditionalPayments.RemoveAll(x => x.AdditionalPaymentType == additionalPaymentType);
+        }
+
         /// <summary>
         /// Some payments are not calculated, but are instead added to the earnings profile via an external process.
         /// In the event of a recalculation, these payments should be preserved.

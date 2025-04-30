@@ -91,3 +91,20 @@ Scenario: Calculate learning support earnings when the “Date Applies To” is 
 		| LearningSupport | 150    | 2021-4-1  |
 		| LearningSupport | 150    | 2021-5-1  |
 
+Scenario: Add learning support payments for the same period twice, should only record one LS payment per period
+	Given An apprenticeship has been created
+	And the following learning support payment information is provided
+		| StartDate | EndDate   |
+		| 2020-8-1  | 2020-10-1 |
+		| 2021-1-1  | 2021-3-31 |
+	And the following learning support payment information is provided
+		| StartDate | EndDate   |
+		| 2020-8-1  | 2020-10-1 |
+		| 2021-1-1  | 2021-3-31 |
+	Then Additional Payments are persisted as follows
+		| Type            | Amount | DueDate   |
+		| LearningSupport | 150    | 2020-8-1  |
+		| LearningSupport | 150    | 2020-9-1  |
+		| LearningSupport | 150    | 2021-1-1  |
+		| LearningSupport | 150    | 2021-2-1  |
+		| LearningSupport | 150    | 2021-3-1  |

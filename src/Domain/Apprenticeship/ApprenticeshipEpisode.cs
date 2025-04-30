@@ -101,6 +101,11 @@ public class ApprenticeshipEpisode
         _earningsProfile.AddAdditionalEarnings(additionalPayments);
     }
 
+    public void RemoveAdditionalEarnings(string additionalPaymentType)
+    {
+        _earningsProfile.RemoveAdditionalEarnings(additionalPaymentType);
+    }
+
     private List<InstalmentModel> GetEarningsToKeep(DateTime lastDayOfLearning)
     {
         List<InstalmentModel> result;
