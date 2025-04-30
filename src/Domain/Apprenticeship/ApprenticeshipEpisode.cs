@@ -154,16 +154,22 @@ public class ApprenticeshipEpisode
 
     private void UpdateEarningsProfile(IEnumerable<OnProgramPayment> onProgramPayments, IEnumerable<IncentivePayment> incentivePayments, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
-        if (EarningsProfile != null)
-        {
-            var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
-            _model.EarningsProfileHistory.Add(historyEntity);
-        }
-
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var additionalPayments = incentivePayments.Select(x =>
             new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
+
+        if (EarningsProfile != null)
+        {
+            // Add the current earnings profile to the history before updating it
+            var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
+            _model.EarningsProfileHistory.Add(historyEntity);
+
+            // Extract non calculated additional payments from the existing earnings profile
+            var additionalPaymentsToKeep = EarningsProfile.PersistentAdditionalPayments();
+            additionalPayments.AddRange(additionalPaymentsToKeep.Select(x =>
+                new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList());
+        }
 
         _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, completionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();

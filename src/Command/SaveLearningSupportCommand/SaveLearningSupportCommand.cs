@@ -13,6 +13,6 @@ public class SaveLearningSupportCommand : ICommand
 }
 public class LearningSupportPaymentDetail
 {
-    public short AcademicYear { get; set; }
-    public byte DeliveryPeriod { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }

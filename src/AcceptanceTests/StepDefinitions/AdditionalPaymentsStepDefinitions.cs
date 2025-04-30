@@ -29,6 +29,13 @@ public class AdditionalPaymentsStepDefinitions
         _testContext = testContext;
     }
 
+    [Given(@"the following learning support payment information is provided")]
+    public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
+    {
+        var expected = table.CreateSet<LearningSupportPaymentDetail>().ToList();
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/learningSupport", expected);
+    }
+
     [When(@"care details are saved with (.*) (.*) (.*)")]
     [Given(@"care details are saved with (.*) (.*) (.*)")]
     public async Task SaveCareDetails(bool careLeaverEmployerConsentGiven, bool isCareLeaver, bool hasEHCP)
@@ -157,14 +164,6 @@ public class AdditionalPaymentsStepDefinitions
     {
         AssertIncentivePayment("ProviderIncentive", true, false);
         AssertIncentivePayment("EmployerIncentive", true, false);
-    }
-
-    [Given(@"the following learning support payment information is provided")]
-    public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
-    {
-        var expected = table.CreateSet<LearningSupportPaymentDetail>().ToList();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/learningSupport", expected);
-
     }
 
     private void AssertIncentivePayment(string type, bool second, bool expectedPayment)

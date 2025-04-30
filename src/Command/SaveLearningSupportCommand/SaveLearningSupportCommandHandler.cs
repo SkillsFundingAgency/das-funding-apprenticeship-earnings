@@ -3,6 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -34,17 +35,12 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
     {
         _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
 
+        var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
+        LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate)).ToList();
+
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.AddAdditionalEarnings(
-            command.LearningSupportPayments.Select(x=> new AdditionalPayment(
-                x.AcademicYear, 
-                x.DeliveryPeriod,
-                AdditionalPaymentAmounts.LearningSupport,
-                x.AcademicYear.ToDateTime(x.DeliveryPeriod),
-                InstalmentTypes.LearningSupport
-            )).ToList()
-            , _systemClockService);
+        apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, _systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 

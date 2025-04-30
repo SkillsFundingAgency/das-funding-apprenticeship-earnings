@@ -19,13 +19,10 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     private int _ageAtStartOfApprenticeship = 21;
     private Random _random = new();
 
-    private readonly DateTime _defaultCurrentDateTime = new DateTime(2020, 01, 01);
-
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
-        TestSystemClock.SetDateTime(_defaultCurrentDateTime);
     }
 
     [Given(@"the apprenticeship learner is 16-18 at the start of the apprenticeship")]
@@ -231,6 +228,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _scenarioContext.Set(apprenticeshipCreatedEvent);
     }
 
+    [Given(@"earnings are calculated")]
     [When(@"earnings are calculated")]
     public async Task WhenEarningsAreCalculated()
     {
