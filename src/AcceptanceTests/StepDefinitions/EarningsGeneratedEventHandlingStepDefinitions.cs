@@ -22,6 +22,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         _testContext = testContext;
     }
 
+    [Given(@"Earnings are generated with the correct learning amounts")]
     [Then(@"Earnings are generated with the correct learning amounts")]
     public async Task AssertEarningsGeneratedEvent()
     {

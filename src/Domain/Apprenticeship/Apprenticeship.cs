@@ -96,20 +96,14 @@ public class Apprenticeship : AggregateRoot
     /// <summary>
     /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
     /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
+    /// Note, any existing additional payments of the type being added will be removed.
     /// </summary>
     /// <param name="additionalPayments"> The additional payments to be added.</param>
     /// <param name="systemClock"> The system clock service to be used for date calculations.</param>
-    /// <param name="removeAdditionalEarningOfType"> The type of existing additional earning to be removed, if any.</param>
-    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock, string? removeAdditionalEarningOfType = null)
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-
-        if (!string.IsNullOrEmpty(removeAdditionalEarningOfType))
-        {
-            currentEpisode.RemoveAdditionalEarnings(removeAdditionalEarningOfType);
-        }
-
-        currentEpisode.AddAdditionalEarnings(additionalPayments);
+        currentEpisode.AddAdditionalEarnings(additionalPayments, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 }

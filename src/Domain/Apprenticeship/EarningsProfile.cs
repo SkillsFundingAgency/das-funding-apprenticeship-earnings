@@ -49,20 +49,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public decimal CompletionPayment => Model.CompletionPayment;
 
         /// <summary>
-        /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
-        /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
-        /// </summary>
-        public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments)
-        {
-            Model.AdditionalPayments.AddRange(additionalPayments.Select(x => x.GetModel(Model.EarningsProfileId)));
-        }
-
-        public void RemoveAdditionalEarnings(string additionalPaymentType)
-        {
-            Model.AdditionalPayments.RemoveAll(x => x.AdditionalPaymentType == additionalPaymentType);
-        }
-
-        /// <summary>
         /// Some payments are not calculated, but are instead added to the earnings profile via an external process.
         /// In the event of a recalculation, these payments should be preserved.
         /// This method returns the list of payments that are not calculated.

@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
@@ -96,14 +97,30 @@ public class ApprenticeshipEpisode
     /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
     /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
     /// </summary>
-    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments)
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
     {
-        _earningsProfile.AddAdditionalEarnings(additionalPayments);
-    }
+        // verify that all additional payments are of the same type
+        if(additionalPayments.Select(x => x.AdditionalPaymentType).Distinct().Count() > 1)
+        {
+            throw new InvalidOperationException("All additional payments must be of the same type.");
+        }
+        var additionalPaymentType = additionalPayments.First().AdditionalPaymentType;
 
-    public void RemoveAdditionalEarnings(string additionalPaymentType)
-    {
-        _earningsProfile.RemoveAdditionalEarnings(additionalPaymentType);
+        ArchiveEarningProfileToHistory(systemClock);
+
+        // Retain only additional payments of a different type
+        var existingAdditionalPayments = EarningsProfile!.AdditionalPayments.Where(x=> x.AdditionalPaymentType != additionalPaymentType).ToList();
+        
+        existingAdditionalPayments.AddRange(additionalPayments);
+
+        _earningsProfile = new EarningsProfile(
+            EarningsProfile.OnProgramTotal,
+            EarningsProfile.Instalments.Select(x=> new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(), 
+            EarningsProfile.CompletionPayment, 
+            ApprenticeshipEpisodeKey);
+        _model.EarningsProfile = _earningsProfile.GetModel();
+
     }
 
     private List<InstalmentModel> GetEarningsToKeep(DateTime lastDayOfLearning)
@@ -166,9 +183,7 @@ public class ApprenticeshipEpisode
 
         if (EarningsProfile != null)
         {
-            // Add the current earnings profile to the history before updating it
-            var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
-            _model.EarningsProfileHistory.Add(historyEntity);
+            ArchiveEarningProfileToHistory(systemClock);
 
             // Extract non calculated additional payments from the existing earnings profile
             var additionalPaymentsToKeep = EarningsProfile.PersistentAdditionalPayments();
@@ -178,5 +193,11 @@ public class ApprenticeshipEpisode
 
         _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, completionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
+    }
+
+    private void ArchiveEarningProfileToHistory(ISystemClockService systemClock)
+    {
+        var historyEntity = new EarningsProfileHistoryModel(EarningsProfile!.GetModel(), systemClock!.UtcNow.Date);
+        _model.EarningsProfileHistory.Add(historyEntity);
     }
 }

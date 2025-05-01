@@ -40,7 +40,7 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, _systemClockService, InstalmentTypes.LearningSupport);
+        apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, _systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
