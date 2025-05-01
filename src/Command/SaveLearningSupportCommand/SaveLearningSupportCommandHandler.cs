@@ -1,8 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -11,14 +7,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportComm
 
 public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSupportCommand>
 {
-    private readonly ILogger<SaveCareDetailsCommandHandler> _logger;
+    private readonly ILogger<SaveLearningSupportCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClockService;
     private readonly IMessageSession _messageSession;
     private readonly IApprenticeshipEarningsRecalculatedEventBuilder _earningsRecalculatedEventBuilder;
 
     public SaveLearningSupportCommandHandler(
-        ILogger<SaveCareDetailsCommandHandler> logger,
+        ILogger<SaveLearningSupportCommandHandler> logger,
         IApprenticeshipRepository apprenticeshipRepository,
         ISystemClockService systemClock,
         IMessageSession messageSession,

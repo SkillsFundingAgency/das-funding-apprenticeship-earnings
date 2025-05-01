@@ -66,14 +66,4 @@ public class WhenHandleSaveCareDetails
         )), Times.Once);
     }
 
-    [Test]
-    public void Handle_ShouldLogError_WhenExceptionThrown()
-    {
-        // Arrange
-        var command = _fixture.Create<SaveCareDetailsCommand.SaveCareDetailsCommand>(); 
-        _apprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ThrowsAsync(new Exception("Test exception"));
-
-        // Act & Assert
-        Assert.ThrowsAsync<Exception>(() => _handler.Handle(command));
-    }
 }

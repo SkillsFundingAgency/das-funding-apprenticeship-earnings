@@ -44,7 +44,8 @@ public static class LearningSupportPayments
 
     private static DateTime LastCensusDate(this DateTime date)
     {
-        var censusDateForMonth = new DateTime(date.Year, date.Month + 1, 1).AddDays(-1);
+        var nextMonth = date.AddMonths(1);
+        var censusDateForMonth = new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1);
         if(censusDateForMonth == date)
         {
             return date;
