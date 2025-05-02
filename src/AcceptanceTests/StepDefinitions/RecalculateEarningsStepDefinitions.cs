@@ -31,6 +31,7 @@ public class RecalculateEarningsStepDefinitions
     private readonly DateTime _startDate = new DateTime(2019, 09, 01);
     private readonly DateTime _endDate = new DateTime(2022, 1, 1);
     private int _expectedNumberOfInstalments = 28;
+    private int _expectedNumberOfAdditionalPayments = 4;
 
     private readonly DateTime _startDateEarlierThanOriginal = new DateTime(2019, 08, 15);
     private readonly int _newExpectedNumberOfInstalmentsForEarlierStartDate = 29;
@@ -319,6 +320,7 @@ public class RecalculateEarningsStepDefinitions
     {
         _apprenticeshipWithdrawnEvent.LastDayOfLearning = new DateTime(2019, 10, 4);
         _expectedNumberOfInstalments = 0;
+        _expectedNumberOfAdditionalPayments = 0;
         await _testContext.TestFunction.PublishEvent(_apprenticeshipWithdrawnEvent);
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
@@ -418,6 +420,18 @@ public class RecalculateEarningsStepDefinitions
         if (numberOfInstalments != _expectedNumberOfInstalments)
         {
             Assert.Fail($"Expected {_expectedNumberOfInstalments} but found {numberOfInstalments}");
+        }
+    }
+
+    [Then("the number of additional payments is zero")]
+    public void AssertNumberOfAdditionalPayments()
+    {
+        var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
+        var additionalPaymentsCount = currentEpisode.EarningsProfile.AdditionalPayments.Count;
+
+        if (additionalPaymentsCount != _expectedNumberOfAdditionalPayments)
+        {
+            Assert.Fail($"Expected {_expectedNumberOfAdditionalPayments} but found {additionalPaymentsCount}");
         }
     }
 
