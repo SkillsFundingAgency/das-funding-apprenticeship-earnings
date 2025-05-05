@@ -8,6 +8,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -518,6 +519,11 @@ public class RecalculateEarningsStepDefinitions
         AssertIncentivePayment("EmployerIncentive", true, false);
     }
 
+    [Then(@"Earnings are not recalculated for that apprenticeship")]
+    public async Task AssertNoEarningsGeneratedEvent()
+    {
+        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _apprenticeshipCreatedEvent.ApprenticeshipKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
+    }
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
     {

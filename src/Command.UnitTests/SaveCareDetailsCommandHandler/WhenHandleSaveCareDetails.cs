@@ -7,6 +7,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,8 @@ public class WhenHandleSaveCareDetails
     private Mock<ILogger<SaveCareDetailsCommand.SaveCareDetailsCommandHandler>> _loggerMock;
     private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
     private Mock<ISystemClockService> _systemClockServiceMock;
+    private Mock<IMessageSession> _messageSessionMock;
+    private Mock<IApprenticeshipEarningsRecalculatedEventBuilder> _earningsRecalculatedEventBuilderMock;
     private SaveCareDetailsCommand.SaveCareDetailsCommandHandler _handler;
 
     [SetUp]
@@ -32,7 +35,15 @@ public class WhenHandleSaveCareDetails
         _apprenticeshipRepositoryMock = new Mock<IApprenticeshipRepository>();
         _systemClockServiceMock = new Mock<ISystemClockService>();
         _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
-        _handler = new SaveCareDetailsCommand.SaveCareDetailsCommandHandler(_loggerMock.Object, _apprenticeshipRepositoryMock.Object, _systemClockServiceMock.Object);
+        _messageSessionMock = new Mock<IMessageSession>();
+        _earningsRecalculatedEventBuilderMock = new Mock<IApprenticeshipEarningsRecalculatedEventBuilder>();
+        _earningsRecalculatedEventBuilderMock.Setup(x => x.Build(It.IsAny<Apprenticeship>())).Returns(new ApprenticeshipEarningsRecalculatedEvent());
+        _handler = new SaveCareDetailsCommand.SaveCareDetailsCommandHandler(
+            _loggerMock.Object, 
+            _apprenticeshipRepositoryMock.Object, 
+            _systemClockServiceMock.Object,
+            _messageSessionMock.Object,
+            _earningsRecalculatedEventBuilderMock.Object);
     }
 
     [Test]
