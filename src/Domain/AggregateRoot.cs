@@ -21,5 +21,10 @@
                 return events;
             }
         }
+
+        public bool HasEvent<T>()
+        {
+            return _events.Any(x => x is T);
+        }
     }
 }

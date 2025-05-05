@@ -3,6 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -244,6 +245,21 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         var request = new SaveCareDetailsRequest { CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven, IsCareLeaver = isCareLeaver, HasEHCP = hasEHCP };
         var apprenticehipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey;
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{apprenticehipKey}/careDetails", request);
+    }
+
+    [Then(@"recalculate event is sent with the following incentives")]
+    public void ThenRecalculateEventIsSentWithTheFollowingIncentives(Table table)
+    {
+        var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
+        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == _apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        foreach (var expectedAdditionalPayment in data)
+        {
+            recalculateEvent.DeliveryPeriods.Should()
+                .Contain(x => x.LearningAmount == expectedAdditionalPayment.Amount
+                && x.InstalmentType == expectedAdditionalPayment.Type);
+        }
+
     }
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
