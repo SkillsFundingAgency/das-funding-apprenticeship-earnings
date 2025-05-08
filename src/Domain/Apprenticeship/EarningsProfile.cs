@@ -48,11 +48,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Model.AdditionalPayments.Select((AdditionalPayment.Get)).ToList().AsReadOnly();
         public decimal CompletionPayment => Model.CompletionPayment;
 
-        public void AddInstalments(List<Instalment> instalments)
-        {
-
-        }
-
         public static EarningsProfile Get(EarningsProfileModel model)
         {
             return new EarningsProfile(model);
