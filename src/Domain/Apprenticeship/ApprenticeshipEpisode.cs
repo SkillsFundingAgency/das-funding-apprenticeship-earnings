@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
@@ -92,6 +93,35 @@ public class ApprenticeshipEpisode
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
+    /// <summary>
+    /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
+    /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
+    /// </summary>
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
+    {
+        // verify that all additional payments are of the same type
+        if (additionalPayments.Select(x => x.AdditionalPaymentType).Distinct().Count() > 1)
+        {
+            throw new InvalidOperationException("All additional payments must be of the same type.");
+        }
+        var additionalPaymentType = additionalPayments.First().AdditionalPaymentType;
+
+        ArchiveEarningProfileToHistory(systemClock);
+
+        // Retain only additional payments of a different type
+        var existingAdditionalPayments = EarningsProfile!.AdditionalPayments.Where(x => x.AdditionalPaymentType != additionalPaymentType).ToList();
+
+        existingAdditionalPayments.AddRange(additionalPayments);
+
+        _earningsProfile = new EarningsProfile(
+            EarningsProfile.OnProgramTotal,
+            EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
+            EarningsProfile.CompletionPayment,
+            ApprenticeshipEpisodeKey);
+        _model.EarningsProfile = _earningsProfile.GetModel();
+    }
+
     private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)
     {
         var academicYear = lastDayOfLearning.ToAcademicYear();
@@ -161,18 +191,28 @@ public class ApprenticeshipEpisode
 
     private void UpdateEarningsProfile(IEnumerable<OnProgramPayment> onProgramPayments, IEnumerable<IncentivePayment> incentivePayments, ISystemClockService systemClock, decimal onProgramTotal, decimal completionPayment)
     {
-        if (EarningsProfile != null)
-        {
-            var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
-            _model.EarningsProfileHistory.Add(historyEntity);
-        }
-
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var additionalPayments = incentivePayments.Select(x =>
             new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
 
+        if (EarningsProfile != null)
+        {
+            ArchiveEarningProfileToHistory(systemClock);
+
+            // Extract non calculated additional payments from the existing earnings profile
+            var additionalPaymentsToKeep = EarningsProfile.PersistentAdditionalPayments();
+            additionalPayments.AddRange(additionalPaymentsToKeep.Select(x =>
+                new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList());
+        }
+
         _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, completionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
+    }
+
+    private void ArchiveEarningProfileToHistory(ISystemClockService systemClock)
+    {
+        var historyEntity = new EarningsProfileHistoryModel(EarningsProfile!.GetModel(), systemClock!.UtcNow.Date);
+        _model.EarningsProfileHistory.Add(historyEntity);
     }
 }

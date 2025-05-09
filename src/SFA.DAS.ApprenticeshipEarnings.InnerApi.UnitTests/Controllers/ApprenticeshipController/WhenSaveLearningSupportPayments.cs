@@ -1,10 +1,12 @@
-﻿using FluentAssertions;
+﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 using System;
 using System.Collections.Generic;
@@ -14,11 +16,12 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.ApprenticeshipController;
 
-public class WhenSaveCareDetails
+public class WhenSaveLearningSupportPayments
 {
     private Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
     private InnerApi.Controllers.ApprenticeshipController _controller;
+    private Fixture _fixture;
 
     [SetUp]
     public void Setup()
@@ -26,6 +29,7 @@ public class WhenSaveCareDetails
         _loggerMock = new Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
         _controller = new InnerApi.Controllers.ApprenticeshipController(_loggerMock.Object, _commandDispatcherMock.Object);
+        _fixture = new Fixture();
     }
 
     [Test]
@@ -33,18 +37,13 @@ public class WhenSaveCareDetails
     {
         // Arrange
         var apprenticeshipKey = Guid.NewGuid();
-        var request = new SaveCareDetailsRequest
-        {
-            HasEHCP = true,
-            IsCareLeaver = true,
-            CareLeaverEmployerConsentGiven = true
-        };
+        var request = _fixture.Create<SaveLearningSupportRequest>();
 
         // Act
-        var result = await _controller.SaveCareDetails(apprenticeshipKey, request);
+        var result = await _controller.SaveLearningSupport(apprenticeshipKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveCareDetailsCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveLearningSupportCommand>(), default), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
@@ -53,18 +52,13 @@ public class WhenSaveCareDetails
     {
         // Arrange
         var apprenticeshipKey = Guid.NewGuid();
-        var request = new SaveCareDetailsRequest
-        {
-            HasEHCP = true,
-            IsCareLeaver = true,
-            CareLeaverEmployerConsentGiven = true
-        };
+        var request = _fixture.Create<SaveLearningSupportRequest>();
 
-        _commandDispatcherMock.Setup(x => x.Send(It.IsAny<SaveCareDetailsCommand>(), default))
+        _commandDispatcherMock.Setup(x => x.Send(It.IsAny<SaveLearningSupportCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.SaveCareDetails(apprenticeshipKey, request);
+        var result = await _controller.SaveLearningSupport(apprenticeshipKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();

@@ -48,6 +48,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Model.AdditionalPayments.Select((AdditionalPayment.Get)).ToList().AsReadOnly();
         public decimal CompletionPayment => Model.CompletionPayment;
 
+        /// <summary>
+        /// Some payments are not calculated, but are instead added to the earnings profile via an external process.
+        /// In the event of a recalculation, these payments should be preserved.
+        /// This method returns the list of payments that are not calculated.
+        /// </summary>
+        public IReadOnlyCollection<AdditionalPayment> PersistentAdditionalPayments()
+        {
+            return Model.AdditionalPayments
+                .Where(x=> x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
+                .Select((AdditionalPayment.Get))
+                .ToList().AsReadOnly();
+        }
+
         public static EarningsProfile Get(EarningsProfileModel model)
         {
             return new EarningsProfile(model);

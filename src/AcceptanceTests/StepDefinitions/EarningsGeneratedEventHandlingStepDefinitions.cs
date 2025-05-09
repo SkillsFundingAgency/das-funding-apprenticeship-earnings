@@ -22,6 +22,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         _testContext = testContext;
     }
 
+    [Given(@"Earnings are generated with the correct learning amounts")]
     [Then(@"Earnings are generated with the correct learning amounts")]
     public async Task AssertEarningsGeneratedEvent()
     {
@@ -58,81 +59,5 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) &&
                earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString() &&
                earningsGeneratedEvent.EarningsProfileId != Guid.Empty;
-    }
-
-    [Then(@"Additional Payments are persisted as follows")]
-    public async Task ThenAdditionalPaymentsArePersistedAsFollows(Table table)
-    {
-        var data = table.CreateSet<AdditionalPaymentDbExpectationModel>().ToList();
-
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
-
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
-
-        foreach (var expectedAdditionalPayment in data)
-        {
-            updatedEntity.Episodes.First()
-                .EarningsProfile.AdditionalPayments.Should()
-                .Contain(x => x.Amount == expectedAdditionalPayment.Amount
-                && x.DueDate == expectedAdditionalPayment.DueDate
-                && x.AdditionalPaymentType == expectedAdditionalPayment.Type);
-        }
-    }
-
-    [Then(@"an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods")]
-    public async Task ThenAdditionalPaymentsAreGeneratedWithTheFollowingIncentivesAsDeliveryPeriods(Table table)
-    {
-        await WaitHelper.WaitForIt(() =>
-                _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(),
-            "Failed to find any EarningsGeneratedEvent"
-        );
-
-        var expected = table.CreateSet<AdditionalPaymentExpectationModel>()
-            .Select(e => new
-            {
-                e.Type,
-                e.Amount,
-                e.CalendarMonth,
-                e.CalendarYear
-            }).ToList();
-
-        var allActualIncentives = _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>()
-            .SelectMany(e => e.DeliveryPeriods)
-            .Where(x => x.InstalmentType is "ProviderIncentive" or "EmployerIncentive")
-            .Select(dp => new
-            {
-                Type = dp.InstalmentType,
-                Amount = dp.LearningAmount,
-                dp.CalendarMonth,
-                CalendarYear = dp.CalenderYear
-            }).ToList();
-
-        allActualIncentives.Should().BeEquivalentTo(expected, options => options.IncludingFields());
-    }
-
-    [Then(@"no Additional Payments are persisted")]
-    public async Task ThenNoAdditionalPaymentsArePersisted()
-    {
-     var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
-
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
-
-        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
-    }
-
-    [Then(@"an EarningsGeneratedEvent is raised with no incentives as Delivery Periods")]
-    public async Task ThenAnEarningsGeneratedEventIsRaisedWithNoIncentivesAsDeliveryPeriods()
-    {
-        await WaitHelper.WaitForIt(() =>
-                _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(),
-            "Failed to find any EarningsGeneratedEvent"
-        );
-
-        var allActualIncentives = _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>()
-            .SelectMany(e => e.DeliveryPeriods)
-            .Where(x => x.InstalmentType is "ProviderIncentive" or "EmployerIncentive")
-            .ToList();
-
-        allActualIncentives.Should().BeEmpty();
     }
 }

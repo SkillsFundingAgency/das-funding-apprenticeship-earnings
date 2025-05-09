@@ -13,20 +13,16 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
 {
     private readonly ScenarioContext _scenarioContext;
     private readonly TestContext _testContext;
-    private ApprenticeshipCreatedEvent _apprenticeshipCreatedEvent;
 
     private DateTime _startDate = new DateTime(2019, 01, 01);
     private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
     private int _ageAtStartOfApprenticeship = 21;
     private Random _random = new();
 
-    private readonly DateTime _defaultCurrentDateTime = new DateTime(2020, 01, 01);
-
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
-        TestSystemClock.SetDateTime(_defaultCurrentDateTime);
     }
 
     [Given(@"the apprenticeship learner is 16-18 at the start of the apprenticeship")]
@@ -48,11 +44,12 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     }
 
     [Given(@"An apprenticeship has been created as part of the approvals journey")]
+    [Given(@"An apprenticeship has been created")]
     [Given(@"the apprenticeship commitment is approved")]
     [When(@"the apprenticeship commitment is approved")]
     public async Task PublishApprenticeshipCreatedEvent()
     {
-        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
+        var apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             ApprenticeshipKey = Guid.NewGuid(),
             Uln = _random.Next().ToString(),
@@ -81,19 +78,20 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
                 AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             }
         };
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
 
+        _scenarioContext.Set(apprenticeshipCreatedEvent);
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 500;
-        _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
+        _scenarioContext[ContextKeys.ExpectedUln] = apprenticeshipCreatedEvent.Uln;
 
-        await _testContext.TestInnerApi.PublishEvent(_apprenticeshipCreatedEvent);
+        await _testContext.TestInnerApi.PublishEvent(apprenticeshipCreatedEvent);
     }
 
     [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
     public async Task PublishNonPilotApprenticeshipCreatedEvent()
     {
-        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
+        var apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             ApprenticeshipKey = Guid.NewGuid(),
             Uln = _random.Next().ToString(),
@@ -123,9 +121,10 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             }
         };
 
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
 
-        _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
+        _scenarioContext.Set(apprenticeshipCreatedEvent);
+        _scenarioContext[ContextKeys.ExpectedUln] = apprenticeshipCreatedEvent.Uln;
     }
 
     [When(@"the adjusted price has been calculated")]
@@ -139,13 +138,14 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         var entity = await GetApprenticeshipEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(apprenticeshipCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
 
     [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
     public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
     {
-        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
+        var apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             ApprenticeshipKey = Guid.NewGuid(),
             Uln = _random.Next().ToString(),
@@ -174,11 +174,12 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
                 AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
             }
         };
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
 
+        _scenarioContext.Set(apprenticeshipCreatedEvent);
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
-        _scenarioContext[ContextKeys.ExpectedUln] = _apprenticeshipCreatedEvent.Uln;
+        _scenarioContext[ContextKeys.ExpectedUln] = apprenticeshipCreatedEvent.Uln;
     }
 
     [Given(@"an apprenticeship has been created with the following information")]
@@ -186,7 +187,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         var data = table.CreateSet<ApprenticeshipCreatedSetupModel>().Single();
 
-        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
+        var apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
         {
             ApprenticeshipKey = Guid.NewGuid(),
             Uln = _random.Next().ToString(),
@@ -207,7 +208,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             }
         };
 
-        _scenarioContext.Set(_apprenticeshipCreatedEvent);
+        _scenarioContext.Set(apprenticeshipCreatedEvent);
     }
 
     [Given(@"the following Price Episodes")]
@@ -215,7 +216,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     {
         var data = table.CreateSet<PriceEpisodeSetupModel>().ToList();
 
-        _apprenticeshipCreatedEvent.Episode.Prices = data.Select(x => new ApprenticeshipEpisodePrice
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>(); 
+        apprenticeshipCreatedEvent.Episode.Prices = data.Select(x => new ApprenticeshipEpisodePrice
         {
             TotalPrice = x.Price,
             StartDate = x.StartDate,
@@ -223,48 +225,28 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             FundingBandMaximum = x.Price
         }).ToList();
 
-        _scenarioContext.Set(_apprenticeshipCreatedEvent);
+        _scenarioContext.Set(apprenticeshipCreatedEvent);
     }
 
+    [Given(@"earnings are calculated")]
     [When(@"earnings are calculated")]
     public async Task WhenEarningsAreCalculated()
     {
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent); 
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent); 
     }
 
     [Given(@"earnings have been calculated")]
     public async Task GivenEarningsHaveBeenCalculated()
     {
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
-    }
-
-    [When(@"care details are saved with (.*) (.*) (.*)")]
-    [Given(@"care details are saved with (.*) (.*) (.*)")]
-    public async Task GivenEarningsHaveBeenCalculated(bool careLeaverEmployerConsentGiven, bool isCareLeaver, bool hasEHCP)
-    {
-        var request = new SaveCareDetailsRequest { CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven, IsCareLeaver = isCareLeaver, HasEHCP = hasEHCP };
-        var apprenticehipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey;
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{apprenticehipKey}/careDetails", request);
-    }
-
-    [Then(@"recalculate event is sent with the following incentives")]
-    public void ThenRecalculateEventIsSentWithTheFollowingIncentives(Table table)
-    {
-        var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
-        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == _apprenticeshipCreatedEvent.ApprenticeshipKey);
-
-        foreach (var expectedAdditionalPayment in data)
-        {
-            recalculateEvent.DeliveryPeriods.Should()
-                .Contain(x => x.LearningAmount == expectedAdditionalPayment.Amount
-                && x.InstalmentType == expectedAdditionalPayment.Type);
-        }
-
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
     }
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
-        return await _testContext.SqlDatabase.GetApprenticeship(_apprenticeshipCreatedEvent.ApprenticeshipKey);
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        return await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
     }
 
     private async Task<bool> EnsureApprenticeshipExists()
