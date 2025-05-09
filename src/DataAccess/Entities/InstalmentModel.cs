@@ -38,6 +38,9 @@ public class InstalmentModel : InstalmentModelBase
 [Table("InstalmentHistory", Schema = "Domain")]
 public class InstalmentHistoryModel : InstalmentModelBase
 {
-    public InstalmentHistoryModel(InstalmentModelBase original, Guid earningsProfileId) : base(original, earningsProfileId) { }
+    public InstalmentHistoryModel(InstalmentModelBase original, Guid earningsProfileId) : base(original, earningsProfileId) 
+    { 
+        EpisodePriceKey = original.EpisodePriceKey;
+    }
     public InstalmentHistoryModel() { }
 }

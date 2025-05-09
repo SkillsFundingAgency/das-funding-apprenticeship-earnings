@@ -49,6 +49,20 @@ public class WhenRemovingEarningsFollowingWithdrawal
     }
 
     [Test]
+    public void ThenAdditionalPaymentsBeforeLastDayOfLearningArePreserved()
+    {
+        // Arrange
+        var lastDayOfLearning = new DateTime(2024, 6, 15);
+
+        // Act
+        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+
+        // Assert
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.AdditionalPayments.Count.Should().Be(2);
+    }
+
+    [Test]
     public void ThenInstalmentsAfterLastDayOfLearningAreRemoved()
     {
         // Arrange
@@ -65,6 +79,23 @@ public class WhenRemovingEarningsFollowingWithdrawal
     }
 
     [Test]
+    public void ThenAdditionalPaymentsAfterLastDayOfLearningAreRemoved()
+    {
+        // Arrange
+        var lastDayOfLearning = new DateTime(2024, 3, 15);
+
+        // Act
+        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+
+        // Assert
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.AdditionalPayments.Should().OnlyContain(x =>
+            x.AcademicYear < 2324 ||
+            (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
+    }
+
+
+    [Test]
     public void ThenInstalmentsArePreservedForTheLastMonthIfTheLearnerWasInLearningOnTheCensusDate()
     {
         // Arrange
@@ -76,6 +107,22 @@ public class WhenRemovingEarningsFollowingWithdrawal
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Should().Contain(x =>
+            x.AcademicYear == 2324 && x.DeliveryPeriod == 8);
+    }
+
+
+    [Test]
+    public void ThenAdditionalPaymentsArePreservedForTheLastMonthIfTheLearnerWasInLearningOnTheCensusDate()
+    {
+        // Arrange
+        var lastDayOfLearning = new DateTime(2024, 3, 31);
+
+        // Act
+        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+
+        // Assert
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod == 8);
     }
 

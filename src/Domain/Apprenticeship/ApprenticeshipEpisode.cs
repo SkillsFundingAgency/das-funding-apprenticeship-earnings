@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -83,12 +84,11 @@ public class ApprenticeshipEpisode
         }
 
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
+        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(lastDayOfLearning);
 
-        var additionalPayments = _model.EarningsProfile.AdditionalPayments
-            .Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList();
-
-        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
-            additionalPayments,
+        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, 
+            earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
@@ -100,7 +100,7 @@ public class ApprenticeshipEpisode
     public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
     {
         // verify that all additional payments are of the same type
-        if(additionalPayments.Select(x => x.AdditionalPaymentType).Distinct().Count() > 1)
+        if (additionalPayments.Select(x => x.AdditionalPaymentType).Distinct().Count() > 1)
         {
             throw new InvalidOperationException("All additional payments must be of the same type.");
         }
@@ -109,18 +109,33 @@ public class ApprenticeshipEpisode
         ArchiveEarningProfileToHistory(systemClock);
 
         // Retain only additional payments of a different type
-        var existingAdditionalPayments = EarningsProfile!.AdditionalPayments.Where(x=> x.AdditionalPaymentType != additionalPaymentType).ToList();
-        
+        var existingAdditionalPayments = EarningsProfile!.AdditionalPayments.Where(x => x.AdditionalPaymentType != additionalPaymentType).ToList();
+
         existingAdditionalPayments.AddRange(additionalPayments);
 
         _earningsProfile = new EarningsProfile(
             EarningsProfile.OnProgramTotal,
-            EarningsProfile.Instalments.Select(x=> new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
-            existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(), 
-            EarningsProfile.CompletionPayment, 
+            EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
+            EarningsProfile.CompletionPayment,
             ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
+    }
 
+    private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)
+    {
+        var academicYear = lastDayOfLearning.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
+
+        var additionalPayments = _model.EarningsProfile.AdditionalPayments
+            .Where(x =>
+                x.AcademicYear < academicYear //keep earnings from previous academic years
+                || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day ==
+                DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month))
+            .ToList(); //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+
+        return additionalPayments;
     }
 
     private List<InstalmentModel> GetEarningsToKeep(DateTime lastDayOfLearning)
