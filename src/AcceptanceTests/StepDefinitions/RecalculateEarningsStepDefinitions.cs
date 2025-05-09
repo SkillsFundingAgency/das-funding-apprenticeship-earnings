@@ -436,7 +436,8 @@ public class RecalculateEarningsStepDefinitions
     [Then("the number of additional payments is zero")]
     public void AssertNumberOfAdditionalPayments()
     {
-        var currentEpisode = _updatedApprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
+        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
         var additionalPaymentsCount = currentEpisode.EarningsProfile.AdditionalPayments.Count;
 
         if (additionalPaymentsCount != _expectedNumberOfAdditionalPayments)
