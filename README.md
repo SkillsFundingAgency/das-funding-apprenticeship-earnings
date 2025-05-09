@@ -11,7 +11,7 @@
 [![Confluence Project](https://img.shields.io/badge/Confluence-Project-blue)](https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/3480354918/Flexible+Payments+Models)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg?longCache=true&style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
-das-funding-apprenticeships-earnings is an Azure unction which subscribes and publishes various events. Its purpose is to store and manage earnings records raised by the creation of new apprenticeships and updated via change of circumstances events.
+das-funding-apprenticeships-earnings is an Azure function which subscribes and publishes various events. Its purpose is to store and manage earnings records raised by the creation of new apprenticeships and updated via change of circumstances events.
 
 ## How It Works
 
