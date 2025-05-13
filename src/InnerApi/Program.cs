@@ -6,6 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,10 +33,11 @@ builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, NotLo
 builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
-builder.Services.AddHealthChecks();
+builder.Services.AddApplicationHealthChecks(applicationSettings);
+
 
 //Add MI authentication
-if(NotLocal(builder.Configuration))
+if (NotLocal(builder.Configuration))
 {
     var azureAdConfiguration = builder.Configuration
         .GetSection("AzureAd")
@@ -60,6 +62,7 @@ builder.Services.AddMvc(o =>
 var app = builder.Build();
 
 app.MapHealthChecks("/ping");
+app.MapHealthChecks("/");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
