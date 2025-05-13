@@ -1,7 +1,9 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 
+[ExcludeFromCodeCoverage]
 public static class StartupExtensions
 {
     public static IServiceCollection AddApplicationHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings)

@@ -2,9 +2,11 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 
+[ExcludeFromCodeCoverage]
 public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
 {
     private readonly string _connectionString;

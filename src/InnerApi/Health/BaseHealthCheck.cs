@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 
+[ExcludeFromCodeCoverage]
 public abstract class BaseHealthCheck<T> : IHealthCheck
 {
     private HealthCheckResult _cachedResult;
