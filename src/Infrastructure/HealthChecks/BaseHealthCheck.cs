@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 
 [ExcludeFromCodeCoverage]
 public abstract class BaseHealthCheck<T> : IHealthCheck
@@ -25,13 +26,13 @@ public abstract class BaseHealthCheck<T> : IHealthCheck
             return cachedResult.Value;
         }
 
-        var result = await HealthCheck(context, cancellationToken);
+        var result = await HealthCheck(cancellationToken);
 
         SetCachedResult(result);
         return result;
     }
 
-    public abstract Task<HealthCheckResult> HealthCheck(HealthCheckContext context, CancellationToken cancellationToken);
+    public abstract Task<HealthCheckResult> HealthCheck(CancellationToken cancellationToken);
 
     protected void LogError(string error, Exception ex)
     {

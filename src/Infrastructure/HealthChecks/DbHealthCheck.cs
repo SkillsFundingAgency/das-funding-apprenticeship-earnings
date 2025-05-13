@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 
 [ExcludeFromCodeCoverage]
 public class DbHealthCheck : BaseHealthCheck<DbHealthCheck>
@@ -14,9 +15,7 @@ public class DbHealthCheck : BaseHealthCheck<DbHealthCheck>
         _connectionString = connectionString;
     }
 
-    public override async Task<HealthCheckResult> HealthCheck(
-        HealthCheckContext context,
-        CancellationToken cancellationToken = default)
+    public override async Task<HealthCheckResult> HealthCheck(CancellationToken cancellationToken)
     {
         try
         {
@@ -36,3 +35,4 @@ public class DbHealthCheck : BaseHealthCheck<DbHealthCheck>
         }
     }
 }
+

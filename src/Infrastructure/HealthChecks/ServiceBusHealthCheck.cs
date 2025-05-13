@@ -1,10 +1,10 @@
 ﻿using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 
 [ExcludeFromCodeCoverage]
 public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
@@ -16,9 +16,7 @@ public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
         _connectionString = connectionString;
     }
 
-    public override async Task<HealthCheckResult> HealthCheck(
-        HealthCheckContext context,
-        CancellationToken cancellationToken)
+    public override async Task<HealthCheckResult> HealthCheck(CancellationToken cancellationToken)
     {
         try
         {
@@ -31,11 +29,10 @@ public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
 
             return HealthCheckResult.Healthy("Connected to Azure Service Bus.");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             LogError("Azure Service Bus check failed.", ex);
             return HealthCheckResult.Unhealthy("Azure Service Bus check failed.");
         }
     }
 }
-
