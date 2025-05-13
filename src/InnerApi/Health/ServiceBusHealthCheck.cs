@@ -20,7 +20,6 @@ public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
     {
         try
         {
-            // We use a receiver just to check that we can connect and resolve metadata
             var credential = new DefaultAzureCredential();
             await using var client = new ServiceBusClient(_connectionString.GetFullyQualifiedNamespace(), credential);
             var receiver = client.CreateReceiver(Constants.EndpointName);
