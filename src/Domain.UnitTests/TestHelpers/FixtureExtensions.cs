@@ -12,9 +12,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 internal static class FixtureExtensions
 {
     internal static Apprenticeship.Apprenticeship CreateApprenticeship(this Fixture fixture, 
-        DateTime startDate, DateTime endDate, decimal agreedPrice, FundingType? fundingType = null)
+        DateTime startDate, DateTime endDate, decimal agreedPrice, FundingType? fundingType = null, byte age = 17)
     {
-        var apprenticeshipEntityModel = fixture.Create<ApprenticeshipCreatedEvent>();
+        var apprenticeshipEntityModel = fixture
+            .Build<ApprenticeshipCreatedEvent>()
+            .With(x => x.DateOfBirth, startDate.AddYears(-age))
+            .Create();
 
         apprenticeshipEntityModel.Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode()
         {
@@ -30,7 +33,8 @@ internal static class FixtureExtensions
                     TotalPrice = agreedPrice,
                     FundingBandMaximum = (int)agreedPrice + 1
                 }
-            }
+            },
+            AgeAtStartOfApprenticeship = age
         };
 
         return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);

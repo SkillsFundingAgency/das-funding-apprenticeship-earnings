@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSummary;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
@@ -36,6 +38,27 @@ public class ApprenticeshipController: ControllerBase
         }
 
         _logger.LogInformation("Successfully saved care details for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
+
+    [Route("{apprenticeshipKey}/learningSupport")]
+    [HttpPatch]
+    public async Task<IActionResult> SaveLearningSupport(Guid apprenticeshipKey, SaveLearningSupportRequest saveLearningSupportRequest)
+    {
+        _logger.LogInformation("Received request to save learning support for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new SaveLearningSupportCommand(apprenticeshipKey, saveLearningSupportRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving learning support for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully saved learning support for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 

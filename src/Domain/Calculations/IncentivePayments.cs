@@ -24,15 +24,15 @@ public static class IncentivePayments
         if(IsEligibleFor90DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
         {
             var incentiveDate = apprenticeshipStartDate.AddDays(89);
-            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
-            incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+            incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
+            incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.EmployerIncentive);
         }
 
         if(IsEligibleFor365DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
         {
             var incentiveDate = apprenticeshipStartDate.AddDays(364);
-            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
-            incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+            incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
+            incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.EmployerIncentive);
         }
 
         return incentivePayments;
@@ -53,20 +53,20 @@ public static class IncentivePayments
         if (IsEligibleFor90DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
         {
             var incentiveDate = apprenticeshipStartDate.AddDays(89);
-            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
+            incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
             if((careLeaverEmployerConsentGiven && isCareLeaver) || hasEHCP)
             {
-                incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+                incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.EmployerIncentive);
             }
         }
 
         if (IsEligibleFor365DayIncentive(apprenticeshipStartDate, apprenticeshipEndDate))
         {
             var incentiveDate = apprenticeshipStartDate.AddDays(364);
-            incentivePayments.AddIncentivePayment(incentiveDate, 500, "ProviderIncentive");
+            incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
             if ((careLeaverEmployerConsentGiven && isCareLeaver) || hasEHCP)
             {
-                incentivePayments.AddIncentivePayment(incentiveDate, 500, "EmployerIncentive");
+                incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.EmployerIncentive);
             }
         }
 
