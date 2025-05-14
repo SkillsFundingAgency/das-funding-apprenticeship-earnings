@@ -61,8 +61,8 @@ builder.Services.AddMvc(o =>
 
 var app = builder.Build();
 
-app.MapHealthChecks("/ping");
-app.MapHealthChecks("/");
+app.MapHealthChecks("/ping");   // Both /ping 
+app.MapHealthChecks("/");       // and / are used for health checks
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

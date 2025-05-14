@@ -11,8 +11,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 public static class HealthChecks
 {
-    private static string poo;
-
     public static IServiceCollection AddFunctionHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings)
     {
         services.AddSingleton(sp => new FunctionHealthChecker(
