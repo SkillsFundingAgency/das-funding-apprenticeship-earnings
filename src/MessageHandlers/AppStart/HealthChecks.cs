@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 using System.Threading;
@@ -11,10 +12,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 public static class HealthChecks
 {
-    public static IServiceCollection AddFunctionHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings)
+    public static IServiceCollection AddFunctionHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings, bool sqlConnectionNeedsAccessToken)
     {
         services.AddSingleton(sp => new FunctionHealthChecker(
-            new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!),
+            new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!, sp.GetSqlAzureIdentityTokenProvider(sqlConnectionNeedsAccessToken)),
             new ServiceBusHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusHealthCheck>>()!)
             ));
 

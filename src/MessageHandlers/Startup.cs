@@ -89,11 +89,12 @@ public class Startup
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
 
-        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, NotLocal(Configuration));
+        var sqlConnectionNeedsAccessToken = NotLocal(Configuration);
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, sqlConnectionNeedsAccessToken);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-        services.AddFunctionHealthChecks(ApplicationSettings);
+        services.AddFunctionHealthChecks(ApplicationSettings, sqlConnectionNeedsAccessToken);
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
