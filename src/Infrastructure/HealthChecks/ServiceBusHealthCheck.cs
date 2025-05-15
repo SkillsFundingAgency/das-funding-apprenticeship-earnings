@@ -25,7 +25,7 @@ public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
             var receiver = client.CreateReceiver(Constants.EndpointName);
 
             // Peek a message non-destructively to verify connectivity
-            var message = await receiver.PeekMessageAsync(cancellationToken: cancellationToken);
+            var message = await receiver.PeekMessageAsync();// temp cancellationToken: cancellationToken);
 
             return HealthCheckResult.Healthy("Connected to Azure Service Bus.");
         }
