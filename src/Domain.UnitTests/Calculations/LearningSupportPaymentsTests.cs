@@ -42,7 +42,7 @@ public class LearningSupportPaymentsTests
         result[0].AcademicYear.Should().Be(startDate.ToAcademicYear());
         result[0].DeliveryPeriod.Should().Be(startDate.ToDeliveryPeriod());
         result[0].Amount.Should().Be(150);
-        result[0].DueDate.Should().Be(startDate);
+        result[0].DueDate.Should().Be(endDate);
         result[0].AdditionalPaymentType.Should().Be(InstalmentTypes.LearningSupport);
     }
 
@@ -58,10 +58,9 @@ public class LearningSupportPaymentsTests
 
         // Assert
         result.Count.Should().Be(3);
-        result[0].DueDate.Should().Be(new DateTime(2023, 10, 1));
-        result[1].DueDate.Should().Be(new DateTime(2023, 11, 1));
-        result[2].DueDate.Should().Be(new DateTime(2023, 12, 1));
-
+        result[0].DueDate.Should().Be(new DateTime(2023, 10, 31));
+        result[1].DueDate.Should().Be(new DateTime(2023, 11, 30));
+        result[2].DueDate.Should().Be(new DateTime(2023, 12, 31));
     }
 
     [Test]
@@ -77,7 +76,7 @@ public class LearningSupportPaymentsTests
         // Assert
         result.Count.Should().Be(2);
         result[0].DueDate.Should().Be(new DateTime(2023, 11, 30));
-        result[1].DueDate.Should().Be(new DateTime(2023, 12, 1));
+        result[1].DueDate.Should().Be(new DateTime(2023, 12, 31));
     }
 
     [Test]
