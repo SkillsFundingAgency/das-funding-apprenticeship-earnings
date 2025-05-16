@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
@@ -16,7 +17,8 @@ public static class HealthChecks
     {
         services.AddSingleton(sp => new FunctionHealthChecker(
             new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!, sp.GetSqlAzureIdentityTokenProvider(sqlConnectionNeedsAccessToken)),
-            new ServiceBusHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusHealthCheck>>()!)
+            new ServiceBusReceiveHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusReceiveHealthCheck>>()!),
+            new ServiceBusSendHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusSendHealthCheck>>()!)
             ));
 
 
@@ -30,14 +32,16 @@ public static class HealthChecks
 public class FunctionHealthChecker
 {
     private static DbHealthCheck? _dbHealthCheck;
-    private static ServiceBusHealthCheck? _serviceBusHealthCheck;
+    private static ServiceBusReceiveHealthCheck? _serviceBusHealthCheck;
+    private static ServiceBusSendHealthCheck? _serviceBusSendHealthCheck;
 
-    public FunctionHealthChecker(DbHealthCheck dbHealthCheck, ServiceBusHealthCheck serviceBusHealthCheck)
+    public FunctionHealthChecker(DbHealthCheck dbHealthCheck, ServiceBusReceiveHealthCheck serviceBusHealthCheck, ServiceBusSendHealthCheck serviceBusSendHealthCheck)
     {
         if (_dbHealthCheck == null && _serviceBusHealthCheck == null)
         {
             _dbHealthCheck = dbHealthCheck;
             _serviceBusHealthCheck = serviceBusHealthCheck;
+            _serviceBusSendHealthCheck = serviceBusSendHealthCheck;
         }
     }
 
@@ -53,6 +57,12 @@ public class FunctionHealthChecker
 
         var serviceBusResult = await _serviceBusHealthCheck.CheckHealthAsync(healthCheckContext, cancellationToken);
         if (serviceBusResult.Status != HealthStatus.Healthy)
+        {
+            return false;
+        }
+
+        var serviceBusSendResult = await _serviceBusSendHealthCheck.CheckHealthAsync(healthCheckContext, cancellationToken);
+        if (serviceBusSendResult.Status != HealthStatus.Healthy)
         {
             return false;
         }

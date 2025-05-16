@@ -7,11 +7,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 
 [ExcludeFromCodeCoverage]
-public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
+public class ServiceBusReceiveHealthCheck : BaseHealthCheck<ServiceBusReceiveHealthCheck>
 {
     private readonly string _connectionString;
 
-    public ServiceBusHealthCheck(string connectionString, ILogger<ServiceBusHealthCheck> logger) : base(logger)
+    public ServiceBusReceiveHealthCheck(string connectionString, ILogger<ServiceBusReceiveHealthCheck> logger) : base(logger)
     {
         _connectionString = connectionString;
     }
@@ -31,8 +31,8 @@ public class ServiceBusHealthCheck : BaseHealthCheck<ServiceBusHealthCheck>
         }
         catch (Exception ex)
         {
-            LogError("Azure Service Bus check failed.", ex);
-            return HealthCheckResult.Unhealthy("Azure Service Bus check failed.");
+            LogError("Azure Service Bus 'Receive' failed.", ex);
+            return HealthCheckResult.Unhealthy("Azure Service Bus 'Receive' failed.");
         }
     }
 }

@@ -16,11 +16,11 @@ public static class StartupExtensions
             sp.GetService<ILogger<DbHealthCheck>>()!,
              sp.GetSqlAzureIdentityTokenProvider(sqlConnectionNeedsAccessToken)));
         
-        services.AddSingleton(sp => new ServiceBusHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusHealthCheck>>()!));
+        services.AddSingleton(sp => new ServiceBusSendHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusSendHealthCheck>>()!));
 
         services.AddHealthChecks()
             .AddCheck<DbHealthCheck>("Database")
-            .AddCheck<ServiceBusHealthCheck>("ServiceBus");
+            .AddCheck<ServiceBusSendHealthCheck>("ServiceBusSend");
 
         return services;
     }
