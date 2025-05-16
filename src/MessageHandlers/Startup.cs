@@ -89,10 +89,12 @@ public class Startup
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
 
-        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, NotLocal(Configuration));
+        var sqlConnectionNeedsAccessToken = NotLocal(Configuration);
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, sqlConnectionNeedsAccessToken);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
+        services.AddFunctionHealthChecks(ApplicationSettings, sqlConnectionNeedsAccessToken);
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
@@ -113,4 +115,5 @@ public class Startup
         var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
         return !isLocal && !isLocalAcceptanceTests;
     }
+
 }
