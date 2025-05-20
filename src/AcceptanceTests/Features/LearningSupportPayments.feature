@@ -10,11 +10,11 @@ Scenario: Add learning support payments
 		| 2021-1-1  | 2021-3-31 |
 	Then Additional Payments are persisted as follows
 		| Type            | Amount | DueDate   |
-		| LearningSupport | 150    | 2020-8-1  |
-		| LearningSupport | 150    | 2020-9-1  |
-		| LearningSupport | 150    | 2021-1-1  |
-		| LearningSupport | 150    | 2021-2-1  |
-		| LearningSupport | 150    | 2021-3-1  |
+		| LearningSupport | 150    | 2020-8-31 |
+		| LearningSupport | 150    | 2020-9-30 |
+		| LearningSupport | 150    | 2021-1-31 |
+		| LearningSupport | 150    | 2021-2-28 |
+		| LearningSupport | 150    | 2021-3-31 |
 
 Scenario: Learning support payments are not lost on a recalculation
 	Given an apprenticeship has been created with the following information
@@ -30,9 +30,9 @@ Scenario: Learning support payments are not lost on a recalculation
 	When care details are saved with true true true
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    |
-		| LearningSupport   | 150    | 2020-8-1   |
-		| LearningSupport   | 150    | 2020-9-1   |
-		| LearningSupport   | 150    | 2020-10-1  |
+		| LearningSupport   | 150    | 2020-8-31  |
+		| LearningSupport   | 150    | 2020-9-30  |
+		| LearningSupport   | 150    | 2020-10-31 |
 		| ProviderIncentive | 500    | 2020-10-29 |
 		| EmployerIncentive | 500    | 2020-10-29 |
 		| ProviderIncentive | 500    | 2021-07-31 |
@@ -47,8 +47,8 @@ Scenario: Calculate learning support earnings (from the previous month)
 		| 2020-8-1  | 2020-10-1 |
 	Then Additional Payments are persisted as follows
 		| Type            | Amount | DueDate   |
-		| LearningSupport | 150    | 2020-8-1  |
-		| LearningSupport | 150    | 2020-9-1  |
+		| LearningSupport | 150    | 2020-8-31 |
+		| LearningSupport | 150    | 2020-9-30 |
 
 
 Scenario: Calculate learning support earnings from the current date/month (additional test scenario)
@@ -59,8 +59,8 @@ Scenario: Calculate learning support earnings from the current date/month (addit
 		| 2020-8-1  | 2020-10-1 |
 	Then Additional Payments are persisted as follows
 		| Type            | Amount | DueDate   |
-		| LearningSupport | 150    | 2020-8-1  |
-		| LearningSupport | 150    | 2020-9-1  |
+		| LearningSupport | 150    | 2020-8-31 |
+		| LearningSupport | 150    | 2020-9-30 |
 
 Scenario: Calculate learning support earnings from a future date (additional test scenario)
 	Given the date is now 2020-08-01
@@ -69,9 +69,9 @@ Scenario: Calculate learning support earnings from a future date (additional tes
 		| StartDate | EndDate   |
 		| 2020-9-1  | 2020-11-1 |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate   |
-		| LearningSupport | 150    | 2020-9-1  |
-		| LearningSupport | 150    | 2020-10-1 |
+		| Type            | Amount | DueDate    |
+		| LearningSupport | 150    | 2020-9-30  |
+		| LearningSupport | 150    | 2020-10-31 |
 
 Scenario: Calculate learning support earnings when the “Date Applies To” is after the planned end date (additional test scenario)
 	Given the date is now 2020-08-01
@@ -80,16 +80,16 @@ Scenario: Calculate learning support earnings when the “Date Applies To” is 
 		| StartDate | EndDate   |
 		| 2020-9-1  | 2021-6-1 |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate   |
-		| LearningSupport | 150    | 2020-9-1  |
-		| LearningSupport | 150    | 2020-10-1 |
-		| LearningSupport | 150    | 2020-11-1 |
-		| LearningSupport | 150    | 2020-12-1 |
-		| LearningSupport | 150    | 2021-1-1  |
-		| LearningSupport | 150    | 2021-2-1  |
-		| LearningSupport | 150    | 2021-3-1  |
-		| LearningSupport | 150    | 2021-4-1  |
-		| LearningSupport | 150    | 2021-5-1  |
+		| Type            | Amount | DueDate    |
+		| LearningSupport | 150    | 2020-9-30  |
+		| LearningSupport | 150    | 2020-10-31 |
+		| LearningSupport | 150    | 2020-11-30 |
+		| LearningSupport | 150    | 2020-12-31 |
+		| LearningSupport | 150    | 2021-1-31  |
+		| LearningSupport | 150    | 2021-2-28  |
+		| LearningSupport | 150    | 2021-3-31  |
+		| LearningSupport | 150    | 2021-4-30  |
+		| LearningSupport | 150    | 2021-5-31  |
 
 Scenario: Add learning support payments for the same period twice, should only record one LS payment per period, and on programme payments should not be effected
 	Given An apprenticeship has been created
@@ -104,9 +104,9 @@ Scenario: Add learning support payments for the same period twice, should only r
 		| 2021-1-1  | 2021-3-31 |
 	Then Additional Payments are persisted as follows
 		| Type            | Amount | DueDate   |
-		| LearningSupport | 150    | 2020-8-1  |
-		| LearningSupport | 150    | 2020-9-1  |
-		| LearningSupport | 150    | 2021-1-1  |
-		| LearningSupport | 150    | 2021-2-1  |
-		| LearningSupport | 150    | 2021-3-1  |
+		| LearningSupport | 150    | 2020-8-31 |
+		| LearningSupport | 150    | 2020-9-30 |
+		| LearningSupport | 150    | 2021-1-31 |
+		| LearningSupport | 150    | 2021-2-28 |
+		| LearningSupport | 150    | 2021-3-31 |
 	And Earnings are generated with the correct learning amounts
