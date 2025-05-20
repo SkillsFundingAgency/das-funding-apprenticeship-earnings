@@ -18,7 +18,7 @@ public static class HealthChecks
         services.AddSingleton(sp => new FunctionHealthChecker(
             new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!, sp.GetSqlAzureIdentityTokenProvider(sqlConnectionNeedsAccessToken)),
             new ServiceBusReceiveHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusReceiveHealthCheck>>()!),
-            new ServiceBusSendHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusSendHealthCheck>>()!)
+            new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!)
             ));
 
 
@@ -33,9 +33,9 @@ public class FunctionHealthChecker
 {
     private static DbHealthCheck? _dbHealthCheck;
     private static ServiceBusReceiveHealthCheck? _serviceBusHealthCheck;
-    private static ServiceBusSendHealthCheck? _serviceBusSendHealthCheck;
+    private static ServiceBusPublishHealthCheck? _serviceBusSendHealthCheck;
 
-    public FunctionHealthChecker(DbHealthCheck dbHealthCheck, ServiceBusReceiveHealthCheck serviceBusHealthCheck, ServiceBusSendHealthCheck serviceBusSendHealthCheck)
+    public FunctionHealthChecker(DbHealthCheck dbHealthCheck, ServiceBusReceiveHealthCheck serviceBusHealthCheck, ServiceBusPublishHealthCheck serviceBusSendHealthCheck)
     {
         if (_dbHealthCheck == null && _serviceBusHealthCheck == null)
         {

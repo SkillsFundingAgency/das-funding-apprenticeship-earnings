@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 using System.Diagnostics.CodeAnalysis;
@@ -16,11 +15,11 @@ public static class StartupExtensions
             sp.GetService<ILogger<DbHealthCheck>>()!,
              sp.GetSqlAzureIdentityTokenProvider(sqlConnectionNeedsAccessToken)));
         
-        services.AddSingleton(sp => new ServiceBusSendHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusSendHealthCheck>>()!));
+        services.AddSingleton(sp => new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!));
 
         services.AddHealthChecks()
             .AddCheck<DbHealthCheck>("Database")
-            .AddCheck<ServiceBusSendHealthCheck>("ServiceBusSend");
+            .AddCheck<ServiceBusPublishHealthCheck>("ServiceBusPublish");
 
         return services;
     }

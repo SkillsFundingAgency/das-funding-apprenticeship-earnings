@@ -8,11 +8,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 
 [ExcludeFromCodeCoverage]
-public class ServiceBusSendHealthCheck : BaseHealthCheck<ServiceBusSendHealthCheck>
+public class ServiceBusPublishHealthCheck : BaseHealthCheck<ServiceBusPublishHealthCheck>
 {
     private readonly IMessageSession _messageSession;
 
-    public ServiceBusSendHealthCheck(IMessageSession messageSession, ILogger<ServiceBusSendHealthCheck> logger) : base(logger)
+    public ServiceBusPublishHealthCheck(IMessageSession messageSession, ILogger<ServiceBusPublishHealthCheck> logger) : base(logger)
     {
         _messageSession = messageSession;
     }
