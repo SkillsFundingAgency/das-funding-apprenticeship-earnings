@@ -27,12 +27,12 @@ public class ServiceBusPublishHealthCheck : BaseHealthCheck<ServiceBusPublishHea
             };
             await _messageSession.Publish(message, cancellationToken);
 
-            return HealthCheckResult.Healthy("Service bus send ok");
+            return HealthCheckResult.Healthy("Service bus publish ok");
         }
         catch (Exception ex)
         {
-            LogError("Azure Service Bus 'send' failed.", ex);
-            return HealthCheckResult.Unhealthy("Azure Service Bus 'send' failed.");
+            LogError("Azure Service Bus 'publish' failed.", ex);
+            return HealthCheckResult.Unhealthy("Azure Service Bus 'publish' failed.");
         }
     }
 }
