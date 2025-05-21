@@ -44,6 +44,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="NServiceBus.Testing" Version="9.0.1" />
     <PackageReference Include="SFA.DAS.Testing.AzureStorageEmulator" Version="17.1.103" />
+    <PackageReference Include="SFA.DAS.Testing.PackageScanning" Version="17.1.144-prerelease-5" />
     <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
     <PackageReference Include="SpecFlow.NUnit" Version="3.9.74" />
     <PackageReference Include="nunit" Version="4.3.2" />
