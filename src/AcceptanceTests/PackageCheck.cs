@@ -7,7 +7,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 public class PackageCheck
 {
     [Test]
-    [Ignore("Ignored so that this test will not run on the build server, uncomment to use this check locally.")]
-    public void CheckForVulnerableAndDeprecatedPackages() =>
+    //[Ignore("Ignored so that this test will not run on the build server, uncomment to use this check locally.")]
+    public void CheckForVulnerableAndDeprecatedPackages()
+    {
+        if (Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") != "Development")
+            return;
+
         PackageChecker.AssertNoVulnerableOrDeprecatedPackages(@"..\..\..\..\");
+    }
 }
