@@ -34,8 +34,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
     public async Task ThenTheEarningsAreGenerated()
     {
         // Arrange
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
-        var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
+        var apprenticeship = _fixture.BuildApprenticeship();
         SetupMocks();
         var command = BuildCommand(apprenticeship);
         _mockRepository.Setup(x => x.Get(command.EpisodeUpdatedEvent.ApprenticeshipKey)).ReturnsAsync(apprenticeship);
@@ -82,4 +81,5 @@ public class WhenProcessEpisodeUpdatedCommandHandled
 
         return new ProcessEpisodeUpdatedCommand(priceChangeApprovedEvent);
     }
+
 }

@@ -51,8 +51,7 @@ public class WhenHandleSaveCareDetails
     {
         // Arrange
         var command = _fixture.Create<SaveCareDetailsCommand.SaveCareDetailsCommand>();
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
-        var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
+        var apprenticeship = _fixture.BuildApprenticeship();
         _apprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
 
         // Act
@@ -65,5 +64,4 @@ public class WhenHandleSaveCareDetails
             a.CareLeaverEmployerConsentGiven == command.CareLeaverEmployerConsentGiven
         )), Times.Once);
     }
-
 }
