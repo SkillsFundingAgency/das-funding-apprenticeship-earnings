@@ -177,8 +177,8 @@ public class AdditionalPaymentsStepDefinitions
         AssertIncentivePayment("EmployerIncentive", true, false);
     }
 
-    [Then(@"Maths and English Payments are persisted for (.*) as follows")]
-    public async Task ThenMathsAndEnglishPaymentsArePersistedAsFollows(string course, Table table)
+    [Then(@"Maths and english instalments are persisted as follows")]
+    public async Task ThenMathsAndEnglishInstalmentsArePersistedAsFollows(Table table)
     {
         var data = table.CreateSet<MathsAndEnglishInstalmentDbExpectationModel>().ToList();
 
@@ -187,14 +187,12 @@ public class AdditionalPaymentsStepDefinitions
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
 
         var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
-        var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course == course);
-
-        courseInDb.Should().NotBeNull();
-
-        courseInDb.Instalments.Should().HaveCount(data.Count);
 
         foreach (var expectedInstalment in data)
         {
+            var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == expectedInstalment.Course);
+            courseInDb.Should().NotBeNull();
+
             courseInDb.Instalments.Should()
                 .Contain(x => x.Amount == expectedInstalment.Amount
                               && x.AcademicYear == expectedInstalment.AcademicYear
