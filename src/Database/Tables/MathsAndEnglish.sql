@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Domain].[MathsAndEnglish]
 (
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    [EpisodeKey] UNIQUEIDENTIFIER NOT NULL,
+    [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL,
     [StartDate] DATETIME NOT NULL,
     [EndDate] DATETIME NULL,
     [Course] NCHAR(50) NOT NULL,
