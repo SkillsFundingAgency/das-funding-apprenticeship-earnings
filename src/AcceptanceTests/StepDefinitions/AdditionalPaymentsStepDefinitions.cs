@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -44,6 +45,13 @@ public class AdditionalPaymentsStepDefinitions
         var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
         var apprenticehipKey = apprenticeshipCreatedEvent.ApprenticeshipKey;
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{apprenticehipKey}/careDetails", request);
+    }
+
+    [Given(@"the following maths and english course information is provided")]
+    public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
+    {
+        var expected = table.CreateSet<MathsAndEnglishDetail>().ToList();
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/mathsAndEnglish", expected);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]
@@ -167,6 +175,31 @@ public class AdditionalPaymentsStepDefinitions
     {
         AssertIncentivePayment("ProviderIncentive", true, false);
         AssertIncentivePayment("EmployerIncentive", true, false);
+    }
+
+    [Then(@"Maths and English Payments are persisted for (.*) as follows")]
+    public async Task ThenMathsAndEnglishPaymentsArePersistedAsFollows(string course, Table table)
+    {
+        var data = table.CreateSet<MathsAndEnglishInstalmentDbExpectationModel>().ToList();
+
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
+        var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course == course);
+
+        courseInDb.Should().NotBeNull();
+
+        courseInDb.Instalments.Should().HaveCount(data.Count);
+
+        foreach (var expectedInstalment in data)
+        {
+            courseInDb.Instalments.Should()
+                .Contain(x => x.Amount == expectedInstalment.Amount
+                              && x.AcademicYear == expectedInstalment.AcademicYear
+                              && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod);
+        }
     }
 
     private void AssertIncentivePayment(string type, bool second, bool expectedPayment)

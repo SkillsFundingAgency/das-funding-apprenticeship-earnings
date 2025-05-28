@@ -16,6 +16,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
 
     private DateTime _startDate = new DateTime(2019, 01, 01);
     private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
+    private DateTime _endDate = new DateTime(2021, 1, 1);
     private int _ageAtStartOfApprenticeship = 21;
     private Random _random = new();
 
@@ -43,6 +44,14 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _ageAtStartOfApprenticeship = 19;
     }
 
+    [Given(@"An apprenticeship starts on (.*) and ends on (.*)")]
+    public void GivenTheApprenticeshipStartsOnAndEndsOn(DateTime startDate, DateTime endDate)
+    {
+        _startDate = startDate;
+        _endDate = endDate;
+        TestSystemClock.SetDateTime(startDate.AddMonths(1));
+    }
+
     [Given(@"An apprenticeship has been created as part of the approvals journey")]
     [Given(@"An apprenticeship has been created")]
     [Given(@"the apprenticeship commitment is approved")]
@@ -64,7 +73,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
                     {
                         TotalPrice = 15000,
                         StartDate = _startDate,
-                        EndDate = new DateTime(2021, 1, 1),
+                        EndDate = _endDate,
                         FundingBandMaximum = 15000
                     }
                 },
