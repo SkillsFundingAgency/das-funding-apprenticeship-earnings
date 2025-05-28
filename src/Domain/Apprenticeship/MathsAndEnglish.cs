@@ -34,7 +34,7 @@ public class MathsAndEnglish
 
     public MathsAndEnglishModel GetModel(Guid earningsProfileKey)
     {
-        _model.EarningsProfileKey = earningsProfileKey;
+        _model.EarningsProfileId = earningsProfileKey;
         return _model;
     }
 
