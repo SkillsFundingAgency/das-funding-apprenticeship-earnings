@@ -89,6 +89,7 @@ public class ApprenticeshipEpisode
         _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, 
             earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
+            EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
             _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
@@ -117,6 +118,25 @@ public class ApprenticeshipEpisode
             EarningsProfile.OnProgramTotal,
             EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
+            EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
+            EarningsProfile.CompletionPayment,
+            ApprenticeshipEpisodeKey);
+        _model.EarningsProfile = _earningsProfile.GetModel();
+    }
+
+    /// <summary>
+    /// Updates earnings for Maths and English courses to an apprenticeship.
+    /// Overwrites any existing Maths and English courses' earnings.
+    /// </summary>
+    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    {
+        ArchiveEarningProfileToHistory(systemClock);
+
+        _earningsProfile = new EarningsProfile(
+            EarningsProfile.OnProgramTotal,
+            EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            EarningsProfile.AdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
+            mathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
             EarningsProfile.CompletionPayment,
             ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
@@ -196,6 +216,8 @@ public class ApprenticeshipEpisode
         var additionalPayments = incentivePayments.Select(x =>
             new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
 
+        List<MathsAndEnglish> mathsAndEnglishCourses = new List<MathsAndEnglish>();
+
         if (EarningsProfile != null)
         {
             ArchiveEarningProfileToHistory(systemClock);
@@ -204,9 +226,12 @@ public class ApprenticeshipEpisode
             var additionalPaymentsToKeep = EarningsProfile.PersistentAdditionalPayments();
             additionalPayments.AddRange(additionalPaymentsToKeep.Select(x =>
                 new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList());
+
+            // Extract maths and english payments from the existing earnings profile
+            mathsAndEnglishCourses.AddRange(EarningsProfile.PersistentMathsAndEnglishCourses().ToList());
         }
 
-        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, completionPayment, ApprenticeshipEpisodeKey);
+        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, mathsAndEnglishCourses, completionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 

@@ -8,10 +8,10 @@ public class MathsAndEnglishModel
 {
     public MathsAndEnglishModel() { }
 
-    public MathsAndEnglishModel(Guid episodeKey, string course, DateTime startDate, DateTime? endDate, decimal amount)
+    public MathsAndEnglishModel(Guid earningsProfileKey, string course, DateTime startDate, DateTime? endDate, decimal amount)
     {
         Key = Guid.NewGuid();
-        EpisodeKey = episodeKey;
+        EarningsProfileKey = earningsProfileKey;
         Course = course;
         StartDate = startDate;
         EndDate = endDate;
@@ -22,7 +22,7 @@ public class MathsAndEnglishModel
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Key { get; set; }
 
-    public Guid EpisodeKey { get; set; }
+    public Guid EarningsProfileKey { get; set; }
 
     public DateTime StartDate { get; set; }
 

@@ -14,7 +14,7 @@ public static class LearningSupportPayments
         }
 
         var lastCensusDate = endDate.LastCensusDate();
-        var paymentDate = LastDayOfMonth(startDate);
+        var paymentDate = startDate.LastDayOfMonth();
 
         while (paymentDate <= lastCensusDate)
         {
@@ -29,24 +29,5 @@ public static class LearningSupportPayments
             paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
         }
         return learningSupportPayments;
-    }
-
-    private static DateTime LastDayOfMonth(this DateTime date)
-    {
-        var day = DateTime.DaysInMonth(date.Year, date.Month);
-        return new DateTime(date.Year, date.Month, day);
-    }
-
-
-    private static DateTime LastCensusDate(this DateTime date)
-    {
-        var nextMonth = date.AddMonths(1);
-        var censusDateForMonth = new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1);
-        if(censusDateForMonth == date)
-        {
-            return date;
-        }
-
-        return new DateTime(date.Year, date.Month, 1).AddDays(-1);
     }
 }

@@ -13,6 +13,7 @@ public static class InstalmentTypes
     public const string ProviderIncentive = "ProviderIncentive";
     public const string EmployerIncentive = "EmployerIncentive";
     public const string LearningSupport = "LearningSupport";
+    public const string MathsAndEnglish = "MathsAndEnglish";
 }
 
 public static class AdditionalPaymentAmounts

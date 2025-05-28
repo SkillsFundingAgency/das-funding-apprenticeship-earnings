@@ -106,4 +106,16 @@ public class Apprenticeship : AggregateRoot
         currentEpisode.AddAdditionalEarnings(additionalPayments, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
+
+    /// <summary>
+    /// Adds maths and english course earnings to an apprenticeship that are not included in the standard earnings calculation process.
+    /// Maths and English course earnings are generated separately using this endpoint.
+    /// Note, any existing earnings for maths and english courses will be removed.
+    /// </summary>
+    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
+        AddEvent(new EarningsRecalculatedEvent(this));
+    }
 }

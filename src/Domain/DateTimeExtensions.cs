@@ -42,4 +42,22 @@ public static class DateTimeExtensions
         var calendarMonth = deliveryPeriod.ToCalendarMonth();
         return new DateTime(calendarYear, calendarMonth, 1);
     }
+
+    public static DateTime LastCensusDate(this DateTime date)
+    {
+        var nextMonth = date.AddMonths(1);
+        var censusDateForMonth = new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1);
+        if (censusDateForMonth == date)
+        {
+            return date;
+        }
+
+        return new DateTime(date.Year, date.Month, 1).AddDays(-1);
+    }
+
+    public static DateTime LastDayOfMonth(this DateTime date)
+    {
+        var day = DateTime.DaysInMonth(date.Year, date.Month);
+        return new DateTime(date.Year, date.Month, day);
+    }
 }
