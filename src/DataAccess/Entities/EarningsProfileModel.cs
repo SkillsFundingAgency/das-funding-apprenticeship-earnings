@@ -47,6 +47,6 @@ public class EarningsProfileHistoryModel : EarningsProfileModelBase
 
     public List<InstalmentHistoryModel> Instalments { get; set; } = null!;
     public List<AdditionalPaymentHistoryModel> AdditionalPayments { get; set; } = null!;
-    public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!; //todo set this
+    public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!;
     public DateTime SupersededDate { get; set; }
 }

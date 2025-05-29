@@ -47,6 +47,13 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.EarningsProfileHistory)
+            .ThenInclude(y => y.MathsAndEnglishCourses)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.EarningsProfileHistory)
+            .ThenInclude(y => y.MathsAndEnglishCourses)
+            .ThenInclude(y => y.Instalments)
             .SingleAsync(x => x.Key == key);
 
         return _apprenticeshipFactory.GetExisting(apprenticeship);
