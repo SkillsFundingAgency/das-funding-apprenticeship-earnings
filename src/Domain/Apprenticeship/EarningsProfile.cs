@@ -76,6 +76,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         /// </summary>
         public IReadOnlyCollection<MathsAndEnglish> PersistentMathsAndEnglishCourses()
         {
+            if (Model.MathsAndEnglishCourses == null)
+                return new List<MathsAndEnglish>();
+
             return Model.MathsAndEnglishCourses
                 .Select((MathsAndEnglish.Get))
                 .ToList().AsReadOnly();
