@@ -8,7 +8,7 @@ public class MathsAndEnglishModel
 {
     public MathsAndEnglishModel() { }
 
-    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime? endDate, decimal amount)
+    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime endDate, decimal amount)
     {
         Key = Guid.NewGuid();
         EarningsProfileId = earningsProfileId;
@@ -26,7 +26,7 @@ public class MathsAndEnglishModel
 
     public DateTime StartDate { get; set; }
 
-    public DateTime? EndDate { get; set; }
+    public DateTime EndDate { get; set; }
 
     public string Course { get; set; } = null!;
 

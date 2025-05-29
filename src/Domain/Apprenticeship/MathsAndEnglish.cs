@@ -9,7 +9,7 @@ public class MathsAndEnglish
     private List<MathsAndEnglishInstalment> _instalments;
 
     public DateTime StartDate => _model.StartDate;
-    public DateTime? EndDate => _model.EndDate;
+    public DateTime EndDate => _model.EndDate;
     public string Course => _model.Course;
     public decimal Amount => _model.Amount;
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
@@ -20,7 +20,7 @@ public class MathsAndEnglish
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime? endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments)
+    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments)
     {
         _instalments = instalments;
         _model = new MathsAndEnglishModel();
