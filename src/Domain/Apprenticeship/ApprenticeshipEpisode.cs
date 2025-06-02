@@ -98,14 +98,13 @@ public class ApprenticeshipEpisode
     /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
     /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
     /// </summary>
-    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, string additionalPaymentType, ISystemClockService systemClock)
     {
         // verify that all additional payments are of the same type
         if (additionalPayments.Select(x => x.AdditionalPaymentType).Distinct().Count() > 1)
         {
             throw new InvalidOperationException("All additional payments must be of the same type.");
         }
-        var additionalPaymentType = additionalPayments.First().AdditionalPaymentType;
 
         ArchiveEarningProfileToHistory(systemClock);
 

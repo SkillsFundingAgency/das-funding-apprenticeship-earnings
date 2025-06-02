@@ -52,7 +52,7 @@ public class WhenAddAdditionalEarnings
         var sut = CreateApprenticeship(25);// At age of 25 no other additional payments will be present
 
         // Act
-        sut.AddAdditionalEarnings(additionalPayments, _mockSystemClockService.Object);
+        sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
         sut.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(2);
@@ -71,10 +71,10 @@ public class WhenAddAdditionalEarnings
         sut.AddAdditionalEarnings(new List<AdditionalPayment>{
             new AdditionalPayment(2021, 8, 150, new DateTime(2021, 3, 15), InstalmentTypes.LearningSupport),
             new AdditionalPayment(2021, 9, 150, new DateTime(2021, 4, 15), InstalmentTypes.LearningSupport),
-        }, _mockSystemClockService.Object);
+        }, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Act
-        sut.AddAdditionalEarnings(additionalPayments, _mockSystemClockService.Object);
+        sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
         sut.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(6);
@@ -92,7 +92,7 @@ public class WhenAddAdditionalEarnings
         var sut = CreateApprenticeship(25);// At age of 25 no other additional payments will be present
 
         // Act
-        sut.AddAdditionalEarnings(additionalPayments, _mockSystemClockService.Object);
+        sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
         sut.GetModel().Episodes.First().EarningsProfileHistory.Count.Should().Be(1);

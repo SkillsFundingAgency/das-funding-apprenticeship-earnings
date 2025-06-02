@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -36,7 +37,7 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, _systemClockService);
+        apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
