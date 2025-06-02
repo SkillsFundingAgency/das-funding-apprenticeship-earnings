@@ -118,7 +118,7 @@ public class ApprenticeshipEpisode
             EarningsProfile.OnProgramTotal,
             EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
-            EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
+            EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList(),
             EarningsProfile.CompletionPayment,
             ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
@@ -136,7 +136,7 @@ public class ApprenticeshipEpisode
             EarningsProfile.OnProgramTotal,
             EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             EarningsProfile.AdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
-            mathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
+            mathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList(),
             EarningsProfile.CompletionPayment,
             ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
