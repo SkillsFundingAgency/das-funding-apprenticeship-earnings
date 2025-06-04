@@ -51,8 +51,8 @@ Scenario: Maths and English before the start of the apprenticeship
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
 	And the following maths and english course information is provided
-		| StartDate | EndDate    | Course      | Amount |
-		| 2020-1-1  | 2020-10-31 | EarlyMaths  | 500    |
+		| StartDate | EndDate   | Course     | Amount |
+		| 2020-1-1  | 2021-1-15 | EarlyMaths | 600    |
 	Then Maths and english instalments are persisted as follows
 		| Course     | Amount | AcademicYear | DeliveryPeriod |
 		| EarlyMaths | 50     | 1920         | 6              |
@@ -65,6 +65,8 @@ Scenario: Maths and English before the start of the apprenticeship
 		| EarlyMaths | 50     | 2021         | 1              |
 		| EarlyMaths | 50     | 2021         | 2              |
 		| EarlyMaths | 50     | 2021         | 3              |
+		| EarlyMaths | 50     | 2021         | 4              |
+		| EarlyMaths | 50     | 2021         | 5              |
 
 Scenario: Maths and English earnings for a course which does not span a census date
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01

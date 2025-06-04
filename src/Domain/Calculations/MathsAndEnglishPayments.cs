@@ -12,7 +12,7 @@ public static class MathsAndEnglishPayments
         if (startDate > endDate) return new MathsAndEnglish(startDate, endDate, course, amount, instalments);
         
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
-        if(startDate.Month == endDate.Month)
+        if(startDate.Month == endDate.Month && startDate.Year == endDate.Year)
             return new MathsAndEnglish(startDate, endDate, course, amount, new List<MathsAndEnglishInstalment> { new(endDate.ToAcademicYear(), endDate.ToDeliveryPeriod(), amount) });
 
         var lastCensusDate = endDate.LastCensusDate();
