@@ -55,4 +55,21 @@ public class MathsAndEnglishPaymentsTests
         result.Instalments.First().Amount.Should().Be(100);
         result.Instalments.ToList()[1].Amount.Should().Be(100);
     }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldCreateOneInstalmentForCoursesWhichSpanNoCensusDate()
+    {
+        // Arrange
+        var startDate = new DateTime(2024, 02, 1);
+        var endDate = new DateTime(2024, 02, 26);
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 931);
+
+        // Assert
+        result.Instalments.Count.Should().Be(1);
+        result.Instalments.Single().Amount.Should().Be(931);
+        result.Instalments.Single().AcademicYear.Should().Be(2324);
+        result.Instalments.Single().DeliveryPeriod.Should().Be(7);
+    }
 }
