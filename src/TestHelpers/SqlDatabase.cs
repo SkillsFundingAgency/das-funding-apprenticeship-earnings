@@ -40,6 +40,14 @@ public class SqlDatabase : IDisposable
             .ThenInclude(y => y.Instalments)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.Prices)
+            .Include(x => x.Episodes)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.EarningsProfile)
+            .ThenInclude(y => y.MathsAndEnglishCourses)
+            .Include(x => x.Episodes)
+            .ThenInclude(y => y.EarningsProfile)
+            .ThenInclude(y => y.MathsAndEnglishCourses)
+            .ThenInclude(y => y.Instalments)
             .SingleOrDefaultAsync(x => x.Key == apprenticeshipKey);
 
         return apprenticeship;

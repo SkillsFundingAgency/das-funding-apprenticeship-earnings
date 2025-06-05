@@ -70,6 +70,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
 
+            modelBuilder.Entity<EarningsProfileModel>()
+                .HasMany(x => x.MathsAndEnglishCourses)
+                .WithOne()
+                .HasForeignKey(fk => fk.EarningsProfileId);
+
             // Instalment
             modelBuilder.Entity<InstalmentModel>()
                 .HasKey(x => x.Key);
@@ -88,6 +93,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
 
+            modelBuilder.Entity<EarningsProfileHistoryModel>()
+                .HasMany(x => x.MathsAndEnglishCourses)
+                .WithOne()
+                .HasForeignKey(fk => fk.EarningsProfileId);
+
             // Instalment
             modelBuilder.Entity<InstalmentHistoryModel>()
                 .HasKey(x => x.Key);
@@ -97,6 +107,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasKey(x => x.Key);
 
             modelBuilder.Entity<AdditionalPaymentHistoryModel>()
+                .HasKey(x => x.Key);
+
+            // MathsAndEnglish
+            modelBuilder.Entity<MathsAndEnglishModel>()
+                .HasKey(x => x.Key);
+
+            modelBuilder.Entity<MathsAndEnglishModel>()
+                .HasMany(x => x.Instalments)
+                .WithOne()
+                .HasForeignKey(fk => fk.MathsAndEnglishKey);
+
+            // MathsAndEnglishInstalment
+            modelBuilder.Entity<MathsAndEnglishInstalmentModel>()
                 .HasKey(x => x.Key);
 
             base.OnModelCreating(modelBuilder);

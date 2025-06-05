@@ -24,13 +24,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
     {
         private List<Instalment> _instalments;
 
-        public EarningsProfile(decimal onProgramTotal, List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal completionPayment, Guid episodeKey)
+        public EarningsProfile(
+            decimal onProgramTotal,
+            List<Instalment> instalments,
+            List<AdditionalPayment> additionalPayments,
+            List<MathsAndEnglish> mathsAndEnglishCourses,
+            decimal completionPayment,
+            Guid episodeKey)
         {
             Model = new EarningsProfileModel();
             Model.EarningsProfileId = Guid.NewGuid();
             Model.OnProgramTotal = onProgramTotal;
             Model.Instalments = instalments.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
             Model.AdditionalPayments = additionalPayments.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+            Model.MathsAndEnglishCourses = mathsAndEnglishCourses.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
             _instalments = instalments;
             Model.CompletionPayment = completionPayment;
             Model.EpisodeKey = episodeKey;
@@ -46,6 +53,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
         public decimal OnProgramTotal => Model.OnProgramTotal;
         public IReadOnlyCollection<Instalment> Instalments => new ReadOnlyCollection<Instalment>(_instalments);
         public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Model.AdditionalPayments.Select((AdditionalPayment.Get)).ToList().AsReadOnly();
+        public IReadOnlyCollection<MathsAndEnglish> MathsAndEnglishCourses => Model.MathsAndEnglishCourses.Select((MathsAndEnglish.Get)).ToList().AsReadOnly();
         public decimal CompletionPayment => Model.CompletionPayment;
 
         /// <summary>
@@ -58,6 +66,21 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship
             return Model.AdditionalPayments
                 .Where(x=> x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
                 .Select((AdditionalPayment.Get))
+                .ToList().AsReadOnly();
+        }
+
+        /// <summary>
+        /// Maths and English courses are not calculated, but are instead added to the earnings profile via an external process.
+        /// In the event of a recalculation, these should be preserved.
+        /// This method returns the courses so that they can be preserved.
+        /// </summary>
+        public IReadOnlyCollection<MathsAndEnglish> PersistentMathsAndEnglishCourses()
+        {
+            if (Model.MathsAndEnglishCourses == null)
+                return new List<MathsAndEnglish>();
+
+            return Model.MathsAndEnglishCourses
+                .Select((MathsAndEnglish.Get))
                 .ToList().AsReadOnly();
         }
 

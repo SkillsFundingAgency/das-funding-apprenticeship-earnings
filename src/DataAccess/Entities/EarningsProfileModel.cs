@@ -28,6 +28,7 @@ public class EarningsProfileModel : EarningsProfileModelBase
 {
     public List<InstalmentModel> Instalments { get; set; } = null!;
     public List<AdditionalPaymentModel> AdditionalPayments { get; set; } = null!;
+    public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!;
 }
 
 [Dapper.Contrib.Extensions.Table("Domain.EarningsProfileHistory")]
@@ -46,5 +47,6 @@ public class EarningsProfileHistoryModel : EarningsProfileModelBase
 
     public List<InstalmentHistoryModel> Instalments { get; set; } = null!;
     public List<AdditionalPaymentHistoryModel> AdditionalPayments { get; set; } = null!;
+    public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!;
     public DateTime SupersededDate { get; set; }
 }

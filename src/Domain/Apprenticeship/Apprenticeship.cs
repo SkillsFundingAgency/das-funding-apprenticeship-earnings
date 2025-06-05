@@ -100,10 +100,22 @@ public class Apprenticeship : AggregateRoot
     /// </summary>
     /// <param name="additionalPayments"> The additional payments to be added.</param>
     /// <param name="systemClock"> The system clock service to be used for date calculations.</param>
-    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, string additionalPaymentType, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.AddAdditionalEarnings(additionalPayments, systemClock);
+        currentEpisode.AddAdditionalEarnings(additionalPayments, additionalPaymentType, systemClock);
+        AddEvent(new EarningsRecalculatedEvent(this));
+    }
+
+    /// <summary>
+    /// Adds maths and english course earnings to an apprenticeship that are not included in the standard earnings calculation process.
+    /// Maths and English course earnings are generated separately using this endpoint.
+    /// Note, any existing earnings for maths and english courses will be removed.
+    /// </summary>
+    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 }

@@ -2,8 +2,7 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSummary;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 
@@ -24,7 +23,7 @@ public class ApprenticeshipController: ControllerBase
     [HttpPatch]
     public async Task<IActionResult> SaveCareDetails(Guid apprenticeshipKey, SaveCareDetailsRequest saveCareDetailsRequest)
     {
-        _logger.LogInformation("Received request to save care details for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save care details for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
 
         try
         {
@@ -33,11 +32,11 @@ public class ApprenticeshipController: ControllerBase
         }
         catch(Exception ex)
         {
-            _logger.LogError(ex, "Error saving care details for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving care details for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved care details for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved care details for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 
@@ -45,7 +44,7 @@ public class ApprenticeshipController: ControllerBase
     [HttpPatch]
     public async Task<IActionResult> SaveLearningSupport(Guid apprenticeshipKey, SaveLearningSupportRequest saveLearningSupportRequest)
     {
-        _logger.LogInformation("Received request to save learning support for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save learning support for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
 
         try
         {
@@ -54,12 +53,32 @@ public class ApprenticeshipController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving learning support for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving learning support for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved learning support for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved learning support for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 
+    [Route("{apprenticeshipKey}/mathsAndEnglish")]
+    [HttpPatch]
+    public async Task<IActionResult> SaveMathsAndEnglish(Guid apprenticeshipKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
+    {
+        _logger.LogInformation("Received request to save maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new SaveMathsAndEnglishCommand(apprenticeshipKey, saveMathsAndEnglishRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully saved maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
 }
