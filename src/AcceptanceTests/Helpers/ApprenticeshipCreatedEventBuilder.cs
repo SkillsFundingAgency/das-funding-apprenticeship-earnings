@@ -19,6 +19,7 @@ public class ApprenticeshipCreatedEventBuilder
     private int _fundingBandMaximum = ApprenticeshipCreatedEventDefaults.FundingBandMaximum;
     private long _employerAccountId = ApprenticeshipCreatedEventDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
+    private Guid _priceKey = Guid.NewGuid();
 
     public ApprenticeshipCreatedEventBuilder WithStartDate(DateTime startDate)
     {
@@ -102,6 +103,12 @@ public class ApprenticeshipCreatedEventBuilder
         return this;
     }
 
+    public ApprenticeshipCreatedEventBuilder WithPriceKey(Guid priceKey)
+    {
+        _priceKey = priceKey;
+        return this;
+    }
+
     public ApprenticeshipCreatedEvent Build()
     {
         return new ApprenticeshipCreatedEvent
@@ -117,6 +124,7 @@ public class ApprenticeshipCreatedEventBuilder
                 {
                     new ApprenticeshipEpisodePrice
                     {
+                        Key = _priceKey,
                         TotalPrice = _totalPrice,
                         StartDate = _startDate,
                         EndDate = _endDate,

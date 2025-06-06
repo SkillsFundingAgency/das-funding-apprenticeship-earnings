@@ -72,6 +72,7 @@ public class RecalculateEarningsStepDefinitions
         _scenarioContext.GetApprenticeshipCreatedEventBuilder()
             .WithApprenticeshipKey(_apprenticeshipKey)
             .WithEpisodeKey(_episodeKey)
+            .WithPriceKey(_priceKey)
             .WithStartDate(_startDate)
             .WithFundingBandMaximum(_fundingBandMaximum)
             .WithDateOfBirth(_dateOfBirth)
