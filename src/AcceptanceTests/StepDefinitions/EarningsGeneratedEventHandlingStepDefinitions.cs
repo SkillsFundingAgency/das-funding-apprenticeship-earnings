@@ -1,13 +1,7 @@
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -33,7 +27,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [Then(@"Earnings are not generated for that apprenticeship")]
     public async Task AssertNoEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString()), "Found published EarningsGenerated event when expecting no earnings to be generated", TimeSpan.FromSeconds(10));
+        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.Uln == _scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln), "Found published EarningsGenerated event when expecting no earnings to be generated", TimeSpan.FromSeconds(10));
     }
 
     [Then(@"the funding line type 16-18 must be used in the calculation")]
@@ -52,13 +46,13 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     {
         return earningsGeneratedEvent.DeliveryPeriods.Count == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount]
             && earningsGeneratedEvent.DeliveryPeriods.All(x => x.LearningAmount == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount]
-            && earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString());
+            && earningsGeneratedEvent.Uln == _scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln);
     }
 
     private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent, string expectedFundingLineType)
     {
         return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) &&
-               earningsGeneratedEvent.Uln == _scenarioContext[ContextKeys.ExpectedUln].ToString() &&
+               earningsGeneratedEvent.Uln == _scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln &&
                earningsGeneratedEvent.EarningsProfileId != Guid.Empty;
     }
 }

@@ -74,7 +74,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         // it works because only tests which don't change the dates use these context keys for assertions
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 500;
-        _scenarioContext[ContextKeys.ExpectedUln] = apprenticeshipCreatedEvent.Uln;
 
         await _testContext.TestInnerApi.PublishEvent(apprenticeshipCreatedEvent);
     }
@@ -90,9 +89,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
 
         _scenarioContext.Set(apprenticeshipCreatedEvent);
-
-        //todo why do we need this Uln is sent on the event and context no need to set an individual value on the context
-        _scenarioContext[ContextKeys.ExpectedUln] = apprenticeshipCreatedEvent.Uln;
     }
 
     [When(@"the adjusted price has been calculated")]
@@ -124,7 +120,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _scenarioContext.Set(apprenticeshipCreatedEvent);
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
-        _scenarioContext[ContextKeys.ExpectedUln] = apprenticeshipCreatedEvent.Uln;
     }
 
     [Given(@"an apprenticeship has been created with the following information")]
