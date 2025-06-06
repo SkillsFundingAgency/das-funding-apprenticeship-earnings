@@ -1,12 +1,9 @@
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
 using FundingPlatform = SFA.DAS.Apprenticeships.Enums.FundingPlatform;
 
@@ -66,14 +63,9 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder().Build();
 
         await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
-
         _scenarioContext.Set(apprenticeshipCreatedEvent);
 
-        // todo this doesn't make sense even before introducing the builder pattern
-        // the start and end dates can be changed outside of this method before it is called
-        // it works because only tests which don't change the dates use these context keys for assertions
-        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
-        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 500;
+        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = ApprenticeshipCreatedEventDefaults.ExpectedDeliveryPeriodLearningAmount;
 
         await _testContext.TestInnerApi.PublishEvent(apprenticeshipCreatedEvent);
     }
@@ -81,13 +73,11 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
     public async Task PublishNonPilotApprenticeshipCreatedEvent()
     {
-        //todo this originally did exactly what you would expect it to but also overwrote the end date to 2020-12-31 (the default being 2021-1-1) because of how census dates work this should be fine but confirm
         var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder()
             .WithFundingPlatform(FundingPlatform.SLD)
             .Build();
 
         await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
-
         _scenarioContext.Set(apprenticeshipCreatedEvent);
     }
 
@@ -109,16 +99,14 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
     public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
     {
-        //todo this originally did exactly what you would expect it to but also overwrote the end date to 2020-12-31 (the default being 2021-1-1) because of how census dates work this should be fine but confirm
         var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder()
             .WithTotalPrice(35000)
             .WithFundingBandMaximum(30000)
             .Build();
 
         await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
-
         _scenarioContext.Set(apprenticeshipCreatedEvent);
-        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount] = 24;
+
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
     }
 
@@ -142,8 +130,9 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public async Task EarningsAreCalculated()
     {
         var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder().Build();
+        
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
         _scenarioContext.Set(apprenticeshipCreatedEvent);
-        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent); 
     }
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()

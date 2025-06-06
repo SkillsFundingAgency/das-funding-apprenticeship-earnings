@@ -12,4 +12,31 @@ public static class ScenarioContextExtensions
         context.Set(builder);
         return builder;
     }
+
+    public static ApprenticeshipPriceChangedEventBuilder GetApprenticeshipPriceChangedEventBuilder(this ScenarioContext context)
+    {
+        if (context.TryGetValue(out ApprenticeshipPriceChangedEventBuilder builder)) return builder;
+
+        builder = new ApprenticeshipPriceChangedEventBuilder();
+        context.Set(builder);
+        return builder;
+    }
+
+    public static ApprenticeshipStartDateChangedEventBuilder GetApprenticeshipStartDateChangedEventBuilder(this ScenarioContext context)
+    {
+        if (context.TryGetValue(out ApprenticeshipStartDateChangedEventBuilder builder)) return builder;
+
+        builder = new ApprenticeshipStartDateChangedEventBuilder();
+        context.Set(builder);
+        return builder;
+    }
+
+    public static ApprenticeshipWithdrawnEventBuilder GetApprenticeshipWithdrawnEventBuilder(this ScenarioContext context)
+    {
+        if (context.TryGetValue(out ApprenticeshipWithdrawnEventBuilder builder)) return builder;
+
+        builder = new ApprenticeshipWithdrawnEventBuilder();
+        context.Set(builder);
+        return builder;
+    }
 }

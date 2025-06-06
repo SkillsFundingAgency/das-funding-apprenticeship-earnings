@@ -1,12 +1,9 @@
-﻿using NServiceBus;
+﻿using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -17,11 +14,6 @@ public class RecalculateEarningsStepDefinitions
 {
     private readonly ScenarioContext _scenarioContext;
     private readonly TestContext _testContext;
-    private readonly Random _random = new();
-
-    private ApprenticeshipCreatedEvent? _apprenticeshipCreatedEvent;
-    private ApprenticeshipPriceChangedEvent? _apprenticeshipPriceChangedEvent;
-    private ApprenticeshipWithdrawnEvent? _apprenticeshipWithdrawnEvent;
 
     #region Test Values
     private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
@@ -50,11 +42,12 @@ public class RecalculateEarningsStepDefinitions
     private readonly int _newTrainingPriceAboveBandMax = 26000;
 
     private readonly Guid _priceKey = Guid.NewGuid();
-    private readonly Guid _priceChangePriceKey = Guid.NewGuid();
     private readonly Guid _episodeKey = Guid.NewGuid();
+    private readonly Guid _apprenticeshipKey = Guid.NewGuid();
+    private readonly long _employerAccountId = new Random().NextInt64();
 
 
-	private EarningsProfileModel _originalEarningsProfile;
+    private EarningsProfileModel _originalEarningsProfile;
 
     #endregion
 
@@ -76,210 +69,124 @@ public class RecalculateEarningsStepDefinitions
     [Given("an apprenticeship has been created")]
     public void ApprenticeshipCreated()
     {
-        _apprenticeshipCreatedEvent = new ApprenticeshipCreatedEvent
-        {
-            ApprenticeshipKey = Guid.NewGuid(),
-            Uln = _random.Next().ToString(),
-            ApprovalsApprenticeshipId = 120,
-            DateOfBirth = _dateOfBirth,
-            Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode
-            {
-                Prices = new List<ApprenticeshipEpisodePrice>
-                {
-                    new()
-                    {
-                        Key = _priceKey,
-                        StartDate = _startDate,
-                        EndDate = _endDate,
-                        FundingBandMaximum = _fundingBandMaximum,
-                        TotalPrice = 15000
-                    }
-                },
-                FundingType = Apprenticeships.Enums.FundingType.Levy,
-                LegalEntityName = "MyTrawler",
-                Key = _episodeKey,
-                EmployerAccountId = 114,
-                Ukprn = 116,
-                TrainingCode = "AbleSeafarer",
-                FundingEmployerAccountId = null,
-                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
-            }
-        };
+        _scenarioContext.GetApprenticeshipCreatedEventBuilder()
+            .WithApprenticeshipKey(_apprenticeshipKey)
+            .WithEpisodeKey(_episodeKey)
+            .WithStartDate(_startDate)
+            .WithFundingBandMaximum(_fundingBandMaximum)
+            .WithDateOfBirth(_dateOfBirth)
+            .WithEndDate(_endDate)
+            .WithEmployerAccountId(_employerAccountId);
 
-        _apprenticeshipPriceChangedEvent = new ApprenticeshipPriceChangedEvent
-        {
-            ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
-            ApprenticeshipId = 123,
-            EffectiveFromDate = _effectiveFromDate,
-            ApprovedBy = ApprovedBy.Employer,
-            ApprovedDate = _changeRequestDate,
-            Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode
-            {
-                Key = _episodeKey,
-                Prices = new List<ApprenticeshipEpisodePrice>
-                {
-                    new()
-                    {
-                        Key = _priceKey,
-                        StartDate = _startDate,
-                        EndDate = _effectiveFromDate.AddDays(-1),
-                        FundingBandMaximum = _fundingBandMaximum,
-                        TotalPrice = 15000
-                    },
-                    new()
-                    {
-                        Key = _priceChangePriceKey,
-                        TrainingPrice = _newTrainingPrice,
-                        EndPointAssessmentPrice = _newAssessmentPrice,
-                        StartDate = _effectiveFromDate,
-                        EndDate = _endDate,
-                        FundingBandMaximum = _fundingBandMaximum,
-                        TotalPrice = _newTrainingPrice + _newAssessmentPrice
-                    }
-                },
-                EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
-                Ukprn = 123,
-                LegalEntityName = "Smiths",
-                TrainingCode = "AbleSeafarer",
-                FundingEmployerAccountId = null,
-                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
-            }
-        };
+        _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
+            .WithApprenticeshipKey(_apprenticeshipKey)
+            .WithEpisodeKey(_episodeKey)
+            .WithStartDate(_startDate)
+            .WithEndDate(_endDate)
+            .WithEffectiveFromDate(_effectiveFromDate)
+            .WithApprovedDate(_changeRequestDate)
+            .WithExistingPriceKey(_priceKey)
+            .WithFundingBandMaximum(_fundingBandMaximum)
+            .WithNewTrainingPrice(_newTrainingPrice)
+            .WithNewAssessmentPrice(_newAssessmentPrice)
+            .WithEmployerAccountId(_employerAccountId)
+            .WithAgeAtStartOfApprenticeship(_ageAtStartOfApprenticeship);
 
-        var startDateChangedEvent = new ApprenticeshipStartDateChangedEvent
-        {
-            ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
-            ApprenticeshipId = 123,
-            ApprovedDate = _changeRequestDate,
-            ProviderApprovedBy = "",
-            EmployerApprovedBy = "",
-            Initiator = "",
-            StartDate = _startDate,
-            Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode
-            {
-                Key = _episodeKey,
-                Prices = new List<ApprenticeshipEpisodePrice>
-                {
-                    new()
-                    {
-                        Key = _priceKey,
-                        StartDate = _startDate,
-                        EndDate = _endDate,
-                        TotalPrice = 15000,
-                        FundingBandMaximum = _fundingBandMaximum
-                    }
-                },
-                EmployerAccountId = _apprenticeshipCreatedEvent.Episode.EmployerAccountId,
-                Ukprn = 123,
-                LegalEntityName = "Smiths",
-                TrainingCode = "AbleSeafarer",
-                FundingEmployerAccountId = null,
-                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS,
-            }
-        };
+        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithApprenticeshipKey(_apprenticeshipKey)
+            .WithApprovedDate(_changeRequestDate)
+            .WithStartDate(_startDate)
+            .WithEpisodeKey(_episodeKey)
+            .WithPriceKey(_priceKey)
+            .WithEndDate(_endDate)
+            .WithFundingBandMaximum(_fundingBandMaximum)
+            .WithEmployerAccountId(_employerAccountId)
+            .WithAgeAtStart(_ageAtStartOfApprenticeship);
 
-        _scenarioContext.Set(startDateChangedEvent);
-        _apprenticeshipWithdrawnEvent = new ApprenticeshipWithdrawnEvent
-        { 
-            ApprenticeshipId = 123,
-            ApprenticeshipKey = _apprenticeshipCreatedEvent.ApprenticeshipKey,
-            Reason = "Withdrawal Test"
-        };
+        _scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
+            .WithApprenticeshipKey(_apprenticeshipKey);
     }
 
     [Given("the total price is below or at the funding band maximum")]
+    [Given("the price change request is for a new total price up to or at the funding band maximum")]
     public void SetTotalBelowBandMaximum()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TrainingPrice = _newTrainingPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().EndPointAssessmentPrice = _newAssessmentPrice;
+        _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
+            .WithNewTrainingPrice(_newTrainingPrice)
+            .WithNewAssessmentPrice(_newAssessmentPrice);
     }
 
     [Given("the price change request is for a new total price above the funding band maximum")]
     public void SetTotalAboveBandMaximum()
     {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TotalPrice = _newTrainingPriceAboveBandMax + _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TrainingPrice = _newTrainingPriceAboveBandMax;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().EndPointAssessmentPrice = _newAssessmentPrice;
+        _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
+            .WithNewTrainingPrice(_newTrainingPriceAboveBandMax)
+            .WithNewAssessmentPrice(_newAssessmentPrice);
     }
 
     [Given("a price change request was sent before the end of R14 of the current academic year")]
     public void SetPriceChangeApprovedDate()
     {
-        _apprenticeshipPriceChangedEvent!.ApprovedDate = _changeRequestDate;
-    }
-
-    [Given("the price change request is for a new total price up to or at the funding band maximum")]
-    public void SetPriceChange()
-    {
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TotalPrice = _newTrainingPrice + _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().EndPointAssessmentPrice = _newAssessmentPrice;
-        _apprenticeshipPriceChangedEvent!.Episode.Prices.Last().TrainingPrice = _newTrainingPrice;
+        _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
+            .WithApprovedDate(_changeRequestDate);
     }
 
     [Given("a start date change request was sent before the end of R14 of the current academic year")]
     public void SetStartDateChangeApprovedDate()
     {
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        startDateChangedEvent!.ApprovedDate = _changeRequestDate;
+        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithApprovedDate(_changeRequestDate);
     }
 
     [Given("the new start date is earlier than, and in the same academic year, as the current start date")]
     public void SetEarlierStartDateChange()
     {
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateEarlierThanOriginal;
-        startDateChangedEvent!.StartDate = _startDateEarlierThanOriginal;
+        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithStartDate(_startDateEarlierThanOriginal);
+
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForEarlierStartDate;
     }
 
     [Given("the new start date is later than, and in the same academic year, as the current start date")]
     public void SetLaterStartDateChangeInSameAcademicYear()
     {
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateLaterThanOriginal;
-        startDateChangedEvent!.StartDate = _startDateLaterThanOriginal;
+        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithStartDate(_startDateLaterThanOriginal);
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForLaterStartDate;
     }
 
     [Given("the new start date is in the next academic year to the current start date")]
     public void SetLaterStartDateChangeInNextAcademicYear()
     {
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        startDateChangedEvent!.Episode.Prices.First().StartDate = _startDateInNextAcademicYearToOriginal;
-        startDateChangedEvent!.StartDate = _startDateInNextAcademicYearToOriginal;
+        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithStartDate(_startDateInNextAcademicYearToOriginal);
+
         _expectedNumberOfInstalments = _newExpectedNumberOfInstalmentsForStartDateInNextAcademicYear;
     }
 
     [Given(@"there are (.*) earnings")]
     public void SetAgreedPriceAndDuration(int months)
     {
-        var startDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate;
-        var endDate = startDate.AddMonths(months);
-        _apprenticeshipCreatedEvent.Episode.Prices.First().EndDate = endDate;
-
-        //  These values may get updated in the 'And' clauses
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        startDateChangedEvent!.Episode.Prices.First().StartDate = startDate;
-        startDateChangedEvent!.Episode.Prices.First().EndDate = endDate;
+        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithStartDate(_startDate)
+            .WithEndDate(_startDate.AddMonths(months));
     }
 
     [Given(@"the (.*) date has been moved (.*) months (.*)")]
     public void AdjustDate(string field, int months, string action)
     {
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
         var monthChange = action == "earlier" ? -months : months;
         switch(field)
         {
             case "start":
-                startDateChangedEvent!.Episode.Prices.First().StartDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate.AddMonths(monthChange);
-                startDateChangedEvent!.StartDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().StartDate.AddMonths(monthChange);
+                _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+                    .WithStartDate(_startDate)
+                    .WithEndDate(_startDate.AddMonths(monthChange));
                 break;
             case "end":
-                startDateChangedEvent!.Episode.Prices.First().EndDate = _apprenticeshipCreatedEvent!.Episode.Prices.First().EndDate.AddMonths(monthChange);
+                _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+                    .WithStartDate(_endDate)
+                    .WithEndDate(_endDate.AddMonths(monthChange));
                 break;
         }
     }
@@ -287,7 +194,11 @@ public class RecalculateEarningsStepDefinitions
     [Given(@"the earnings for the apprenticeship are calculated")]
     public async Task PublishApprenticeshipCreatedEvent()
     {
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipCreatedEvent);
+        var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder().Build();
+        var testdebug = JsonConvert.SerializeObject(apprenticeshipCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
+        _scenarioContext.Set(apprenticeshipCreatedEvent);
+
         await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
     }
 
@@ -297,34 +208,50 @@ public class RecalculateEarningsStepDefinitions
     [When("the price change is approved by the other party before the end of year")]
     public async Task PublishPriceChangeEvents()
     {
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipPriceChangedEvent);
+        var apprenticeshipPriceChangedEvent = _scenarioContext.GetApprenticeshipPriceChangedEventBuilder().Build();
+        await _testContext.TestFunction.PublishEvent(apprenticeshipPriceChangedEvent);
+        _scenarioContext.Set(apprenticeshipPriceChangedEvent);
+
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
 	[When("the start date change is approved")]
 	public async Task PublishStartDateChangeEvents()
 	{
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        await _testContext.TestFunction.PublishEvent(startDateChangedEvent);
-		await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
+        var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder().Build();
+        var testdebug = JsonConvert.SerializeObject(apprenticeshipStartDateChangedEvent);
+        await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
+        _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
 	}
 
     [When("a withdrawal was sent partway through the apprenticeship")]
     public async Task PublishWithdrawnEvent()
     {
-        _apprenticeshipWithdrawnEvent.LastDayOfLearning = new DateTime(2020, 08, 31);
+        var apprenticeshipWithdrawnEvent = _scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
+            .WithLastDayOfLearning(new DateTime(2020, 08, 31))
+            .Build();
         _expectedNumberOfInstalments = 12;
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipWithdrawnEvent);
+
+        await _testContext.TestFunction.PublishEvent(apprenticeshipWithdrawnEvent);
+        _scenarioContext.Set(apprenticeshipWithdrawnEvent);
+
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
 
     [When("a withdrawal was sent prior to completion of qualifying period")]
     public async Task PublishWithdrawnEventPriorToQualifyingPeriodCompletion()
     {
-        _apprenticeshipWithdrawnEvent.LastDayOfLearning = new DateTime(2019, 10, 4);
+        var apprenticeshipWithdrawnEvent = _scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
+            .WithLastDayOfLearning(new DateTime(2019, 10, 4))
+            .Build();
         _expectedNumberOfInstalments = 0;
         _expectedNumberOfAdditionalPayments = 0;
-        await _testContext.TestFunction.PublishEvent(_apprenticeshipWithdrawnEvent);
+
+        await _testContext.TestFunction.PublishEvent(apprenticeshipWithdrawnEvent);
+        _scenarioContext.Set(apprenticeshipWithdrawnEvent);
+
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
 
@@ -332,12 +259,15 @@ public class RecalculateEarningsStepDefinitions
     public async Task ApproveStartDateChangeToMakeDuration(int days)
     {
         var duration = days - 1;
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        startDateChangedEvent!.ApprovedDate = _changeRequestDate;
-        startDateChangedEvent!.Episode.Prices.First().StartDate = _endDate.AddDays(-duration);
-        startDateChangedEvent!.StartDate = _endDate.AddDays(-duration);
 
-        await _testContext.TestFunction.PublishEvent(startDateChangedEvent);
+        var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithApprovedDate(_changeRequestDate)
+            .WithStartDate(_endDate.AddDays(-duration))
+            .Build();
+
+        await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
+        _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
+
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
     }
 
@@ -523,7 +453,7 @@ public class RecalculateEarningsStepDefinitions
     [Then(@"Earnings are not recalculated for that apprenticeship")]
     public async Task AssertNoEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _apprenticeshipCreatedEvent.ApprenticeshipKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
+        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
     }
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
@@ -541,7 +471,7 @@ public class RecalculateEarningsStepDefinitions
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
-        return await _testContext.SqlDatabase.GetApprenticeship(_apprenticeshipCreatedEvent.ApprenticeshipKey);
+        return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey);
     }
 
     private async Task<bool> EnsureRecalculationHasHappened()

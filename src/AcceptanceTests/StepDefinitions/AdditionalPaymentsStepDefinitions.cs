@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 using TechTalk.SpecFlow.Assist;
 
@@ -41,6 +42,7 @@ public class AdditionalPaymentsStepDefinitions
     [Given(@"care details are saved with (.*) (.*) (.*)")]
     public async Task SaveCareDetails(bool careLeaverEmployerConsentGiven, bool isCareLeaver, bool hasEHCP)
     {
+        //todo let's use the approach above and table.CreateSet<SaveCareDetailsRequest> when we refactor this to use table approach in later subtask
         var request = new SaveCareDetailsRequest { CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven, IsCareLeaver = isCareLeaver, HasEHCP = hasEHCP };
         var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
         var apprenticehipKey = apprenticeshipCreatedEvent.ApprenticeshipKey;
@@ -152,29 +154,29 @@ public class AdditionalPaymentsStepDefinitions
     [Then("a first incentive payment is generated")]
     public void AssertFirstIncentivePayment()
     {
-        AssertIncentivePayment("ProviderIncentive", false, true);
-        AssertIncentivePayment("EmployerIncentive", false, true);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then("no first incentive payment is generated")]
     public void AssertNoFirstIncentivePayment()
     {
-        AssertIncentivePayment("ProviderIncentive", false, false);
-        AssertIncentivePayment("EmployerIncentive", false, false);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then("a second incentive payment is generated")]
     public void AssertSecondIncentivePayment()
     {
-        AssertIncentivePayment("ProviderIncentive", true, true);
-        AssertIncentivePayment("EmployerIncentive", true, true);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then("no second incentive payment is generated")]
     public void AssertNoSecondIncentivePayment()
     {
-        AssertIncentivePayment("ProviderIncentive", true, false);
-        AssertIncentivePayment("EmployerIncentive", true, false);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then(@"Maths and english instalments are persisted as follows")]
@@ -200,27 +202,7 @@ public class AdditionalPaymentsStepDefinitions
         }
     }
 
-    private void AssertIncentivePayment(string type, bool second, bool expectedPayment)
-    {
-        var startDateChangedEvent = _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>();
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-        var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
-
-        var expectedPeriod = second
-            ? startDateChangedEvent.StartDate.AddDays(364).ToAcademicYearAndPeriod()
-            : startDateChangedEvent.StartDate.AddDays(89).ToAcademicYearAndPeriod();
-
-        if (expectedPayment)
-            currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
-                x.AcademicYear == expectedPeriod.AcademicYear
-                && x.DeliveryPeriod == expectedPeriod.Period
-                && x.AdditionalPaymentType == type
-                && x.Amount == 500);
-        else
-            currentEpisode.EarningsProfile.AdditionalPayments.Should().NotContain(x =>
-                x.AcademicYear == expectedPeriod.AcademicYear
-                && x.DeliveryPeriod == expectedPeriod.Period
-                && x.AdditionalPaymentType == type
-                && x.Amount == 500);
-    }
+    
 }
+
+

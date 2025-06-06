@@ -1,5 +1,7 @@
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -21,7 +23,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [Then(@"Earnings are generated with the correct learning amounts")]
     public async Task AssertEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(EventMatchesExpectation), "Failed to find published EarningsGenerated event");
+        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln, (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount])), "Failed to find published EarningsGenerated event");
     }
 
     [Then(@"Earnings are not generated for that apprenticeship")]
@@ -33,26 +35,12 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [Then(@"the funding line type 16-18 must be used in the calculation")]
     public async Task ThenThe16To18FundingLineTypeIsUsed()
     {
-        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => EventMatchesExpectation(x, "16-18 Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
+        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln, "16-18 Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
     }
 
     [Then(@"the funding line type 19 plus must be used in the calculation")]
     public async Task ThenThe19AndOverFundingLineTypeIsUsed()
     {
-        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => EventMatchesExpectation(x, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
-    }
-
-    private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent)
-    {
-        return earningsGeneratedEvent.DeliveryPeriods.Count == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodCount]
-            && earningsGeneratedEvent.DeliveryPeriods.All(x => x.LearningAmount == (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount]
-            && earningsGeneratedEvent.Uln == _scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln);
-    }
-
-    private bool EventMatchesExpectation(EarningsGeneratedEvent earningsGeneratedEvent, string expectedFundingLineType)
-    {
-        return earningsGeneratedEvent.DeliveryPeriods.All(y => y.FundingLineType == expectedFundingLineType) &&
-               earningsGeneratedEvent.Uln == _scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln &&
-               earningsGeneratedEvent.EarningsProfileId != Guid.Empty;
+        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
     }
 }
