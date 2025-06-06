@@ -100,10 +100,10 @@ public class Apprenticeship : AggregateRoot
     /// </summary>
     /// <param name="additionalPayments"> The additional payments to be added.</param>
     /// <param name="systemClock"> The system clock service to be used for date calculations.</param>
-    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, ISystemClockService systemClock)
+    public void AddAdditionalEarnings(List<AdditionalPayment> additionalPayments, string additionalPaymentType, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.AddAdditionalEarnings(additionalPayments, systemClock);
+        currentEpisode.AddAdditionalEarnings(additionalPayments, additionalPaymentType, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
     }
 
