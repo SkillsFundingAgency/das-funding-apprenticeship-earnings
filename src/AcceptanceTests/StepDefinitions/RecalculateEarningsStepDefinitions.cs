@@ -168,9 +168,14 @@ public class RecalculateEarningsStepDefinitions
     [Given(@"there are (.*) earnings")]
     public void SetAgreedPriceAndDuration(int months)
     {
+        var endDate = _startDate.AddMonths(months);
+
+        _scenarioContext.GetApprenticeshipCreatedEventBuilder()
+            .WithEndDate(endDate);
+
         _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
             .WithStartDate(_startDate)
-            .WithEndDate(_startDate.AddMonths(months));
+            .WithEndDate(endDate);
     }
 
     [Given(@"the (.*) date has been moved (.*) months (.*)")]
