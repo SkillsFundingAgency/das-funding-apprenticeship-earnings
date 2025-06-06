@@ -10,6 +10,5 @@
     public class ApprenticeshipCreatedSetupModel
     {
         public int Age { get; set; }
-        public string TrainingCode { get; set; }
     }
 }
