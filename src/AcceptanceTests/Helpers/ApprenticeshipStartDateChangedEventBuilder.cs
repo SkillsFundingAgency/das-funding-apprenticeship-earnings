@@ -102,6 +102,18 @@ public class ApprenticeshipStartDateChangedEventBuilder
         return this;
     }
 
+    public ApprenticeshipStartDateChangedEventBuilder WithAdjustedStartDateBy(int months)
+    {
+        _startDate = _startDate.AddMonths(months);
+        return this;
+    }
+
+    public ApprenticeshipStartDateChangedEventBuilder WithAdjustedEndDateBy(int months)
+    {
+        _endDate = _endDate.AddMonths(months);
+        return this;
+    }
+
     public ApprenticeshipStartDateChangedEvent Build()
     {
         return new ApprenticeshipStartDateChangedEvent

@@ -183,13 +183,11 @@ public class RecalculateEarningsStepDefinitions
         {
             case "start":
                 _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
-                    .WithStartDate(_startDate)
-                    .WithEndDate(_startDate.AddMonths(monthChange));
+                    .WithAdjustedStartDateBy(monthChange);
                 break;
             case "end":
                 _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
-                    .WithStartDate(_endDate)
-                    .WithEndDate(_endDate.AddMonths(monthChange));
+                    .WithAdjustedEndDateBy(monthChange);
                 break;
         }
     }
