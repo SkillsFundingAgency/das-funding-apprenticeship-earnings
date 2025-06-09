@@ -69,6 +69,8 @@ public class RecalculateEarningsStepDefinitions
     [Given("an apprenticeship has been created")]
     public void ApprenticeshipCreated()
     {
+        TestSystemClock.SetDateTime(DateTime.UtcNow);
+
         _scenarioContext.GetApprenticeshipCreatedEventBuilder()
             .WithApprenticeshipKey(_apprenticeshipKey)
             .WithEpisodeKey(_episodeKey)
