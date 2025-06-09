@@ -196,7 +196,6 @@ public class RecalculateEarningsStepDefinitions
     public async Task PublishApprenticeshipCreatedEvent()
     {
         var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder().Build();
-        var testdebug = JsonConvert.SerializeObject(apprenticeshipCreatedEvent);
         await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
         _scenarioContext.Set(apprenticeshipCreatedEvent);
 
@@ -220,7 +219,6 @@ public class RecalculateEarningsStepDefinitions
 	public async Task PublishStartDateChangeEvents()
 	{
         var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder().Build();
-        var testdebug = JsonConvert.SerializeObject(apprenticeshipStartDateChangedEvent);
         await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
         _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
 
