@@ -7,19 +7,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 public class ApprenticeshipPriceChangedEventBuilder
 {
     private Guid _apprenticeshipKey = Guid.NewGuid();
-    private long _apprenticeshipId = ApprenticeshipCreatedEventDefaults.ApprovalsApprenticeshipId;
-    private DateTime _effectiveFromDate = ApprenticeshipPriceChangedEventDefaults.EffectiveFromDate;
-    private ApprovedBy _approvedBy = ApprenticeshipPriceChangedEventDefaults.ApprovedBy;
-    private DateTime _approvedDate = ApprenticeshipPriceChangedEventDefaults.ApprovedDate;
+    private long _apprenticeshipId = EventBuilderSharedDefaults.ApprovalsApprenticeshipId;
+    private DateTime _effectiveFromDate = new DateTime(2020, 02, 01);
+    private ApprovedBy _approvedBy = ApprovedBy.Employer;
+    private DateTime _approvedDate = new DateTime(2020, 1, 1);
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _existingPriceKey = Guid.NewGuid();
-    private DateTime _startDate = ApprenticeshipPriceChangedEventDefaults.StartDate;
-    private int _fundingBandMaximum = ApprenticeshipCreatedEventDefaults.FundingBandMaximum;
+    private DateTime _startDate = new DateTime(2019, 9, 1);
+    private int _fundingBandMaximum = EventBuilderSharedDefaults.FundingBandMaximum;
     private Guid _priceChangePriceKey = Guid.NewGuid();
-    private decimal _newTrainingPrice = 17000; //todo do the defaults actually add any value?
+    private decimal _newTrainingPrice = 17000;
     private decimal _newAssessmentPrice = 3000;
     private DateTime _endDate = new DateTime(2022, 1, 1);
-    private long _employerAccountId = 112;
+    private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private int _ageAtStartOfApprenticeship = 20;
 
     public ApprenticeshipPriceChangedEventBuilder WithApprenticeshipKey(Guid key)

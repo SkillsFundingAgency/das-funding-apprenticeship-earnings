@@ -7,7 +7,7 @@ public static class EarningsGeneratedEventExpectationExtensions
 {
     public static bool EventMatchesExpectation(this EarningsGeneratedEvent earningsGeneratedEvent, string expectedUln, decimal expectedDeliveryPeriodLearningAmount)
     {
-        return earningsGeneratedEvent.DeliveryPeriods.Count == ApprenticeshipCreatedEventDefaults.ExpectedDeliveryPeriodCount
+        return earningsGeneratedEvent.DeliveryPeriods.Count == EventBuilderSharedDefaults.ExpectedDeliveryPeriodCount
                && earningsGeneratedEvent.DeliveryPeriods.All(x => x.LearningAmount == expectedDeliveryPeriodLearningAmount
                                                                   && earningsGeneratedEvent.Uln == expectedUln);
     }

@@ -65,7 +65,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
         _scenarioContext.Set(apprenticeshipCreatedEvent);
 
-        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = ApprenticeshipCreatedEventDefaults.ExpectedDeliveryPeriodLearningAmount;
+        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = EventBuilderSharedDefaults.ExpectedDeliveryPeriodLearningAmount;
 
         await _testContext.TestInnerApi.PublishEvent(apprenticeshipCreatedEvent);
     }

@@ -8,16 +8,16 @@ public class ApprenticeshipCreatedEventBuilder
 {
     private Guid _apprenticeshipKey = Guid.NewGuid();
     private string _uln = new Random().Next().ToString();
-    private long _approvalsApprenticeshipId = ApprenticeshipCreatedEventDefaults.ApprovalsApprenticeshipId;
-    private DateTime _dateOfBirth = ApprenticeshipCreatedEventDefaults.DateOfBirth;
+    private long _approvalsApprenticeshipId = EventBuilderSharedDefaults.ApprovalsApprenticeshipId;
+    private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
     private List<ApprenticeshipEpisodePrice> _prices = new();
-    private DateTime _startDate = ApprenticeshipCreatedEventDefaults.StartDate;
-    private DateTime _endDate = ApprenticeshipCreatedEventDefaults.EndDate;
-    private int _ageAtStart = ApprenticeshipCreatedEventDefaults.AgeAtStartOfApprenticeship;
-    private Apprenticeships.Enums.FundingPlatform _fundingPlatform = ApprenticeshipCreatedEventDefaults.FundingPlatform;
-    private decimal _totalPrice = ApprenticeshipCreatedEventDefaults.TotalPrice;
-    private int _fundingBandMaximum = ApprenticeshipCreatedEventDefaults.FundingBandMaximum;
-    private long _employerAccountId = ApprenticeshipCreatedEventDefaults.EmployerAccountId;
+    private DateTime _startDate = new DateTime(2019, 01, 01);
+    private DateTime _endDate = new DateTime(2021, 1, 1);
+    private int _ageAtStart = 21;
+    private Apprenticeships.Enums.FundingPlatform _fundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS;
+    private decimal _totalPrice = 15000m;
+    private int _fundingBandMaximum = EventBuilderSharedDefaults.FundingBandMaximum;
+    private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
 
