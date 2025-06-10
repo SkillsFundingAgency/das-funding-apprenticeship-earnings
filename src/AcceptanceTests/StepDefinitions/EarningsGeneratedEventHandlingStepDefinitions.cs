@@ -2,8 +2,10 @@ using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -42,5 +44,27 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     public async Task ThenThe19AndOverFundingLineTypeIsUsed()
     {
         await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Uln, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
+    }
+
+    [Then(@"On programme earnings are persisted as follows")]
+    public async Task ThenOnProgrammerEarningsArePersistedAsFollows(Table table)
+    {
+        var data = table.CreateSet<EarningDbExpectationModel>().ToList();
+
+        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
+
+        earningsInDb.Should().HaveCount(data.Count);
+
+        foreach (var expectedEarning in data)
+        {
+            earningsInDb.Should()
+                .Contain(x => x.Amount == expectedEarning.Amount
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
+        }
     }
 }

@@ -70,7 +70,8 @@ public class ApprenticeshipCreatedEventBuilder
 
     public ApprenticeshipCreatedEventBuilder FromSetupModel(ApprenticeshipCreatedSetupModel model)
     {
-        _ageAtStart = model.Age;
+        if (model.Age.HasValue) _ageAtStart = model.Age.Value;
+        
         return this;
     }
 
@@ -81,7 +82,7 @@ public class ApprenticeshipCreatedEventBuilder
             TotalPrice = x.Price,
             StartDate = x.StartDate,
             EndDate = x.EndDate,
-            FundingBandMaximum = x.Price
+            FundingBandMaximum = x.FundingBandMaximum ?? x.Price,
         }).ToList();
         return this;
     }
