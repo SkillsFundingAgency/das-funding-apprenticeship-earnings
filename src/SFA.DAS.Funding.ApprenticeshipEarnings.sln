@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.UnitTests", "SFA.DAS.ApprenticeshipEarnings.MessageHandlers.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.UnitTests.csproj", "{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Configuration", "SFA.DAS.Funding.ApprenticeshipEarnings.Configuration\SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.csproj", "{C1AF5C72-B12E-4334-994B-3A15E10BEF82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1AF5C72-B12E-4334-994B-3A15E10BEF82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1AF5C72-B12E-4334-994B-3A15E10BEF82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1AF5C72-B12E-4334-994B-3A15E10BEF82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1AF5C72-B12E-4334-994B-3A15E10BEF82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

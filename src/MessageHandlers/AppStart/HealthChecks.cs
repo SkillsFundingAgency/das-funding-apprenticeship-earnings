@@ -4,10 +4,10 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
