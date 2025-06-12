@@ -16,6 +16,7 @@ Scenario: Withdrawal made partway through apprenticeship; recalc earnings
 		| 1000   | 2021         | 1              |
 		| 1000   | 2021         | 2              |
 		| 1000   | 2021         | 3              |
+	And the earnings history is maintained
 
 Scenario: Withdrawal made back to start of apprenticeship; remove all incentive payments
 	Given an apprenticeship has been created with the following information
@@ -29,3 +30,4 @@ Scenario: Withdrawal made back to start of apprenticeship; remove all incentive 
 		| LastDayOfLearning |
 		| 2020-08-15        |
 	Then no Additional Payments are persisted
+	And the earnings history is maintained

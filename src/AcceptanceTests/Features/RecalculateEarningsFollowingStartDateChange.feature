@@ -45,6 +45,7 @@ Scenario: New start date later than current date and in the same current academi
 		| 2000   | 2021         | 11             |
 		| 2000   | 2021         | 12             |
 		| 2000   | 2122         | 1              |
+	And the earnings history is maintained
 
 Scenario: New start date in the next academic year
 	Given an apprenticeship has been created with the following information
@@ -65,6 +66,7 @@ Scenario: New start date in the next academic year
 		| 2000   | 2122         | 11             |
 		| 2000   | 2122         | 12             |
 		| 2000   | 2223         | 1              |
+	And the earnings history is maintained
 
 Scenario: A new start and end date are earlier than orginal start date
 	Given an apprenticeship has been created

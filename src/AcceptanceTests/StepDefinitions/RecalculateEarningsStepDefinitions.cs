@@ -178,7 +178,7 @@ public class RecalculateEarningsStepDefinitions
 
     #region Assert
 
-    [Then("the history of old and new earnings is maintained")]
+    [Then("the earnings history is maintained")]
     public void AssertHistoryUpdated()
     {
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
@@ -187,42 +187,13 @@ public class RecalculateEarningsStepDefinitions
         {
             Assert.Fail("No earning history created");
         }
+
+        var previousEarningsProfileId
+            = currentEpisode.EarningsProfileHistory.OrderBy(x => x.SupersededDate).Last().EarningsProfileId;
+
+        Assert.That(currentEpisode.EarningsProfile.EarningsProfileId != Guid.Empty &&
+                    currentEpisode.EarningsProfile.EarningsProfileId != previousEarningsProfileId);
     }
-
-    //[Then("the earnings prior to the effective-from date are 'frozen' and do not change as part of this calculation")]
-    //public void AssertEarningsFrozen()
-    //{
-    //    var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-    //    var instalmentsToValidate = GetFrozenInstalments(apprenticeshipModel!);
-
-    //    foreach(var instalment in instalmentsToValidate)
-    //    {
-    //        var expectedInstalment = _originalEarningsProfile.Instalments.FirstOrDefault(x => 
-    //            x.AcademicYear == instalment.AcademicYear &&
-    //            x.DeliveryPeriod == instalment.DeliveryPeriod);
-
-    //        if (expectedInstalment == null)
-    //        {
-    //            Assert.Fail("Regenerated instalments do not match delivery dates of the original calculations");
-    //            return;
-    //        }
-
-    //        if (expectedInstalment.Amount != instalment.Amount)
-    //        {
-    //            Assert.Fail($"Frozen amount should be £{expectedInstalment.Amount} but was £{instalment.Amount} for academicYear{instalment.AcademicYear} period:{instalment.DeliveryPeriod}");
-    //        }
-    //    }
-    //}
-
-    //[Then("a new earnings profile id is set")]
-    //public void AssertEarningsProfileId()
-    //{
-    //    var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-    //    var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
-
-    //    Assert.That(currentEpisode.EarningsProfile.EarningsProfileId != Guid.Empty &&
-    //                currentEpisode.EarningsProfile.EarningsProfileId != _originalEarningsProfile.EarningsProfileId);
-    //}
 
     //todo naming
     [Then(@"the there are (.*) earnings")]
@@ -252,10 +223,6 @@ public class RecalculateEarningsStepDefinitions
         {
             return false;
         }
-
-        //todo do we need this on scenario context?
-        //var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        //_originalEarningsProfile = currentEpisode.EarningsProfile;
         return true;
     }
 

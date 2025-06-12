@@ -25,6 +25,7 @@ Scenario: Price change approved in the year it was requested, below or at fundin
 		| 1500   | 2021         | 10             |
 		| 1500   | 2021         | 11             |
 		| 1500   | 2021         | 12             |
+	And the earnings history is maintained
 
 Scenario: Price change approved in the year it was requested, above funding band max; recalc earnings
 	Given an apprenticeship has been created with the following information
@@ -51,3 +52,4 @@ Scenario: Price change approved in the year it was requested, above funding band
 		| 2000   | 2021         | 10             |
 		| 2000   | 2021         | 11             |
 		| 2000   | 2021         | 12             |
+	And the earnings history is maintained
