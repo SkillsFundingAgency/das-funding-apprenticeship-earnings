@@ -27,5 +27,5 @@ Scenario: Withdrawal made back to start of apprenticeship; remove all incentive 
 	And earnings are calculated
 	When the following withdrawal is sent
 		| LastDayOfLearning |
-		| 2020-09-15        |
+		| 2020-08-15        |
 	Then no Additional Payments are persisted
