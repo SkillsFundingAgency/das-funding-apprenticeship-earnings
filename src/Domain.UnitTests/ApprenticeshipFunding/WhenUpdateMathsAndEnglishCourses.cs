@@ -58,6 +58,7 @@ public class WhenUpdateMathsAndEnglishCourses
     }
 
     [Test]
+    [Ignore("history removed")]
     public void UpdateMathsAndEnglishCourses_ShouldArchiveExistingProfileToHistory()
     {
         // Arrange
