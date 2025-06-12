@@ -115,7 +115,7 @@ public class ApprenticeshipStartDateChangedEventBuilder
         return this;
     }
 
-    public ApprenticeshipStartDateChangedEventBuilder FromSetupModel(StartDateChangeModel model)
+    public ApprenticeshipStartDateChangedEventBuilder WithDataFromSetupModel(StartDateChangeModel model)
     {
         if (model.NewStartDate.HasValue) _startDate = model.NewStartDate.Value;
         if (model.ApprovedDate.HasValue) _approvedDate = model.ApprovedDate.Value;

@@ -112,7 +112,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     public void GivenAnApprenticeshipHasBeenCreatedWithTheFollowingInformation(TechTalk.SpecFlow.Table table)
     {
         _scenarioContext.GetApprenticeshipCreatedEventBuilder()
-            .FromSetupModel(table.CreateSet<ApprenticeshipCreatedSetupModel>().Single());
+            .WithDataFromSetupModel(table.CreateSet<ApprenticeshipCreatedSetupModel>().Single());
     }
 
     [Given(@"the following Price Episodes")]

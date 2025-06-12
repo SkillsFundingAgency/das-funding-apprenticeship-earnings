@@ -114,7 +114,7 @@ public class ApprenticeshipPriceChangedEventBuilder
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder FromSetupModel(PriceChangeModel model)
+    public ApprenticeshipPriceChangedEventBuilder WithDataFromSetupModel(PriceChangeModel model)
     {
         if (model.EffectiveFromDate.HasValue) _effectiveFromDate = model.EffectiveFromDate.Value;
         if (model.ChangeRequestDate.HasValue) _approvedDate = model.ChangeRequestDate.Value;

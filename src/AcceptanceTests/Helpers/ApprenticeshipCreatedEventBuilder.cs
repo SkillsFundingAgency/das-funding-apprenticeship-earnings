@@ -68,7 +68,7 @@ public class ApprenticeshipCreatedEventBuilder
         return this;
     }
 
-    public ApprenticeshipCreatedEventBuilder FromSetupModel(ApprenticeshipCreatedSetupModel model)
+    public ApprenticeshipCreatedEventBuilder WithDataFromSetupModel(ApprenticeshipCreatedSetupModel model)
     {
         if (model.Age.HasValue) _ageAtStart = model.Age.Value;
         

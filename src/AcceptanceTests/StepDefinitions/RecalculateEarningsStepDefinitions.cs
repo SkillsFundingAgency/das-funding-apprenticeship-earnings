@@ -121,7 +121,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var data = table.CreateSet<PriceChangeModel>().ToList().Single();
         var apprenticeshipPriceChangedEvent = _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
-            .FromSetupModel(data)
+            .WithDataFromSetupModel(data)
             .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
             .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
             .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
@@ -139,7 +139,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
         var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
-            .FromSetupModel(data)
+            .WithDataFromSetupModel(data)
             .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
             .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
             .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
