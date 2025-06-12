@@ -252,6 +252,21 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
     }
 
+    [When("the following withdrawal is sent")]
+    public async Task PublishWithdrawnEvent(Table table)
+    {
+        var data = table.CreateSet<WithdrawalModel>().ToList().Single();
+        var apprenticeshipWithdrawnEvent = _scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
+            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
+            .WithLastDayOfLearning(data.LastDayOfLearning)
+            .Build();
+
+        await _testContext.TestFunction.PublishEvent(apprenticeshipWithdrawnEvent);
+        _scenarioContext.Set(apprenticeshipWithdrawnEvent);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
+    }
+
     [When("the start date change is approved")]
 	public async Task PublishStartDateChangeEvents()
 	{
@@ -399,6 +414,8 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
+
+    //todo fix; this step is misleading, asserts based on the instance variable but is named zero
     [Then("the number of additional payments is zero")]
     public void AssertNumberOfAdditionalPayments()
     {

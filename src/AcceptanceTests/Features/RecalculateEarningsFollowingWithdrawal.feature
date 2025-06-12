@@ -1,18 +1,31 @@
 ﻿Feature: Recalculate earnings following withdrawal
 
 Scenario: Withdrawal made partway through apprenticeship; recalc earnings
-	Given an apprenticeship has been created
-	And the total price is below or at the funding band maximum
-	And the earnings for the apprenticeship are calculated
-	When a withdrawal was sent partway through the apprenticeship
-	Then the number of instalments is determined by the number of census dates passed between the start date and the withdrawal date
-	And a new earnings profile id is set
-	And the history of old and new earnings is maintained
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price | FundingBandMaximum |
+		| 2020-08-15 | 2021-07-31 | 15000 | 25000              |
+	And earnings are calculated
+	When the following withdrawal is sent
+		| LastDayOfLearning |
+		| 2020-11-15        |
+	Then On programme earnings are persisted as follows
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 1000   | 2021         | 1              |
+		| 1000   | 2021         | 2              |
+		| 1000   | 2021         | 3              |
 
 Scenario: Withdrawal made back to start of apprenticeship; remove all incentive payments
-	Given a learner is 18
-	And an apprenticeship has been created
-	And the total price is below or at the funding band maximum
-	And the earnings for the apprenticeship are calculated
-	When a withdrawal was sent prior to completion of qualifying period
-	Then the number of additional payments is zero
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price | FundingBandMaximum |
+		| 2020-08-15 | 2021-07-31 | 15000 | 25000              |
+	And earnings are calculated
+	When the following withdrawal is sent
+		| LastDayOfLearning |
+		| 2020-09-15        |
+	Then no Additional Payments are persisted
