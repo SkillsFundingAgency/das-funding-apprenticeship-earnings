@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
@@ -111,6 +112,13 @@ public class ApprenticeshipStartDateChangedEventBuilder
     public ApprenticeshipStartDateChangedEventBuilder WithAdjustedEndDateBy(int months)
     {
         _endDate = _endDate.AddMonths(months);
+        return this;
+    }
+
+    public ApprenticeshipStartDateChangedEventBuilder FromSetupModel(StartDateChangeModel model)
+    {
+        if (model.NewStartDate.HasValue) _startDate = model.NewStartDate.Value;
+        if (model.ApprovedDate.HasValue) _approvedDate = model.ApprovedDate.Value;
         return this;
     }
 

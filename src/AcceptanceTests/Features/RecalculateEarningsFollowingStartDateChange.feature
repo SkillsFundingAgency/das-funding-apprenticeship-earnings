@@ -1,40 +1,70 @@
 ﻿Feature: Recalculate earnings following start date change
 
 Scenario: New start date earlier than current date and in the same current academic year
-	Given an apprenticeship has been created
-	And the earnings for the apprenticeship are calculated
-	And a start date change request was sent before the end of R14 of the current academic year
-	And the new start date is earlier than, and in the same academic year, as the current start date
-	When the start date change is approved
-	Then the earnings are recalculated based on the new start date
-	And the number of instalments is determined by the number of census dates passed between the new start date and the planned end date of the apprenticeship
-	And the amount of each instalment is determined as: totalPriceLessCompletion / newNumberOfInstalments
-	And a new earnings profile id is set
-	And the history of old and new earnings is maintained
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price | FundingBandMaximum |
+		| 2020-10-15 | 2021-08-31 | 15000 | 25000              |
+	And earnings are calculated
+	When the following start date change request is sent
+		| NewStartDate | ApprovedDate |
+		| 2020-09-15   | 2021-01-15   |
+	Then On programme earnings are persisted as follows
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 1000   | 2021         | 2              |
+		| 1000   | 2021         | 3              |
+		| 1000   | 2021         | 4              |
+		| 1000   | 2021         | 5              |
+		| 1000   | 2021         | 6              |
+		| 1000   | 2021         | 7              |
+		| 1000   | 2021         | 8              |
+		| 1000   | 2021         | 9              |
+		| 1000   | 2021         | 10             |
+		| 1000   | 2021         | 11             |
+		| 1000   | 2021         | 12             |
+		| 1000   | 2122         | 1              |
 
 Scenario: New start date later than current date and in the same current academic year
-	Given an apprenticeship has been created
-	And the earnings for the apprenticeship are calculated
-	And a start date change request was sent before the end of R14 of the current academic year
-	And the new start date is later than, and in the same academic year, as the current start date
-	When the start date change is approved
-	Then the earnings are recalculated based on the new start date
-	And the number of instalments is determined by the number of census dates passed between the new start date and the planned end date of the apprenticeship
-	And the amount of each instalment is determined as: totalPriceLessCompletion / newNumberOfInstalments
-	And a new earnings profile id is set
-	And the history of old and new earnings is maintained
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price | FundingBandMaximum |
+		| 2020-10-15 | 2021-08-31 | 15000 | 25000              |
+	And earnings are calculated
+	When the following start date change request is sent
+		| NewStartDate | ApprovedDate |
+		| 2021-03-15   | 2021-01-15   |
+	Then On programme earnings are persisted as follows
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 2000   | 2021         | 8              |
+		| 2000   | 2021         | 9              |
+		| 2000   | 2021         | 10             |
+		| 2000   | 2021         | 11             |
+		| 2000   | 2021         | 12             |
+		| 2000   | 2122         | 1              |
 
 Scenario: New start date in the next academic year
-	Given an apprenticeship has been created
-	And the earnings for the apprenticeship are calculated
-	And a start date change request was sent before the end of R14 of the current academic year
-	And the new start date is in the next academic year to the current start date
-	When the start date change is approved
-	Then the earnings are recalculated based on the new start date
-	And the number of instalments is determined by the number of census dates passed between the new start date and the planned end date of the apprenticeship
-	And the amount of each instalment is determined as: totalPriceLessCompletion / newNumberOfInstalments
-	And a new earnings profile id is set
-	And the history of old and new earnings is maintained
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price | FundingBandMaximum |
+		| 2020-10-15 | 2022-08-31 | 15000 | 25000              |
+	And earnings are calculated
+	When the following start date change request is sent
+		| NewStartDate | ApprovedDate |
+		| 2022-03-15   | 2021-01-15   |
+	Then On programme earnings are persisted as follows
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 2000   | 2122         | 8              |
+		| 2000   | 2122         | 9              |
+		| 2000   | 2122         | 10             |
+		| 2000   | 2122         | 11             |
+		| 2000   | 2122         | 12             |
+		| 2000   | 2223         | 1              |
 
 Scenario: A new start and end date are earlier than orginal start date
 	Given an apprenticeship has been created

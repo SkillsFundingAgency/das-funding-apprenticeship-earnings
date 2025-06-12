@@ -235,6 +235,23 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
+    [When("the following start date change request is sent")]
+    public async Task PublishStartDateChangeEvent(Table table)
+    {
+        var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
+        var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .FromSetupModel(data)
+            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
+            .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
+            .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
+            .WithFundingBandMaximum(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
+            .Build();
+        await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
+        _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
+    }
+
     [When("the start date change is approved")]
 	public async Task PublishStartDateChangeEvents()
 	{
