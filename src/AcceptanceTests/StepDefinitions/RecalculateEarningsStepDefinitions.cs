@@ -27,43 +27,8 @@ public class RecalculateEarningsStepDefinitions
     [Given("an apprenticeship has been created")]
     public void ApprenticeshipCreated()
     {
-        //_scenarioContext.GetApprenticeshipCreatedEventBuilder()
-        //    .WithApprenticeshipKey(_apprenticeshipKey)
-        //    .WithEpisodeKey(_episodeKey)
-        //    .WithPriceKey(_priceKey)
-        //    .WithStartDate(_startDate)
-        //    .WithFundingBandMaximum(_fundingBandMaximum)
-        //    .WithDateOfBirth(_dateOfBirth)
-        //    .WithEndDate(_endDate)
-        //    .WithEmployerAccountId(_employerAccountId);
-
-        //_scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
-        //    .WithApprenticeshipKey(_apprenticeshipKey)
-        //    .WithEpisodeKey(_episodeKey)
-        //    .WithStartDate(_startDate)
-        //    .WithEndDate(_endDate)
-        //    .WithEffectiveFromDate(_effectiveFromDate)
-        //    .WithApprovedDate(_changeRequestDate)
-        //    .WithExistingPriceKey(_priceKey)
-        //    .WithFundingBandMaximum(_fundingBandMaximum)
-        //    .WithNewTrainingPrice(_newTrainingPrice)
-        //    .WithNewAssessmentPrice(_newAssessmentPrice)
-        //    .WithEmployerAccountId(_employerAccountId)
-        //    .WithAgeAtStartOfApprenticeship(_ageAtStartOfApprenticeship);
-
-        //_scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
-        //    .WithApprenticeshipKey(_apprenticeshipKey)
-        //    .WithApprovedDate(_changeRequestDate)
-        //    .WithStartDate(_startDate)
-        //    .WithEpisodeKey(_episodeKey)
-        //    .WithPriceKey(_priceKey)
-        //    .WithEndDate(_endDate)
-        //    .WithFundingBandMaximum(_fundingBandMaximum)
-        //    .WithEmployerAccountId(_employerAccountId)
-        //    .WithAgeAtStart(_ageAtStartOfApprenticeship);
-
-        //_scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
-        //    .WithApprenticeshipKey(_apprenticeshipKey);
+        // Intentionally left blank, the default builder values will be used.
+        // If you need to specify specific values use a different step.
     }
 
     [Given(@"there are (.*) earnings")]
