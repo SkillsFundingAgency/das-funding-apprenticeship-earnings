@@ -209,20 +209,5 @@ public class RecalculateEarningsStepDefinitions
         return true;
     }
 
-    //todo might need to resurrect this
-    //private List<InstalmentModel> GetFrozenInstalments(ApprenticeshipModel apprenticeshipEntity)
-    //{
-    //    var fromYear = _effectiveFromDate.ToAcademicYear();
-    //    var fromPeriod = _effectiveFromDate.ToDeliveryPeriod();
-
-    //    var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-
-    //    return currentEpisode.EarningsProfile.Instalments
-    //        .Where(x => 
-    //            (x.AcademicYear == fromYear && x.DeliveryPeriod < fromPeriod) ||
-    //            x.AcademicYear < fromYear
-    //         ).ToList();
-    //}
-
     #endregion
 }
