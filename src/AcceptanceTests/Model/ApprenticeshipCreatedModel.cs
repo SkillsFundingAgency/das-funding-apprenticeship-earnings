@@ -5,11 +5,11 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Price { get; set; }
+        public int? FundingBandMaximum { get; set; }
     }
 
     public class ApprenticeshipCreatedSetupModel
     {
-        public int Age { get; set; }
-        public string TrainingCode { get; set; }
+        public int? Age { get; set; }
     }
 }
