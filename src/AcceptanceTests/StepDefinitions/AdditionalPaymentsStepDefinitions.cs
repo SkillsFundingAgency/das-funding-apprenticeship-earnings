@@ -40,13 +40,10 @@ public class AdditionalPaymentsStepDefinitions
 
     [When(@"care details are saved with (.*) (.*) (.*)")]
     [Given(@"care details are saved with (.*) (.*) (.*)")]
-    public async Task SaveCareDetails(bool careLeaverEmployerConsentGiven, bool isCareLeaver, bool hasEHCP)
+    public async Task SaveCareDetails(Table table)
     {
-        //todo let's use the approach above and table.CreateSet<SaveCareDetailsRequest> when we refactor this to use table approach in later subtask
-        var request = new SaveCareDetailsRequest { CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven, IsCareLeaver = isCareLeaver, HasEHCP = hasEHCP };
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
-        var apprenticehipKey = apprenticeshipCreatedEvent.ApprenticeshipKey;
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{apprenticehipKey}/careDetails", request);
+        var request = table.CreateSet<SaveCareDetailsRequest>().Single();
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/careDetails", request);
     }
 
     [Given(@"the following maths and english course information is provided")]
