@@ -15,8 +15,6 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     private readonly ScenarioContext _scenarioContext;
     private readonly TestContext _testContext;
 
-    private Random _random = new();
-
     public ApprenticeshipCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
