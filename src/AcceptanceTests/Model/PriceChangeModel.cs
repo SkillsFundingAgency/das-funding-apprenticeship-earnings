@@ -7,9 +7,3 @@ public class PriceChangeModel
     public decimal? NewTrainingPrice { get; set; }
     public decimal? NewAssessmentPrice { get; set; }
 }
-
-public class StartDateChangeModel
-{
-    public DateTime? NewStartDate { get; set; }
-    public DateTime? ApprovedDate { get; set; }
-}
