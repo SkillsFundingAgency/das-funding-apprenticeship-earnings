@@ -195,8 +195,7 @@ public class RecalculateEarningsStepDefinitions
                     currentEpisode.EarningsProfile.EarningsProfileId != previousEarningsProfileId);
     }
 
-    //todo naming
-    [Then(@"the there are (.*) earnings")]
+    [Then(@"there are (.*) earnings")]
     public void AssertExpectedNumberOfEarnings(int expectedNumberOfEarnings)
     {
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
