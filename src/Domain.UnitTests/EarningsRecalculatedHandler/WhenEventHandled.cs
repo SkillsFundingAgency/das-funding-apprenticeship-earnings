@@ -4,6 +4,8 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.EarningsRecalculatedHandler
 {
@@ -22,7 +24,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.EarningsRecalc
         {
             //  Arrange
             var repository = new Mock<IEarningsQueryRepository>();
-            var sut = new Apprenticeship.Events.EarningsRecalculatedHandler(repository.Object);
+            var sut = new Apprenticeship.Events.EarningsRecalculatedHandler(repository.Object, Mock.Of<ILogger<Apprenticeship.Events.EarningsRecalculatedHandler>>());
             var @event = _fixture.Create<EarningsRecalculatedEvent>();
 
             //  Act
