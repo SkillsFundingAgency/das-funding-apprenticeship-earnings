@@ -23,14 +23,6 @@ public class RecalculateEarningsStepDefinitions
 
 
     #region Arrange
-
-    [Given("an apprenticeship has been created")]
-    public void ApprenticeshipCreated()
-    {
-        // Intentionally left blank, the default builder values will be used.
-        // If you need to specify specific values use a different step.
-    }
-
     [Given(@"there are (.*) earnings")]
     public void SetDuration(int months)
     {
