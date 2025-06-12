@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -32,17 +33,35 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
     {
         _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
 
+        _logger.LogInformation("Generating learning support payments");
+        var stopwatch = Stopwatch.StartNew();
+
         var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
         LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate)).ToList();
 
+        _logger.LogInformation($"Done generating learning support payments, elapsed: {stopwatch.ElapsedMilliseconds}ms");
+        stopwatch.Restart();
+        
+        _logger.LogInformation("Getting apprenticeship domain object");
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
+        _logger.LogInformation($"Done getting apprenticeship domain object, elapsed: {stopwatch.ElapsedMilliseconds}ms");
+        stopwatch.Restart();
 
+        _logger.LogInformation("Adding additional earnings");
         apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
+        _logger.LogInformation($"Done adding additional earnings, elapsed: {stopwatch.ElapsedMilliseconds}ms");
+        stopwatch.Restart();
 
+        _logger.LogInformation("Updating apprenticeship in repository");
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+        _logger.LogInformation($"Done updating apprenticeship in repository, elapsed: {stopwatch.ElapsedMilliseconds}ms");
+        stopwatch.Restart();
 
         _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
-        await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
+        await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel), cancellationToken);
+
+        _logger.LogInformation($"Done publishing EarningsRecalculatedEvent, elapsed: {stopwatch.ElapsedMilliseconds}ms");
+        stopwatch.Stop();
 
         _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
     }
