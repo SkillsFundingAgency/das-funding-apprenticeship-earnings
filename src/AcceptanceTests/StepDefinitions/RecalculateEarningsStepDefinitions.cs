@@ -50,16 +50,6 @@ public class RecalculateEarningsStepDefinitions
         }
     }
 
-    [Given(@"the earnings for the apprenticeship are calculated")]
-    public async Task PublishApprenticeshipCreatedEvent()
-    {
-        var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder().Build();
-        await _testContext.TestFunction.PublishEvent(apprenticeshipCreatedEvent);
-        _scenarioContext.Set(apprenticeshipCreatedEvent);
-
-        await WaitHelper.WaitForItAsync(async() => await EnsureApprenticeshipEntityCreated(), "Failed to publish create");
-    }
-
     #endregion
 
     #region Act

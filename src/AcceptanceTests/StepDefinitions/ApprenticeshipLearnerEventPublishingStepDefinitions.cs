@@ -56,6 +56,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     [Given(@"An apprenticeship has been created")]
     [Given(@"the apprenticeship commitment is approved")]
     [When(@"the apprenticeship commitment is approved")]
+    [Given(@"the earnings for the apprenticeship are calculated")]
     public async Task PublishApprenticeshipCreatedEvent()
     {
         var apprenticeshipCreatedEvent = _scenarioContext.GetApprenticeshipCreatedEventBuilder().Build();
@@ -109,14 +110,14 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
     }
 
     [Given(@"an apprenticeship has been created with the following information")]
-    public void GivenAnApprenticeshipHasBeenCreatedWithTheFollowingInformation(TechTalk.SpecFlow.Table table)
+    public void GivenAnApprenticeshipHasBeenCreatedWithTheFollowingInformation(Table table)
     {
         _scenarioContext.GetApprenticeshipCreatedEventBuilder()
             .WithDataFromSetupModel(table.CreateSet<ApprenticeshipCreatedSetupModel>().Single());
     }
 
     [Given(@"the following Price Episodes")]
-    public void GivenTheFollowingPriceEpisodes(TechTalk.SpecFlow.Table table)
+    public void GivenTheFollowingPriceEpisodes(Table table)
     {
         _scenarioContext.GetApprenticeshipCreatedEventBuilder()
             .WithPricesFromSetupModels(table.CreateSet<PriceEpisodeSetupModel>().ToList());
@@ -133,7 +134,7 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
         _scenarioContext.Set(apprenticeshipCreatedEvent);
     }
 
-    private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
+    private async Task<ApprenticeshipModel?> GetApprenticeshipEntity()
     {
         var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
         return await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
