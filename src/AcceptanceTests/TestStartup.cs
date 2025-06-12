@@ -64,7 +64,8 @@ internal class TestStartup
                 new KeyValuePair<string, string>("AzureWebJobsStorage", "UseDevelopmentStorage=true"),
                 new KeyValuePair<string, string>("AzureWebJobsServiceBus", "UseDevelopmentStorage=true"),
                 new KeyValuePair<string, string>("ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true"),
-                new KeyValuePair<string, string>("ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString!)
+                new KeyValuePair<string, string>("ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString!),
+                new KeyValuePair<string, string>("ApplicationSettings:SqlConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString!)
             }
         };
 

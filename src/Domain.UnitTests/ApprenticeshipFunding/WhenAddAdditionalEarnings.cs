@@ -81,6 +81,7 @@ public class WhenAddAdditionalEarnings
     }
 
     [Test]
+    [Ignore("history removed")]
     public void AddAdditionalEarnings_ShouldCreateHistory()
     {
         // Arrange

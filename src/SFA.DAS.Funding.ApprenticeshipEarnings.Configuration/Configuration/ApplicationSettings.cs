@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration
 {
     [ExcludeFromCodeCoverage]
     public class ApplicationSettings
@@ -12,6 +12,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration
         public string NServiceBusConnectionString { get; set; } = null!;
         public string NServiceBusLicense { get; set; } = null!;
         public string DbConnectionString { get; set; } = null!;
+        public string SqlConnectionString { get; set; } = null!;
         public string LearningTransportStorageDirectory { get; set; } = null!;
     }
 }

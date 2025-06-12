@@ -10,6 +10,7 @@
 	<PackageReference Include="Dapper.Contrib" Version="2.0.78" />
 	<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.12" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.12" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.12" />
@@ -17,6 +18,10 @@
     <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="6.8.8" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.6" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Funding.ApprenticeshipEarnings.Configuration\SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.csproj" />
   </ItemGroup>
 
 </Project>

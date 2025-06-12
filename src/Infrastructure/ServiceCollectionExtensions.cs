@@ -1,11 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Azure.Identity;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {
@@ -14,24 +11,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     {
         public static IServiceCollection AddEntityFrameworkForApprenticeships(this IServiceCollection services, ApplicationSettings settings, bool connectionNeedsAccessToken)
         {
-            services.AddSingleton<ISqlAzureIdentityTokenProvider, SqlAzureIdentityTokenProvider>();
+            services.AddHttpContextAccessor();
 
-            services.AddSingleton(provider => new SqlAzureIdentityAuthenticationDbConnectionInterceptor(provider.GetService<ILogger<SqlAzureIdentityAuthenticationDbConnectionInterceptor>>(), provider.GetService<ISqlAzureIdentityTokenProvider>(), connectionNeedsAccessToken));
+            services.AddTransient<ApplicationSettings>(provider => settings);
 
-            services.AddScoped(p =>
-            {
-                var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>()
-                    .UseSqlServer(new SqlConnection(settings.DbConnectionString), optionsBuilder => optionsBuilder.CommandTimeout(7200)) //7200=2hours
-                    .AddInterceptors(p.GetRequiredService<SqlAzureIdentityAuthenticationDbConnectionInterceptor>())
-                    .Options;
-                return new ApprenticeshipEarningsDataContext(options);
-            });
+            services.AddDbContext<ApprenticeshipEarningsDataContext>(ServiceLifetime.Transient);
+            services.AddScoped(provider => new Lazy<ApprenticeshipEarningsDataContext>(provider.GetService<ApprenticeshipEarningsDataContext>()!));
 
-            return services.AddScoped(provider =>
-            {
-                var dataContext = provider.GetService<ApprenticeshipEarningsDataContext>() ?? throw new ArgumentNullException("ApprenticeshipEarningsDataContext");
-                return new Lazy<ApprenticeshipEarningsDataContext>(dataContext);
-            });
+            return services;
         }
 
         public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)

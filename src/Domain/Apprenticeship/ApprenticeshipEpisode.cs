@@ -106,7 +106,7 @@ public class ApprenticeshipEpisode
             throw new InvalidOperationException("All additional payments must be of the same type.");
         }
 
-        ArchiveEarningProfileToHistory(systemClock);
+        //ArchiveEarningProfileToHistory(systemClock);
 
         // Retain only additional payments of a different type
         var existingAdditionalPayments = EarningsProfile!.AdditionalPayments.Where(x => x.AdditionalPaymentType != additionalPaymentType).ToList();
@@ -129,7 +129,7 @@ public class ApprenticeshipEpisode
     /// </summary>
     public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
-        ArchiveEarningProfileToHistory(systemClock);
+        //ArchiveEarningProfileToHistory(systemClock);
 
         _earningsProfile = new EarningsProfile(
             EarningsProfile.OnProgramTotal,
@@ -219,7 +219,7 @@ public class ApprenticeshipEpisode
 
         if (EarningsProfile != null)
         {
-            ArchiveEarningProfileToHistory(systemClock);
+            //ArchiveEarningProfileToHistory(systemClock);
 
             // Extract non calculated additional payments from the existing earnings profile
             var additionalPaymentsToKeep = EarningsProfile.PersistentAdditionalPayments();

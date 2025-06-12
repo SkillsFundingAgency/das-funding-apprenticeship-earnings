@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
 using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 

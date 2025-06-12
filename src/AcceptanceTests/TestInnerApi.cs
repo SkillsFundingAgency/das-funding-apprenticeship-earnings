@@ -11,6 +11,7 @@ using NServiceBus;
 using NServiceBus.Testing;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
@@ -43,7 +44,15 @@ public class TestInnerApi : IDisposable
                 services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
                 services.AddSingleton<IMessageSession>(_testContext.MessageSession);
 
-                AddEntityFrameworkForApprenticeships(services, testContext.SqlDatabase?.DatabaseInfo.ConnectionString!);
+                var applicationSettings = new ApplicationSettings
+                {
+                    SqlConnectionString = testContext.SqlDatabase?.DatabaseInfo.ConnectionString
+                };
+
+                services.AddTransient<ApplicationSettings>(provider => applicationSettings);
+                services.AddDbContext<ApprenticeshipEarningsDataContext>(ServiceLifetime.Transient);
+                services.AddScoped(provider => new Lazy<ApprenticeshipEarningsDataContext>(provider.GetService<ApprenticeshipEarningsDataContext>()!));
+
             })
             .Configure(app =>
             {
@@ -60,23 +69,7 @@ public class TestInnerApi : IDisposable
 
     }
 
-    public static IServiceCollection AddEntityFrameworkForApprenticeships(IServiceCollection services, string connectionString)
-    {
-        services.AddScoped(p =>
-        {
-            var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>()
-                .UseSqlServer(new SqlConnection(connectionString), optionsBuilder => optionsBuilder.CommandTimeout(7200)) //7200=2hours
-                .Options;
-            return new ApprenticeshipEarningsDataContext(options);
-        });
-
-        return services.AddScoped(provider =>
-        {
-            var dataContext = provider.GetService<ApprenticeshipEarningsDataContext>() ?? throw new ArgumentNullException("ApprenticeshipEarningsDataContext");
-            return new Lazy<ApprenticeshipEarningsDataContext>(dataContext);
-        });
-    }
-
+   
 
     public async Task Patch<T>(string route, T body)
     {

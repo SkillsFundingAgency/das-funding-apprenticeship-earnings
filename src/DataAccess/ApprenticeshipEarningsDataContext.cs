@@ -1,5 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
@@ -7,8 +11,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 {
     public class ApprenticeshipEarningsDataContext : DbContext
     {
-        public ApprenticeshipEarningsDataContext(DbContextOptions<ApprenticeshipEarningsDataContext> options) : base(options)
+        private readonly ApplicationSettings _configuration;
+
+        public ApprenticeshipEarningsDataContext(ApplicationSettings configuration, DbContextOptions<ApprenticeshipEarningsDataContext> options) : base(options)
         {
+            _configuration = configuration;
         }
 
         public virtual DbSet<Earning> Earning { get; set; } = null!;
@@ -22,6 +29,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
         public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
         public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured) // Allows tests to override this
+            {
+                var connection = new SqlConnection
+                {
+                    ConnectionString = _configuration!.SqlConnectionString,
+                };
+
+                optionsBuilder.UseSqlServer(connection, options =>
+                    options.EnableRetryOnFailure(5, TimeSpan.FromSeconds(20), null));
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

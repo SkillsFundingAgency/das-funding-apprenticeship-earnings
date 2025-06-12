@@ -1,11 +1,12 @@
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Api.Common.AppStart;
 using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries;
 
@@ -22,6 +23,12 @@ builder.Configuration.AddAzureTableStorage(options =>
 });
 
 builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddApplicationInsights();
+    loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+    loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

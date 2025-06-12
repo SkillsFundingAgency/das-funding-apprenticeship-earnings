@@ -3,6 +3,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
@@ -20,10 +21,15 @@ public class SqlDatabase : IDisposable
         DatabaseInfo.SetDatabaseName(dbName ?? Guid.NewGuid().ToString());
         CreateTestDatabase();
 
+        var applicationSettings = new ApplicationSettings
+        {
+            SqlConnectionString = DatabaseInfo.ConnectionString
+        };
+
         var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>()
             .UseSqlServer(new SqlConnection(DatabaseInfo.ConnectionString), optionsBuilder => optionsBuilder.CommandTimeout(7200)) //7200=2hours
             .Options;
-        DbContext = new ApprenticeshipEarningsDataContext(options);
+        DbContext = new ApprenticeshipEarningsDataContext(applicationSettings, options);
     }
 
     public async Task<ApprenticeshipModel?> GetApprenticeship(Guid apprenticeshipKey)

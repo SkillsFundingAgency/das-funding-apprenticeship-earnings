@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -24,7 +25,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQu
             _fixture = new Fixture();
             _mockAcademicYearService = new Mock<IAcademicYearService>();
             var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>().UseInMemoryDatabase("EmployerIncentivesDbContext" + Guid.NewGuid()).Options;
-            _dbContext = new ApprenticeshipEarningsDataContext(options);
+            _dbContext = new ApprenticeshipEarningsDataContext(new ApplicationSettings(), options);
             _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), Mock.Of<ISystemClockService>(), _mockAcademicYearService.Object);
         }
 

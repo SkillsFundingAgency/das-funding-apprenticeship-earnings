@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -31,7 +32,7 @@ public class WhenGetApprenticeships
         _mockSystemClockService = new Mock<ISystemClockService>();
         _mockAcademicYearService = new Mock<IAcademicYearService>();
         var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>().UseInMemoryDatabase("EmployerIncentivesDbContext" + Guid.NewGuid()).Options;
-        _dbContext = new ApprenticeshipEarningsDataContext(options);
+        _dbContext = new ApprenticeshipEarningsDataContext(new ApplicationSettings(), options);
         _sut = new Domain.Repositories.EarningsQueryRepository(new Lazy<ApprenticeshipEarningsDataContext>(_dbContext), _mockSystemClockService.Object, _mockAcademicYearService.Object);
     }
 

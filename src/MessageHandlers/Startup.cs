@@ -9,11 +9,11 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Configuration.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 
@@ -78,6 +78,7 @@ public class Startup
     {
         services.AddLogging(builder =>
         {
+            builder.AddApplicationInsights();
             builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
             builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
 
