@@ -245,6 +245,7 @@ public class RecalculateEarningsStepDefinitions
             .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
             .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
             .WithFundingBandMaximum(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
+            .WithAgeAtStart(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.AgeAtStartOfApprenticeship)
             .Build();
         await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
         _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
