@@ -123,9 +123,15 @@ public class ApprenticeshipPriceChangedEventBuilder
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithExistingPrices(List<ApprenticeshipEpisodePrice> prices)
+    public ApprenticeshipPriceChangedEventBuilder WithExistingApprenticeshipData(ApprenticeshipCreatedEvent apprenticeship)
     {
-        _existingPrices = prices;
+        _apprenticeshipKey = apprenticeship.ApprenticeshipKey;
+        _episodeKey = apprenticeship.Episode.Key;
+        _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
+        _fundingBandMaximum = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().FundingBandMaximum;
+        _ageAtStartOfApprenticeship = apprenticeship.Episode.AgeAtStartOfApprenticeship;
+        _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
+        _existingPrices = apprenticeship.Episode.Prices;
         return this;
     }
 

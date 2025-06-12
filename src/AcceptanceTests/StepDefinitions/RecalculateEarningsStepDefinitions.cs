@@ -121,12 +121,8 @@ public class RecalculateEarningsStepDefinitions
     {
         var data = table.CreateSet<PriceChangeModel>().ToList().Single();
         var apprenticeshipPriceChangedEvent = _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
+            .WithExistingApprenticeshipData(_scenarioContext.Get<ApprenticeshipCreatedEvent>())
             .WithDataFromSetupModel(data)
-            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
-            .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
-            .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
-            .WithExistingPrices(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices)
-            .WithFundingBandMaximum(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
             .Build();
         await _testContext.TestFunction.PublishEvent(apprenticeshipPriceChangedEvent);
         _scenarioContext.Set(apprenticeshipPriceChangedEvent);
@@ -139,12 +135,8 @@ public class RecalculateEarningsStepDefinitions
     {
         var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
         var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+            .WithExistingApprenticeshipData(_scenarioContext.Get<ApprenticeshipCreatedEvent>())
             .WithDataFromSetupModel(data)
-            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
-            .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
-            .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
-            .WithFundingBandMaximum(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
-            .WithAgeAtStart(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.AgeAtStartOfApprenticeship)
             .Build();
         await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
         _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
@@ -157,7 +149,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var data = table.CreateSet<WithdrawalModel>().ToList().Single();
         var apprenticeshipWithdrawnEvent = _scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
-            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
+            .WithExistingApprenticeshipData(_scenarioContext.Get<ApprenticeshipCreatedEvent>())
             .WithLastDayOfLearning(data.LastDayOfLearning)
             .Build();
 

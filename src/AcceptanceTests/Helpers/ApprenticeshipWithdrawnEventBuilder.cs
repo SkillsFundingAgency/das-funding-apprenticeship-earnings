@@ -33,6 +33,13 @@ public class ApprenticeshipWithdrawnEventBuilder
         return this;
     }
 
+    public ApprenticeshipWithdrawnEventBuilder WithExistingApprenticeshipData(ApprenticeshipCreatedEvent apprenticeship)
+    {
+        _apprenticeshipKey = apprenticeship.ApprenticeshipKey;
+        _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
+        return this;
+    }
+
     public ApprenticeshipWithdrawnEvent Build()
     {
         return new ApprenticeshipWithdrawnEvent

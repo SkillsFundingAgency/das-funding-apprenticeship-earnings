@@ -122,6 +122,17 @@ public class ApprenticeshipStartDateChangedEventBuilder
         return this;
     }
 
+    public ApprenticeshipStartDateChangedEventBuilder WithExistingApprenticeshipData(ApprenticeshipCreatedEvent apprenticeship)
+    {
+        _apprenticeshipKey = apprenticeship.ApprenticeshipKey;
+        _episodeKey = apprenticeship.Episode.Key;
+        _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
+        _fundingBandMaximum = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().FundingBandMaximum;
+        _ageAtStartOfApprenticeship = apprenticeship.Episode.AgeAtStartOfApprenticeship;
+        _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
+        return this;
+    }
+
     public ApprenticeshipStartDateChangedEvent Build()
     {
         return new ApprenticeshipStartDateChangedEvent
