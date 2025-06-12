@@ -2,10 +2,12 @@
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -215,7 +217,25 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
-	[When("the start date change is approved")]
+    [When("the following price change request is sent")]
+    public async Task PublishPriceChangeEvent(Table table)
+    {
+        var data = table.CreateSet<PriceChangeModel>().ToList().Single();
+        var apprenticeshipPriceChangedEvent = _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
+            .FromSetupModel(data)
+            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
+            .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
+            .WithEndDate(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().EndDate)
+            .WithExistingPrices(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices)
+            .WithFundingBandMaximum(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
+            .Build();
+        await _testContext.TestFunction.PublishEvent(apprenticeshipPriceChangedEvent);
+        _scenarioContext.Set(apprenticeshipPriceChangedEvent);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
+    }
+
+    [When("the start date change is approved")]
 	public async Task PublishStartDateChangeEvents()
 	{
         var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder().Build();

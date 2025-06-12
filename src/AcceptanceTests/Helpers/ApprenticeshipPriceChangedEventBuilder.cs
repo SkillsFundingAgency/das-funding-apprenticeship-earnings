@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Apprenticeships.Enums;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
@@ -21,6 +22,7 @@ public class ApprenticeshipPriceChangedEventBuilder
     private DateTime _endDate = new DateTime(2022, 1, 1);
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private int _ageAtStartOfApprenticeship = 20;
+    private List<ApprenticeshipEpisodePrice>? _existingPrices;
 
     public ApprenticeshipPriceChangedEventBuilder WithApprenticeshipKey(Guid key)
     {
@@ -112,8 +114,42 @@ public class ApprenticeshipPriceChangedEventBuilder
         return this;
     }
 
+    public ApprenticeshipPriceChangedEventBuilder FromSetupModel(PriceChangeModel model)
+    {
+        if (model.EffectiveFromDate.HasValue) _effectiveFromDate = model.EffectiveFromDate.Value;
+        if (model.ChangeRequestDate.HasValue) _approvedDate = model.ChangeRequestDate.Value;
+        if (model.NewTrainingPrice.HasValue) _newTrainingPrice = model.NewTrainingPrice.Value;
+        if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice = model.NewAssessmentPrice.Value;
+        return this;
+    }
+
+    public ApprenticeshipPriceChangedEventBuilder WithExistingPrices(List<ApprenticeshipEpisodePrice> prices)
+    {
+        _existingPrices = prices;
+        return this;
+    }
+
     public ApprenticeshipPriceChangedEvent Build()
     {
+        var prices = new List<ApprenticeshipEpisodePrice>();
+
+        if (_existingPrices != null && _existingPrices.Any())
+        {
+            _existingPrices.OrderBy(x => x.StartDate).Last().EndDate = _effectiveFromDate.AddDays(-1);
+            prices.AddRange(_existingPrices);
+        }
+
+        prices.Add(new()
+        {
+            Key = _priceChangePriceKey,
+            TrainingPrice = _newTrainingPrice,
+            EndPointAssessmentPrice = _newAssessmentPrice,
+            StartDate = _effectiveFromDate,
+            EndDate = _endDate,
+            FundingBandMaximum = _fundingBandMaximum,
+            TotalPrice = _newTrainingPrice + _newAssessmentPrice
+        });
+
         return new ApprenticeshipPriceChangedEvent
         {
             ApprenticeshipKey = _apprenticeshipKey,
@@ -124,27 +160,7 @@ public class ApprenticeshipPriceChangedEventBuilder
             Episode = new ApprenticeshipEpisode
             {
                 Key = _episodeKey,
-                Prices = new List<ApprenticeshipEpisodePrice>
-                {
-                    new()
-                    {
-                        Key = _existingPriceKey,
-                        StartDate = _startDate,
-                        EndDate = _effectiveFromDate.AddDays(-1),
-                        FundingBandMaximum = _fundingBandMaximum,
-                        TotalPrice = 15000
-                    },
-                    new()
-                    {
-                        Key = _priceChangePriceKey,
-                        TrainingPrice = _newTrainingPrice,
-                        EndPointAssessmentPrice = _newAssessmentPrice,
-                        StartDate = _effectiveFromDate,
-                        EndDate = _endDate,
-                        FundingBandMaximum = _fundingBandMaximum,
-                        TotalPrice = _newTrainingPrice + _newAssessmentPrice
-                    }
-                },
+                Prices = prices,
                 EmployerAccountId = _employerAccountId,
                 Ukprn = 123,
                 LegalEntityName = "Smiths",

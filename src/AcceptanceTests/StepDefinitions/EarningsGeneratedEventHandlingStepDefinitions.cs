@@ -47,7 +47,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     }
 
     [Then(@"On programme earnings are persisted as follows")]
-    public async Task ThenOnProgrammerEarningsArePersistedAsFollows(Table table)
+    public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
 
