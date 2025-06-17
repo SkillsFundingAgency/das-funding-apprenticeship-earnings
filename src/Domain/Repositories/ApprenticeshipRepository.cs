@@ -54,6 +54,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.EarningsProfileHistory)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
+            .AsSplitQuery()
             .SingleAsync(x => x.Key == key);
 
         return _apprenticeshipFactory.GetExisting(apprenticeship);
