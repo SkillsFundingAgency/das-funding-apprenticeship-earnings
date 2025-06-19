@@ -8,6 +8,7 @@ public abstract class EarningsProfileModelBase
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid EarningsProfileId { get; set; }
     public Guid EpisodeKey { get; set; }
+    public Guid Version { get; set; }
     public decimal OnProgramTotal { get; set; }
     public decimal CompletionPayment { get; set; }
 
@@ -15,10 +16,11 @@ public abstract class EarningsProfileModelBase
 
     public EarningsProfileModelBase(EarningsProfileModelBase original)
     {
-        EarningsProfileId = original.EarningsProfileId;
+        EarningsProfileId = Guid.NewGuid();
         EpisodeKey = original.EpisodeKey;
         CompletionPayment = original.CompletionPayment;
         OnProgramTotal = original.OnProgramTotal;
+        Version = original.Version;
     }
 }
 
@@ -37,6 +39,7 @@ public class EarningsProfileHistoryModel : EarningsProfileModelBase
 {
     public EarningsProfileHistoryModel(EarningsProfileModel original, DateTime supersededDate) : base(original)
     {
+        OriginalEarningsProfileId = original.EarningsProfileId;
         SupersededDate = supersededDate;
         Instalments = original.Instalments.Select(x => new InstalmentHistoryModel(x, EarningsProfileId)).ToList();
         AdditionalPayments = original.AdditionalPayments
@@ -49,4 +52,5 @@ public class EarningsProfileHistoryModel : EarningsProfileModelBase
     public List<AdditionalPaymentHistoryModel> AdditionalPayments { get; set; } = null!;
     public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!;
     public DateTime SupersededDate { get; set; }
+    public Guid OriginalEarningsProfileId { get; set; }
 }

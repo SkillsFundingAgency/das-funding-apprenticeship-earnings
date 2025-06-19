@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class ApprenticeshipEpisode
+public class ApprenticeshipEpisode : AggregateComponent
 {
 
     private ApprenticeshipEpisode(EpisodeModel model)
@@ -23,9 +23,16 @@ public class ApprenticeshipEpisode
         }
     }
 
+    internal static ApprenticeshipEpisode Get(Apprenticeship apprenticeship, EpisodeModel entity)
+    {
+        var episode = new ApprenticeshipEpisode(entity);
+        apprenticeship.AddChild(episode);
+        return episode;
+    }
+
     private readonly EpisodeModel _model;
     private List<Price> _prices;
-    private EarningsProfile _earningsProfile;
+    private EarningsProfile? _earningsProfile;
 
     public Guid ApprenticeshipEpisodeKey => _model.Key;
     public long UKPRN => _model.Ukprn;
@@ -43,11 +50,6 @@ public class ApprenticeshipEpisode
         AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
-
-    public static ApprenticeshipEpisode Get(EpisodeModel entity)
-    {
-        return new ApprenticeshipEpisode(entity);
-    }
 
     public void CalculateEpisodeEarnings(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
@@ -79,19 +81,17 @@ public class ApprenticeshipEpisode
     {
         if (EarningsProfile != null)
         {
-            var historyEntity = new EarningsProfileHistoryModel(EarningsProfile.GetModel(), systemClock!.UtcNow.Date);
-            _model.EarningsProfileHistory.Add(historyEntity);
+            ArchiveEarningProfileToHistory(systemClock);
         }
 
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
         var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(lastDayOfLearning);
 
-        _earningsProfile = new EarningsProfile(_model.EarningsProfile.OnProgramTotal, 
-            earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
-            additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
-            EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
-            _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
-        _model.EarningsProfile = _earningsProfile.GetModel();
+        _earningsProfile.Update(
+            instalments: earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            additionalPayments: additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList()
+            );
+
     }
 
     /// <summary>
@@ -237,6 +237,6 @@ public class ApprenticeshipEpisode
     private void ArchiveEarningProfileToHistory(ISystemClockService systemClock)
     {
         var historyEntity = new EarningsProfileHistoryModel(EarningsProfile!.GetModel(), systemClock!.UtcNow.Date);
-        _model.EarningsProfileHistory.Add(historyEntity);
+        AddEvent(new EarningsProfileArchivedEvent(historyEntity));
     }
 }

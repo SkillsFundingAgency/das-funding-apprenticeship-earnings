@@ -3,7 +3,8 @@
     [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
     [OnProgramTotal] DECIMAL(15,5) NOT NULL, 
-    [CompletionPayment] DECIMAL(15,5) NULL
+    [CompletionPayment] DECIMAL(15,5) NULL, 
+    [Version] UNIQUEIDENTIFIER NULL
 )
 GO
 ALTER TABLE Domain.[EarningsProfile]

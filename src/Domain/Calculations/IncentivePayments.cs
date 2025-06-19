@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 

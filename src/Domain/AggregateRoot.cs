@@ -1,30 +1,57 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+
+public abstract class AggregateRoot : AggregateComponent
 {
-    public abstract class AggregateRoot
+    private readonly List<AggregateComponent> _children = new();
+
+    internal void AddChild(AggregateComponent child)
     {
-        private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
-
-        protected void AddEvent(IDomainEvent @event)
+        lock (_children)
         {
-            lock (_events)
+            _children.Add(child);
+        }
+    }
+
+    public override IEnumerable<IDomainEvent> FlushEvents()
+    {
+        var allEvents = base.FlushEvents().ToList();
+
+        lock (_children)
+        {
+            foreach (var child in _children)
             {
-                _events.Add(@event);
+               allEvents.AddRange(child.FlushEvents());
             }
         }
 
-        public IEnumerable<IDomainEvent> FlushEvents()
-        {
-            lock (_events)
-            {
-                var events = _events.ToArray();
-                _events.Clear();
-                return events;
-            }
-        }
+        return allEvents;
+    }
+}
 
-        public bool HasEvent<T>()
+public abstract class AggregateComponent
+{
+    private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+
+    protected void AddEvent(IDomainEvent @event)
+    {
+        lock (_events)
         {
-            return _events.Any(x => x is T);
+            _events.Add(@event);
         }
+    }
+
+    public virtual IEnumerable<IDomainEvent> FlushEvents()
+    {
+        lock (_events)
+        {
+            var events = _events.ToArray();
+            _events.Clear();
+            return events;
+        }
+    }
+
+    public bool HasEvent<T>()
+    {
+        return _events.Any(x => x is T);
     }
 }

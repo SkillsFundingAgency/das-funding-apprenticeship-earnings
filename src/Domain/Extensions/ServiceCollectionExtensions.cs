@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions
 {
     [ExcludeFromCodeCoverage]
     public static class ServiceCollectionExtensions

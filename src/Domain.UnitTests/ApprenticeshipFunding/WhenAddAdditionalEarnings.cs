@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
@@ -81,7 +82,7 @@ public class WhenAddAdditionalEarnings
     }
 
     [Test]
-    public void AddAdditionalEarnings_ShouldCreateHistory()
+    public void AddAdditionalEarnings_ShouldRaiseEarningsProfileArchivedEvent()
     {
         // Arrange
         var additionalPayments = new List<AdditionalPayment>
@@ -95,7 +96,8 @@ public class WhenAddAdditionalEarnings
         sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
-        sut.GetModel().Episodes.First().EarningsProfileHistory.Count.Should().Be(1);
+        var events = sut.FlushEvents().ToList();
+        events.Any(x => x is EarningsProfileArchivedEvent).Should().BeTrue();
     }
 
     private Apprenticeship.Apprenticeship CreateApprenticeship(byte apprenticeAge)

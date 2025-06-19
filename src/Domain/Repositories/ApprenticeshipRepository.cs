@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -33,9 +34,6 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfileHistory)
-            .ThenInclude(y => y.Instalments)
-            .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.AdditionalPayments)
             .Include(x => x.Episodes)
@@ -45,13 +43,6 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.MathsAndEnglishCourses)
-            .ThenInclude(y => y.Instalments)
-            .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfileHistory)
-            .ThenInclude(y => y.MathsAndEnglishCourses)
-            .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfileHistory)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
             .AsSplitQuery()
@@ -72,5 +63,11 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
         {
             await _domainEventDispatcher.Send(domainEvent);
         }
+    }
+
+    public async Task Add(EarningsProfileHistoryModel earningsProfile)
+    {
+        DbContext.EarningsProfileHistories.Add(earningsProfile);
+        await DbContext.SaveChangesAsync();
     }
 }

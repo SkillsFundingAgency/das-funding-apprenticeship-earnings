@@ -13,6 +13,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries;
 using SFA.DAS.Testing.AzureStorageEmulator;

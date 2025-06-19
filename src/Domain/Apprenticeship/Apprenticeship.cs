@@ -18,13 +18,13 @@ public class Apprenticeship : AggregateRoot
             Uln = apprenticeshipCreatedEvent.Uln,
             Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.ApprenticeshipKey, apprenticeshipCreatedEvent.Episode) }
         };
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(x=> this.GetEpisodeFromModel(x)).ToList();
     }
 
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(x => this.GetEpisodeFromModel(x)).ToList();
     }
 
     private ApprenticeshipModel _model;

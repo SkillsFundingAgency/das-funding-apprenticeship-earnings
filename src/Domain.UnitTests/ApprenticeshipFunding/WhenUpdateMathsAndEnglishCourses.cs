@@ -6,6 +6,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -58,7 +59,7 @@ public class WhenUpdateMathsAndEnglishCourses
     }
 
     [Test]
-    public void UpdateMathsAndEnglishCourses_ShouldArchiveExistingProfileToHistory()
+    public void UpdateMathsAndEnglishCourses_ShouldRaiseEarningsProfileArchivedEvent()
     {
         // Arrange
         var sut = CreateApprenticeship();
@@ -73,8 +74,8 @@ public class WhenUpdateMathsAndEnglishCourses
         sut.UpdateMathsAndEnglishCourses(courses, _mockSystemClockService.Object);
 
         // Assert
-        var history = sut.GetModel().Episodes.First().EarningsProfileHistory;
-        history.Count.Should().BeGreaterThan(0);
+        var events = sut.FlushEvents().ToList();
+        events.Any(x => x is EarningsProfileArchivedEvent).Should().BeTrue();
     }
 
     private Apprenticeship.Apprenticeship CreateApprenticeship()
