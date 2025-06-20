@@ -124,7 +124,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         _earningsProfile.Update(
             systemClock,
-            additionalPayments: existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList());
+            additionalPayments: existingAdditionalPayments);
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         _earningsProfile.Update(systemClock,
-            mathsAndEnglishCourses: mathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList());
+            mathsAndEnglishCourses: mathsAndEnglishCourses);
     }
 
     private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)
