@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
 {
@@ -43,6 +44,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
             var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
             transport.CustomTokenCredential(fullyQualifiedNamespace, new DefaultAzureCredential());
             endpointConfiguration.Conventions().SetConventions();
+
+            endpointConfiguration.Pipeline.Register(
+                behavior: typeof(OutgoingCorrelationIdBehavior),
+                description: "Populates Correlation ID for outgoing messages");
 
             var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
             services.AddSingleton<IMessageSession>(endpointInstance);
