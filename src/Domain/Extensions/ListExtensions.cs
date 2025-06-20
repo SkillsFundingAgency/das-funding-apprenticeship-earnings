@@ -47,4 +47,20 @@ internal static class ListExtensions
 
         return false;
     }
+
+    /// <summary>
+    /// Converts a list of domain entities to a list of EF data access models, applying an optional modification action to each model.
+    /// </summary>
+    public static List<TModel> ToModels<TDomain, TModel>(this List<TDomain> list, Action<TModel>? modify = null) where TDomain : IDomainEntity<TModel>
+    {
+        return list
+                .Select(x =>
+                {
+                    var model = x.GetModel();
+                    modify?.Invoke(model);
+                    return model;
+                })
+                .ToList();
+    }
+
 }

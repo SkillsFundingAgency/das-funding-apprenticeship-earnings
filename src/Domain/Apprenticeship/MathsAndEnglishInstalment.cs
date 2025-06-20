@@ -26,9 +26,8 @@ public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalment
         };
     }
 
-    public MathsAndEnglishInstalmentModel GetModel(Guid mathsAndEnglishKey)
+    public MathsAndEnglishInstalmentModel GetModel()
     {
-        _model.MathsAndEnglishKey = mathsAndEnglishKey;
         return _model;
     }
 

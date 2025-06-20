@@ -30,9 +30,8 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
         };
     }
 
-    public AdditionalPaymentModel GetModel(Guid modelEarningsProfileId)
+    public AdditionalPaymentModel GetModel()
     {
-        _model.EarningsProfileId = modelEarningsProfileId;
         return _model;
     }
 

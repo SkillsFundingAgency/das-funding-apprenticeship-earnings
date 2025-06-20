@@ -30,12 +30,11 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.EndDate = endDate;
         _model.Course = course;
         _model.Amount = amount;
-        _model.Instalments = instalments.Select(x => x.GetModel(_model.Key)).ToList();
+        _model.Instalments = instalments.ToModels<MathsAndEnglishInstalment, MathsAndEnglishInstalmentModel>(model => model.MathsAndEnglishKey = _model.Key);
     }
 
-    public MathsAndEnglishModel GetModel(Guid earningsProfileKey)
+    public MathsAndEnglishModel GetModel()
     {
-        _model.EarningsProfileId = earningsProfileKey;
         return _model;
     }
 

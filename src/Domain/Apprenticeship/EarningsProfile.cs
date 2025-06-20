@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
@@ -37,12 +38,14 @@ public class EarningsProfile : AggregateComponent
         decimal completionPayment,
         Guid episodeKey, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
+        var earningProfileId = Guid.NewGuid();
+
         Model = new EarningsProfileModel();
-        Model.EarningsProfileId = Guid.NewGuid();
+        Model.EarningsProfileId = earningProfileId;
         Model.OnProgramTotal = onProgramTotal;
-        Model.Instalments = instalments.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
-        Model.AdditionalPayments = additionalPayments.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
-        Model.MathsAndEnglishCourses = mathsAndEnglishCourses.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+        Model.Instalments = instalments.ToModels<Instalment, InstalmentModel>(model=> model.EarningsProfileId = earningProfileId);
+        Model.AdditionalPayments = additionalPayments.ToModels<AdditionalPayment, AdditionalPaymentModel>(model => model.EarningsProfileId = earningProfileId);
+        Model.MathsAndEnglishCourses = mathsAndEnglishCourses.ToModels<MathsAndEnglish, MathsAndEnglishModel>(model => model.EarningsProfileId = earningProfileId);
         _instalments = instalments;
         Model.CompletionPayment = completionPayment;
         Model.EpisodeKey = episodeKey;
@@ -82,20 +85,20 @@ public class EarningsProfile : AggregateComponent
 
         if (instalments != null && !instalments.AreSame(Model.Instalments))
         {
-            Model.Instalments = instalments!.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+            Model.Instalments = instalments!.ToModels<Instalment,InstalmentModel>();
             _instalments = instalments!;
             versionChanged = true;
         }
             
         if (additionalPayments != null && !additionalPayments.AreSame(Model.AdditionalPayments))
         {
-            Model.AdditionalPayments = additionalPayments!.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+            Model.AdditionalPayments = additionalPayments!.ToModels<AdditionalPayment, AdditionalPaymentModel>();
             versionChanged = true;
         }
 
         if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Model.MathsAndEnglishCourses))
         {
-            Model.MathsAndEnglishCourses = mathsAndEnglishCourses!.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+            Model.MathsAndEnglishCourses = mathsAndEnglishCourses!.ToModels<MathsAndEnglish, MathsAndEnglishModel>();
             versionChanged = true;
         }
 

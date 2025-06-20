@@ -28,9 +28,8 @@ public class Instalment : IDomainEntity<InstalmentModel>
     public decimal Amount => _model.Amount;
     public Guid EpisodePriceKey => _model.EpisodePriceKey;
 
-    public InstalmentModel GetModel(Guid earningsProfileId)
+    public InstalmentModel GetModel()
     {
-        _model.EarningsProfileId = earningsProfileId;
         return _model;
     }
 
