@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class AdditionalPayment : ICompare<AdditionalPaymentModel>
+public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
 {
     private AdditionalPaymentModel _model;
 

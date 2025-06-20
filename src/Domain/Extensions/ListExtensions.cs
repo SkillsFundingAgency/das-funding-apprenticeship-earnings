@@ -1,10 +1,8 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 internal static class ListExtensions
 {
-    public static bool AreSame<T,T2>(this List<T>? originalList, List<T2>? compareList) where T : ICompare<T2>
+    public static bool AreSame<T,T2>(this List<T>? originalList, List<T2>? compareList) where T : IDomainEntity<T2>
     {
         if (originalList == null && compareList == null)
             return true;
@@ -37,5 +35,16 @@ internal static class ListExtensions
 
 
         return true;
+    }
+
+    public static bool AreSame<T,T2>(this IReadOnlyCollection<T>? originalList, List<T2>? compareList) where T : IDomainEntity<T2>
+    {
+        if (originalList != null)
+            return originalList.ToList().AreSame(compareList);
+
+        if (compareList == null) // both lists are null
+            return true;
+
+        return false;
     }
 }

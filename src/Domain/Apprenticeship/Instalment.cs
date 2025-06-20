@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class Instalment : ICompare<InstalmentModel>
+public class Instalment : IDomainEntity<InstalmentModel>
 {
     private InstalmentModel _model;
 

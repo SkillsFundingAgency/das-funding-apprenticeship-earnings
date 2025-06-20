@@ -1,16 +1,18 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class EarningsProfile<T> where T : EarningsProfileModel, new()
+public class EarningsProfile<T> : AggregateComponent where T : EarningsProfileModel, new()
 {
     protected T Model;
 
-    public EarningsProfile() { }
+    public EarningsProfile():base(null) { }
 
-    public EarningsProfile(T model)
+    public EarningsProfile(T model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         Model = model;
     }
@@ -21,8 +23,10 @@ public class EarningsProfile<T> where T : EarningsProfileModel, new()
     }
 }
 
-public class EarningsProfile : EarningsProfile<EarningsProfileModel> 
+public class EarningsProfile : AggregateComponent
 {
+    private EarningsProfileModel Model { get; set; }
+
     private List<Instalment> _instalments;
 
     public EarningsProfile(
@@ -31,7 +35,7 @@ public class EarningsProfile : EarningsProfile<EarningsProfileModel>
         List<AdditionalPayment> additionalPayments,
         List<MathsAndEnglish> mathsAndEnglishCourses,
         decimal completionPayment,
-        Guid episodeKey)
+        Guid episodeKey, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         Model = new EarningsProfileModel();
         Model.EarningsProfileId = Guid.NewGuid();
@@ -44,7 +48,7 @@ public class EarningsProfile : EarningsProfile<EarningsProfileModel>
         Model.EpisodeKey = episodeKey;
     }
 
-    public EarningsProfile(EarningsProfileModel model)
+    public EarningsProfile(EarningsProfileModel model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         Model = model;
         _instalments = model.Instalments?.Select(Instalment.Get).ToList() ?? new List<Instalment>();
@@ -59,6 +63,7 @@ public class EarningsProfile : EarningsProfile<EarningsProfileModel>
     public Guid Version => Model.Version;
 
     public void Update(
+        ISystemClockService systemClock,
         decimal? onProgramTotal = null, 
         List<Instalment>? instalments = null, 
         List<AdditionalPayment>? additionalPayments = null, 
@@ -66,23 +71,46 @@ public class EarningsProfile : EarningsProfile<EarningsProfileModel>
         decimal? completionPayment = null
         )
     {
+        var historyEntity = new EarningsProfileHistoryModel(Model, systemClock.UtcNow.Date);// this needs to be created before any changes, although it will be discarded if none are made
         var versionChanged = false;
 
-        if(!instalments.AreSame(Model.Instalments))
+        if (onProgramTotal.HasValue && Model.OnProgramTotal != onProgramTotal.Value)
+        {
+            Model.OnProgramTotal = onProgramTotal.Value;
+            versionChanged = true;
+        }
+
+        if (instalments != null && !instalments.AreSame(Model.Instalments))
         {
             Model.Instalments = instalments!.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
             _instalments = instalments!;
             versionChanged = true;
         }
             
-        if (!additionalPayments.AreSame(Model.AdditionalPayments))
+        if (additionalPayments != null && !additionalPayments.AreSame(Model.AdditionalPayments))
         {
             Model.AdditionalPayments = additionalPayments!.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
             versionChanged = true;
         }
-           
-        if(versionChanged)
+
+        if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Model.MathsAndEnglishCourses))
+        {
+            Model.MathsAndEnglishCourses = mathsAndEnglishCourses!.Select(x => x.GetModel(Model.EarningsProfileId)).ToList();
+            versionChanged = true;
+        }
+
+        if (completionPayment.HasValue && Model.CompletionPayment != completionPayment.Value)
+        {
+            Model.CompletionPayment = completionPayment.Value;
+            versionChanged = true;
+        }
+
+        if (versionChanged)
+        {
             Model.Version = Guid.NewGuid();
+            AddEvent(new EarningsProfileArchivedEvent(historyEntity));
+        }
+             
     }
 
     /// <summary>
@@ -113,8 +141,14 @@ public class EarningsProfile : EarningsProfile<EarningsProfileModel>
             .ToList().AsReadOnly();
     }
 
-    public static EarningsProfile Get(EarningsProfileModel model)
+    public EarningsProfileModel GetModel()
     {
-        return new EarningsProfile(model);
+        return Model;
+    }
+
+    public static EarningsProfile Get(ApprenticeshipEpisode episode, EarningsProfileModel model)
+    {
+        var profile =  new EarningsProfile(model, episode.AddChildToRoot);
+        return profile;
     }
 }

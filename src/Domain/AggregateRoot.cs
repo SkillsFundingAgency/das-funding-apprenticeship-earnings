@@ -3,13 +3,11 @@
 public abstract class AggregateRoot : AggregateComponent
 {
     private readonly List<AggregateComponent> _children = new();
+    public override Action<AggregateComponent> AddChildToRoot => AddChild;
 
-    internal void AddChild(AggregateComponent child)
+    protected AggregateRoot():base(null)
     {
-        lock (_children)
-        {
-            _children.Add(child);
-        }
+        
     }
 
     public override IEnumerable<IDomainEvent> FlushEvents()
@@ -26,11 +24,40 @@ public abstract class AggregateRoot : AggregateComponent
 
         return allEvents;
     }
+
+    private void AddChild(AggregateComponent child)
+    {
+        lock (_children)
+        {
+            _children.Add(child);
+        }
+    }
 }
 
 public abstract class AggregateComponent
 {
     private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+    public virtual Action<AggregateComponent> AddChildToRoot { get; }
+
+    public AggregateComponent(Action<AggregateComponent>? addChildToRoot)
+    {
+        if (this is AggregateRoot)
+        {
+            AddChildToRoot = (AggregateComponent) =>
+            {
+                throw new InvalidOperationException("AggregateRoot should be overridden in the AggregateRoot component");
+            };
+            return;
+        }
+
+
+        if(addChildToRoot == null)
+            throw new ArgumentNullException(nameof(addChildToRoot), "AddChildToRoot action must be provided for AggregateComponent");
+
+
+        AddChildToRoot = addChildToRoot;
+        AddChildToRoot(this);
+    }
 
     protected void AddEvent(IDomainEvent @event)
     {
