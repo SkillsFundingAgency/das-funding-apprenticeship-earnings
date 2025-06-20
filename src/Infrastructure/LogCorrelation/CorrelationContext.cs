@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation
 {
@@ -43,6 +45,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation
             context.Headers["x-correlation-id"] = correlationId;
 
             return next();
+        }
+    }
+
+    public class CorrelationTelemetryInitializer : ITelemetryInitializer
+    {
+        public void Initialize(ITelemetry telemetry)
+        {
+            var correlationId = CorrelationContext.CorrelationId;
+
+            if (!string.IsNullOrEmpty(correlationId))
+            {
+                telemetry.Context.GlobalProperties["x-correlation-id"] = correlationId;
+                //telemetry.Context.Operation.Id = correlationId;
+            }
         }
     }
 }
