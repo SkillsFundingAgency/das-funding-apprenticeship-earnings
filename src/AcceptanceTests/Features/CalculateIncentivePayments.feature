@@ -117,3 +117,19 @@ Scenario: 19-24 Incentive Payments Generation - Is not eligible for incentive
 		| false                          | false        | false   |
 	Then no Additional Payments are persisted
 	And Earnings are not recalculated for that apprenticeship
+
+Scenario: Incentives are recalculated twice and history is created without keys clashing
+	Given an apprenticeship has been created with the following information
+	| Age |
+	| 20  |
+	And the following Price Episodes
+	| StartDate  | EndDate    | Price |
+	| 2020-08-01 | 2024-07-31 | 15000 |
+	When earnings are calculated
+	And care details are saved with
+		| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
+		| false                          | true         | false   |
+	And care details are saved with
+		| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
+		| false                          | false        | false   |
+	Then there are 2 records in earning profile history

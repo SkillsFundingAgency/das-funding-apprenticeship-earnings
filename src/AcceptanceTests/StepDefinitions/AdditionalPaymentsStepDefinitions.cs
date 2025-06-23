@@ -30,8 +30,8 @@ public class AdditionalPaymentsStepDefinitions
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/learningSupport", expected);
     }
 
-    [When(@"care details are saved with (.*) (.*) (.*)")]
-    [Given(@"care details are saved with (.*) (.*) (.*)")]
+    [When(@"care details are saved with")]
+    [Given(@"care details are saved with")]
     public async Task SaveCareDetails(Table table)
     {
         var request = table.CreateSet<SaveCareDetailsRequest>().Single();

@@ -62,6 +62,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             apprenticeship.CareLeaverEmployerConsentGiven);
 
         var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
+        
 
         if(_earningsProfile == null)
         {
@@ -70,6 +71,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
         else
         {
+            additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
             _earningsProfile.Update(systemClock, 
                 instalments: instalments, 
                 additionalPayments:additionalPayments,
