@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -42,6 +43,15 @@ public class AdditionalPaymentModel : AdditionalPaymentModelBase
 [Table("AdditionalPaymentHistory", Schema = "Domain")]
 public class AdditionalPaymentHistoryModel : AdditionalPaymentModelBase
 {
-    public AdditionalPaymentHistoryModel(AdditionalPaymentModelBase original, Guid earningsProfileId) : base(original, earningsProfileId) { }
+    public Guid? OriginalKey { get; set; }
+    public Guid? Version { get; set; }
+
+    public AdditionalPaymentHistoryModel(AdditionalPaymentModelBase original, Guid earningsProfileId, Guid version) : base(original, earningsProfileId) 
+    {
+        OriginalKey = original.Key;
+        Key = Guid.NewGuid();
+        Version = version;
+    }
+
     public AdditionalPaymentHistoryModel() { }
 }

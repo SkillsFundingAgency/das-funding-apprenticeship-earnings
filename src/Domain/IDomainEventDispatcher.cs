@@ -1,7 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+
+public interface IDomainEventDispatcher
 {
-    public interface IDomainEventDispatcher
-    {
-        Task Send<TDomainEvent>(TDomainEvent @event, CancellationToken cancellationToken = default(CancellationToken)) where TDomainEvent : IDomainEvent;
-    }
+    Task Send<TDomainEvent>(TDomainEvent @event, CancellationToken cancellationToken = default(CancellationToken)) where TDomainEvent : IDomainEvent;
 }

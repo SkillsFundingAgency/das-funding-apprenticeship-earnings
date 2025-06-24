@@ -6,5 +6,7 @@
     [DeliveryPeriod] TINYINT NOT NULL,
     [Amount] DECIMAL(15,5) NOT NULL,
     [AdditionalPaymentType] NVARCHAR(20) NOT NULL,
-    [DueDate] DATETIME NOT NULL
+    [DueDate] DATETIME NOT NULL, 
+    [OriginalKey] UNIQUEIDENTIFIER NULL,
+    [Version] UNIQUEIDENTIFIER NULL
 )

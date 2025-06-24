@@ -43,7 +43,7 @@ public class EarningsProfileHistoryModel : EarningsProfileModelBase
         SupersededDate = supersededDate;
         Instalments = original.Instalments.Select(x => new InstalmentHistoryModel(x, EarningsProfileId, original.Version)).ToList();
         AdditionalPayments = original.AdditionalPayments
-            .Select(x => new AdditionalPaymentHistoryModel(x, EarningsProfileId)).ToList();
+            .Select(x => new AdditionalPaymentHistoryModel(x, EarningsProfileId, original.Version)).ToList();
     }
 
     public EarningsProfileHistoryModel() {}

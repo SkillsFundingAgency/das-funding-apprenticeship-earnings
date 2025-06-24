@@ -61,15 +61,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
     {
         foreach (dynamic domainEvent in apprenticeship.FlushEvents())
         {
-            if(domainEvent is IFireAndForgetDomainEvent)
-            {
-                _domainEventDispatcher.Send(domainEvent);// we dont want to await this event so it can complete async 
-            }
-            else
-            {
-                await _domainEventDispatcher.Send(domainEvent);
-            }
-            
+            await _domainEventDispatcher.Send(domainEvent); 
         }
     }
 
