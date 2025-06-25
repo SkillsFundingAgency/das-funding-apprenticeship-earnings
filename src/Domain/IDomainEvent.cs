@@ -3,8 +3,3 @@
 public interface IDomainEvent
 {
 }
-
-public interface IFireAndForgetDomainEvent : IDomainEvent
-{
-
-}
