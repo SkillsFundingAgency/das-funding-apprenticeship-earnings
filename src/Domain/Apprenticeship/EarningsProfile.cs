@@ -1,27 +1,9 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-
-public class EarningsProfile<T> : AggregateComponent where T : EarningsProfileModel, new()
-{
-    protected T Model;
-
-    public EarningsProfile():base(null) { }
-
-    public EarningsProfile(T model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
-    {
-        Model = model;
-    }
-
-    public T GetModel()
-    {
-        return Model;
-    }
-}
 
 public class EarningsProfile : AggregateComponent
 {
@@ -73,7 +55,7 @@ public class EarningsProfile : AggregateComponent
         decimal? completionPayment = null
         )
     {
-        var historyEntity = new EarningsProfileHistoryModel(Model, systemClock.UtcNow.Date);// this needs to be created before any changes, although it will be discarded if none are made
+        var archiveEvent = Model.EarningsProfileArchivedEvent(systemClock.UtcNow.Date);// this needs to be created before any changes, although it will be discarded if none are made
         var versionChanged = false;
 
         if (onProgramTotal.HasValue && Model.OnProgramTotal != onProgramTotal.Value)
@@ -110,7 +92,7 @@ public class EarningsProfile : AggregateComponent
         if (versionChanged)
         {
             Model.Version = Guid.NewGuid();
-            AddEvent(new EarningsProfileArchivedEvent(historyEntity));
+            AddEvent(archiveEvent);
         }
              
     }

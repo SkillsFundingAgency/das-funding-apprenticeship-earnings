@@ -27,6 +27,7 @@ public class TestFunction : IDisposable
 
         HubName = hubName;
         _testContext = testContext;
+        _testContext.MessageSession.RegisterSubscriber<object>(PublishEvent);
 
         _testServer = new TestServer(new WebHostBuilder()
             .UseEnvironment(Environments.Development)
@@ -36,13 +37,25 @@ public class TestFunction : IDisposable
 
     public async Task PublishEvent<T>(T eventObject)
     {
-        var function = _queueTriggeredFunctions.FirstOrDefault(x => x.HandledEventType == typeof(T));
-        var handler = _testServer.Services.GetService(function.HandlerType) as IHandleMessages<T>;
+        var eventType = eventObject.GetType();
+
+        var function = _queueTriggeredFunctions.FirstOrDefault(x => x.HandledEventType == eventType);
+        if (function == null)
+            return;
+
+        var handler = _testServer.Services.GetService(function.HandlerType);
         var context = new TestableMessageHandlerContext
         {
             CancellationToken = new CancellationToken()
         };
-        await handler.Handle(eventObject, context);
+
+        // Call the correct generic method dynamically
+        var handleMethod = function.HandlerType.GetMethod("Handle", new[] { eventType, typeof(IMessageHandlerContext) });
+        if (handleMethod == null)
+            throw new InvalidOperationException("Handle method not found on handler");
+
+        var task = (Task)handleMethod.Invoke(handler, new object[] { eventObject, context });
+        await task;
     }
 
 

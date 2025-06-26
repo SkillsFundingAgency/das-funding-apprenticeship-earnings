@@ -1,18 +1,16 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
-
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 
 public class EarningsProfileArchivedHandler : IDomainEventHandler<EarningsProfileArchivedEvent>
 {
-    private readonly IApprenticeshipRepository _repository;
+    private readonly IMessageSession _messageSession;
 
-    public EarningsProfileArchivedHandler(IApprenticeshipRepository repository)
+    public EarningsProfileArchivedHandler(IMessageSession messageSession)
     {
-        _repository = repository;
+        _messageSession = messageSession;
     }
 
     public async Task Handle(EarningsProfileArchivedEvent @event, CancellationToken cancellationToken = default(CancellationToken))
     {
-        await _repository.Add(@event.EarningsProfileHistoryModel);
+        await _messageSession.Publish(@event.ArchiveEarningsProfileEvent, cancellationToken);
     }
 }
