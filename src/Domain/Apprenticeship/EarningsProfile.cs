@@ -30,6 +30,7 @@ public class EarningsProfile : AggregateComponent
         _instalments = instalments;
         Model.CompletionPayment = completionPayment;
         Model.EpisodeKey = episodeKey;
+        Model.Version = Guid.NewGuid();
     }
 
     public EarningsProfile(EarningsProfileModel model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
