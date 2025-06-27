@@ -55,7 +55,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation
             var correlationId = CorrelationContext.CorrelationId ?? Guid.NewGuid().ToString();
 
             telemetry.Context.GlobalProperties["x-correlation-id"] = correlationId;
-            //telemetry.Context.Operation.Id = correlationId;
         }
     }
 }

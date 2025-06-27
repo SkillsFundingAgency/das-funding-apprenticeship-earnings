@@ -34,8 +34,6 @@ internal static class NServiceBusConfiguration
                 var decodedLicence = WebUtility.HtmlDecode(value);
                 endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             }
-
-            
         });
 
         return hostBuilder;
