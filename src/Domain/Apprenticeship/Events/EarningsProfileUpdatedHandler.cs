@@ -1,15 +1,15 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 
-public class EarningsProfileArchivedHandler : IDomainEventHandler<EarningsProfileArchivedEvent>
+public class EarningsProfileUpdatedHandler : IDomainEventHandler<EarningsProfileUpdatedEvent>
 {
     private readonly IMessageSession _messageSession;
 
-    public EarningsProfileArchivedHandler(IMessageSession messageSession)
+    public EarningsProfileUpdatedHandler(IMessageSession messageSession)
     {
         _messageSession = messageSession;
     }
 
-    public async Task Handle(EarningsProfileArchivedEvent @event, CancellationToken cancellationToken = default(CancellationToken))
+    public async Task Handle(EarningsProfileUpdatedEvent @event, CancellationToken cancellationToken = default(CancellationToken))
     {
         await _messageSession.Publish(@event.ArchiveEarningsProfileEvent, cancellationToken);
     }

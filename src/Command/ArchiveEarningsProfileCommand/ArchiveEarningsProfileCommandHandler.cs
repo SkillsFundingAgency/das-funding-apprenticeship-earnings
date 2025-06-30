@@ -3,35 +3,35 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.EarningProfileArchiveCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEarningsProfileCommand;
 
 
-public class EarningProfileArchiveCommandHandler : ICommandHandler<EarningProfileArchiveCommand>
+public class ArchiveEarningsProfileCommandHandler : ICommandHandler<ArchiveEarningsProfileCommand>
 {
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
-    private readonly ILogger<EarningProfileArchiveCommandHandler> _logger;
+    private readonly ILogger<ArchiveEarningsProfileCommandHandler> _logger;
 
-    public EarningProfileArchiveCommandHandler(IApprenticeshipRepository apprenticeshipRepository, ILogger<EarningProfileArchiveCommandHandler> logger)
+    public ArchiveEarningsProfileCommandHandler(IApprenticeshipRepository apprenticeshipRepository, ILogger<ArchiveEarningsProfileCommandHandler> logger)
     {
         _apprenticeshipRepository = apprenticeshipRepository;
         _logger = logger;
     }
 
-    public async Task Handle(EarningProfileArchiveCommand command, CancellationToken cancellationToken = default)
+    public async Task Handle(ArchiveEarningsProfileCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("{handler} - Started", nameof(EarningProfileArchiveCommandHandler));
+        _logger.LogInformation("{handler} - Started", nameof(ArchiveEarningsProfileCommandHandler));
 
         var untrackedOriginalModel = CreateUntrackedEarningsProfileModel(command.ArchiveEarningsProfileEvent);
 
-        _logger.LogInformation("{handler} - Creating untracked history model",nameof(EarningProfileArchiveCommandHandler));
+        _logger.LogInformation("{handler} - Creating untracked history model",nameof(ArchiveEarningsProfileCommandHandler));
         var untrackedHistoryModel = new EarningsProfileHistoryModel(untrackedOriginalModel, command.ArchiveEarningsProfileEvent.SupersededDate);
         
         _logger.LogInformation("{handler} - Adding untracked history model for EarningsProfileId: {EarningsProfileId} to repository",
-            nameof(EarningProfileArchiveCommandHandler), untrackedHistoryModel.EarningsProfileId);
+            nameof(ArchiveEarningsProfileCommandHandler), untrackedHistoryModel.EarningsProfileId);
         await _apprenticeshipRepository.Add(untrackedHistoryModel);
 
         _logger.LogInformation("{handler} - Completed for {EarningsProfileId}",
-            nameof(EarningProfileArchiveCommandHandler), untrackedOriginalModel.EarningsProfileId);
+            nameof(ArchiveEarningsProfileCommandHandler), untrackedOriginalModel.EarningsProfileId);
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class EarningProfileArchiveCommandHandler : ICommandHandler<EarningProfil
     private EarningsProfileModel CreateUntrackedEarningsProfileModel(ArchiveEarningsProfileEvent archiveEarningsProfileEvent)
     {
         _logger.LogInformation("{handler} - Creating untracked earnings profile model for EarningsProfileId: {EarningsProfileId}",
-            nameof(EarningProfileArchiveCommandHandler), archiveEarningsProfileEvent.EarningsProfileId);
+            nameof(ArchiveEarningsProfileCommandHandler), archiveEarningsProfileEvent.EarningsProfileId);
         return new EarningsProfileModel
         {
             EarningsProfileId = archiveEarningsProfileEvent.EarningsProfileId,

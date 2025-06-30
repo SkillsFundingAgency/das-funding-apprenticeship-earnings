@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.EarningProfileArchiveCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEarningsProfileCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Text.Json;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
 public class ArchiveEarningsProfileEventHandler(
-    ICommandHandler<EarningProfileArchiveCommand> earningProfileArchiveCommandHandler,
+    ICommandHandler<ArchiveEarningsProfileCommand> earningProfileArchiveCommandHandler,
     ILogger<ArchiveEarningsProfileEventHandler> logger)
     : IHandleMessages<ArchiveEarningsProfileEvent>
 {
@@ -22,6 +22,6 @@ public class ArchiveEarningsProfileEventHandler(
             nameof(ArchiveEarningsProfileEvent),
             JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
 
-        await earningProfileArchiveCommandHandler.Handle(new EarningProfileArchiveCommand(message), context.CancellationToken);
+        await earningProfileArchiveCommandHandler.Handle(new ArchiveEarningsProfileCommand(message), context.CancellationToken);
     }
 }

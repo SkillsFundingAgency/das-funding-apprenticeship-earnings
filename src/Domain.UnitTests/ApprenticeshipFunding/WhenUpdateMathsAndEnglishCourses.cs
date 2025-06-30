@@ -75,7 +75,7 @@ public class WhenUpdateMathsAndEnglishCourses
 
         // Assert
         var events = sut.FlushEvents().ToList();
-        events.Any(x => x is EarningsProfileArchivedEvent).Should().BeTrue();
+        events.Any(x => x is EarningsProfileUpdatedEvent).Should().BeTrue();
     }
 
     private Apprenticeship.Apprenticeship CreateApprenticeship()

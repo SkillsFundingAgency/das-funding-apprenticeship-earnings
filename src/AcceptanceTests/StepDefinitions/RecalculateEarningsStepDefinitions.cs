@@ -145,7 +145,7 @@ public class RecalculateEarningsStepDefinitions
     [Then("there are (.*) records in earning profile history")]
     public async Task AssertHistoryUpdated(int numberOfRecords)
     {
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to detect Earnings recalculation");
 
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
