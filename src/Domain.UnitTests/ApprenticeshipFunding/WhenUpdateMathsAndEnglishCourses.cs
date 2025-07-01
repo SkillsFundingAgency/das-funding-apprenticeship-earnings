@@ -52,7 +52,7 @@ public class WhenUpdateMathsAndEnglishCourses
         sut.UpdateMathsAndEnglishCourses(courses, _mockSystemClockService.Object);
 
         // Assert
-        var updatedProfile = sut.ApprenticeshipEpisodes.First().EarningsProfile;
+        var updatedProfile = sut.LearningEpisodes.First().EarningsProfile;
         updatedProfile.MathsAndEnglishCourses.Count.Should().Be(2);
         updatedProfile.MathsAndEnglishCourses.Sum(x => x.Amount).Should().Be(750);
     }

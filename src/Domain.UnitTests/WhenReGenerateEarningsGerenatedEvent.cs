@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -33,7 +33,7 @@ public class WhenReGenerateEarningsGerenatedEvent
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,
-            fundingType: Apprenticeships.Enums.FundingType.NonLevy);
+            fundingType: Learning.Enums.FundingType.NonLevy);
 
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object); 
     }
@@ -45,14 +45,14 @@ public class WhenReGenerateEarningsGerenatedEvent
         var result = _sut.ReGenerate(_apprenticeship);
 
         //  Assert
-        result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
+        result.LearningKey.Should().Be(_apprenticeship.LearningKey);
         result.Uln.Should().Be(_apprenticeship.Uln);
-        result.EmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
-        result.ProviderId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().UKPRN);
-        result.TransferSenderEmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
-        result.AgreedPrice.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice);
-        result.StartDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().StartDate);
-        result.TrainingCode.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().TrainingCode);
+        result.EmployerId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
+        result.ProviderId.Should().Be(_apprenticeship.LearningEpisodes.Single().UKPRN);
+        result.TransferSenderEmployerId.Should().Be(_apprenticeship.LearningEpisodes.Single().FundingEmployerAccountId);
+        result.AgreedPrice.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().AgreedPrice);
+        result.StartDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().StartDate);
+        result.TrainingCode.Should().Be(_apprenticeship.LearningEpisodes.Single().TrainingCode);
         result.EmployerType.Should().Be(EmployerType.NonLevy);
         result.DeliveryPeriods.Count.Should().Be(2);
         result.DeliveryPeriods.FirstOrDefault(x => x.Period == 1).Should().NotBeNull();
@@ -65,10 +65,10 @@ public class WhenReGenerateEarningsGerenatedEvent
         result.DeliveryPeriods.First(x => x.Period == 2).AcademicYear.Should().Be(2223);
         result.DeliveryPeriods.First(x => x.Period == 1).LearningAmount.Should().Be(8000);
         result.DeliveryPeriods.First(x => x.Period == 2).LearningAmount.Should().Be(8000);
-        result.EmployerAccountId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
-        result.PlannedEndDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
+        result.EmployerAccountId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
+        result.PlannedEndDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().EndDate);
         result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
-        result.AgeAtStartOfApprenticeship.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+        result.AgeAtStartOfLearning.Should().Be(_apprenticeship.LearningEpisodes.Single().AgeAtStartOfLearning);
 
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 

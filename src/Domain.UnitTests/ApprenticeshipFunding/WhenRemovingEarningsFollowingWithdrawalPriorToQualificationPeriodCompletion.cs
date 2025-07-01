@@ -100,7 +100,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
     private void SetupApprenticeship(DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice)
     {
         _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
-        var episode = _sut.ApprenticeshipEpisodes.First();
+        var episode = _sut.LearningEpisodes.First();
 
         episode.CalculateEpisodeEarnings(_sut, _mockSystemClock.Object);
     }

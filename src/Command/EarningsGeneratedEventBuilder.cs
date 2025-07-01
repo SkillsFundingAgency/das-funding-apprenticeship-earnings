@@ -27,7 +27,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 
         var result = new EarningsGeneratedEvent
         {
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            LearningKey = apprenticeship.LearningKey,
             Uln = apprenticeship.Uln,
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
@@ -41,7 +41,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             PlannedEndDate = currentEpisode.Prices!.First().EndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
-            AgeAtStartOfApprenticeship = currentEpisode.AgeAtStartOfApprenticeship
+            AgeAtStartOfLearning = currentEpisode.AgeAtStartOfLearning
         };
 
         return result;
@@ -56,7 +56,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 
         return new EarningsGeneratedEvent
         {
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            LearningKey = apprenticeship.LearningKey,
             Uln = apprenticeship.Uln,
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
@@ -70,7 +70,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             PlannedEndDate = latestPrice.EndDate,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
-            AgeAtStartOfApprenticeship = currentEpisode.AgeAtStartOfApprenticeship
+            AgeAtStartOfLearning = currentEpisode.AgeAtStartOfLearning
         };
     }
 }

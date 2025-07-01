@@ -4,38 +4,38 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 
 public static class ScenarioContextExtensions
 {
-    public static ApprenticeshipCreatedEventBuilder GetApprenticeshipCreatedEventBuilder(this ScenarioContext context)
+    public static LearningCreatedEventBuilder GetLearningCreatedEventBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out ApprenticeshipCreatedEventBuilder builder)) return builder;
+        if (context.TryGetValue(out LearningCreatedEventBuilder builder)) return builder;
 
-        builder = new ApprenticeshipCreatedEventBuilder();
+        builder = new LearningCreatedEventBuilder();
         context.Set(builder);
         return builder;
     }
 
-    public static ApprenticeshipPriceChangedEventBuilder GetApprenticeshipPriceChangedEventBuilder(this ScenarioContext context)
+    public static LearningPriceChangedEventBuilder GetLearningPriceChangedEventBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out ApprenticeshipPriceChangedEventBuilder builder)) return builder;
+        if (context.TryGetValue(out LearningPriceChangedEventBuilder builder)) return builder;
 
-        builder = new ApprenticeshipPriceChangedEventBuilder();
+        builder = new LearningPriceChangedEventBuilder();
         context.Set(builder);
         return builder;
     }
 
-    public static ApprenticeshipStartDateChangedEventBuilder GetApprenticeshipStartDateChangedEventBuilder(this ScenarioContext context)
+    public static LearningStartDateChangedEventBuilder GetLearningStartDateChangedEventBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out ApprenticeshipStartDateChangedEventBuilder builder)) return builder;
+        if (context.TryGetValue(out LearningStartDateChangedEventBuilder builder)) return builder;
 
-        builder = new ApprenticeshipStartDateChangedEventBuilder();
+        builder = new LearningStartDateChangedEventBuilder();
         context.Set(builder);
         return builder;
     }
 
-    public static ApprenticeshipWithdrawnEventBuilder GetApprenticeshipWithdrawnEventBuilder(this ScenarioContext context)
+    public static LearningWithdrawnEventBuilder GetLearningWithdrawnEventBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out ApprenticeshipWithdrawnEventBuilder builder)) return builder;
+        if (context.TryGetValue(out LearningWithdrawnEventBuilder builder)) return builder;
 
-        builder = new ApprenticeshipWithdrawnEventBuilder();
+        builder = new LearningWithdrawnEventBuilder();
         context.Set(builder);
         return builder;
     }

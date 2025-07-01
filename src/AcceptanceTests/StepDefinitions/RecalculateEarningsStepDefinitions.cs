@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -26,10 +26,10 @@ public class RecalculateEarningsStepDefinitions
     [Given(@"there are (.*) earnings")]
     public void SetDuration(int months)
     {
-        _scenarioContext.GetApprenticeshipCreatedEventBuilder()
+        _scenarioContext.GetLearningCreatedEventBuilder()
             .WithDuration(months);
 
-        _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+        _scenarioContext.GetLearningStartDateChangedEventBuilder()
             .WithDuration(months);
     }
 
@@ -40,11 +40,11 @@ public class RecalculateEarningsStepDefinitions
         switch(field)
         {
             case "start":
-                _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+                _scenarioContext.GetLearningStartDateChangedEventBuilder()
                     .WithAdjustedStartDateBy(monthChange);
                 break;
             case "end":
-                _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
+                _scenarioContext.GetLearningStartDateChangedEventBuilder()
                     .WithAdjustedEndDateBy(monthChange);
                 break;
         }
@@ -56,9 +56,9 @@ public class RecalculateEarningsStepDefinitions
     [When("the price change is approved by the other party before the end of year")]
     public async Task PublishPriceChangeEvents()
     {
-        var apprenticeshipPriceChangedEvent = _scenarioContext.GetApprenticeshipPriceChangedEventBuilder().Build();
-        await _testContext.TestFunction.PublishEvent(apprenticeshipPriceChangedEvent);
-        _scenarioContext.Set(apprenticeshipPriceChangedEvent);
+        var LearningPriceChangedEvent = _scenarioContext.GetLearningPriceChangedEventBuilder().Build();
+        await _testContext.TestFunction.PublishEvent(LearningPriceChangedEvent);
+        _scenarioContext.Set(LearningPriceChangedEvent);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
@@ -67,12 +67,12 @@ public class RecalculateEarningsStepDefinitions
     public async Task PublishPriceChangeEvent(Table table)
     {
         var data = table.CreateSet<PriceChangeModel>().ToList().Single();
-        var apprenticeshipPriceChangedEvent = _scenarioContext.GetApprenticeshipPriceChangedEventBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<ApprenticeshipCreatedEvent>())
+        var LearningPriceChangedEvent = _scenarioContext.GetLearningPriceChangedEventBuilder()
+            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
             .Build();
-        await _testContext.TestFunction.PublishEvent(apprenticeshipPriceChangedEvent);
-        _scenarioContext.Set(apprenticeshipPriceChangedEvent);
+        await _testContext.TestFunction.PublishEvent(LearningPriceChangedEvent);
+        _scenarioContext.Set(LearningPriceChangedEvent);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
@@ -81,12 +81,12 @@ public class RecalculateEarningsStepDefinitions
     public async Task PublishStartDateChangeEvent(Table table)
     {
         var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
-        var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<ApprenticeshipCreatedEvent>())
+        var LearningStartDateChangedEvent = _scenarioContext.GetLearningStartDateChangedEventBuilder()
+            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
             .Build();
-        await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
-        _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
+        await _testContext.TestFunction.PublishEvent(LearningStartDateChangedEvent);
+        _scenarioContext.Set(LearningStartDateChangedEvent);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
     }
@@ -95,13 +95,13 @@ public class RecalculateEarningsStepDefinitions
     public async Task PublishWithdrawnEvent(Table table)
     {
         var data = table.CreateSet<WithdrawalModel>().ToList().Single();
-        var apprenticeshipWithdrawnEvent = _scenarioContext.GetApprenticeshipWithdrawnEventBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<ApprenticeshipCreatedEvent>())
+        var LearningWithdrawnEvent = _scenarioContext.GetLearningWithdrawnEventBuilder()
+            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithLastDayOfLearning(data.LastDayOfLearning)
             .Build();
 
-        await _testContext.TestFunction.PublishEvent(apprenticeshipWithdrawnEvent);
-        _scenarioContext.Set(apprenticeshipWithdrawnEvent);
+        await _testContext.TestFunction.PublishEvent(LearningWithdrawnEvent);
+        _scenarioContext.Set(LearningWithdrawnEvent);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
@@ -109,14 +109,14 @@ public class RecalculateEarningsStepDefinitions
     [When("the start date change is approved")]
 	public async Task PublishStartDateChangeEvents()
 	{
-        var apprenticeshipStartDateChangedEvent = _scenarioContext.GetApprenticeshipStartDateChangedEventBuilder()
-            .WithApprenticeshipKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey)
-            .WithEpisodeKey(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Key)
-            .WithFundingBandMaximum(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
-            .WithAgeAtStart(_scenarioContext.Get<ApprenticeshipCreatedEvent>().Episode.AgeAtStartOfApprenticeship)
+        var LearningStartDateChangedEvent = _scenarioContext.GetLearningStartDateChangedEventBuilder()
+            .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
+            .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
+            .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
+            .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
             .Build();
-        await _testContext.TestFunction.PublishEvent(apprenticeshipStartDateChangedEvent);
-        _scenarioContext.Set(apprenticeshipStartDateChangedEvent);
+        await _testContext.TestFunction.PublishEvent(LearningStartDateChangedEvent);
+        _scenarioContext.Set(LearningStartDateChangedEvent);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
 	}
@@ -159,7 +159,7 @@ public class RecalculateEarningsStepDefinitions
     [Then(@"Earnings are not recalculated for that apprenticeship")]
     public async Task AssertNoEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
+        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.LearningKey == _scenarioContext.Get<LearningCreatedEvent>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
     }
 
     private async Task<bool> EnsureApprenticeshipEntityCreated()
@@ -174,7 +174,7 @@ public class RecalculateEarningsStepDefinitions
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
-        return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey);
+        return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }
 
     private async Task<bool> EnsureRecalculationHasHappened()

@@ -1,15 +1,15 @@
 ﻿using AutoFixture;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Apprenticeships.Enums;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Enums;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using ApprenticeshipEpisode = SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode;
+using LearningEpisode = SFA.DAS.Learning.Types.LearningEpisode;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ProcessEpisodeUpdatedCommandHandler;
 
@@ -37,7 +37,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
         var apprenticeship = _fixture.BuildApprenticeship();
         SetupMocks();
         var command = BuildCommand(apprenticeship);
-        _mockRepository.Setup(x => x.Get(command.EpisodeUpdatedEvent.ApprenticeshipKey)).ReturnsAsync(apprenticeship);
+        _mockRepository.Setup(x => x.Get(command.EpisodeUpdatedEvent.LearningKey)).ReturnsAsync(apprenticeship);
         var sut = new ProcessUpdatedEpisodeCommand.ProcessEpisodeUpdatedCommandHandler(_mockRepository.Object, _mockMessageSession.Object, _mockEventBuilder.Object, _mockSystemClock.Object);
 
         // Act
@@ -50,20 +50,20 @@ public class WhenProcessEpisodeUpdatedCommandHandled
 
     private ProcessEpisodeUpdatedCommand BuildCommand(Apprenticeship apprenticeship)
     {
-        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.First();
-        var priceChangeApprovedEvent = new ApprenticeshipPriceChangedEvent
+        var currentEpisode = apprenticeship.LearningEpisodes.First();
+        var priceChangeApprovedEvent = new LearningPriceChangedEvent
         {
-            ApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            LearningId = apprenticeship.ApprovalsApprenticeshipId,
+            LearningKey = apprenticeship.LearningKey,
             ApprovedBy = ApprovedBy.Employer,
             ApprovedDate = new DateTime(2019, 12, 1),
             EffectiveFromDate = new DateTime(2019, 11, 1),
-            Episode = new ApprenticeshipEpisode
+            Episode = new LearningEpisode
             {
-                Key = currentEpisode.ApprenticeshipEpisodeKey,
-                Prices = new List<ApprenticeshipEpisodePrice>()
+                Key = currentEpisode.LearningEpisodeKey,
+                Prices = new List<LearningEpisodePrice>()
                 {
-                    new ApprenticeshipEpisodePrice
+                    new LearningEpisodePrice
                     {
                         Key = Guid.NewGuid(),
                         EndDate = currentEpisode.Prices.First().EndDate,

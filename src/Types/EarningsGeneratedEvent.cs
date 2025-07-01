@@ -3,7 +3,7 @@
 
 public class EarningsGeneratedEvent
 {
-    public Guid ApprenticeshipKey { get; set; }
+    public Guid LearningKey { get; set; }
     public string Uln { get; set; }
     public long EmployerId { get; set; }
     public long ProviderId { get; set; }
@@ -17,6 +17,6 @@ public class EarningsGeneratedEvent
     public DateTime PlannedEndDate { get; set; }
     public long ApprovalsApprenticeshipId { get; set; }
     public Guid EarningsProfileId { get; set; }
-    public int AgeAtStartOfApprenticeship { get; set; }
+    public int AgeAtStartOfLearning { get; set; }
 }
 #pragma warning restore CS8618

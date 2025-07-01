@@ -3,9 +3,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using FundingType = SFA.DAS.Apprenticeships.Enums.FundingType;
+using FundingType = SFA.DAS.Learning.Enums.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -15,17 +15,17 @@ internal static class FixtureExtensions
         DateTime startDate, DateTime endDate, decimal agreedPrice, FundingType? fundingType = null, byte age = 17)
     {
         var apprenticeshipEntityModel = fixture
-            .Build<ApprenticeshipCreatedEvent>()
+            .Build<LearningCreatedEvent>()
             .With(x => x.DateOfBirth, startDate.AddYears(-age))
             .Create();
 
-        apprenticeshipEntityModel.Episode = new SFA.DAS.Apprenticeships.Types.ApprenticeshipEpisode()
+        apprenticeshipEntityModel.Episode = new SFA.DAS.Learning.Types.LearningEpisode()
         {
             Key = Guid.NewGuid(),
             Ukprn = 10000001, 
             EmployerAccountId = 10000001, 
             FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value,
-            Prices = new List<ApprenticeshipEpisodePrice>{ new()
+            Prices = new List<LearningEpisodePrice>{ new()
                 {
                     Key = Guid.NewGuid(),
                     StartDate = startDate,
@@ -34,7 +34,7 @@ internal static class FixtureExtensions
                     FundingBandMaximum = (int)agreedPrice + 1
                 }
             },
-            AgeAtStartOfApprenticeship = age
+            AgeAtStartOfLearning = age
         };
 
         return new Apprenticeship.Apprenticeship(apprenticeshipEntityModel);
@@ -50,22 +50,22 @@ internal static class FixtureExtensions
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipModel>();
 
-        apprenticeshipEntityModel.Key = apprenticeship.ApprenticeshipKey;
+        apprenticeshipEntityModel.Key = apprenticeship.LearningKey;
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
 
-        apprenticeshipEntityModel.Episodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new EpisodeModel
+        apprenticeshipEntityModel.Episodes = apprenticeship.LearningEpisodes.Select(x => new EpisodeModel
         {
             Ukprn = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
-            AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
+            AgeAtStartOfLearning = x.AgeAtStartOfLearning,
             TrainingCode = x.TrainingCode,
             FundingType = x.FundingType,
             LegalEntityName = x.LegalEntityName,
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
-            Key = x.ApprenticeshipEpisodeKey
+            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.LearningEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
+            Key = x.LearningEpisodeKey
         }).ToList();
 
         return Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);

@@ -2,13 +2,13 @@
 
 public class SaveLearningSupportCommand : ICommand
 {
-    public SaveLearningSupportCommand(Guid apprenticeshipKey, SaveLearningSupportRequest saveLearningSupportRequest)
+    public SaveLearningSupportCommand(Guid LearningKey, SaveLearningSupportRequest saveLearningSupportRequest)
     {
-        ApprenticeshipKey = apprenticeshipKey;
+        LearningKey = LearningKey;
         LearningSupportPayments = saveLearningSupportRequest;
     }
 
-    public Guid ApprenticeshipKey { get; }
+    public Guid LearningKey { get; }
     public List<LearningSupportPaymentDetail> LearningSupportPayments { get; set; } = new List<LearningSupportPaymentDetail>();
 }
 public class LearningSupportPaymentDetail

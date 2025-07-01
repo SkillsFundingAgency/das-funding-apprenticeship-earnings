@@ -36,14 +36,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
         public void Should_Return_90_Day_Incentives_For_Each_Party_When_Less_Than_365_Apprenticeship()
         {
             // Arrange
-            var ageAtStartOfApprenticeship = 17;
+            var AgeAtStartOfLearning = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddMonths(6);
 
             var expectedIncentiveDate = apprenticeshipStartDate.AddDays(89);
 
             // Act
-            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(AgeAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate);
 
             // Assert
             result.Should().HaveCount(2);
@@ -69,7 +69,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
         public void Should_Return_90_Day_and_365_Day_Incentives_For_Each_Party_When_Apprenticeship_Longer_Than_A_Year()
         {
             // Arrange
-            var ageAtStartOfApprenticeship = 17;
+            var AgeAtStartOfLearning = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddYears(1);
 
@@ -77,7 +77,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var secondIncentiveDate = apprenticeshipStartDate.AddDays(364);
 
             // Act
-            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(AgeAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate);
 
             // Assert
             result.Should().HaveCount(4);
@@ -120,7 +120,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
         {
             // Arrange
             //Given
-            var ageAtStartOfApprenticeship = 17;
+            var AgeAtStartOfLearning = 17;
             var apprenticeshipStartDate = new DateTime(2024, 8, 1);
             var apprenticeshipEndDate = new DateTime(2025, 7, 31);
 
@@ -129,7 +129,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var secondIncentiveDate = new DateTime(2025, 7, 31);
 
             // Act
-            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(AgeAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate);
 
             // Assert
             result.Should().HaveCount(4);
@@ -171,14 +171,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
         public void Should_Return_No_Incentives_When_Less_Than_90_Day_Apprenticeship()
         {
             // Arrange
-            var ageAtStartOfApprenticeship = 17;
+            var AgeAtStartOfLearning = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddMonths(2);
 
             var expectedIncentiveDate = apprenticeshipStartDate.AddDays(90);
 
             // Act
-            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate);
+            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(AgeAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate);
 
             // Assert
             result.Should().BeEmpty();

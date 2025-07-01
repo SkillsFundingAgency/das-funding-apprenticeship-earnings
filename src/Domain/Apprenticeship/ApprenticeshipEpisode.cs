@@ -1,18 +1,16 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class ApprenticeshipEpisode
+public class LearningEpisode
 {
 
-    private ApprenticeshipEpisode(EpisodeModel model)
+    private LearningEpisode(EpisodeModel model)
     {
         _model = model;
 
@@ -27,33 +25,33 @@ public class ApprenticeshipEpisode
     private List<Price> _prices;
     private EarningsProfile _earningsProfile;
 
-    public Guid ApprenticeshipEpisodeKey => _model.Key;
+    public Guid LearningEpisodeKey => _model.Key;
     public long UKPRN => _model.Ukprn;
     public long EmployerAccountId => _model.EmployerAccountId;
-    public int AgeAtStartOfApprenticeship => _model.AgeAtStartOfApprenticeship;
+    public int AgeAtStartOfLearning => _model.AgeAtStartOfLearning;
     public string TrainingCode => _model.TrainingCode;
     public FundingType FundingType => _model.FundingType;
     public string LegalEntityName => _model.LegalEntityName;
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
-    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
+    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfLearning < 22;
 
     public string FundingLineType =>
-        AgeAtStartOfApprenticeship < 19
+        AgeAtStartOfLearning < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
-    public static ApprenticeshipEpisode Get(EpisodeModel entity)
+    public static LearningEpisode Get(EpisodeModel entity)
     {
-        return new ApprenticeshipEpisode(entity);
+        return new LearningEpisode(entity);
     }
 
     public void CalculateEpisodeEarnings(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
         var earnings = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
         var additionalPayments = IncentivePayments.GenerateIncentivePayments(
-            AgeAtStartOfApprenticeship, 
+            AgeAtStartOfLearning, 
             _prices.Min(p => p.StartDate), 
             _prices.Max(p => p.EndDate),
             apprenticeship.HasEHCP,
@@ -62,11 +60,11 @@ public class ApprenticeshipEpisode
         UpdateEarningsProfile(earnings, additionalPayments, systemClock, onProgramTotal, completionPayment);
     }
 
-    public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
+    public void Update(Learning.Types.LearningEpisode episodeUpdate)
     {
         UpdatePrices(episodeUpdate);
 
-        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship;
+        _model.AgeAtStartOfLearning = episodeUpdate.AgeAtStartOfLearning;
         _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
         _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
         _model.FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
@@ -90,7 +88,7 @@ public class ApprenticeshipEpisode
             earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
-            _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
+            _model.EarningsProfile.CompletionPayment, LearningEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -119,7 +117,7 @@ public class ApprenticeshipEpisode
             existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList(),
             EarningsProfile.CompletionPayment,
-            ApprenticeshipEpisodeKey);
+            LearningEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -137,7 +135,7 @@ public class ApprenticeshipEpisode
             EarningsProfile.AdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             mathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList(),
             EarningsProfile.CompletionPayment,
-            ApprenticeshipEpisodeKey);
+            LearningEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -184,7 +182,7 @@ public class ApprenticeshipEpisode
         return result;
     }
 
-    private void UpdatePrices(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
+    private void UpdatePrices(Learning.Types.LearningEpisode episodeUpdate)
     {
         foreach (var existingPrice in _prices.ToList())
         {
@@ -230,7 +228,7 @@ public class ApprenticeshipEpisode
             mathsAndEnglishCourses.AddRange(EarningsProfile.PersistentMathsAndEnglishCourses().ToList());
         }
 
-        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, mathsAndEnglishCourses, completionPayment, ApprenticeshipEpisodeKey);
+        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, mathsAndEnglishCourses, completionPayment, LearningEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 

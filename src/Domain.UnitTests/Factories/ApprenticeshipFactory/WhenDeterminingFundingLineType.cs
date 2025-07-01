@@ -26,11 +26,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeshipEntityModel = _fixture.Build<ApprenticeshipModel>().Create();
             apprenticeshipEntityModel.Episodes = new List<EpisodeModel>
             {
-                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfApprenticeship, 18).Create()
+                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfLearning, 18).Create()
             };
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
+            apprenticeship.LearningEpisodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
         }
 
         [Test]
@@ -39,12 +39,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeshipEntityModel = _fixture.Build<ApprenticeshipModel>().Create();
             apprenticeshipEntityModel.Episodes = new List<EpisodeModel>
             {
-                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfApprenticeship, 19).Create()
+                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfLearning, 19).Create()
             };
 
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.LearningEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
 
         [Test]
@@ -53,11 +53,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeshipEntityModel = _fixture.Build<ApprenticeshipModel>().Create();
             apprenticeshipEntityModel.Episodes = new List<EpisodeModel>
             {
-                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfApprenticeship, 20).Create()
+                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfLearning, 20).Create()
             };
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.LearningEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
     }
 }

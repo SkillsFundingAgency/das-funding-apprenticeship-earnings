@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
@@ -29,7 +29,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             modelBuilder.Entity<ApprenticeshipModel>()
                 .HasMany(x => x.Episodes)
                 .WithOne()
-                .HasForeignKey(fk => fk.ApprenticeshipKey);
+                .HasForeignKey(fk => fk.LearningKey);
             modelBuilder.Entity<ApprenticeshipModel>()
                 .HasKey(a => new { a.Key });
 

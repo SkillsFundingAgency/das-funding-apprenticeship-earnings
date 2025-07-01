@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public static class ApprenticeshipEpisodeExtensions
+public static class LearningEpisodeExtensions
 {
-    public static Price GetCurrentPrice(this ApprenticeshipEpisode episode, ISystemClockService systemClock)
+    public static Price GetCurrentPrice(this LearningEpisode episode, ISystemClockService systemClock)
     {
         var price = episode?.Prices?.FirstOrDefault(x => x.StartDate <= systemClock.UtcNow && x.EndDate >= systemClock.UtcNow);
 

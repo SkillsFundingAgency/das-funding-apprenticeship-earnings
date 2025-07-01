@@ -1,14 +1,14 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 
 public class ProcessEpisodeUpdatedCommand : ICommand
 {
-    public ProcessEpisodeUpdatedCommand(ApprenticeshipEvent episodeUpdatedEvent)
+    public ProcessEpisodeUpdatedCommand(LearningEvent episodeUpdatedEvent)
     {
         EpisodeUpdatedEvent = episodeUpdatedEvent;
     }
 
-    public ApprenticeshipEvent EpisodeUpdatedEvent { get; }
+    public LearningEvent EpisodeUpdatedEvent { get; }
 
 }

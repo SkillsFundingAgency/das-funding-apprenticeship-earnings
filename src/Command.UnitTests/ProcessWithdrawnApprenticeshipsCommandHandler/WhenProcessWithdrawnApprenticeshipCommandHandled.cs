@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -41,7 +41,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
         var command = BuildCommand(apprenticeship);
 
         _mockRepository
-            .Setup(x => x.Get(command.ApprenticeshipKey))
+            .Setup(x => x.Get(command.LearningKey))
             .ReturnsAsync(apprenticeship);
 
         var sut = new ProcessWithdrawnApprenticeshipCommandHandler(
@@ -55,7 +55,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
         await sut.Handle(command);
 
         // Assert
-        _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
+        _mockRepository.Verify(x => x.Get(command.LearningKey), Times.Once);
         _mockEventBuilder.Verify(x => x.Build(It.IsAny<Apprenticeship>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.IsAny<ApprenticeshipEarningsRecalculatedEvent>(), It.IsAny<PublishOptions>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
@@ -63,14 +63,14 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
 
     private ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand BuildCommand(Apprenticeship apprenticeship)
     {
-        var apprenticeshipWithdrawnEvent = new ApprenticeshipWithdrawnEvent
+        var learningWithdrawnEvent = new LearningWithdrawnEvent
         {
-            ApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
+            LearningKey = apprenticeship.LearningKey,
             Reason = _fixture.Create<string>(),
             LastDayOfLearning = new DateTime(2024, 11, 30)
         };
 
-        return new ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand(apprenticeshipWithdrawnEvent);
+        return new ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand(learningWithdrawnEvent);
     }
 }

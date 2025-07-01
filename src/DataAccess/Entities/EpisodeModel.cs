@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -11,31 +11,31 @@ public class EpisodeModel
     {
     }
 
-    public EpisodeModel(Guid apprenticeshipKey, ApprenticeshipEpisode apprenticeshipEpisode) : base()
+    public EpisodeModel(Guid LearningKey, LearningEpisode LearningEpisode) : base()
     {
-        Key = apprenticeshipEpisode.Key;
-        ApprenticeshipKey = apprenticeshipKey;
-        Ukprn = apprenticeshipEpisode.Ukprn;
-        EmployerAccountId = apprenticeshipEpisode.EmployerAccountId;
-        FundingType = (FundingType)apprenticeshipEpisode.FundingType;
-        FundingEmployerAccountId = apprenticeshipEpisode.FundingEmployerAccountId;
-        LegalEntityName = apprenticeshipEpisode.LegalEntityName;
-        TrainingCode = apprenticeshipEpisode.TrainingCode;
-        AgeAtStartOfApprenticeship = apprenticeshipEpisode.AgeAtStartOfApprenticeship;
-        Prices.Add(new EpisodePriceModel(Key, apprenticeshipEpisode.Prices.First()));
+        Key = LearningEpisode.Key;
+        LearningKey = LearningKey;
+        Ukprn = LearningEpisode.Ukprn;
+        EmployerAccountId = LearningEpisode.EmployerAccountId;
+        FundingType = (FundingType)LearningEpisode.FundingType;
+        FundingEmployerAccountId = LearningEpisode.FundingEmployerAccountId;
+        LegalEntityName = LearningEpisode.LegalEntityName;
+        TrainingCode = LearningEpisode.TrainingCode;
+        AgeAtStartOfLearning = LearningEpisode.AgeAtStartOfLearning;
+        Prices.Add(new EpisodePriceModel(Key, LearningEpisode.Prices.First()));
     }
 
     [Dapper.Contrib.Extensions.Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Key { get; set; }
-	public Guid ApprenticeshipKey { get; set; }
+	public Guid LearningKey { get; set; }
     public long Ukprn { get; set; }
     public long EmployerAccountId { get; set; }
 	public FundingType FundingType { get; set; }
 	public long? FundingEmployerAccountId { get; set; }
     public string LegalEntityName { get; set; } = null!;
     public string TrainingCode { get; set; } = null!;
-    public int AgeAtStartOfApprenticeship { get; set; }
+    public int AgeAtStartOfLearning { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
     public List<EarningsProfileHistoryModel> EarningsProfileHistory { get; set; } = new();

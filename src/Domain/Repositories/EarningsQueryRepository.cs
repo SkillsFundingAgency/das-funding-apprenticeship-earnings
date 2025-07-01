@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Mappers;
@@ -39,7 +39,7 @@ public class EarningsQueryRepository : IEarningsQueryRepository
 
     public async Task Replace(Apprenticeship.Apprenticeship apprenticeship)
     {
-        var earningsToBeRemoved = await DbContext.Earning.Where(x => x.ApprenticeshipKey == apprenticeship.ApprenticeshipKey).ToListAsync();
+        var earningsToBeRemoved = await DbContext.Earning.Where(x => x.LearningKey == apprenticeship.LearningKey).ToListAsync();
         DbContext.RemoveRange(earningsToBeRemoved);
         await Add(apprenticeship);
     }

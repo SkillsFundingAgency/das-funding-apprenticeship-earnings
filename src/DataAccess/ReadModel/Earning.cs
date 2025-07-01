@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
 {
@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
     public class Earning
     {
         public Guid Id { get; set; }
-        public Guid ApprenticeshipKey { get; set; }
+        public Guid LearningKey { get; set; }
         public long ApprovalsApprenticeshipId { get; set; }
         public string Uln { get; set; } = null!;
         public long UKPRN { get; set; }
@@ -18,7 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
         public short AcademicYear { get; set; }
         public byte DeliveryPeriod { get; set; }
         public decimal Amount { get; set; }
-        public Guid ApprenticeshipEpisodeKey { get; set; }
+        public Guid LearningEpisodeKey { get; set; }
         public bool IsNonLevyFullyFunded { get; set; }
     }
 }

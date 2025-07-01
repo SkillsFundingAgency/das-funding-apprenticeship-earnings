@@ -6,7 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public static class ApprenticeshipExtensions
 {
-    public static List<DeliveryPeriod> BuildDeliveryPeriods(this ApprenticeshipEpisode currentEpisode)
+    public static List<DeliveryPeriod> BuildDeliveryPeriods(this LearningEpisode currentEpisode)
     {
         var deliveryPeriods = new List<DeliveryPeriod>();
 

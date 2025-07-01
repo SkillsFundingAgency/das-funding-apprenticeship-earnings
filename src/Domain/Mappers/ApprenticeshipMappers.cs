@@ -16,13 +16,13 @@ public static class ApprenticeshipMappers
             AcademicYear = x.AcademicYear,
             Amount = x.Amount,
             DeliveryPeriod = x.DeliveryPeriod,
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            LearningKey = apprenticeship.LearningKey,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EmployerAccountId = currentEpisode.EmployerAccountId,
             FundingType = currentEpisode.FundingType,
             UKPRN = currentEpisode.UKPRN,
             Uln = apprenticeship.Uln,
-            ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey,
+            LearningEpisodeKey = currentEpisode.LearningEpisodeKey,
             FundingEmployerAccountId = currentEpisode.FundingEmployerAccountId,
             IsNonLevyFullyFunded = currentEpisode.IsNonLevyFullyFunded
         });

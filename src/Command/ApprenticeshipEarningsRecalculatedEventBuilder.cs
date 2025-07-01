@@ -24,12 +24,12 @@ public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEar
 
         return new ApprenticeshipEarningsRecalculatedEvent
         {
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            LearningKey = apprenticeship.LearningKey,
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
             StartDate = currentEpisode.Prices.OrderBy(x => x.StartDate).First().StartDate,
             PlannedEndDate = currentEpisode.Prices.OrderBy(x => x.StartDate).Last().EndDate,
-            AgeAtStartOfApprenticeship = currentEpisode.AgeAtStartOfApprenticeship
+            AgeAtStartOfLearning = currentEpisode.AgeAtStartOfLearning
         };
     }
 }

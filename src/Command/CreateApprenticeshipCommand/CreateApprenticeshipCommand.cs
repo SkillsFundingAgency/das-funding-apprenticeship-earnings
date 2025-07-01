@@ -1,14 +1,14 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
     public class CreateApprenticeshipCommand : ICommand
     {
-        public CreateApprenticeshipCommand(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        public CreateApprenticeshipCommand(LearningCreatedEvent LearningCreatedEvent)
         {
-            ApprenticeshipCreatedEvent = apprenticeshipCreatedEvent;
+            LearningCreatedEvent = LearningCreatedEvent;
         }
 
-        public ApprenticeshipCreatedEvent ApprenticeshipCreatedEvent { get; }
+        public LearningCreatedEvent LearningCreatedEvent { get; }
     }
 }

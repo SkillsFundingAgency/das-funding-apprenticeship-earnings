@@ -46,13 +46,13 @@ public class WhenMappingApprenticeshipToEarningsReadModels
             AcademicYear = x.AcademicYear,
             Amount = x.Amount,
             DeliveryPeriod = x.DeliveryPeriod,
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            LearningKey = apprenticeship.LearningKey,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EmployerAccountId = currentEpisodeModel.EmployerAccountId,
             FundingType = currentEpisodeModel.FundingType,
             UKPRN = currentEpisodeModel.Ukprn,
             Uln = apprenticeship.Uln,
-            ApprenticeshipEpisodeKey = currentEpisodeModel.Key,
+            LearningEpisodeKey = currentEpisodeModel.Key,
             IsNonLevyFullyFunded = apprenticeship.GetCurrentEpisode(_systemClockService.Object).IsNonLevyFullyFunded,
             FundingEmployerAccountId = currentEpisodeModel.FundingEmployerAccountId
         }).ToList();

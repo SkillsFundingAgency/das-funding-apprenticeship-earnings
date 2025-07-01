@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -9,35 +9,35 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    public Apprenticeship(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+    public Apprenticeship(LearningCreatedEvent learningCreatedEvent)
     {
         _model = new ApprenticeshipModel
         {
-            ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
-            Key = apprenticeshipCreatedEvent.ApprenticeshipKey,
-            Uln = apprenticeshipCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.ApprenticeshipKey, apprenticeshipCreatedEvent.Episode) }
+            ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
+            Key = learningCreatedEvent.LearningKey,
+            Uln = learningCreatedEvent.Uln,
+            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) }
         };
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(LearningEpisode.Get).ToList();
     }
 
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(LearningEpisode.Get).ToList();
     }
 
     private ApprenticeshipModel _model;
-    private readonly List<ApprenticeshipEpisode> _episodes;
+    private readonly List<LearningEpisode> _episodes;
 
-    public Guid ApprenticeshipKey => _model.Key;
+    public Guid LearningKey => _model.Key;
     public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
     public string Uln => _model.Uln;
     public bool HasEHCP => _model?.HasEHCP ?? false;
     public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
     public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
 
-    public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
+    public IReadOnlyCollection<LearningEpisode> LearningEpisodes => new ReadOnlyCollection<LearningEpisode>(_episodes);
     
     public static Apprenticeship Get(ApprenticeshipModel entity)
     {
@@ -56,9 +56,9 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(ApprenticeshipEvent apprenticeshipEvent, ISystemClockService systemClock)
+    public void RecalculateEarnings(LearningEvent apprenticeshipEvent, ISystemClockService systemClock)
     {
-        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
+        var episode = LearningEpisodes.Single(x => x.LearningEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
         episode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
@@ -66,7 +66,7 @@ public class Apprenticeship : AggregateRoot
 
     public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
     {
-        foreach (var episode in ApprenticeshipEpisodes)
+        foreach (var episode in LearningEpisodes)
         {
             episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
         }
@@ -85,7 +85,7 @@ public class Apprenticeship : AggregateRoot
         _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
         var currentEpisode = this.GetCurrentEpisode(systemClock);
 
-        if(currentEpisode.AgeAtStartOfApprenticeship > 18) // Only recalculate if the age is 19 or older
+        if(currentEpisode.AgeAtStartOfLearning > 18) // Only recalculate if the age is 19 or older
         {
             currentEpisode.CalculateEpisodeEarnings(this, systemClock);
             AddEvent(new EarningsRecalculatedEvent(this));

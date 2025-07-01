@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -33,7 +33,7 @@ public class WhenBuildingEarningsGeneratedEvent
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,
-            fundingType: Apprenticeships.Enums.FundingType.NonLevy);
+            fundingType: Learning.Enums.FundingType.NonLevy);
 
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
 
@@ -41,9 +41,9 @@ public class WhenBuildingEarningsGeneratedEvent
     }
 
     [Test]
-    public void ShouldPopulateThe_ApprenticeshipKey_Correctly()
+    public void ShouldPopulateThe_learningKey_Correctly()
     {
-        _result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
+        _result.LearningKey.Should().Be(_apprenticeship.LearningKey);
     }
 
     [Test]
@@ -55,37 +55,37 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerId_Correctly()
     {
-        _result.EmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
+        _result.EmployerId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_ProviderId_Correctly()
     {
-        _result.ProviderId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().UKPRN);
+        _result.ProviderId.Should().Be(_apprenticeship.LearningEpisodes.Single().UKPRN);
     }
 
     [Test]
     public void ShouldPopulateThe_TransferSenderEmployerId_Correctly()
     {
-        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.LearningEpisodes.Single().FundingEmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_AgreedPrice_Correctly()
     {
-        _result.AgreedPrice.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice);
+        _result.AgreedPrice.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().AgreedPrice);
     }
 
     [Test]
     public void ShouldPopulateThe_StartDate_Correctly()
     {
-        _result.StartDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().StartDate);
+        _result.StartDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().StartDate);
     }
 
     [Test]
     public void ShouldPopulateThe_TrainingCode_Correctly()
     {
-        _result.TrainingCode.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().TrainingCode);
+        _result.TrainingCode.Should().Be(_apprenticeship.LearningEpisodes.Single().TrainingCode);
     }
 
     [Test]
@@ -177,13 +177,13 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerAccountId_Correctly()
     {
-        _result.EmployerAccountId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
+        _result.EmployerAccountId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_PlannedEndDate_Correctly()
     {
-        _result.PlannedEndDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
+        _result.PlannedEndDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().EndDate);
     }
 
     [Test]
@@ -193,8 +193,8 @@ public class WhenBuildingEarningsGeneratedEvent
     }
 
     [Test]
-    public void ShouldPopulateThe_AgeAtStartOfApprenticeship_Correctly()
+    public void ShouldPopulateThe_ageAtStartOfLearning_Correctly()
     {
-        _result.AgeAtStartOfApprenticeship.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+        _result.AgeAtStartOfLearning.Should().Be(_apprenticeship.LearningEpisodes.Single().AgeAtStartOfLearning);
     }
 }

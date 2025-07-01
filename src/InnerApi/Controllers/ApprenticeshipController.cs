@@ -19,66 +19,66 @@ public class ApprenticeshipController: ControllerBase
         _commandDispatcher = commandDispatcher;
     }
 
-    [Route("{apprenticeshipKey}/careDetails")]
+    [Route("{LearningKey}/careDetails")]
     [HttpPatch]
-    public async Task<IActionResult> SaveCareDetails(Guid apprenticeshipKey, SaveCareDetailsRequest saveCareDetailsRequest)
+    public async Task<IActionResult> SaveCareDetails(Guid LearningKey, SaveCareDetailsRequest saveCareDetailsRequest)
     {
-        _logger.LogInformation("Received request to save care details for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save care details for apprenticeship {LearningKey}", LearningKey);
 
         try
         {
-            var command = new SaveCareDetailsCommand(apprenticeshipKey, saveCareDetailsRequest);
+            var command = new SaveCareDetailsCommand(LearningKey, saveCareDetailsRequest);
             await _commandDispatcher.Send(command);
         }
         catch(Exception ex)
         {
-            _logger.LogError(ex, "Error saving care details for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving care details for apprenticeship {LearningKey}", LearningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved care details for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved care details for apprenticeship {LearningKey}", LearningKey);
         return Ok();
     }
 
-    [Route("{apprenticeshipKey}/learningSupport")]
+    [Route("{LearningKey}/learningSupport")]
     [HttpPatch]
-    public async Task<IActionResult> SaveLearningSupport(Guid apprenticeshipKey, SaveLearningSupportRequest saveLearningSupportRequest)
+    public async Task<IActionResult> SaveLearningSupport(Guid LearningKey, SaveLearningSupportRequest saveLearningSupportRequest)
     {
-        _logger.LogInformation("Received request to save learning support for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save learning support for apprenticeship {LearningKey}", LearningKey);
 
         try
         {
-            var command = new SaveLearningSupportCommand(apprenticeshipKey, saveLearningSupportRequest);
+            var command = new SaveLearningSupportCommand(LearningKey, saveLearningSupportRequest);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving learning support for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving learning support for apprenticeship {LearningKey}", LearningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved learning support for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved learning support for apprenticeship {LearningKey}", LearningKey);
         return Ok();
     }
 
-    [Route("{apprenticeshipKey}/mathsAndEnglish")]
+    [Route("{LearningKey}/mathsAndEnglish")]
     [HttpPatch]
-    public async Task<IActionResult> SaveMathsAndEnglish(Guid apprenticeshipKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
+    public async Task<IActionResult> SaveMathsAndEnglish(Guid LearningKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
     {
-        _logger.LogInformation("Received request to save maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save maths and english for apprenticeship {LearningKey}", LearningKey);
 
         try
         {
-            var command = new SaveMathsAndEnglishCommand(apprenticeshipKey, saveMathsAndEnglishRequest);
+            var command = new SaveMathsAndEnglishCommand(LearningKey, saveMathsAndEnglishRequest);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving maths and english for apprenticeship {LearningKey}", LearningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved maths and english for apprenticeship {LearningKey}", LearningKey);
         return Ok();
     }
 }

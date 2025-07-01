@@ -30,32 +30,32 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
 
     public async Task Handle(SaveLearningSupportCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
 
         var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
         LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate)).ToList();
 
-        var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
+        var apprenticeshipDomainModel = await GetDomainApprenticeship(command.LearningKey);
 
         apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.LearningKey);
         await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
 
-        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {apprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
     }
 
-    private async Task<Domain.Apprenticeship.Apprenticeship> GetDomainApprenticeship(Guid apprenticeshipKey)
+    private async Task<Domain.Apprenticeship.Apprenticeship> GetDomainApprenticeship(Guid LearningKey)
     {
         try
         {
-            return await _apprenticeshipRepository.Get(apprenticeshipKey);
+            return await _apprenticeshipRepository.Get(LearningKey);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting apprenticeship {apprenticeshipKey} from repository", apprenticeshipKey);
+            _logger.LogError(ex, "Error getting apprenticeship {LearningKey} from repository", LearningKey);
             throw;
         }
     }

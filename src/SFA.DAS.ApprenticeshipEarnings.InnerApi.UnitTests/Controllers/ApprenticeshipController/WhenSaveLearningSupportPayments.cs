@@ -36,11 +36,11 @@ public class WhenSaveLearningSupportPayments
     public async Task Then_Returns_Ok_On_Success()
     {
         // Arrange
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var request = _fixture.Create<SaveLearningSupportRequest>();
 
         // Act
-        var result = await _controller.SaveLearningSupport(apprenticeshipKey, request);
+        var result = await _controller.SaveLearningSupport(learningKey, request);
 
         // Assert
         _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveLearningSupportCommand>(), default), Times.Once);
@@ -51,14 +51,14 @@ public class WhenSaveLearningSupportPayments
     public async Task Then_Returns_InternalServerError_On_Exception()
     {
         // Arrange
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var request = _fixture.Create<SaveLearningSupportRequest>();
 
         _commandDispatcherMock.Setup(x => x.Send(It.IsAny<SaveLearningSupportCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.SaveLearningSupport(apprenticeshipKey, request);
+        var result = await _controller.SaveLearningSupport(learningKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();
