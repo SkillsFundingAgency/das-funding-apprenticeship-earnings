@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
@@ -94,15 +93,6 @@ public class WhenRecalculatingEarningsForPriceChange
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
         var sum = Math.Round(currentEpisode.EarningsProfile.Instalments.Sum(x => x.Amount), 2);
         sum.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
-    }
-
-    [Test]
-    public void ThenEarningsRecalculatedEventIsCreated()
-    {
-        _sut!.RecalculateEarnings(_apprenticeshipPriceChangedEvent, _mockSystemClock.Object);
-
-        var events = _sut.FlushEvents();
-        events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
     }
 
     [Test]

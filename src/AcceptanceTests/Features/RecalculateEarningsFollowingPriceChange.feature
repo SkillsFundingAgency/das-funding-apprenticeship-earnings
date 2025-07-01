@@ -53,3 +53,17 @@ Scenario: Price change approved in the year it was requested, above funding band
 		| 2000   | 2021         | 11             |
 		| 2000   | 2021         | 12             |
 	And the earnings history is maintained
+	And the following Query Earnings records are created
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 1000   | 2021         | 1              |
+		| 1000   | 2021         | 2              |
+		| 1000   | 2021         | 3              |
+		| 1000   | 2021         | 4              |
+		| 1000   | 2021         | 5              |
+		| 1000   | 2021         | 6              |
+		| 2000   | 2021         | 7              |
+		| 2000   | 2021         | 8              |
+		| 2000   | 2021         | 9              |
+		| 2000   | 2021         | 10             |
+		| 2000   | 2021         | 11             |
+		| 2000   | 2021         | 12             |

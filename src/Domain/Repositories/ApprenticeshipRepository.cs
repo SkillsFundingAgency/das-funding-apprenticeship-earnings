@@ -9,14 +9,15 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 {
     private readonly Lazy<ApprenticeshipEarningsDataContext> _lazyContext;
     private readonly IApprenticeshipFactory _apprenticeshipFactory;
-    private readonly IDomainEventDispatcher _domainEventDispatcher;
+    private readonly IMessageSession _messageSession;
+
     private ApprenticeshipEarningsDataContext DbContext => _lazyContext.Value;
 
-    public ApprenticeshipRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext, IApprenticeshipFactory apprenticeshipFactory, IDomainEventDispatcher domainEventDispatcher)
+    public ApprenticeshipRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext, IApprenticeshipFactory apprenticeshipFactory, IMessageSession messageSession)
     {
         _lazyContext = dbContext;
         _apprenticeshipFactory = apprenticeshipFactory;
-        _domainEventDispatcher = domainEventDispatcher;
+        _messageSession = messageSession;
     }
 
     public async Task Add(Apprenticeship.Apprenticeship apprenticeship)
@@ -59,9 +60,9 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     private async Task ReleaseEvents(Apprenticeship.Apprenticeship apprenticeship)
     {
-        foreach (dynamic domainEvent in apprenticeship.FlushEvents())
+        foreach (var domainEvent in apprenticeship.FlushEvents())
         {
-            await _domainEventDispatcher.Send(domainEvent); 
+            await _messageSession.Publish(domainEvent); 
         }
     }
 

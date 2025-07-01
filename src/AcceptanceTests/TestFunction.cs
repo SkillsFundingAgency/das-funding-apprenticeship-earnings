@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus.Testing;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
@@ -43,7 +44,9 @@ public class TestFunction : IDisposable
         if (function == null)
             return;
 
-        var handler = _testServer.Services.GetService(function.HandlerType);
+        using var scope = _testServer.Services.CreateScope(); 
+        var handler = scope.ServiceProvider.GetRequiredService(function.HandlerType); 
+
         var context = new TestableMessageHandlerContext
         {
             CancellationToken = new CancellationToken()

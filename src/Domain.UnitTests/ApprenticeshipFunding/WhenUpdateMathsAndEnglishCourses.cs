@@ -6,7 +6,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -75,7 +74,7 @@ public class WhenUpdateMathsAndEnglishCourses
 
         // Assert
         var events = sut.FlushEvents().ToList();
-        events.Any(x => x is EarningsProfileUpdatedEvent).Should().BeTrue();
+        events.Any(x => x is Types.ArchiveEarningsProfileEvent).Should().BeTrue();
     }
 
     private Apprenticeship.Apprenticeship CreateApprenticeship()
