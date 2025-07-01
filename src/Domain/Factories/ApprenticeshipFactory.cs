@@ -5,9 +5,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
 {
     public class ApprenticeshipFactory : IApprenticeshipFactory
     {
-        public Apprenticeship.Apprenticeship CreateNew(LearningCreatedEvent LearningCreatedEvent)
+        public Apprenticeship.Apprenticeship CreateNew(LearningCreatedEvent learningCreatedEvent)
         {
-            return new Apprenticeship.Apprenticeship(LearningCreatedEvent);
+            return new Apprenticeship.Apprenticeship(learningCreatedEvent);
         }
 
         public Apprenticeship.Apprenticeship GetExisting(ApprenticeshipModel model)
