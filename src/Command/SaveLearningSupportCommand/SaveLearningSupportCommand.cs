@@ -2,9 +2,9 @@
 
 public class SaveLearningSupportCommand : ICommand
 {
-    public SaveLearningSupportCommand(Guid LearningKey, SaveLearningSupportRequest saveLearningSupportRequest)
+    public SaveLearningSupportCommand(Guid learningKey, SaveLearningSupportRequest saveLearningSupportRequest)
     {
-        LearningKey = LearningKey;
+        LearningKey = learningKey;
         LearningSupportPayments = saveLearningSupportRequest;
     }
 

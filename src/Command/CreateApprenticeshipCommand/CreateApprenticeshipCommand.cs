@@ -2,13 +2,8 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
-    public class CreateApprenticeshipCommand : ICommand
+    public class CreateApprenticeshipCommand(LearningCreatedEvent learningCreatedEvent) : ICommand
     {
-        public CreateApprenticeshipCommand(LearningCreatedEvent LearningCreatedEvent)
-        {
-            LearningCreatedEvent = LearningCreatedEvent;
-        }
-
-        public LearningCreatedEvent LearningCreatedEvent { get; }
+        public LearningCreatedEvent LearningCreatedEvent { get; } = learningCreatedEvent;
     }
 }

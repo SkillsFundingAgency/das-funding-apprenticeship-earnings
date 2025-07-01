@@ -2,13 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 
-public class ProcessEpisodeUpdatedCommand : ICommand
+public class ProcessEpisodeUpdatedCommand(LearningEvent episodeUpdatedEvent) : ICommand
 {
-    public ProcessEpisodeUpdatedCommand(LearningEvent episodeUpdatedEvent)
-    {
-        EpisodeUpdatedEvent = episodeUpdatedEvent;
-    }
-
-    public LearningEvent EpisodeUpdatedEvent { get; }
-
+    public LearningEvent EpisodeUpdatedEvent { get; } = episodeUpdatedEvent;
 }

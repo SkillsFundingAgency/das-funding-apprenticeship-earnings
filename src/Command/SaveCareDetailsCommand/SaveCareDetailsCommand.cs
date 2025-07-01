@@ -7,9 +7,9 @@ public class SaveCareDetailsCommand : ICommand
     public bool IsCareLeaver { get; }
     public bool CareLeaverEmployerConsentGiven { get; }
 
-    public SaveCareDetailsCommand(Guid LearningKey, SaveCareDetailsRequest saveCareDetailsRequest)
+    public SaveCareDetailsCommand(Guid learningKey, SaveCareDetailsRequest saveCareDetailsRequest)
     {
-        LearningKey = LearningKey;
+        LearningKey = learningKey;
         HasEHCP = saveCareDetailsRequest.HasEHCP;
         IsCareLeaver = saveCareDetailsRequest.IsCareLeaver;
         CareLeaverEmployerConsentGiven = saveCareDetailsRequest.CareLeaverEmployerConsentGiven;
