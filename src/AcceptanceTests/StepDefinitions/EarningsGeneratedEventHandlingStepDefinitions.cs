@@ -50,17 +50,26 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
 
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        var apprenticeshipKey = _scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey;
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipKey);
+        var queryEarningsDbRecords = await _testContext.SqlDatabase.GetQueryEarnings(apprenticeshipKey);
+
 
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
         earningsInDb.Should().HaveCount(data.Count);
+        queryEarningsDbRecords.Should().HaveCount(data.Count);
+
 
         foreach (var expectedEarning in data)
         {
             earningsInDb.Should()
+                .Contain(x => x.Amount == expectedEarning.Amount
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
+
+            queryEarningsDbRecords.Should()
                 .Contain(x => x.Amount == expectedEarning.Amount
                               && x.AcademicYear == expectedEarning.AcademicYear
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
