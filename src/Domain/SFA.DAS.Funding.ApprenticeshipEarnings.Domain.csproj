@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.3.1" />
     <PackageReference Include="Scrutor" Version="6.0.1" />
-    <PackageReference Include="SFA.DAS.Learning.Types" Version="6.8.38-prerelease-33" />
+    <PackageReference Include="SFA.DAS.Learning.Types" Version="6.8.38-prerelease-34" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 

@@ -53,7 +53,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
         var currentEpisode = apprenticeship.LearningEpisodes.First();
         var priceChangeApprovedEvent = new LearningPriceChangedEvent
         {
-            LearningId = apprenticeship.ApprovalsApprenticeshipId,
+            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             LearningKey = apprenticeship.LearningKey,
             ApprovedBy = ApprovedBy.Employer,
             ApprovedDate = new DateTime(2019, 12, 1),

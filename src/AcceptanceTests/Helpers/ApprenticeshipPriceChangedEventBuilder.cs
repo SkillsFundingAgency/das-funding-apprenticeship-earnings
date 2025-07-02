@@ -159,7 +159,7 @@ public class LearningPriceChangedEventBuilder
         return new LearningPriceChangedEvent()
         {
             LearningKey = _learningKey,
-            LearningId = _apprenticeshipId,
+            ApprovalsApprenticeshipId = _apprenticeshipId,
             EffectiveFromDate = _effectiveFromDate,
             ApprovedBy = _approvedBy,
             ApprovedDate = _approvedDate,

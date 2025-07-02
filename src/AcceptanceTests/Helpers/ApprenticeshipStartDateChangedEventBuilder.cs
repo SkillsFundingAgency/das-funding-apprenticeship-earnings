@@ -138,7 +138,7 @@ public class LearningStartDateChangedEventBuilder
         return new LearningStartDateChangedEvent
         {
             LearningKey = _learningKey,
-            LearningId = _apprenticeshipId,
+            ApprovalsApprenticeshipId = _apprenticeshipId,
             ApprovedDate = _approvedDate,
             ProviderApprovedBy = _providerApprovedBy,
             EmployerApprovedBy = _employerApprovedBy,
