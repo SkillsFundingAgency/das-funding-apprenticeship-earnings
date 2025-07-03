@@ -39,7 +39,7 @@ public class AdditionalPaymentsStepDefinitions
     }
 
     [Given(@"the following maths and english course information is provided")]
-    [Given(@"the following maths and english completion change request is sent")]
+    [When(@"the following maths and english completion change request is sent")]
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<MathsAndEnglishDetail>().ToList();

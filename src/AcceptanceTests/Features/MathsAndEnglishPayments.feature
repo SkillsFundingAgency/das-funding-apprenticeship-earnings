@@ -84,7 +84,6 @@ Scenario: Maths and English completion earnings
 	And the following maths and english course information is provided
 		| StartDate | EndDate    | Course      | Amount |
 		| 2020-8-1  | 2021-11-1  | Maths1      | 1500   |
-	And earnings are calculated
 	When the following maths and english completion change request is sent
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
@@ -92,4 +91,5 @@ Scenario: Maths and English completion earnings
 		| Course | Amount | AcademicYear | DeliveryPeriod |
 		| Maths1 | 100    | 2021         | 1              |
 		| Maths1 | 100    | 2021         | 2              |
-		| Maths1 | 1300   | 2021         | 3              |
+		| Maths1 | 100    | 2021         | 3              |
+		| Maths1 | 1300   | 2021         | 4              |
