@@ -63,7 +63,7 @@ public static class MathsAndEnglishPayments
                     x.AcademicYear == paymentDateToAdjust.ToAcademicYear() &&
                     x.DeliveryPeriod == paymentDateToAdjust.ToDeliveryPeriod());
 
-                paymentDateToAdjust = paymentDateToAdjust.AddDays(1).AddMonths(1).AddDays(-1);
+                paymentDateToAdjust = paymentDateToAdjust.AddMonths(1).LastDayOfMonth();
                 balancingCount++;
             }
 
