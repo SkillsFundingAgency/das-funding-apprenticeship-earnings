@@ -57,7 +57,7 @@ public static class MathsAndEnglishPayments
             var paymentDateToAdjust = command.ActualEndDate.Value.LastDayOfMonth();
             var balancingCount = 0;
 
-            while (paymentDateToAdjust <= command.EndDate.LastDayOfMonth())
+            while (paymentDateToAdjust <= command.EndDate.LastCensusDate())
             {
                 instalments.RemoveAll(x =>
                     x.AcademicYear == paymentDateToAdjust.ToAcademicYear() &&

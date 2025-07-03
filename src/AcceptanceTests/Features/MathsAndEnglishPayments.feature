@@ -92,4 +92,4 @@ Scenario: Maths and English completion earnings
 		| Maths1 | 100    | 2021         | 1              |
 		| Maths1 | 100    | 2021         | 2              |
 		| Maths1 | 100    | 2021         | 3              |
-		| Maths1 | 1300   | 2021         | 4              |
+		| Maths1 | 1200   | 2021         | 4              |
