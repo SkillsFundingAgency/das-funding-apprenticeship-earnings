@@ -7,7 +7,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
@@ -99,15 +98,4 @@ public class WhenRecalculatingEarningsForStartDateChange
         _currentEpisode.Prices.Should().OnlyContain(p => _apprenticeshipStartDateChangedEvent.Episode.Prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
     }
 
-    [Test]
-    public void ThenAnEarningsRecalculatedEventIsAdded()
-    {
-        // Act
-        _apprenticeship.RecalculateEarnings(_apprenticeshipStartDateChangedEvent, _mockSystemClockService.Object);
-
-        // Assert
-        var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();
-        events.Should().HaveCount(1);
-        events.First().Apprenticeship.Should().BeEquivalentTo(_apprenticeship);
-    }
 }

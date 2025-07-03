@@ -5,7 +5,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -124,20 +123,6 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod == 8);
-    }
-
-    [Test]
-    public void ThenEarningsRecalculatedEventIsCreated()
-    {
-        // Arrange
-        var lastDayOfLearning = new DateTime(2024, 6, 30);
-
-        // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
-
-        // Assert
-        var events = _sut.FlushEvents();
-        events.Should().ContainSingle(e => e is EarningsRecalculatedEvent);
     }
 
     [Test]

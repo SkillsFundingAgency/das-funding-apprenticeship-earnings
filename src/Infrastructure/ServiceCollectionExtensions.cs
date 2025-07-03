@@ -12,27 +12,37 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure
     [ExcludeFromCodeCoverage]
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEntityFrameworkForApprenticeships(this IServiceCollection services, ApplicationSettings settings, bool connectionNeedsAccessToken)
+        public static IServiceCollection AddEntityFrameworkForApprenticeships(
+            this IServiceCollection services,
+            ApplicationSettings settings,
+            bool connectionNeedsAccessToken)
         {
             services.AddSingleton<ISqlAzureIdentityTokenProvider, SqlAzureIdentityTokenProvider>();
 
-            services.AddSingleton(provider => new SqlAzureIdentityAuthenticationDbConnectionInterceptor(provider.GetService<ILogger<SqlAzureIdentityAuthenticationDbConnectionInterceptor>>(), provider.GetService<ISqlAzureIdentityTokenProvider>(), connectionNeedsAccessToken));
+            services.AddSingleton(provider =>
+                new SqlAzureIdentityAuthenticationDbConnectionInterceptor(
+                    provider.GetRequiredService<ILogger<SqlAzureIdentityAuthenticationDbConnectionInterceptor>>(),
+                    provider.GetRequiredService<ISqlAzureIdentityTokenProvider>(),
+                    connectionNeedsAccessToken));
 
-            services.AddScoped(p =>
+            services.AddDbContext<ApprenticeshipEarningsDataContext>((provider, optionsBuilder) =>
             {
-                var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>()
-                    .UseSqlServer(new SqlConnection(settings.DbConnectionString), optionsBuilder => optionsBuilder.CommandTimeout(7200)) //7200=2hours
-                    .AddInterceptors(p.GetRequiredService<SqlAzureIdentityAuthenticationDbConnectionInterceptor>())
-                    .Options;
-                return new ApprenticeshipEarningsDataContext(options);
+                var interceptor = provider.GetRequiredService<SqlAzureIdentityAuthenticationDbConnectionInterceptor>();
+
+                optionsBuilder
+                    .UseSqlServer(settings.DbConnectionString, sql => sql.CommandTimeout(7200))
+                    .AddInterceptors(interceptor);
             });
 
-            return services.AddScoped(provider =>
+            services.AddScoped(provider =>
             {
-                var dataContext = provider.GetService<ApprenticeshipEarningsDataContext>() ?? throw new ArgumentNullException("ApprenticeshipEarningsDataContext");
-                return new Lazy<ApprenticeshipEarningsDataContext>(dataContext);
+                var context = provider.GetRequiredService<ApprenticeshipEarningsDataContext>();
+                return new Lazy<ApprenticeshipEarningsDataContext>(() => context);
             });
+
+            return services;
         }
+
 
         public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
         {
