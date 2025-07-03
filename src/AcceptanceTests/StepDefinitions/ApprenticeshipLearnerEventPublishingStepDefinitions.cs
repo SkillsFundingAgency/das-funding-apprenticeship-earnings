@@ -59,25 +59,25 @@ public class LearningCreatedEventPublishingStepDefinitions
     [Given(@"the earnings for the apprenticeship are calculated")]
     public async Task PublishLearningCreatedEvent()
     {
-        var LearningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
+        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
 
-        await _testContext.TestFunction.PublishEvent(LearningCreatedEvent);
-        _scenarioContext.Set(LearningCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
+        _scenarioContext.Set(learningCreatedEvent);
 
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = EventBuilderSharedDefaults.ExpectedDeliveryPeriodLearningAmount;
 
-        await _testContext.TestInnerApi.PublishEvent(LearningCreatedEvent);
+        await _testContext.TestInnerApi.PublishEvent(learningCreatedEvent);
     }
 
     [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
     public async Task PublishNonPilotLearningCreatedEvent()
     {
-        var LearningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
+        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
             .WithFundingPlatform(FundingPlatform.SLD)
             .Build();
 
-        await _testContext.TestFunction.PublishEvent(LearningCreatedEvent);
-        _scenarioContext.Set(LearningCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
+        _scenarioContext.Set(learningCreatedEvent);
     }
 
     [When(@"the adjusted price has been calculated")]
@@ -91,20 +91,20 @@ public class LearningCreatedEventPublishingStepDefinitions
     {
         var entity = await GetApprenticeshipEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(LearningCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(learningCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
 
     [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
     public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
     {
-        var LearningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
+        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
             .WithTotalPrice(35000)
             .WithFundingBandMaximum(30000)
             .Build();
 
-        await _testContext.TestFunction.PublishEvent(LearningCreatedEvent);
-        _scenarioContext.Set(LearningCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
+        _scenarioContext.Set(learningCreatedEvent);
 
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
     }
@@ -128,16 +128,16 @@ public class LearningCreatedEventPublishingStepDefinitions
     [When(@"earnings are calculated")]
     public async Task EarningsAreCalculated()
     {
-        var LearningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
+        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
         
-        await _testContext.TestFunction.PublishEvent(LearningCreatedEvent);
-        _scenarioContext.Set(LearningCreatedEvent);
+        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
+        _scenarioContext.Set(learningCreatedEvent);
     }
 
     private async Task<ApprenticeshipModel?> GetApprenticeshipEntity()
     {
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        return await _testContext.SqlDatabase.GetApprenticeship(LearningCreatedEvent.LearningKey);
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        return await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
     }
 
     private async Task<bool> EnsureApprenticeshipExists()

@@ -50,9 +50,9 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
 
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(LearningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 

@@ -49,8 +49,8 @@ public class AdditionalPaymentsStepDefinitions
     public void ThenRecalculateEventIsSentWithTheFollowingIncentives(Table table)
     {
         var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.LearningKey == LearningCreatedEvent.LearningKey);
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.LearningKey == learningCreatedEvent.LearningKey);
 
         foreach (var expectedAdditionalPayment in data)
         {
@@ -66,9 +66,9 @@ public class AdditionalPaymentsStepDefinitions
     {
         var data = table.CreateSet<AdditionalPaymentDbExpectationModel>().ToList();
 
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(LearningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         var additionalPaymentsInDb = updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments;
 
@@ -117,9 +117,9 @@ public class AdditionalPaymentsStepDefinitions
     [Then(@"no Additional Payments are persisted")]
     public async Task ThenNoAdditionalPaymentsArePersisted()
     {
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(LearningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
     }
@@ -173,9 +173,9 @@ public class AdditionalPaymentsStepDefinitions
     {
         var data = table.CreateSet<MathsAndEnglishInstalmentDbExpectationModel>().ToList();
 
-        var LearningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(LearningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
 
