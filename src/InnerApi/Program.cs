@@ -28,13 +28,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var applicationSettings = new ApplicationSettings();
-var sqlConnectionNeedsAccessToken = NotLocal(builder.Configuration);
+var requiresAzureAuthentication = NotLocal(builder.Configuration);
 builder.Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
-builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, sqlConnectionNeedsAccessToken);
+builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings, requiresAzureAuthentication);
 builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
-builder.Services.AddApplicationHealthChecks(applicationSettings, sqlConnectionNeedsAccessToken);
+builder.Services.AddApplicationHealthChecks(applicationSettings, requiresAzureAuthentication);
 
 
 //Add MI authentication

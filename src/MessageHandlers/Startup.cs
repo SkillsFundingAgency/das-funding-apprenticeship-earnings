@@ -89,12 +89,12 @@ public class Startup
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
 
-        var sqlConnectionNeedsAccessToken = NotLocal(Configuration);
-        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, sqlConnectionNeedsAccessToken);
+        var requiresAzureAuthentication = NotLocal(Configuration);
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, requiresAzureAuthentication);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-        services.AddFunctionHealthChecks(ApplicationSettings, sqlConnectionNeedsAccessToken);
+        services.AddFunctionHealthChecks(ApplicationSettings, requiresAzureAuthentication);
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
