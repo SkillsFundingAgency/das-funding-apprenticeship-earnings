@@ -26,7 +26,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeshipEntityModel = _fixture.Build<ApprenticeshipModel>().Create();
             apprenticeshipEntityModel.Episodes = new List<EpisodeModel>
             {
-                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfLearning, 18).Create()
+                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfApprenticeship, 18).Create()
             };
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeshipEntityModel = _fixture.Build<ApprenticeshipModel>().Create();
             apprenticeshipEntityModel.Episodes = new List<EpisodeModel>
             {
-                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfLearning, 19).Create()
+                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfApprenticeship, 19).Create()
             };
 
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
@@ -53,7 +53,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             var apprenticeshipEntityModel = _fixture.Build<ApprenticeshipModel>().Create();
             apprenticeshipEntityModel.Episodes = new List<EpisodeModel>
             {
-                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfLearning, 20).Create()
+                _fixture.Build<EpisodeModel>().With(x => x.AgeAtStartOfApprenticeship, 20).Create()
             };
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 

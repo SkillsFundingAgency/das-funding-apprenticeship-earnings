@@ -35,7 +35,7 @@ public class WhenCreatingANewApprenticeship
             x.EmployerAccountId == LearningCreatedEvent.Episode.EmployerAccountId &&
             x.TrainingCode == LearningCreatedEvent.Episode.TrainingCode &&
             x.LegalEntityName == LearningCreatedEvent.Episode.LegalEntityName &&
-            x.AgeAtStartOfLearning == LearningCreatedEvent.Episode.AgeAtStartOfLearning &&
+            x.AgeAtStartOfApprenticeship == LearningCreatedEvent.Episode.AgeAtStartOfLearning &&
             x.FundingEmployerAccountId == LearningCreatedEvent.Episode.FundingEmployerAccountId &&
             x.LearningEpisodeKey == LearningCreatedEvent.Episode.Key);
 

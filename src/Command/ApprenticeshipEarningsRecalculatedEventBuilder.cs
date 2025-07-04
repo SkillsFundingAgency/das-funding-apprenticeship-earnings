@@ -29,7 +29,7 @@ public class ApprenticeshipEarningsRecalculatedEventBuilder : IApprenticeshipEar
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
             StartDate = currentEpisode.Prices.OrderBy(x => x.StartDate).First().StartDate,
             PlannedEndDate = currentEpisode.Prices.OrderBy(x => x.StartDate).Last().EndDate,
-            AgeAtStartOfLearning = currentEpisode.AgeAtStartOfLearning
+            AgeAtStartOfLearning = currentEpisode.AgeAtStartOfApprenticeship
         };
     }
 }

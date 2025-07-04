@@ -28,17 +28,17 @@ public class LearningEpisode
     public Guid LearningEpisodeKey => _model.Key;
     public long UKPRN => _model.Ukprn;
     public long EmployerAccountId => _model.EmployerAccountId;
-    public int AgeAtStartOfLearning => _model.AgeAtStartOfLearning;
+    public int AgeAtStartOfApprenticeship => _model.AgeAtStartOfApprenticeship;
     public string TrainingCode => _model.TrainingCode;
     public FundingType FundingType => _model.FundingType;
     public string LegalEntityName => _model.LegalEntityName;
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
-    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfLearning < 22;
+    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
 
     public string FundingLineType =>
-        AgeAtStartOfLearning < 19
+        AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
@@ -51,7 +51,7 @@ public class LearningEpisode
     {
         var earnings = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
         var additionalPayments = IncentivePayments.GenerateIncentivePayments(
-            AgeAtStartOfLearning, 
+            AgeAtStartOfApprenticeship, 
             _prices.Min(p => p.StartDate), 
             _prices.Max(p => p.EndDate),
             apprenticeship.HasEHCP,
@@ -64,7 +64,7 @@ public class LearningEpisode
     {
         UpdatePrices(episodeUpdate);
 
-        _model.AgeAtStartOfLearning = episodeUpdate.AgeAtStartOfLearning;
+        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfLearning;
         _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
         _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
         _model.FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());

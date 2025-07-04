@@ -68,7 +68,7 @@ public class WhenReGenerateEarningsGerenatedEvent
         result.EmployerAccountId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
         result.PlannedEndDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().EndDate);
         result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
-        result.AgeAtStartOfLearning.Should().Be(_apprenticeship.LearningEpisodes.Single().AgeAtStartOfLearning);
+        result.AgeAtStartOfLearning.Should().Be(_apprenticeship.LearningEpisodes.Single().AgeAtStartOfApprenticeship);
 
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 

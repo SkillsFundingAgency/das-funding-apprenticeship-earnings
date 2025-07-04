@@ -86,7 +86,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _apprenticeship.RecalculateEarnings(_learningStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        _currentEpisode.AgeAtStartOfLearning.Should().Be(_learningStartDateChangedEvent.Episode.AgeAtStartOfLearning);
+        _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_learningStartDateChangedEvent.Episode.AgeAtStartOfLearning);
     }
 
     [Test]

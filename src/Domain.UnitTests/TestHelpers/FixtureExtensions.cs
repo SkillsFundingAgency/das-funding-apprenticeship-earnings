@@ -58,7 +58,7 @@ internal static class FixtureExtensions
         {
             Ukprn = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
-            AgeAtStartOfLearning = x.AgeAtStartOfLearning,
+            AgeAtStartOfApprenticeship = x.AgeAtStartOfApprenticeship,
             TrainingCode = x.TrainingCode,
             FundingType = x.FundingType,
             LegalEntityName = x.LegalEntityName,
