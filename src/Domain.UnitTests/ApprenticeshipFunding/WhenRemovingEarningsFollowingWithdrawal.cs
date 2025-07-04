@@ -29,7 +29,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var agreedPrice = 12000m;
 
         _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
-        var episode = _sut.LearningEpisodes.First();
+        var episode = _sut.ApprenticeshipEpisodes.First();
 
         episode.CalculateEpisodeEarnings(_sut, _mockSystemClock.Object);
     }

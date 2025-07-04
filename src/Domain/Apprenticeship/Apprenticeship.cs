@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Learning.Types;
+﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -18,26 +17,26 @@ public class Apprenticeship : AggregateRoot
             Uln = learningCreatedEvent.Uln,
             Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) }
         };
-        _episodes = _model.Episodes.Select(LearningEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
     }
 
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;
-        _episodes = _model.Episodes.Select(LearningEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
     }
 
     private ApprenticeshipModel _model;
-    private readonly List<LearningEpisode> _episodes;
+    private readonly List<ApprenticeshipEpisode> _episodes;
 
-    public Guid LearningKey => _model.Key;
+    public Guid ApprenticeshipKey => _model.Key;
     public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
     public string Uln => _model.Uln;
     public bool HasEHCP => _model?.HasEHCP ?? false;
     public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
     public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
 
-    public IReadOnlyCollection<LearningEpisode> LearningEpisodes => new ReadOnlyCollection<LearningEpisode>(_episodes);
+    public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     
     public static Apprenticeship Get(ApprenticeshipModel entity)
     {
@@ -58,7 +57,7 @@ public class Apprenticeship : AggregateRoot
 
     public void RecalculateEarnings(LearningEvent apprenticeshipEvent, ISystemClockService systemClock)
     {
-        var episode = LearningEpisodes.Single(x => x.LearningEpisodeKey == apprenticeshipEvent.Episode.Key);
+        var episode = ApprenticeshipEpisodes.Single(x => x.LearningEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
         episode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
@@ -66,7 +65,7 @@ public class Apprenticeship : AggregateRoot
 
     public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
     {
-        foreach (var episode in LearningEpisodes)
+        foreach (var episode in ApprenticeshipEpisodes)
         {
             episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
         }

@@ -50,11 +50,11 @@ public class WhenProcessEpisodeUpdatedCommandHandled
 
     private ProcessEpisodeUpdatedCommand BuildCommand(Apprenticeship apprenticeship)
     {
-        var currentEpisode = apprenticeship.LearningEpisodes.First();
+        var currentEpisode = apprenticeship.ApprenticeshipEpisodes.First();
         var priceChangeApprovedEvent = new LearningPriceChangedEvent
         {
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            LearningKey = apprenticeship.LearningKey,
+            LearningKey = apprenticeship.ApprenticeshipKey,
             ApprovedBy = ApprovedBy.Employer,
             ApprovedDate = new DateTime(2019, 12, 1),
             EffectiveFromDate = new DateTime(2019, 11, 1),

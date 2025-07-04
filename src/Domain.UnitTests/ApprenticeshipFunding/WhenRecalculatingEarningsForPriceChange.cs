@@ -43,21 +43,21 @@ public class WhenRecalculatingEarningsForPriceChange
         {
             Episode = new Learning.Types.LearningEpisode
             {
-                Key = _existingApprenticeship.LearningEpisodes.First().LearningEpisodeKey,
+                Key = _existingApprenticeship.ApprenticeshipEpisodes.First().LearningEpisodeKey,
                 Prices = new List<LearningEpisodePrice>
                 {
                     new()
                     {
-                        Key = _existingApprenticeship.LearningEpisodes.First().Prices.First().PriceKey,
-                        StartDate = _existingApprenticeship.LearningEpisodes.First().Prices.First()
+                        Key = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().PriceKey,
+                        StartDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First()
                             .StartDate,
-                        EndDate = _existingApprenticeship.LearningEpisodes.First().Prices.First().EndDate,
+                        EndDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().EndDate,
                         TotalPrice = _updatedPrice,
                         FundingBandMaximum = (int)(Math.Ceiling(_updatedPrice) + 1)
                     }
                 }
             },
-            EffectiveFromDate = _existingApprenticeship.LearningEpisodes.First().Prices.First().StartDate
+            EffectiveFromDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().StartDate
         };
     }
 

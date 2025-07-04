@@ -50,11 +50,11 @@ internal static class FixtureExtensions
     {
         var apprenticeshipEntityModel = fixture.Create<ApprenticeshipModel>();
 
-        apprenticeshipEntityModel.Key = apprenticeship.LearningKey;
+        apprenticeshipEntityModel.Key = apprenticeship.ApprenticeshipKey;
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
 
-        apprenticeshipEntityModel.Episodes = apprenticeship.LearningEpisodes.Select(x => new EpisodeModel
+        apprenticeshipEntityModel.Episodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new EpisodeModel
         {
             Ukprn = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
@@ -64,7 +64,7 @@ internal static class FixtureExtensions
             LegalEntityName = x.LegalEntityName,
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.LearningEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
+            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
             Key = x.LearningEpisodeKey
         }).ToList();
 

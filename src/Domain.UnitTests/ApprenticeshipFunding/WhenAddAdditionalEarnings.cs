@@ -55,7 +55,7 @@ public class WhenAddAdditionalEarnings
         sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
-        sut.LearningEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(2);
+        sut.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(2);
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class WhenAddAdditionalEarnings
         sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
-        sut.LearningEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(6);
+        sut.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(6);
     }
 
     [Test]

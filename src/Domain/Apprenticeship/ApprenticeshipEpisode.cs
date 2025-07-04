@@ -7,10 +7,10 @@ using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class LearningEpisode
+public class ApprenticeshipEpisode
 {
 
-    private LearningEpisode(EpisodeModel model)
+    private ApprenticeshipEpisode(EpisodeModel model)
     {
         _model = model;
 
@@ -42,9 +42,9 @@ public class LearningEpisode
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
-    public static LearningEpisode Get(EpisodeModel entity)
+    public static ApprenticeshipEpisode Get(EpisodeModel entity)
     {
-        return new LearningEpisode(entity);
+        return new ApprenticeshipEpisode(entity);
     }
 
     public void CalculateEpisodeEarnings(Apprenticeship apprenticeship, ISystemClockService systemClock)

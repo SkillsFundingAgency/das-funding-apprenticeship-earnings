@@ -30,7 +30,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             };
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
-            apprenticeship.LearningEpisodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
+            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
 
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
-            apprenticeship.LearningEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
             };
             var apprenticeship = _factory.GetExisting(apprenticeshipEntityModel);
 
-            apprenticeship.LearningEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
     }
 }

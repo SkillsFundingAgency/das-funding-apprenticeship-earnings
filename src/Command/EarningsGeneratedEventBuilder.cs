@@ -27,7 +27,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 
         var result = new EarningsGeneratedEvent
         {
-            LearningKey = apprenticeship.LearningKey,
+            LearningKey = apprenticeship.ApprenticeshipKey,
             Uln = apprenticeship.Uln,
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
@@ -56,7 +56,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
 
         return new EarningsGeneratedEvent
         {
-            LearningKey = apprenticeship.LearningKey,
+            LearningKey = apprenticeship.ApprenticeshipKey,
             Uln = apprenticeship.Uln,
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,

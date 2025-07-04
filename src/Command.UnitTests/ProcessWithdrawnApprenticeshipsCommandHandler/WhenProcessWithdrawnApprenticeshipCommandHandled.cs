@@ -66,7 +66,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
         var learningWithdrawnEvent = new LearningWithdrawnEvent
         {
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            LearningKey = apprenticeship.LearningKey,
+            LearningKey = apprenticeship.ApprenticeshipKey,
             Reason = _fixture.Create<string>(),
             LastDayOfLearning = new DateTime(2024, 11, 30)
         };

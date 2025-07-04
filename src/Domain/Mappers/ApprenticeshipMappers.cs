@@ -16,7 +16,7 @@ public static class ApprenticeshipMappers
             AcademicYear = x.AcademicYear,
             Amount = x.Amount,
             DeliveryPeriod = x.DeliveryPeriod,
-            ApprenticeshipKey = apprenticeship.LearningKey,
+            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EmployerAccountId = currentEpisode.EmployerAccountId,
             FundingType = currentEpisode.FundingType,

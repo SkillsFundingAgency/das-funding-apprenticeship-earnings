@@ -43,7 +43,7 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_learningKey_Correctly()
     {
-        _result.LearningKey.Should().Be(_apprenticeship.LearningKey);
+        _result.LearningKey.Should().Be(_apprenticeship.ApprenticeshipKey);
     }
 
     [Test]
@@ -55,37 +55,37 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerId_Correctly()
     {
-        _result.EmployerId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
+        _result.EmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_ProviderId_Correctly()
     {
-        _result.ProviderId.Should().Be(_apprenticeship.LearningEpisodes.Single().UKPRN);
+        _result.ProviderId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().UKPRN);
     }
 
     [Test]
     public void ShouldPopulateThe_TransferSenderEmployerId_Correctly()
     {
-        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.LearningEpisodes.Single().FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_AgreedPrice_Correctly()
     {
-        _result.AgreedPrice.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().AgreedPrice);
+        _result.AgreedPrice.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice);
     }
 
     [Test]
     public void ShouldPopulateThe_StartDate_Correctly()
     {
-        _result.StartDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().StartDate);
+        _result.StartDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().StartDate);
     }
 
     [Test]
     public void ShouldPopulateThe_TrainingCode_Correctly()
     {
-        _result.TrainingCode.Should().Be(_apprenticeship.LearningEpisodes.Single().TrainingCode);
+        _result.TrainingCode.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().TrainingCode);
     }
 
     [Test]
@@ -177,13 +177,13 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerAccountId_Correctly()
     {
-        _result.EmployerAccountId.Should().Be(_apprenticeship.LearningEpisodes.Single().EmployerAccountId);
+        _result.EmployerAccountId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_PlannedEndDate_Correctly()
     {
-        _result.PlannedEndDate.Should().Be(_apprenticeship.LearningEpisodes.Single().Prices.Single().EndDate);
+        _result.PlannedEndDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
     }
 
     [Test]
@@ -195,6 +195,6 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_ageAtStartOfLearning_Correctly()
     {
-        _result.AgeAtStartOfLearning.Should().Be(_apprenticeship.LearningEpisodes.Single().AgeAtStartOfApprenticeship);
+        _result.AgeAtStartOfLearning.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
     }
 }

@@ -46,7 +46,7 @@ public class WhenMappingApprenticeshipToEarningsReadModels
             AcademicYear = x.AcademicYear,
             Amount = x.Amount,
             DeliveryPeriod = x.DeliveryPeriod,
-            ApprenticeshipKey = apprenticeship.LearningKey,
+            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
             ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
             EmployerAccountId = currentEpisodeModel.EmployerAccountId,
             FundingType = currentEpisodeModel.FundingType,

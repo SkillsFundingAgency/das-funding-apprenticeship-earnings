@@ -68,7 +68,7 @@ public class WhenGetFm36Data
         // Assert
         result.Should().ContainSingle();
         var apprenticeship = result.First();
-        apprenticeship.Key.Should().Be(expectedApprenticeship.LearningKey);
+        apprenticeship.Key.Should().Be(expectedApprenticeship.ApprenticeshipKey);
         apprenticeship.Ukprn.Should().Be(query.Ukprn);
         apprenticeship.FundingLineType.Should().Be(currentEpisode.AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"

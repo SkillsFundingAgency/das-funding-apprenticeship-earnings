@@ -18,7 +18,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     private Fixture? _fixture;
     private Mock<ISystemClockService>? _mockSystemClockService;
     private Apprenticeship.Apprenticeship? _apprenticeship;
-    private Apprenticeship.LearningEpisode? _currentEpisode;
+    private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
     private LearningStartDateChangedEvent _learningStartDateChangedEvent;
 
     [SetUp]
@@ -44,7 +44,7 @@ public class WhenRecalculatingEarningsForStartDateChange
             .Create();
 
         _apprenticeship = Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);
-        _currentEpisode = _apprenticeship.LearningEpisodes.First();
+        _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
 
         _learningStartDateChangedEvent = new LearningStartDateChangedEvent
         {
