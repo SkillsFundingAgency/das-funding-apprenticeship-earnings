@@ -67,7 +67,7 @@ public class WhenSaveLearningSupport
 
         var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
         _mockApprenticeshipRepository
-            .Setup(repo => repo.Get(command.LearningKey))
+            .Setup(repo => repo.Get(command.ApprenticeshipKey))
             .ReturnsAsync(apprenticeship);
 
         // Act

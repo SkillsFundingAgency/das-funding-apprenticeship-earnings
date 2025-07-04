@@ -2,13 +2,13 @@
 
 public class SaveMathsAndEnglishCommand : ICommand
 {
-    public SaveMathsAndEnglishCommand(Guid learningKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
+    public SaveMathsAndEnglishCommand(Guid apprenticeshipKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
     {
-        LearningKey = learningKey;
+        ApprenticeshipKey = apprenticeshipKey;
         MathsAndEnglishDetails = saveMathsAndEnglishRequest;
     }
 
-    public Guid LearningKey { get; }
+    public Guid ApprenticeshipKey { get; }
 
     public List<MathsAndEnglishDetail> MathsAndEnglishDetails { get; set; }
 }

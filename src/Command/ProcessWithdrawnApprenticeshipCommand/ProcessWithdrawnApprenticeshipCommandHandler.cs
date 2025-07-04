@@ -20,7 +20,7 @@ public class ProcessWithdrawnApprenticeshipCommandHandler : ICommandHandler<Proc
 
     public async Task Handle(ProcessWithdrawnApprenticeshipCommand command, CancellationToken cancellationToken = default)
     {
-        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.LearningKey);
+        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.RemovalEarningsFollowingWithdrawal(command.LastDayOfLearning, _systemClock);
 

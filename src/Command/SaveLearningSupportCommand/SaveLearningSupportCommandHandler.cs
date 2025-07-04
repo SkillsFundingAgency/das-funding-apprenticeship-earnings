@@ -30,21 +30,21 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
 
     public async Task Handle(SaveLearningSupportCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
         var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
         LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate)).ToList();
 
-        var apprenticeshipDomainModel = await GetDomainApprenticeship(command.LearningKey);
+        var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
         await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
 
-        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 
     private async Task<Domain.Apprenticeship.Apprenticeship> GetDomainApprenticeship(Guid LearningKey)

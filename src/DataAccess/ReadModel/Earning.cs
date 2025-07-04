@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
     public class Earning
     {
         public Guid Id { get; set; }
-        public Guid LearningKey { get; set; }
+        public Guid ApprenticeshipKey { get; set; }
         public long ApprovalsApprenticeshipId { get; set; }
         public string Uln { get; set; } = null!;
         public long UKPRN { get; set; }

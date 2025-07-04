@@ -29,20 +29,20 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
 
     public async Task Handle(SaveMathsAndEnglishCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveMathsAndEnglishCommand for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Handling SaveMathsAndEnglishCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
         var mathsAndEnglishCourses = command.MathsAndEnglishDetails.Select(x =>
             MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(x.StartDate, x.EndDate, x.Course, x.Amount)).ToList();
 
-        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.LearningKey);
+        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, _systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
         await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel), cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 }

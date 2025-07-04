@@ -39,7 +39,7 @@ public class EarningsQueryRepository : IEarningsQueryRepository
 
     public async Task Replace(Apprenticeship.Apprenticeship apprenticeship)
     {
-        var earningsToBeRemoved = await DbContext.Earning.Where(x => x.LearningKey == apprenticeship.LearningKey).ToListAsync();
+        var earningsToBeRemoved = await DbContext.Earning.Where(x => x.ApprenticeshipKey == apprenticeship.LearningKey).ToListAsync();
         DbContext.RemoveRange(earningsToBeRemoved);
         await Add(apprenticeship);
     }

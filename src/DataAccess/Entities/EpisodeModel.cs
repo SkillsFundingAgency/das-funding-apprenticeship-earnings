@@ -11,10 +11,10 @@ public class EpisodeModel
     {
     }
 
-    public EpisodeModel(Guid learningKey, LearningEpisode learningEpisode) : base()
+    public EpisodeModel(Guid apprenticeshipKey, LearningEpisode learningEpisode) : base()
     {
         Key = learningEpisode.Key;
-        ApprenticeshipKey = learningKey;
+        ApprenticeshipKey = apprenticeshipKey;
         Ukprn = learningEpisode.Ukprn;
         EmployerAccountId = learningEpisode.EmployerAccountId;
         FundingType = (FundingType)learningEpisode.FundingType;

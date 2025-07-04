@@ -2,14 +2,14 @@
 
 public class SaveCareDetailsCommand : ICommand
 {
-    public Guid LearningKey { get; }
+    public Guid ApprenticeshipKey { get; }
     public bool HasEHCP { get; }
     public bool IsCareLeaver { get; }
     public bool CareLeaverEmployerConsentGiven { get; }
 
-    public SaveCareDetailsCommand(Guid learningKey, SaveCareDetailsRequest saveCareDetailsRequest)
+    public SaveCareDetailsCommand(Guid apprenticeshipKey, SaveCareDetailsRequest saveCareDetailsRequest)
     {
-        LearningKey = learningKey;
+        ApprenticeshipKey = apprenticeshipKey;
         HasEHCP = saveCareDetailsRequest.HasEHCP;
         IsCareLeaver = saveCareDetailsRequest.IsCareLeaver;
         CareLeaverEmployerConsentGiven = saveCareDetailsRequest.CareLeaverEmployerConsentGiven;

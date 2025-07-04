@@ -29,24 +29,24 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
 
     public async Task Handle(SaveCareDetailsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveCareDetailsCommand for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Handling SaveCareDetailsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
-        var apprenticeshipDomainModel = await GetDomainApprenticeship(command.LearningKey);
+        var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
         apprenticeshipDomainModel.UpdateCareDetails(command.HasEHCP, command.IsCareLeaver, command.CareLeaverEmployerConsentGiven, _systemClockService);
         var hasRecalculatedEarnings = apprenticeshipDomainModel.HasEvent<EarningsRecalculatedEvent>();
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
         if (hasRecalculatedEarnings)
         {
-            _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.LearningKey);
+            _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
             await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
         }
         else
         {
-            _logger.LogInformation("No EarningsRecalculatedEvent to publish for apprenticeship {LearningKey}", command.LearningKey);
+            _logger.LogInformation("No EarningsRecalculatedEvent to publish for apprenticeship {LearningKey}", command.ApprenticeshipKey);
         }
        
-        _logger.LogInformation("Successfully handled SaveCareDetailsCommand for apprenticeship {LearningKey}", command.LearningKey);
+        _logger.LogInformation("Successfully handled SaveCareDetailsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 
     private async Task<Domain.Apprenticeship.Apprenticeship> GetDomainApprenticeship(Guid LearningKey)
