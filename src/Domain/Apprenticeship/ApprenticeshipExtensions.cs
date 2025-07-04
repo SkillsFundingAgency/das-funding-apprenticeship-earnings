@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Internal;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -30,5 +31,10 @@ public static class ApprenticeshipExtensions
     public static ApprenticeshipEpisode GetCurrentEpisode(this Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
         return GetCurrentEpisode(apprenticeship, systemClock.UtcNow.DateTime);
+    }
+
+    public static ApprenticeshipEpisode GetEpisodeFromModel(this Apprenticeship apprenticeship, EpisodeModel entity)
+    {
+        return ApprenticeshipEpisode.Get(apprenticeship, entity);
     }
 }

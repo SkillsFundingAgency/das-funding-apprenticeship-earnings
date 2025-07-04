@@ -52,8 +52,8 @@ public class ApprenticeshipCreatedEventPublishingStepDefinitions
             .WithEndDate(endDate);
     }
 
-    [Given(@"An apprenticeship has been created as part of the approvals journey")]
-    [Given(@"An apprenticeship has been created")]
+    [Given(@"an apprenticeship has been created as part of the approvals journey")]
+    [Given(@"an apprenticeship has been created")]
     [Given(@"the apprenticeship commitment is approved")]
     [When(@"the apprenticeship commitment is approved")]
     [Given(@"the earnings for the apprenticeship are calculated")]

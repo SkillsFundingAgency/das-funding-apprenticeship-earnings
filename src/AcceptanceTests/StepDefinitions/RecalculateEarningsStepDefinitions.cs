@@ -142,6 +142,25 @@ public class RecalculateEarningsStepDefinitions
                     currentEpisode.EarningsProfile.EarningsProfileId != previousEarningsProfileId);
     }
 
+    [Then("there are (.*) records in earning profile history")]
+    public async Task AssertHistoryUpdated(int numberOfRecords)
+    {
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to detect Earnings recalculation");
+
+        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
+
+        if (currentEpisode.EarningsProfileHistory == null || !currentEpisode.EarningsProfileHistory.Any())
+        {
+            Assert.Fail("No earning history created");
+        }
+
+        if (currentEpisode.EarningsProfileHistory.Count != numberOfRecords)
+        {
+            Assert.Fail($"Expected to find {numberOfRecords} EarningProfileHistory records but found {currentEpisode.EarningsProfileHistory.Count}");
+        }
+    }
+
     [Then(@"there are (.*) earnings")]
     public void AssertExpectedNumberOfEarnings(int expectedNumberOfEarnings)
     {

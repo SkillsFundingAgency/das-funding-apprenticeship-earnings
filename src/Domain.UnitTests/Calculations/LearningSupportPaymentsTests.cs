@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

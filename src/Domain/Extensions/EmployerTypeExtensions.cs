@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 public static class FundingTypeExtensions
 {

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Apprenticeships.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -18,13 +17,13 @@ public class Apprenticeship : AggregateRoot
             Uln = apprenticeshipCreatedEvent.Uln,
             Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.ApprenticeshipKey, apprenticeshipCreatedEvent.Episode) }
         };
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(x=> this.GetEpisodeFromModel(x)).ToList();
     }
 
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(x => this.GetEpisodeFromModel(x)).ToList();
     }
 
     private ApprenticeshipModel _model;

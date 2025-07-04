@@ -4,7 +4,9 @@
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
     [OnProgramTotal] DECIMAL(15,5) NOT NULL, 
     [CompletionPayment] DECIMAL(15,5) NULL,
-    [SupersededDate] DATETIME NOT NULL
+    [SupersededDate] DATETIME NOT NULL, 
+    [OriginalEarningsProfileId] UNIQUEIDENTIFIER NULL,
+    [Version] UNIQUEIDENTIFIER NULL
 )
 GO
 ALTER TABLE Domain.[EarningsProfileHistory]

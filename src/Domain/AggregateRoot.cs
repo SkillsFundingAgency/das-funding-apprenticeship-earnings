@@ -1,30 +1,84 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+
+public abstract class AggregateRoot : AggregateComponent
 {
-    public abstract class AggregateRoot
+    private readonly List<AggregateComponent> _children = new();
+    public override Action<AggregateComponent> AddChildToRoot => AddChild;
+
+    protected AggregateRoot():base(null)
     {
-        private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+        
+    }
 
-        protected void AddEvent(IDomainEvent @event)
+    public override IEnumerable<IDomainEvent> FlushEvents()
+    {
+        var allEvents = base.FlushEvents().ToList();
+
+        lock (_children)
         {
-            lock (_events)
+            foreach (var child in _children)
             {
-                _events.Add(@event);
+               allEvents.AddRange(child.FlushEvents());
             }
         }
 
-        public IEnumerable<IDomainEvent> FlushEvents()
+        return allEvents;
+    }
+
+    private void AddChild(AggregateComponent child)
+    {
+        lock (_children)
         {
-            lock (_events)
+            _children.Add(child);
+        }
+    }
+}
+
+public abstract class AggregateComponent
+{
+    private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+    public virtual Action<AggregateComponent> AddChildToRoot { get; }
+
+    public AggregateComponent(Action<AggregateComponent>? addChildToRoot)
+    {
+        if (this is AggregateRoot)
+        {
+            AddChildToRoot = (AggregateComponent) =>
             {
-                var events = _events.ToArray();
-                _events.Clear();
-                return events;
-            }
+                throw new InvalidOperationException("AggregateRoot should be overridden in the AggregateRoot component");
+            };
+            return;
         }
 
-        public bool HasEvent<T>()
+
+        if(addChildToRoot == null)
+            throw new ArgumentNullException(nameof(addChildToRoot), "AddChildToRoot action must be provided for AggregateComponent");
+
+
+        AddChildToRoot = addChildToRoot;
+        AddChildToRoot(this);
+    }
+
+    protected void AddEvent(IDomainEvent @event)
+    {
+        lock (_events)
         {
-            return _events.Any(x => x is T);
+            _events.Add(@event);
         }
+    }
+
+    public virtual IEnumerable<IDomainEvent> FlushEvents()
+    {
+        lock (_events)
+        {
+            var events = _events.ToArray();
+            _events.Clear();
+            return events;
+        }
+    }
+
+    public bool HasEvent<T>()
+    {
+        return _events.Any(x => x is T);
     }
 }
