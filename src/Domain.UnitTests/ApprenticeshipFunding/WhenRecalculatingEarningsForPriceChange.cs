@@ -43,7 +43,7 @@ public class WhenRecalculatingEarningsForPriceChange
         {
             Episode = new Learning.Types.LearningEpisode
             {
-                Key = _existingApprenticeship.ApprenticeshipEpisodes.First().LearningEpisodeKey,
+                Key = _existingApprenticeship.ApprenticeshipEpisodes.First().ApprenticeshipEpisodeKey,
                 Prices = new List<LearningEpisodePrice>
                 {
                     new()

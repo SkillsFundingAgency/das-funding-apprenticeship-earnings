@@ -60,7 +60,7 @@ public class WhenProcessEpisodeUpdatedCommandHandled
             EffectiveFromDate = new DateTime(2019, 11, 1),
             Episode = new LearningEpisode
             {
-                Key = currentEpisode.LearningEpisodeKey,
+                Key = currentEpisode.ApprenticeshipEpisodeKey,
                 Prices = new List<LearningEpisodePrice>()
                 {
                     new LearningEpisodePrice

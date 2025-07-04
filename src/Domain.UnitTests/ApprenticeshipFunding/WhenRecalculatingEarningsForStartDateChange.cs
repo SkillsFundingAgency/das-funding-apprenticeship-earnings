@@ -50,7 +50,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         {
             Episode = new Learning.Types.LearningEpisode
             {
-                Key = _currentEpisode.LearningEpisodeKey,
+                Key = _currentEpisode.ApprenticeshipEpisodeKey,
                 Prices = new List<LearningEpisodePrice>
                 {
                     new LearningEpisodePrice

@@ -49,7 +49,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             Ukprn = currentEpisode.UKPRN,
             Episodes = source.ApprenticeshipEpisodes.Select(x => new Episode
             {
-                Key = x.LearningEpisodeKey,
+                Key = x.ApprenticeshipEpisodeKey,
                 NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
                 Instalments = x.EarningsProfile.Instalments.Select(i => new Instalment
                 {

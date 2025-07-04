@@ -25,7 +25,7 @@ public class ApprenticeshipEpisode
     private List<Price> _prices;
     private EarningsProfile _earningsProfile;
 
-    public Guid LearningEpisodeKey => _model.Key;
+    public Guid ApprenticeshipEpisodeKey => _model.Key;
     public long UKPRN => _model.Ukprn;
     public long EmployerAccountId => _model.EmployerAccountId;
     public int AgeAtStartOfApprenticeship => _model.AgeAtStartOfApprenticeship;
@@ -88,7 +88,7 @@ public class ApprenticeshipEpisode
             earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
             additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.ToList())).ToList(),
-            _model.EarningsProfile.CompletionPayment, LearningEpisodeKey);
+            _model.EarningsProfile.CompletionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -117,7 +117,7 @@ public class ApprenticeshipEpisode
             existingAdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             EarningsProfile.MathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList(),
             EarningsProfile.CompletionPayment,
-            LearningEpisodeKey);
+            ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -135,7 +135,7 @@ public class ApprenticeshipEpisode
             EarningsProfile.AdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList(),
             mathsAndEnglishCourses.Select(x => new MathsAndEnglish(x.StartDate, x.EndDate, x.Course, x.Amount, x.Instalments.Select(i => new MathsAndEnglishInstalment(i.AcademicYear, i.DeliveryPeriod, i.Amount)).ToList())).ToList(),
             EarningsProfile.CompletionPayment,
-            LearningEpisodeKey);
+            ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
@@ -228,7 +228,7 @@ public class ApprenticeshipEpisode
             mathsAndEnglishCourses.AddRange(EarningsProfile.PersistentMathsAndEnglishCourses().ToList());
         }
 
-        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, mathsAndEnglishCourses, completionPayment, LearningEpisodeKey);
+        _earningsProfile = new EarningsProfile(onProgramTotal, instalments, additionalPayments, mathsAndEnglishCourses, completionPayment, ApprenticeshipEpisodeKey);
         _model.EarningsProfile = _earningsProfile.GetModel();
     }
 
