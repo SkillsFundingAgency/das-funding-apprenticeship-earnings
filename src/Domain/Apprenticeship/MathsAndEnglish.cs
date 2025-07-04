@@ -1,9 +1,10 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class MathsAndEnglish
+public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
 {
     private MathsAndEnglishModel _model;
     private List<MathsAndEnglishInstalment> _instalments;
@@ -29,17 +30,28 @@ public class MathsAndEnglish
         _model.EndDate = endDate;
         _model.Course = course;
         _model.Amount = amount;
-        _model.Instalments = instalments.Select(x => x.GetModel(_model.Key)).ToList();
+        _model.Instalments = instalments.ToModels<MathsAndEnglishInstalment, MathsAndEnglishInstalmentModel>(model => model.MathsAndEnglishKey = _model.Key);
     }
 
-    public MathsAndEnglishModel GetModel(Guid earningsProfileKey)
+    public MathsAndEnglishModel GetModel()
     {
-        _model.EarningsProfileId = earningsProfileKey;
         return _model;
     }
 
     public static MathsAndEnglish Get(MathsAndEnglishModel model)
     {
         return new MathsAndEnglish(model);
+    }
+
+    public bool AreSame(MathsAndEnglishModel? compare)
+    {
+        if (compare == null)
+            return false;
+
+        return StartDate == compare.StartDate &&
+               EndDate == compare.EndDate &&
+               Course == compare.Course &&
+               Amount == compare.Amount &&
+               Instalments.AreSame(compare.Instalments);
     }
 }

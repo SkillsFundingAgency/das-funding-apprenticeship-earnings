@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class MathsAndEnglishInstalment
+public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalmentModel>
 {
     private MathsAndEnglishInstalmentModel _model;
 
@@ -26,14 +26,22 @@ public class MathsAndEnglishInstalment
         };
     }
 
-    public MathsAndEnglishInstalmentModel GetModel(Guid mathsAndEnglishKey)
+    public MathsAndEnglishInstalmentModel GetModel()
     {
-        _model.MathsAndEnglishKey = mathsAndEnglishKey;
         return _model;
     }
 
     public static MathsAndEnglishInstalment Get(MathsAndEnglishInstalmentModel model)
     {
         return new MathsAndEnglishInstalment(model);
+    }
+
+    public bool AreSame(MathsAndEnglishInstalmentModel? compare)
+    {
+        if (compare == null)
+            return false;
+        return AcademicYear == compare.AcademicYear &&
+               DeliveryPeriod == compare.DeliveryPeriod &&
+               Amount == compare.Amount;
     }
 }

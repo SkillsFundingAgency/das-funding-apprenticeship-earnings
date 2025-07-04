@@ -71,7 +71,6 @@ Scenario: New start date in the next academic year
 Scenario: A new start and end date are earlier than orginal start date
 	Given an apprenticeship has been created
 	And there are 20 earnings
-	And the earnings for the apprenticeship are calculated
 	And the start date has been moved 2 months earlier
 	And the end date has been moved 2 months earlier
 	When the start date change is approved
@@ -80,7 +79,6 @@ Scenario: A new start and end date are earlier than orginal start date
 Scenario: A new start is earlier than orginal start date but the end date remains the same
 	Given an apprenticeship has been created
 	And there are 20 earnings
-	And the earnings for the apprenticeship are calculated
 	And the start date has been moved 2 months earlier
 	When the start date change is approved
 	Then there are 22 earnings
@@ -88,7 +86,6 @@ Scenario: A new start is earlier than orginal start date but the end date remain
 Scenario: A new earlier start and later end date
 	Given an apprenticeship has been created
 	And there are 20 earnings
-	And the earnings for the apprenticeship are calculated
 	And the start date has been moved 2 months earlier
 	And the end date has been moved 2 months later
 	When the start date change is approved

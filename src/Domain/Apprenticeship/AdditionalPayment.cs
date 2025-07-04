@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class AdditionalPayment
+public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
 {
     private AdditionalPaymentModel _model;
 
@@ -30,14 +30,25 @@ public class AdditionalPayment
         };
     }
 
-    public AdditionalPaymentModel GetModel(Guid modelEarningsProfileId)
+    public AdditionalPaymentModel GetModel()
     {
-        _model.EarningsProfileId = modelEarningsProfileId;
         return _model;
     }
 
     public static AdditionalPayment Get(AdditionalPaymentModel model)
     {
         return new AdditionalPayment(model);
+    }
+
+    public bool AreSame(AdditionalPaymentModel? compare)
+    {
+        if (compare == null)
+            return false;
+
+        return AcademicYear == compare.AcademicYear &&
+               DeliveryPeriod == compare.DeliveryPeriod &&
+               Amount == compare.Amount &&
+               AdditionalPaymentType == compare.AdditionalPaymentType &&
+               DueDate == compare.DueDate;
     }
 }

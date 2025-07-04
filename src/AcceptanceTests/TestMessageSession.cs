@@ -3,6 +3,12 @@
 public class TestMessageSession : IMessageSession
 {
     private readonly List<object> _publishedMessages = new List<object>();
+    private readonly List<Func<object, Task>> _publishListeners = new List<Func<object, Task>>();
+
+    public void RegisterSubscriber<T>(Func<T, Task> publishListener)
+    {
+        _publishListeners.Add(message => publishListener((T)message));
+    }
 
     public List<T> ReceivedEvents<T>()
     {
@@ -12,6 +18,10 @@ public class TestMessageSession : IMessageSession
     public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         _publishedMessages.Add(message);
+        foreach (var listener in _publishListeners)
+        {
+            listener(message);
+        }
         return Task.CompletedTask;
     }
 

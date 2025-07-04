@@ -7,4 +7,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="IsNonLevyFullyFunded" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="8d82273c-dd00-450c-ba9c-653590b42733" ChangeDateTime="06/18/2025 12:29:51">
+    <Property Name="ElementName" Value="[Domain].[EarningsProfileHistory].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Domain].[EarningsProfileHistory]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EarningsProfileId" />
+  </Operation>
 </Operations>

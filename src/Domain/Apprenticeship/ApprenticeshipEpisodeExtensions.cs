@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -17,5 +18,22 @@ public static class LearningEpisodeExtensions
             throw new InvalidOperationException("No current price found");
 
         return price;
+    }
+
+    public static EarningsProfile GetEarningsProfileFromModel(this ApprenticeshipEpisode episode, EarningsProfileModel entity)
+    {
+        return EarningsProfile.Get(episode, entity);
+    }
+
+    public static EarningsProfile CreateEarningsProfile(
+        this ApprenticeshipEpisode episode, 
+        decimal onProgramTotal,
+        List<Instalment> instalments,
+        List<AdditionalPayment> additionalPayments,
+        List<MathsAndEnglish> mathsAndEnglishCourses,
+        decimal completionPayment,
+        Guid episodeKey)
+    {
+        return new EarningsProfile(onProgramTotal, instalments,additionalPayments,mathsAndEnglishCourses,completionPayment,episodeKey, episode.AddChildToRoot);
     }
 }

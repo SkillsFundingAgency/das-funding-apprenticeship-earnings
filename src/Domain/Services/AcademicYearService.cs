@@ -1,4 +1,6 @@
 ﻿
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 public class AcademicYearService : IAcademicYearService

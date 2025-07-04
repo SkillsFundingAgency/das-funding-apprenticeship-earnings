@@ -17,13 +17,13 @@ public class Apprenticeship : AggregateRoot
             Uln = learningCreatedEvent.Uln,
             Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) }
         };
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
 
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;
-        _episodes = _model.Episodes.Select(ApprenticeshipEpisode.Get).ToList();
+        _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
 
     private ApprenticeshipModel _model;
@@ -57,7 +57,7 @@ public class Apprenticeship : AggregateRoot
 
     public void RecalculateEarnings(LearningEvent apprenticeshipEvent, ISystemClockService systemClock)
     {
-        var episode = ApprenticeshipEpisodes.Single(x => x.LearningEpisodeKey == apprenticeshipEvent.Episode.Key);
+        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
         episode.CalculateEpisodeEarnings(this, systemClock);
         AddEvent(new EarningsRecalculatedEvent(this));
