@@ -89,12 +89,11 @@ public class Startup
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
 
-        var requiresAzureAuthentication = NotLocal(Configuration);
-        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, requiresAzureAuthentication);
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-        services.AddFunctionHealthChecks(ApplicationSettings, requiresAzureAuthentication);
+        services.AddFunctionHealthChecks(ApplicationSettings);
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
@@ -107,13 +106,4 @@ public class Startup
     {
         return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
     }
-
-    private static bool NotLocal(IConfiguration configuration)
-    {
-        var env = configuration!["EnvironmentName"];
-        var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
-        var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
-        return !isLocal && !isLocalAcceptanceTests;
-    }
-
 }

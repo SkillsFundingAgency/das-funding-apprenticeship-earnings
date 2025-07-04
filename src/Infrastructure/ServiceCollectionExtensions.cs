@@ -12,14 +12,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEntityFrameworkForApprenticeships(
         this IServiceCollection services,
-        ApplicationSettings settings,
-        bool requiresAzureAuthentication)
+        ApplicationSettings settings)
     {
 
         services.AddDbContext<ApprenticeshipEarningsDataContext>((provider, optionsBuilder) =>
         {
             optionsBuilder
-                .UseSqlServer(settings.DbConnectionString.EnsureAzureAdAuthentication(requiresAzureAuthentication),
+                .UseSqlServer(settings.DbConnectionString,
                 sql => sql.CommandTimeout(7200));
         });
 

@@ -8,10 +8,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 [ExcludeFromCodeCoverage]
 public static class StartupExtensions
 {
-    public static IServiceCollection AddApplicationHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings, bool requiresAzureAuthentication)
+    public static IServiceCollection AddApplicationHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings)
     {
         services.AddSingleton(sp => new DbHealthCheck(
-            applicationSettings.DbConnectionString.EnsureAzureAdAuthentication(requiresAzureAuthentication), 
+            applicationSettings.DbConnectionString, 
             sp.GetService<ILogger<DbHealthCheck>>()!));
         
         services.AddSingleton(sp => new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!));
