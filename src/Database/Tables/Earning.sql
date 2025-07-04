@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Query].[Earning]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    [LearningKey] UNIQUEIDENTIFIER NOT NULL, 
+    [ApprenticeshipKey] UNIQUEIDENTIFIER NOT NULL, 
     [Uln] NVARCHAR(10) NOT NULL, 
 	[Ukprn] BIGINT NOT NULL,
     [ApprovalsApprenticeshipId] BIGINT NOT NULL, 
