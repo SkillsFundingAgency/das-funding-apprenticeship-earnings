@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -8,22 +8,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    public Apprenticeship(ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+    public Apprenticeship(LearningCreatedEvent learningCreatedEvent)
     {
         _model = new ApprenticeshipModel
         {
-            ApprovalsApprenticeshipId = apprenticeshipCreatedEvent.ApprovalsApprenticeshipId,
-            Key = apprenticeshipCreatedEvent.ApprenticeshipKey,
-            Uln = apprenticeshipCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(apprenticeshipCreatedEvent.ApprenticeshipKey, apprenticeshipCreatedEvent.Episode) }
+            ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
+            Key = learningCreatedEvent.LearningKey,
+            Uln = learningCreatedEvent.Uln,
+            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) }
         };
-        _episodes = _model.Episodes.Select(x=> this.GetEpisodeFromModel(x)).ToList();
+        _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
 
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;
-        _episodes = _model.Episodes.Select(x => this.GetEpisodeFromModel(x)).ToList();
+        _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
 
     private ApprenticeshipModel _model;
@@ -55,7 +55,7 @@ public class Apprenticeship : AggregateRoot
         AddEvent(new EarningsCalculatedEvent(this));
     }
 
-    public void RecalculateEarnings(ApprenticeshipEvent apprenticeshipEvent, ISystemClockService systemClock)
+    public void RecalculateEarnings(LearningEvent apprenticeshipEvent, ISystemClockService systemClock)
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);

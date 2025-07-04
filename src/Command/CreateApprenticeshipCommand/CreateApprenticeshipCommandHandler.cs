@@ -28,7 +28,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
 
         public async Task<Apprenticeship> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
         {
-            var apprenticeship = _apprenticeshipFactory.CreateNew(command.ApprenticeshipCreatedEvent);
+            var apprenticeship = _apprenticeshipFactory.CreateNew(command.LearningCreatedEvent);
             apprenticeship.CalculateEarnings(_systemClock);
             await _apprenticeshipRepository.Add(apprenticeship);
             await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(apprenticeship));

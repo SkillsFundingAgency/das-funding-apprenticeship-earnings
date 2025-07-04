@@ -45,7 +45,7 @@ public class WhenSaveMathsAndEnglish
     public async Task Handle_ShouldCallRepositoryUpdate_WhenMathsAndEnglishPaymentsAreAdded()
     {
         // Arrange
-        var apprenticeshipKey = _fixture.Create<Guid>();
+        var learningKey = _fixture.Create<Guid>();
 
         var mathsAndEnglishList = new SaveMathsAndEnglishRequest
         {
@@ -53,7 +53,7 @@ public class WhenSaveMathsAndEnglish
             new MathsAndEnglishDetail{ Amount = 900, Course = "B114", StartDate = DateTime.Now.AddMonths(-12), EndDate = DateTime.Now.AddMonths(2) }
         };
 
-        var command = new SaveMathsAndEnglishCommand.SaveMathsAndEnglishCommand(apprenticeshipKey, mathsAndEnglishList);
+        var command = new SaveMathsAndEnglishCommand.SaveMathsAndEnglishCommand(learningKey, mathsAndEnglishList);
 
         var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
         apprenticeshipModel.Episodes = new List<EpisodeModel> { _fixture.Create<EpisodeModel>() };
@@ -61,7 +61,7 @@ public class WhenSaveMathsAndEnglish
         var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
 
         _mockApprenticeshipRepository
-            .Setup(repo => repo.Get(apprenticeshipKey))
+            .Setup(repo => repo.Get(learningKey))
             .ReturnsAsync(apprenticeship);
 
         // Act

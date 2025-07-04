@@ -3,7 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public static class ApprenticeshipEpisodeExtensions
+public static class LearningEpisodeExtensions
 {
     public static Price GetCurrentPrice(this ApprenticeshipEpisode episode, ISystemClockService systemClock)
     {

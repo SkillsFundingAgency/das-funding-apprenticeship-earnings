@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.12" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.3.1" />
-    <PackageReference Include="SFA.DAS.Apprenticeships.Types" Version="6.8.8" />
+    <PackageReference Include="SFA.DAS.Learning.Types" Version="6.8.38-prerelease-34" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.6" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>

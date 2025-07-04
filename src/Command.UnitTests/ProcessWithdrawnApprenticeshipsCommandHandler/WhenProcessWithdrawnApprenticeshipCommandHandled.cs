@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -63,14 +63,14 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
 
     private ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand BuildCommand(Apprenticeship apprenticeship)
     {
-        var apprenticeshipWithdrawnEvent = new ApprenticeshipWithdrawnEvent
+        var learningWithdrawnEvent = new LearningWithdrawnEvent
         {
-            ApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
+            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
+            LearningKey = apprenticeship.ApprenticeshipKey,
             Reason = _fixture.Create<string>(),
             LastDayOfLearning = new DateTime(2024, 11, 30)
         };
 
-        return new ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand(apprenticeshipWithdrawnEvent);
+        return new ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand(learningWithdrawnEvent);
     }
 }

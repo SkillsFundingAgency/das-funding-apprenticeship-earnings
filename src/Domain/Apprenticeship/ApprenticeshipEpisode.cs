@@ -1,9 +1,10 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -81,11 +82,11 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     }
 
-    public void Update(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
+    public void Update(Learning.Types.LearningEpisode episodeUpdate)
     {
         UpdatePrices(episodeUpdate);
 
-        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfApprenticeship;
+        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfLearning;
         _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
         _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
         _model.FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
@@ -182,7 +183,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         return result;
     }
 
-    private void UpdatePrices(Apprenticeships.Types.ApprenticeshipEpisode episodeUpdate)
+    private void UpdatePrices(Learning.Types.LearningEpisode episodeUpdate)
     {
         foreach (var existingPrice in _prices.ToList())
         {

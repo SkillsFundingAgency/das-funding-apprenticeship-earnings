@@ -31,11 +31,11 @@ public class WhenSaveMathsAndEnglish
     public async Task Then_Returns_Ok_On_Success()
     {
         // Arrange
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var request = _fixture.Create<SaveMathsAndEnglishRequest>();
 
         // Act
-        var result = await _controller.SaveMathsAndEnglish(apprenticeshipKey, request);
+        var result = await _controller.SaveMathsAndEnglish(learningKey, request);
 
         // Assert
         _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveMathsAndEnglishCommand>(), default), Times.Once);
@@ -46,7 +46,7 @@ public class WhenSaveMathsAndEnglish
     public async Task Then_Returns_InternalServerError_On_Exception()
     {
         // Arrange
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var request = _fixture.Create<SaveMathsAndEnglishRequest>();
 
         _commandDispatcherMock
@@ -54,7 +54,7 @@ public class WhenSaveMathsAndEnglish
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.SaveMathsAndEnglish(apprenticeshipKey, request);
+        var result = await _controller.SaveMathsAndEnglish(learningKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();

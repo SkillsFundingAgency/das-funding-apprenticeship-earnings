@@ -1,13 +1,13 @@
-﻿using SFA.DAS.Apprenticeships.Enums;
-using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Enums;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
-public class ApprenticeshipPriceChangedEventBuilder
+public class LearningPriceChangedEventBuilder
 {
-    private Guid _apprenticeshipKey = Guid.NewGuid();
+    private Guid _learningKey = Guid.NewGuid();
     private long _apprenticeshipId = EventBuilderSharedDefaults.ApprovalsApprenticeshipId;
     private DateTime _effectiveFromDate = new DateTime(2020, 02, 01);
     private ApprovedBy _approvedBy = ApprovedBy.Employer;
@@ -21,100 +21,100 @@ public class ApprenticeshipPriceChangedEventBuilder
     private decimal _newAssessmentPrice = 3000;
     private DateTime _endDate = new DateTime(2022, 1, 1);
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
-    private int _ageAtStartOfApprenticeship = 20;
-    private List<ApprenticeshipEpisodePrice>? _existingPrices;
+    private int _ageAtStartOfLearning = 20;
+    private List<LearningEpisodePrice>? _existingPrices;
 
-    public ApprenticeshipPriceChangedEventBuilder WithApprenticeshipKey(Guid key)
+    public LearningPriceChangedEventBuilder WithLearningKey(Guid key)
     {
-        _apprenticeshipKey = key;
+        _learningKey = key;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithApprenticeshipId(long id)
+    public LearningPriceChangedEventBuilder WithApprenticeshipId(long id)
     {
         _apprenticeshipId = id;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithEffectiveFromDate(DateTime date)
+    public LearningPriceChangedEventBuilder WithEffectiveFromDate(DateTime date)
     {
         _effectiveFromDate = date;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithApprovedBy(ApprovedBy approvedBy)
+    public LearningPriceChangedEventBuilder WithApprovedBy(ApprovedBy approvedBy)
     {
         _approvedBy = approvedBy;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithApprovedDate(DateTime date)
+    public LearningPriceChangedEventBuilder WithApprovedDate(DateTime date)
     {
         _approvedDate = date;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithEpisodeKey(Guid episodeKey)
+    public LearningPriceChangedEventBuilder WithEpisodeKey(Guid episodeKey)
     {
         _episodeKey = episodeKey;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithExistingPriceKey(Guid existingPriceKey)
+    public LearningPriceChangedEventBuilder WithExistingPriceKey(Guid existingPriceKey)
     {
         _existingPriceKey = existingPriceKey;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithStartDate(DateTime startDate)
+    public LearningPriceChangedEventBuilder WithStartDate(DateTime startDate)
     {
         _startDate = startDate;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithFundingBandMaximum(int fundingBandMaximum)
+    public LearningPriceChangedEventBuilder WithFundingBandMaximum(int fundingBandMaximum)
     {
         _fundingBandMaximum = fundingBandMaximum;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithPriceChangePriceKey(Guid priceChangePriceKey)
+    public LearningPriceChangedEventBuilder WithPriceChangePriceKey(Guid priceChangePriceKey)
     {
         _priceChangePriceKey = priceChangePriceKey;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithNewTrainingPrice(decimal newTrainingPrice)
+    public LearningPriceChangedEventBuilder WithNewTrainingPrice(decimal newTrainingPrice)
     {
         _newTrainingPrice = newTrainingPrice;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithNewAssessmentPrice(decimal newAssessmentPrice)
+    public LearningPriceChangedEventBuilder WithNewAssessmentPrice(decimal newAssessmentPrice)
     {
         _newAssessmentPrice = newAssessmentPrice;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithEndDate(DateTime endDate)
+    public LearningPriceChangedEventBuilder WithEndDate(DateTime endDate)
     {
         _endDate = endDate;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithEmployerAccountId(long employerAccountId)
+    public LearningPriceChangedEventBuilder WithEmployerAccountId(long employerAccountId)
     {
         _employerAccountId = employerAccountId;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithAgeAtStartOfApprenticeship(int ageAtStartOfApprenticeship)
+    public LearningPriceChangedEventBuilder WithAgeAtStartOfLearning(int AgeAtStartOfLearning)
     {
-        _ageAtStartOfApprenticeship = ageAtStartOfApprenticeship;
+        _ageAtStartOfLearning = AgeAtStartOfLearning;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithDataFromSetupModel(PriceChangeModel model)
+    public LearningPriceChangedEventBuilder WithDataFromSetupModel(PriceChangeModel model)
     {
         if (model.EffectiveFromDate.HasValue) _effectiveFromDate = model.EffectiveFromDate.Value;
         if (model.ChangeRequestDate.HasValue) _approvedDate = model.ChangeRequestDate.Value;
@@ -123,21 +123,21 @@ public class ApprenticeshipPriceChangedEventBuilder
         return this;
     }
 
-    public ApprenticeshipPriceChangedEventBuilder WithExistingApprenticeshipData(ApprenticeshipCreatedEvent apprenticeship)
+    public LearningPriceChangedEventBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
     {
-        _apprenticeshipKey = apprenticeship.ApprenticeshipKey;
+        _learningKey = apprenticeship.LearningKey;
         _episodeKey = apprenticeship.Episode.Key;
         _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
         _fundingBandMaximum = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().FundingBandMaximum;
-        _ageAtStartOfApprenticeship = apprenticeship.Episode.AgeAtStartOfApprenticeship;
+        _ageAtStartOfLearning = apprenticeship.Episode.AgeAtStartOfLearning;
         _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         _existingPrices = apprenticeship.Episode.Prices;
         return this;
     }
 
-    public ApprenticeshipPriceChangedEvent Build()
+    public LearningPriceChangedEvent Build()
     {
-        var prices = new List<ApprenticeshipEpisodePrice>();
+        var prices = new List<LearningEpisodePrice>();
 
         if (_existingPrices != null && _existingPrices.Any())
         {
@@ -156,14 +156,14 @@ public class ApprenticeshipPriceChangedEventBuilder
             TotalPrice = _newTrainingPrice + _newAssessmentPrice
         });
 
-        return new ApprenticeshipPriceChangedEvent
+        return new LearningPriceChangedEvent()
         {
-            ApprenticeshipKey = _apprenticeshipKey,
-            ApprenticeshipId = _apprenticeshipId,
+            LearningKey = _learningKey,
+            ApprovalsApprenticeshipId = _apprenticeshipId,
             EffectiveFromDate = _effectiveFromDate,
             ApprovedBy = _approvedBy,
             ApprovedDate = _approvedDate,
-            Episode = new ApprenticeshipEpisode
+            Episode = new LearningEpisode
             {
                 Key = _episodeKey,
                 Prices = prices,
@@ -172,8 +172,8 @@ public class ApprenticeshipPriceChangedEventBuilder
                 LegalEntityName = "Smiths",
                 TrainingCode = "AbleSeafarer",
                 FundingEmployerAccountId = null,
-                AgeAtStartOfApprenticeship = _ageAtStartOfApprenticeship,
-                FundingPlatform = Apprenticeships.Enums.FundingPlatform.DAS
+                AgeAtStartOfLearning = _ageAtStartOfLearning,
+                FundingPlatform = Learning.Enums.FundingPlatform.DAS
             }
         };
     }

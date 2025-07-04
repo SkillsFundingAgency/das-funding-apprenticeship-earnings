@@ -26,7 +26,7 @@ public class SqlDatabase : IDisposable
         DbContext = new ApprenticeshipEarningsDataContext(options);
     }
 
-    public async Task<ApprenticeshipModel?> GetApprenticeship(Guid apprenticeshipKey)
+    public async Task<ApprenticeshipModel?> GetApprenticeship(Guid learningKey)
     {
         var apprenticeship = await DbContext.Apprenticeships
             .Include(x => x.Episodes)
@@ -48,7 +48,7 @@ public class SqlDatabase : IDisposable
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
-            .SingleOrDefaultAsync(x => x.Key == apprenticeshipKey);
+            .SingleOrDefaultAsync(x => x.Key == learningKey);
 
         return apprenticeship;
     }

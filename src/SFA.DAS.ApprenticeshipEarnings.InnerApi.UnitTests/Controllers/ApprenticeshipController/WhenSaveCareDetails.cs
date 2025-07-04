@@ -32,7 +32,7 @@ public class WhenSaveCareDetails
     public async Task Then_Returns_Ok_On_Success()
     {
         // Arrange
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var request = new SaveCareDetailsRequest
         {
             HasEHCP = true,
@@ -41,7 +41,7 @@ public class WhenSaveCareDetails
         };
 
         // Act
-        var result = await _controller.SaveCareDetails(apprenticeshipKey, request);
+        var result = await _controller.SaveCareDetails(learningKey, request);
 
         // Assert
         _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveCareDetailsCommand>(), default), Times.Once);
@@ -52,7 +52,7 @@ public class WhenSaveCareDetails
     public async Task Then_Returns_InternalServerError_On_Exception()
     {
         // Arrange
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var request = new SaveCareDetailsRequest
         {
             HasEHCP = true,
@@ -64,7 +64,7 @@ public class WhenSaveCareDetails
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.SaveCareDetails(apprenticeshipKey, request);
+        var result = await _controller.SaveCareDetails(learningKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();

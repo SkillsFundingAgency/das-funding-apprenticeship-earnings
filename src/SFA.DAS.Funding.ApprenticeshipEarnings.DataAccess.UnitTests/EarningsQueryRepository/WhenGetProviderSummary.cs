@@ -5,7 +5,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
