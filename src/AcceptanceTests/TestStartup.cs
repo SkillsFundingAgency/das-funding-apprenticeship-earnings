@@ -48,7 +48,7 @@ internal class TestStartup
 
         foreach (var queueTriggeredFunction in _queueTriggeredFunctions)
         {
-            collection.AddTransient(queueTriggeredFunction.HandlerType);
+            collection.AddScoped(queueTriggeredFunction.HandlerType);
         }
 
         collection.AddSingleton<ISystemClockService, TestSystemClock>();// override DI in Startup

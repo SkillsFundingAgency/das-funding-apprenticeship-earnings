@@ -3,6 +3,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
@@ -52,6 +53,12 @@ public class SqlDatabase : IDisposable
 
         return apprenticeship;
     }
+
+    public async Task<List<Earning>> GetQueryEarnings(Guid apprenticeshipKey)
+    {
+        var earnings = await DbContext.Earning.Where(x => x.ApprenticeshipKey == apprenticeshipKey).ToListAsync();
+        return earnings;
+    } 
 
     private void CreateTestDatabase()
     {

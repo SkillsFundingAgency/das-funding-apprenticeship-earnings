@@ -1,12 +1,11 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 internal static class EarningsProfileExtensions
 {
-    internal static EarningsProfileUpdatedEvent EarningsProfileArchivedEvent(this EarningsProfileModel earningsProfile, DateTime supersededDate)
+    internal static ArchiveEarningsProfileEvent EarningsProfileArchivedEvent(this EarningsProfileModel earningsProfile, DateTime supersededDate)
     {
         var archiveEarningsProfileEvent = new ArchiveEarningsProfileEvent
         {
@@ -21,7 +20,7 @@ internal static class EarningsProfileExtensions
             SupersededDate = supersededDate,
         };
 
-        return new EarningsProfileUpdatedEvent(archiveEarningsProfileEvent);
+        return archiveEarningsProfileEvent;
     }
 
     private static List<Types.Instalment> GetInstalments(this EarningsProfileModel earningsProfile)

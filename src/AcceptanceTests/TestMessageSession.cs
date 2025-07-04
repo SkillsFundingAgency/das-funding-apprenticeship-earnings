@@ -15,14 +15,14 @@ public class TestMessageSession : IMessageSession
         return _publishedMessages.OfType<T>().ToList();
     }
 
-    public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    public async Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         _publishedMessages.Add(message);
         foreach (var listener in _publishListeners)
         {
-            listener(message);
+            await listener(message);
         }
-        return Task.CompletedTask;
+
     }
 
     public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)

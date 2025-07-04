@@ -5,12 +5,12 @@ public abstract class AggregateRoot : AggregateComponent
     private readonly List<AggregateComponent> _children = new();
     public override Action<AggregateComponent> AddChildToRoot => AddChild;
 
-    protected AggregateRoot():base(null)
+    protected AggregateRoot() : base(null)
     {
-        
+
     }
 
-    public override IEnumerable<IDomainEvent> FlushEvents()
+    public override IEnumerable<object> FlushEvents()
     {
         var allEvents = base.FlushEvents().ToList();
 
@@ -18,7 +18,7 @@ public abstract class AggregateRoot : AggregateComponent
         {
             foreach (var child in _children)
             {
-               allEvents.AddRange(child.FlushEvents());
+                allEvents.AddRange(child.FlushEvents());
             }
         }
 
@@ -32,11 +32,22 @@ public abstract class AggregateRoot : AggregateComponent
             _children.Add(child);
         }
     }
+
+    public override bool HasEvent<T>()
+    {
+        if (base.HasEvent<T>())
+            return true;
+
+        lock (_children)
+        {
+            return _children.Any(child => child.HasEvent<T>());
+        }
+    }
 }
 
 public abstract class AggregateComponent
 {
-    private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+    private readonly List<object> _events = new List<object>();
     public virtual Action<AggregateComponent> AddChildToRoot { get; }
 
     public AggregateComponent(Action<AggregateComponent>? addChildToRoot)
@@ -59,7 +70,7 @@ public abstract class AggregateComponent
         AddChildToRoot(this);
     }
 
-    protected void AddEvent(IDomainEvent @event)
+    protected void AddEvent(object @event)
     {
         lock (_events)
         {
@@ -67,7 +78,7 @@ public abstract class AggregateComponent
         }
     }
 
-    public virtual IEnumerable<IDomainEvent> FlushEvents()
+    public virtual IEnumerable<object> FlushEvents()
     {
         lock (_events)
         {
@@ -77,7 +88,7 @@ public abstract class AggregateComponent
         }
     }
 
-    public bool HasEvent<T>()
+    public virtual bool HasEvent<T>()
     {
         return _events.Any(x => x is T);
     }
