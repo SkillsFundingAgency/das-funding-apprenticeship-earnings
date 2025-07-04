@@ -29,7 +29,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             modelBuilder.Entity<ApprenticeshipModel>()
                 .HasMany(x => x.Episodes)
                 .WithOne()
-                .HasForeignKey(fk => fk.LearningKey);
+                .HasForeignKey(fk => fk.ApprenticeshipKey);
             modelBuilder.Entity<ApprenticeshipModel>()
                 .HasKey(a => new { a.Key });
 

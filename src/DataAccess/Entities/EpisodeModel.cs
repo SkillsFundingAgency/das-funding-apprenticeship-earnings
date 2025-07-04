@@ -11,31 +11,31 @@ public class EpisodeModel
     {
     }
 
-    public EpisodeModel(Guid LearningKey, LearningEpisode LearningEpisode) : base()
+    public EpisodeModel(Guid learningKey, LearningEpisode learningEpisode) : base()
     {
-        Key = LearningEpisode.Key;
-        LearningKey = LearningKey;
-        Ukprn = LearningEpisode.Ukprn;
-        EmployerAccountId = LearningEpisode.EmployerAccountId;
-        FundingType = (FundingType)LearningEpisode.FundingType;
-        FundingEmployerAccountId = LearningEpisode.FundingEmployerAccountId;
-        LegalEntityName = LearningEpisode.LegalEntityName;
-        TrainingCode = LearningEpisode.TrainingCode;
-        AgeAtStartOfLearning = LearningEpisode.AgeAtStartOfLearning;
-        Prices.Add(new EpisodePriceModel(Key, LearningEpisode.Prices.First()));
+        Key = learningEpisode.Key;
+        ApprenticeshipKey = learningKey;
+        Ukprn = learningEpisode.Ukprn;
+        EmployerAccountId = learningEpisode.EmployerAccountId;
+        FundingType = (FundingType)learningEpisode.FundingType;
+        FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
+        LegalEntityName = learningEpisode.LegalEntityName;
+        TrainingCode = learningEpisode.TrainingCode;
+        AgeAtStartOfApprenticeship = learningEpisode.AgeAtStartOfLearning;
+        Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
     }
 
     [Dapper.Contrib.Extensions.Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Key { get; set; }
-	public Guid LearningKey { get; set; }
+	public Guid ApprenticeshipKey { get; set; }
     public long Ukprn { get; set; }
     public long EmployerAccountId { get; set; }
 	public FundingType FundingType { get; set; }
 	public long? FundingEmployerAccountId { get; set; }
     public string LegalEntityName { get; set; } = null!;
     public string TrainingCode { get; set; } = null!;
-    public int AgeAtStartOfLearning { get; set; }
+    public int AgeAtStartOfApprenticeship { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
     public List<EarningsProfileHistoryModel> EarningsProfileHistory { get; set; } = new();
