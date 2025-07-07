@@ -3,7 +3,7 @@
 
 public class EarningsGeneratedEvent
 {
-    public Guid LearningKey { get; set; }
+    public Guid ApprenticeshipKey { get; set; }
     public string Uln { get; set; }
     public long EmployerId { get; set; }
     public long ProviderId { get; set; }

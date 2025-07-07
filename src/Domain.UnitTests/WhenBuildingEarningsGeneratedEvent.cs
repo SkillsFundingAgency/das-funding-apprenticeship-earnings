@@ -43,7 +43,7 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_learningKey_Correctly()
     {
-        _result.LearningKey.Should().Be(_apprenticeship.ApprenticeshipKey);
+        _result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
     }
 
     [Test]

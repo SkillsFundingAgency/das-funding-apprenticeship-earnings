@@ -45,7 +45,7 @@ public class WhenReGenerateEarningsGerenatedEvent
         var result = _sut.ReGenerate(_apprenticeship);
 
         //  Assert
-        result.LearningKey.Should().Be(_apprenticeship.ApprenticeshipKey);
+        result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
         result.Uln.Should().Be(_apprenticeship.Uln);
         result.EmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
         result.ProviderId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().UKPRN);
