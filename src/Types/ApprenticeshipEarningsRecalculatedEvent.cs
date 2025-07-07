@@ -3,12 +3,12 @@
 #pragma warning disable CS8618
     public class ApprenticeshipEarningsRecalculatedEvent
     {
-        public Guid LearningKey { get; set; }
+        public Guid ApprenticeshipKey { get; set; }
         public List<DeliveryPeriod> DeliveryPeriods { get; set; }
         public Guid EarningsProfileId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime PlannedEndDate { get; set; }
-        public int AgeAtStartOfLearning { get; set; }
+        public int AgeAtStartOfApprenticeship { get; set; }
     }
 #pragma warning restore CS8618
 }

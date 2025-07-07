@@ -50,7 +50,7 @@ public class AdditionalPaymentsStepDefinitions
     {
         var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.LearningKey == learningCreatedEvent.LearningKey);
+        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == learningCreatedEvent.LearningKey);
 
         foreach (var expectedAdditionalPayment in data)
         {
