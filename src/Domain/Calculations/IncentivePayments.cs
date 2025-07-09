@@ -5,19 +5,19 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class IncentivePayments
 {
-    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
+    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
     {
         var incentivePayments = new List<IncentivePayment>();
-        incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate));
-        incentivePayments.AddRange(Generate19To24IncentivePayments(ageAtStartOfApprenticeship, apprenticeshipStartDate, apprenticeshipEndDate, hasEHCP, isCareLeaver, careLeaverEmployerConsentGiven));
+        incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate));
+        incentivePayments.AddRange(Generate19To24IncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, hasEHCP, isCareLeaver, careLeaverEmployerConsentGiven));
         return incentivePayments;
     }
 
-    public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
+    public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate)
     {
         var incentivePayments = new List<IncentivePayment>();
 
-        if (ageAtStartOfApprenticeship is > 18)
+        if (ageAtStartOfLearning is > 18)
         {
             return incentivePayments;
         }
@@ -39,12 +39,12 @@ public static class IncentivePayments
         return incentivePayments;
     }
 
-    public static List<IncentivePayment> Generate19To24IncentivePayments(int ageAtStartOfApprenticeship, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
+    public static List<IncentivePayment> Generate19To24IncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven)
     {
         var incentivePayments = new List<IncentivePayment>();
 
         // Does not fit age criteria
-        if (ageAtStartOfApprenticeship is < 19 || ageAtStartOfApprenticeship is > 24)
+        if (ageAtStartOfLearning is < 19 || ageAtStartOfLearning is > 24)
             return incentivePayments;
 
         // Is not eligible for incentive payments

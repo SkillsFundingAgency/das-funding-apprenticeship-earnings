@@ -1,11 +1,6 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReReleaseEarningsGeneratedCommand;
 
-public class ReReleaseEarningsGeneratedCommand : ICommand
+public class ReReleaseEarningsGeneratedCommand(long ukprn) : ICommand
 {
-    public long Ukprn { get; }
-
-    public ReReleaseEarningsGeneratedCommand(long ukprn)
-    {
-        Ukprn = ukprn;
-    }
+    public long Ukprn { get; } = ukprn;
 }

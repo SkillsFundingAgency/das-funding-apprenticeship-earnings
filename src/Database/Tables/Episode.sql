@@ -14,5 +14,5 @@ GO
 ALTER TABLE Domain.Episode
 ADD CONSTRAINT FK_Episode_Apprenticeship FOREIGN KEY (ApprenticeshipKey) REFERENCES Domain.Apprenticeship ([Key])
 GO
-CREATE INDEX IX_ApprenticeshipKey ON Domain.[Episode] (ApprenticeshipKey);
+CREATE INDEX IX_learningKey ON Domain.[Episode] (ApprenticeshipKey);
 GO

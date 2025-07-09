@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -11,18 +11,18 @@ public class EpisodeModel
     {
     }
 
-    public EpisodeModel(Guid apprenticeshipKey, ApprenticeshipEpisode apprenticeshipEpisode) : base()
+    public EpisodeModel(Guid apprenticeshipKey, LearningEpisode learningEpisode) : base()
     {
-        Key = apprenticeshipEpisode.Key;
+        Key = learningEpisode.Key;
         ApprenticeshipKey = apprenticeshipKey;
-        Ukprn = apprenticeshipEpisode.Ukprn;
-        EmployerAccountId = apprenticeshipEpisode.EmployerAccountId;
-        FundingType = (FundingType)apprenticeshipEpisode.FundingType;
-        FundingEmployerAccountId = apprenticeshipEpisode.FundingEmployerAccountId;
-        LegalEntityName = apprenticeshipEpisode.LegalEntityName;
-        TrainingCode = apprenticeshipEpisode.TrainingCode;
-        AgeAtStartOfApprenticeship = apprenticeshipEpisode.AgeAtStartOfApprenticeship;
-        Prices.Add(new EpisodePriceModel(Key, apprenticeshipEpisode.Prices.First()));
+        Ukprn = learningEpisode.Ukprn;
+        EmployerAccountId = learningEpisode.EmployerAccountId;
+        FundingType = (FundingType)learningEpisode.FundingType;
+        FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
+        LegalEntityName = learningEpisode.LegalEntityName;
+        TrainingCode = learningEpisode.TrainingCode;
+        AgeAtStartOfApprenticeship = learningEpisode.AgeAtStartOfLearning;
+        Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
     }
 
     [Dapper.Contrib.Extensions.Key]
