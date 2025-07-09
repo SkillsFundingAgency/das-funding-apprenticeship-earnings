@@ -45,6 +45,13 @@ public class AdditionalPaymentsStepDefinitions
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/mathsAndEnglish", expected);
     }
 
+    [When(@"the following completion is sent")]
+    public async Task GivenTheFollowingCompletionInformationIsProvided(Table table)
+    {
+        var completionDate = table.CreateSet<DateTime>().Single();
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/completion", completionDate);
+    }
+
     [Then(@"recalculate event is sent with the following incentives")]
     public void ThenRecalculateEventIsSentWithTheFollowingIncentives(Table table)
     {

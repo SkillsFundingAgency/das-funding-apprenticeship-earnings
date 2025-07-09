@@ -46,6 +46,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     }
 
     [Then(@"On programme earnings are persisted as follows")]
+    [Then(@"the instalments are balanced as follows")]
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
@@ -67,7 +68,8 @@ public class EarningsGeneratedEventHandlingStepDefinitions
             earningsInDb.Should()
                 .Contain(x => x.Amount == expectedEarning.Amount
                               && x.AcademicYear == expectedEarning.AcademicYear
-                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                              && expectedEarning.Type == null || expectedEarning.Type == x.Type);
 
             queryEarningsDbRecords.Should()
                 .Contain(x => x.Amount == expectedEarning.Amount
