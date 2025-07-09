@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCompletionCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 
@@ -84,22 +85,22 @@ public class ApprenticeshipController: ControllerBase
 
     [Route("{apprenticeshipKey}/completion")]
     [HttpPatch]
-    public async Task<IActionResult> SaveCompletion(Guid apprenticeshipKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
+    public async Task<IActionResult> SaveCompletion(Guid apprenticeshipKey, SaveCompletionRequest saveCompletionRequest)
     {
-        _logger.LogInformation("Received request to save maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save completion for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
 
         try
         {
-            var command = new SaveMathsAndEnglishCommand(apprenticeshipKey, saveMathsAndEnglishRequest);
+            var command = new SaveCompletionCommand(apprenticeshipKey, saveCompletionRequest);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving completion for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved completion for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 }

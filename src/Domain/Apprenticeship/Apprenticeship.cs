@@ -120,6 +120,5 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateCompletion(completionDate, systemClock);
-        currentEpisode.CalculateEpisodeEarnings(this, systemClock);
     }
 }
