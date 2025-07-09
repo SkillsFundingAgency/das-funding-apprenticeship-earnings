@@ -11,7 +11,6 @@ public abstract class EarningsProfileModelBase
     public Guid Version { get; set; }
     public decimal OnProgramTotal { get; set; }
     public decimal CompletionPayment { get; set; }
-    public DateTime CompletionDate { get; set; }
 
     public EarningsProfileModelBase() { }
 
@@ -22,7 +21,6 @@ public abstract class EarningsProfileModelBase
         CompletionPayment = original.CompletionPayment;
         OnProgramTotal = original.OnProgramTotal;
         Version = original.Version;
-        CompletionDate = original.CompletionDate;
     }
 }
 

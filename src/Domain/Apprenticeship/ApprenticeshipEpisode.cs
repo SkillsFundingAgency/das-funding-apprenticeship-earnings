@@ -148,8 +148,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate, _earningsProfile.CompletionPayment, _earningsProfile.Instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
 
         _earningsProfile.Update(systemClock,
-            instalments: balancedInstalments.Append(completionInstalment).ToList(),
-            completionDate: completionDate);
+            instalments: balancedInstalments.Append(completionInstalment).ToList());
     }
 
     private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)
