@@ -145,7 +145,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
     {
-        var balancedInstalments = BalancingInstalments.GenerateInstalmentsBalancedForCompletion(completionDate,
+        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate,
             _earningsProfile.CompletionPayment, _earningsProfile.Instalments.ToList());
 
         _earningsProfile.Update(systemClock,
