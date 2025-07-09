@@ -81,4 +81,25 @@ public class ApprenticeshipController: ControllerBase
         _logger.LogInformation("Successfully saved maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
+
+    [Route("{apprenticeshipKey}/completion")]
+    [HttpPatch]
+    public async Task<IActionResult> SaveCompletion(Guid apprenticeshipKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
+    {
+        _logger.LogInformation("Received request to save maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new SaveMathsAndEnglishCommand(apprenticeshipKey, saveMathsAndEnglishRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully saved maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
 }

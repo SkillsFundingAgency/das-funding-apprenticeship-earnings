@@ -3,6 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -137,6 +138,62 @@ public class ApprenticeshipEpisode : AggregateComponent
     {
         _earningsProfile.Update(systemClock,
             mathsAndEnglishCourses: mathsAndEnglishCourses);
+    }
+
+    /// <summary>
+    /// Updates the completion date and earnings profile accordingly
+    /// </summary>
+    public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
+    {
+        var balancedInstalments = BalancingInstalments.GenerateInstalmentsBalancedForCompletion(completionDate,
+            _earningsProfile.CompletionPayment, _earningsProfile.Instalments.ToList());
+
+        _earningsProfile.Update(systemClock,
+            instalments: balancedInstalments);
+    }
+
+    ////Create the completion instalment
+    //instalments.Add(new Instalment(completionYear, completionPeriod, completionAmount, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey));
+
+    private List<Instalment> GetBalancedInstalmentsForCompletion(DateTime completionDate, decimal completionAmount)
+    {
+        var instalments = _earningsProfile.Instalments.ToList();
+
+        var completionPeriod = completionDate.ToDeliveryPeriod();
+        var completionYear = completionDate.ToAcademicYear();
+
+        var completionInstalment = instalments.SingleOrDefault(x => x.AcademicYear == completionYear && x.DeliveryPeriod == completionPeriod);
+
+        //If there is no instalment for the completion period, it's after the current price episodes/end date so no balancing required
+        if (completionInstalment == null)
+        {
+            return instalments;
+        }
+
+        //Calculate the balancing amount
+        var balancingAmount = 0m;
+
+        foreach (var instalment in instalments)
+        {
+            if (instalment.AcademicYear < completionYear
+                || (instalment.AcademicYear == completionYear && instalment.DeliveryPeriod < completionPeriod))
+            {
+                balancingAmount += instalment.Amount;
+            }
+        }
+
+        //Remove all instalments before and on the completion date
+        instalments.RemoveAll(x =>
+            x.AcademicYear < completionYear || (x.AcademicYear == completionYear && x.DeliveryPeriod <= completionPeriod));
+
+        //Now create balancing instalment
+        if (balancingAmount > 0)
+        {
+            var balancingInstalment = new Instalment(completionYear, completionPeriod, balancingAmount, completionInstalment.EpisodePriceKey);
+            instalments.Add(balancingInstalment);
+        }
+
+        return instalments;
     }
 
     private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)

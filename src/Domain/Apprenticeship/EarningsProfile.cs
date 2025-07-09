@@ -2,6 +2,7 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -53,8 +54,9 @@ public class EarningsProfile : AggregateComponent
         List<Instalment>? instalments = null, 
         List<AdditionalPayment>? additionalPayments = null, 
         List<MathsAndEnglish>? mathsAndEnglishCourses = null,
-        decimal? completionPayment = null
-        )
+        decimal? completionPayment = null,
+        DateTime? completionDate = null
+    )
     {
         var archiveEvent = Model.EarningsProfileArchivedEvent(systemClock.UtcNow.Date);// this needs to be created before any changes, although it will be discarded if none are made
         var versionChanged = false;
@@ -90,12 +92,17 @@ public class EarningsProfile : AggregateComponent
             versionChanged = true;
         }
 
+        if (completionDate.HasValue && Model.CompletionDate != completionDate.Value)
+        {
+            Model.CompletionDate = completionDate.Value;
+            versionChanged = true;
+        }
+
         if (versionChanged)
         {
             Model.Version = Guid.NewGuid();
             AddEvent(archiveEvent);
         }
-             
     }
 
     /// <summary>

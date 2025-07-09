@@ -110,4 +110,14 @@ public class Apprenticeship : AggregateRoot
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
     }
+
+    /// <summary>
+    /// Updates completion date for the apprenticeship.
+    /// </summary>
+    public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdateCompletion(completionDate, systemClock);
+        currentEpisode.CalculateEpisodeEarnings(this, systemClock);
+    }
 }
