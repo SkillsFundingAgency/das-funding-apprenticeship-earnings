@@ -113,6 +113,8 @@ public class Apprenticeship : AggregateRoot
 
     /// <summary>
     /// Updates completion date for the apprenticeship.
+    /// Completion payment will be generated.
+    /// Balancing payments will be generated if necessary.
     /// </summary>
     public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
     {
