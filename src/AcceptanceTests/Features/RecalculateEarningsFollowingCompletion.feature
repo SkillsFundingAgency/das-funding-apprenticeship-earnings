@@ -73,5 +73,5 @@ Scenario: On Time Completion
 		| 1000   | 2021         | 9              | Regular    |
 		| 1000   | 2021         | 10             | Regular    |
 		| 1000   | 2021         | 11             | Regular    |
-		| 1000   | 2021         | 12             | Regular    |
+		| 1000   | 2021         | 12             | Balancing  |
 		| 3000   | 2021         | 12             | Completion |
