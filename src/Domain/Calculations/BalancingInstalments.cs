@@ -5,15 +5,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class BalancingInstalments
 {
-    public static List<Instalment> BalanceInstalmentsForCompletion(DateTime completionDate, decimal completionAmount, List<Instalment> instalments)
+    public static List<Instalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<Instalment> instalments)
     {
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var completionYear = completionDate.ToAcademicYear();
 
-        var completionInstalment = instalments.SingleOrDefault(x => x.AcademicYear == completionYear && x.DeliveryPeriod == completionPeriod);
+        var completionPeriodInstalment = instalments.SingleOrDefault(x => x.AcademicYear == completionYear && x.DeliveryPeriod == completionPeriod);
 
         //If there is no instalment for the completion period, it's after the current price episodes/end date so no balancing required
-        if (completionInstalment == null)
+        if (completionPeriodInstalment == null)
         {
             return instalments;
         }
@@ -37,7 +37,7 @@ public static class BalancingInstalments
         //Now create balancing instalment
         if (balancingAmount > 0)
         {
-            var balancingInstalment = new Instalment(completionYear, completionPeriod, balancingAmount, completionInstalment.EpisodePriceKey, InstalmentType.Balancing);
+            var balancingInstalment = new Instalment(completionYear, completionPeriod, balancingAmount, completionPeriodInstalment.EpisodePriceKey, InstalmentType.Balancing);
             instalments.Add(balancingInstalment);
         }
 

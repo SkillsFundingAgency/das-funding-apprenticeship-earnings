@@ -141,15 +141,16 @@ public class ApprenticeshipEpisode : AggregateComponent
     }
 
     /// <summary>
-    /// Updates the completion date and earnings profile accordingly
+    /// Updates the completion date and earnings profile accordingly with the completion instalment and balanced instalments if necessary.
     /// </summary>
     public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
     {
-        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate,
-            _earningsProfile.CompletionPayment, _earningsProfile.Instalments.ToList());
+        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, _earningsProfile.Instalments.ToList());
+        var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate, _earningsProfile.CompletionPayment, _earningsProfile.Instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
 
         _earningsProfile.Update(systemClock,
-            instalments: balancedInstalments);
+            instalments: balancedInstalments.Append(completionInstalment).ToList(),
+            completionDate: completionDate);
     }
 
     ////Create the completion instalment

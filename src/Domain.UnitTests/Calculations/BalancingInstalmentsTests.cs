@@ -16,7 +16,6 @@ public class BalancingInstalmentsTests
     {
         // Arrange
         var completionDate = new DateTime(2024, 8, 1); //R01
-        var completionAmount = 1000m;
         var priceKey = Guid.NewGuid();
         var instalments = new List<Instalment>
         {
@@ -25,7 +24,7 @@ public class BalancingInstalmentsTests
         };
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, completionAmount, new List<Instalment>(instalments));
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments));
 
         // Assert
         result.Should().BeEquivalentTo(instalments);
@@ -51,7 +50,7 @@ public class BalancingInstalmentsTests
         var expectedBalancingAmount = 500;
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, 1000m, new List<Instalment>(instalments));
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments));
 
         // Assert
         result.Should().ContainSingle(x =>
@@ -80,7 +79,7 @@ public class BalancingInstalmentsTests
         };
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, 500m, new List<Instalment>(instalments));
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments));
 
         // Assert
         result.Should().NotContain(x => x.Type == InstalmentType.Balancing);
