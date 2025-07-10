@@ -85,4 +85,27 @@ public class BalancingInstalmentsTests
         result.Should().NotContain(x => x.Type == InstalmentType.Balancing);
         result.Should().NotContain(x => x.DeliveryPeriod == completionPeriod);
     }
+
+    [Test]
+    public void BalanceInstalmentsForCompletion_LastInstalmentShouldBeRegular_IfCompletionOnTime()
+    {
+        // Arrange
+        var completionDate = new DateTime(2024, 6, 1);
+        var completionYear = completionDate.ToAcademicYear();
+        var completionPeriod = completionDate.ToDeliveryPeriod();
+        var priceKey = Guid.NewGuid();
+
+        var instalments = new List<Instalment>
+        {
+            new Instalment(completionYear, 11, 100, priceKey),
+            new Instalment(completionYear, 10, 200, priceKey)
+        };
+
+        // Act
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments));
+
+        // Assert
+        result.Should().NotContain(x => x.Type == InstalmentType.Balancing);
+        result.Should().Contain(x => x.DeliveryPeriod == completionPeriod && x.Type == InstalmentType.Regular);
+    }
 }
