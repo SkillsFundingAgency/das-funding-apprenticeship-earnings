@@ -66,7 +66,7 @@ public class ApprenticeshipController: ControllerBase
     [HttpPatch]
     public async Task<IActionResult> SaveMathsAndEnglish(Guid apprenticeshipKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
     {
-        _logger.LogInformation("Received request to save maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to save maths and english for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
 
         try
         {
@@ -75,11 +75,11 @@ public class ApprenticeshipController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error saving maths and english for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved maths and english for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully saved maths and english for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 

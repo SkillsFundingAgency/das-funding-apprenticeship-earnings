@@ -43,7 +43,7 @@ public class ReReleaseEarningsGeneratedCommandHandler : ICommandHandler<ReReleas
         {
             var eventMessage = _earningsGeneratedEventBuilder.ReGenerate(domainApprenticeship);
             await _messageSession.Publish(eventMessage);
-            _logger.LogInformation("Re-released earnings for apprenticeship: {apprenticeshipKey}", eventMessage.ApprenticeshipKey);
+            _logger.LogInformation("Re-released earnings for apprenticeship: {LearningKey}", eventMessage.ApprenticeshipKey);
         }
 
         _logger.LogInformation("Re-released earnings for Ukprn: {ukprn} completed", command.Ukprn);

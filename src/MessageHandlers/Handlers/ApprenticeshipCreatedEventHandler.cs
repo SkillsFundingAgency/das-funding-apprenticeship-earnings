@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -10,24 +10,24 @@ using NServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
-public class ApprenticeshipCreatedEventHandler(
+public class LearningCreatedEventHandler(
     ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler,
-    ILogger<ApprenticeshipCreatedEventHandler> logger)
-    : IHandleMessages<ApprenticeshipCreatedEvent>
+    ILogger<LearningCreatedEventHandler> logger)
+    : IHandleMessages<LearningCreatedEvent>
 {
-    public async Task Handle(ApprenticeshipCreatedEvent message, IMessageHandlerContext context)
+    public async Task Handle(LearningCreatedEvent message, IMessageHandlerContext context)
     {
         try
         {
-            logger.LogInformation($"{nameof(ApprenticeshipCreatedEventHandler)} processing...");
+            logger.LogInformation($"{nameof(LearningCreatedEventHandler)} processing...");
 
-            logger.LogInformation("ApprenticeshipKey: {0} Received ApprenticeshipCreatedEvent: {1}",
-                message.ApprenticeshipKey,
+            logger.LogInformation("LearningKey: {0} Received LearningCreatedEvent: {1}",
+                message.LearningKey,
                 JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
 
             if (!(message.Episode.FundingPlatform.HasValue && Enum.Parse<FundingPlatform>(message.Episode.FundingPlatform.Value.ToString()) == FundingPlatform.DAS))
             {
-                logger.LogInformation($"{nameof(ApprenticeshipCreatedEventHandler)} - Not generating earnings for non pilot apprenticeship with ApprenticeshipKey = {message.ApprenticeshipKey}");
+                logger.LogInformation($"{nameof(LearningCreatedEventHandler)} - Not generating earnings for non pilot apprenticeship with LearningKey = {message.LearningKey}");
                 return;
             }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -88,6 +90,7 @@ public class Startup
         services
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
+        services.AddSingleton<ITelemetryInitializer, CorrelationTelemetryInitializer>();
 
         var sqlConnectionNeedsAccessToken = NotLocal(Configuration);
         services.AddEntityFrameworkForApprenticeships(ApplicationSettings, sqlConnectionNeedsAccessToken);

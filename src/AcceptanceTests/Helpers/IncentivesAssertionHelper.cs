@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
 public static class IncentivesAssertionHelper
 {
-    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, ApprenticeshipStartDateChangedEvent startDateChangedEvent, ApprenticeshipModel apprenticeshipModel)
+    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, LearningStartDateChangedEvent startDateChangedEvent, ApprenticeshipModel apprenticeshipModel)
     {
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
