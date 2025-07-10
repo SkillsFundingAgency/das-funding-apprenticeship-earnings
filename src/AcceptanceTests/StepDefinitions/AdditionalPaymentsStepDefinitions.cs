@@ -49,7 +49,7 @@ public class AdditionalPaymentsStepDefinitions
     public async Task GivenTheFollowingCompletionInformationIsProvided(Table table)
     {
         var completionRequestModel = table.CreateSet<CompletionRequestModel>().Single();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/completion", completionRequestModel);
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/completion", completionRequestModel);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]
