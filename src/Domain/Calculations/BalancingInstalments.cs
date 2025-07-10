@@ -16,10 +16,9 @@ public static class BalancingInstalments
         var nextPeriodYear = completionDate.LastDayOfMonth().AddDays(1).ToAcademicYear();
         var completionOnTime = !instalments.Any(x => x.AcademicYear == nextPeriodYear && x.DeliveryPeriod == nextPeriod);
 
-        //If there is either:
-        // no instalment for the completion period (it's after the current price episodes/end date)
+        //No balancing is required if either:
+        // there is no instalment for the completion period (it's after the current price episodes/end date)
         // or the learner completed on time
-        // no balancing is required
         if (completionPeriodInstalment == null || completionOnTime)
         {
             return instalments;
