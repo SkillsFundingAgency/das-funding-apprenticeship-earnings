@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class MathsAndEnglishPayments
 {
-    public static MathsAndEnglish GenerateMathsAndEnglishPayments(DateTime startDate, DateTime endDate, string course, decimal amount)
+    public static MathsAndEnglish GenerateMathsAndEnglishPayments(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate)
     {
         var instalments = new List<MathsAndEnglishInstalment>();
 
@@ -33,6 +33,28 @@ public static class MathsAndEnglishPayments
             paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
         }
 
+        // Remove instalments after the withdrawal date
+        if (withdrawalDate.HasValue)
+            instalments.RemoveAll(x => x.DeliveryPeriod.GetCensusDate(x.AcademicYear) > withdrawalDate.Value);
+
+        // Remove all instalments if the withdrawal date is before the end of the qualifying period
+        if (withdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
+            return new MathsAndEnglish(startDate, endDate, course, amount, new List<MathsAndEnglishInstalment>());
+
         return new MathsAndEnglish(startDate, endDate, course, amount, instalments);
+    }
+
+    private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
+    {
+        var plannedLength = (endDate - startDate).TotalDays + 1;
+        var actualLength = (withdrawalDate - startDate).TotalDays + 1;
+
+        if (plannedLength >= 168)
+            return actualLength >= 42;
+
+        if (plannedLength >= 14)
+            return actualLength >= 14;
+
+        return actualLength >= 1;
     }
 }

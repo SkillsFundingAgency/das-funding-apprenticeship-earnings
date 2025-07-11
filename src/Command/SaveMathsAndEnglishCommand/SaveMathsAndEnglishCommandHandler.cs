@@ -32,7 +32,7 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
         _logger.LogInformation("Handling SaveMathsAndEnglishCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
         var mathsAndEnglishCourses = command.MathsAndEnglishDetails.Select(x =>
-            MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(x.StartDate, x.EndDate, x.Course, x.Amount)).ToList();
+            MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(x.StartDate, x.EndDate, x.Course, x.Amount, x.WithdrawalDate)).ToList();
 
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
