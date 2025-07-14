@@ -92,12 +92,11 @@ public class Startup
             .ConfigureFunctionsApplicationInsights();
         services.AddSingleton<ITelemetryInitializer, CorrelationTelemetryInitializer>();
 
-        var sqlConnectionNeedsAccessToken = NotLocal(Configuration);
-        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, sqlConnectionNeedsAccessToken);
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-        services.AddFunctionHealthChecks(ApplicationSettings, sqlConnectionNeedsAccessToken);
+        services.AddFunctionHealthChecks(ApplicationSettings);
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
@@ -110,13 +109,4 @@ public class Startup
     {
         return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
     }
-
-    private static bool NotLocal(IConfiguration configuration)
-    {
-        var env = configuration!["EnvironmentName"];
-        var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
-        var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
-        return !isLocal && !isLocalAcceptanceTests;
-    }
-
 }
