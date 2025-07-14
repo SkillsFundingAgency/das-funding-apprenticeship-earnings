@@ -22,7 +22,7 @@ public static class ApprenticeshipMappers
             FundingType = currentEpisode.FundingType,
             UKPRN = currentEpisode.UKPRN,
             Uln = apprenticeship.Uln,
-            ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey,
+            LearningEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey,
             FundingEmployerAccountId = currentEpisode.FundingEmployerAccountId,
             IsNonLevyFullyFunded = currentEpisode.IsNonLevyFullyFunded
         });
