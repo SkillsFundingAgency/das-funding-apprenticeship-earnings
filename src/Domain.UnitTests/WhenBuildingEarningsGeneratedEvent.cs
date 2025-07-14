@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -33,7 +33,7 @@ public class WhenBuildingEarningsGeneratedEvent
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,
-            fundingType: Apprenticeships.Enums.FundingType.NonLevy);
+            fundingType: Learning.Enums.FundingType.NonLevy);
 
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
 
@@ -41,7 +41,7 @@ public class WhenBuildingEarningsGeneratedEvent
     }
 
     [Test]
-    public void ShouldPopulateThe_ApprenticeshipKey_Correctly()
+    public void ShouldPopulateThe_learningKey_Correctly()
     {
         _result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
     }
@@ -193,8 +193,8 @@ public class WhenBuildingEarningsGeneratedEvent
     }
 
     [Test]
-    public void ShouldPopulateThe_AgeAtStartOfApprenticeship_Correctly()
+    public void ShouldPopulateThe_ageAtStartOfLearning_Correctly()
     {
-        _result.AgeAtStartOfApprenticeship.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+        _result.AgeAtStartOfLearning.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
     }
 }

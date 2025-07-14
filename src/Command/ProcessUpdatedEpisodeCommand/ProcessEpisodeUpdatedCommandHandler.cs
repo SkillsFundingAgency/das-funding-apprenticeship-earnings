@@ -24,7 +24,7 @@ public class ProcessEpisodeUpdatedCommandHandler : ICommandHandler<ProcessEpisod
 
     public async Task Handle(ProcessEpisodeUpdatedCommand command, CancellationToken cancellationToken = default)
     {
-        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.EpisodeUpdatedEvent.ApprenticeshipKey);
+        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.EpisodeUpdatedEvent.LearningKey);
 
         apprenticeshipDomainModel.RecalculateEarnings(command.EpisodeUpdatedEvent, _systemClock);
 

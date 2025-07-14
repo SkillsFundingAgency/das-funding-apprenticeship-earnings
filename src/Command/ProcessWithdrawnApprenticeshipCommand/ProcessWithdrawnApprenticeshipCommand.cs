@@ -1,19 +1,11 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 
-public class ProcessWithdrawnApprenticeshipCommand : ICommand
+public class ProcessWithdrawnApprenticeshipCommand(LearningWithdrawnEvent learningWithdrawnEvent) : ICommand
 {
-    public ProcessWithdrawnApprenticeshipCommand(ApprenticeshipWithdrawnEvent apprenticeshipWithdrawnEvent)
-    {
-        ApprenticeshipKey = apprenticeshipWithdrawnEvent.ApprenticeshipKey;
-        ApprenticeshipId = apprenticeshipWithdrawnEvent.ApprenticeshipId;
-        Reason = apprenticeshipWithdrawnEvent.Reason;
-        LastDayOfLearning = apprenticeshipWithdrawnEvent.LastDayOfLearning;
-    }
-
-    public Guid ApprenticeshipKey { get; set; }
-    public long ApprenticeshipId { get; set; }
-    public string Reason { get; set; }
-    public DateTime LastDayOfLearning { get; set; }
+    public Guid ApprenticeshipKey { get; set; } = learningWithdrawnEvent.LearningKey;
+    public long ApprovalsApprenticeshipId { get; set; } = learningWithdrawnEvent.ApprovalsApprenticeshipId;
+    public string Reason { get; set; } = learningWithdrawnEvent.Reason;
+    public DateTime LastDayOfLearning { get; set; } = learningWithdrawnEvent.LastDayOfLearning;
 }
