@@ -49,18 +49,23 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
-
+        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
+        var queryEarningsDbRecords = await _testContext.SqlDatabase.GetQueryEarnings(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
         earningsInDb.Should().HaveCount(data.Count);
+        queryEarningsDbRecords.Should().HaveCount(data.Count);
+
 
         foreach (var expectedEarning in data)
         {
             earningsInDb.Should()
+                .Contain(x => x.Amount == expectedEarning.Amount
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
+
+            queryEarningsDbRecords.Should()
                 .Contain(x => x.Amount == expectedEarning.Amount
                               && x.AcademicYear == expectedEarning.AcademicYear
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 
@@ -33,7 +33,9 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
         apprenticeshipDomainModel.UpdateCareDetails(command.HasEHCP, command.IsCareLeaver, command.CareLeaverEmployerConsentGiven, _systemClockService);
-        var hasRecalculatedEarnings = apprenticeshipDomainModel.HasEvent<EarningsRecalculatedEvent>();
+
+        var hasRecalculatedEarnings = apprenticeshipDomainModel.HasEvent<ArchiveEarningsProfileEvent>();
+
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
         if (hasRecalculatedEarnings)

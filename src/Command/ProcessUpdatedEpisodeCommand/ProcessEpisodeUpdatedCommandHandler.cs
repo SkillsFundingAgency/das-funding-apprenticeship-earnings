@@ -28,8 +28,9 @@ public class ProcessEpisodeUpdatedCommandHandler : ICommandHandler<ProcessEpisod
 
         apprenticeshipDomainModel.RecalculateEarnings(command.EpisodeUpdatedEvent, _systemClock);
 
+        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+
         await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
 
-        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
     }
 }
