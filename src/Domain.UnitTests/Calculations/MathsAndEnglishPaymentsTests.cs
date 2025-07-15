@@ -18,7 +18,7 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2023, 11, 30);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "M101", 300, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "M101", 300, null, null);
 
         // Assert
         result.Should().NotBeNull();
@@ -33,7 +33,7 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2023, 12, 31);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, null, null);
 
         // Assert
         result.Instalments.Count.Should().Be(3);
@@ -49,7 +49,7 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2023, 12, 31);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E103", 200, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E103", 200, null, null);
 
         // Assert
         result.Instalments.Count.Should().Be(2);
@@ -65,7 +65,7 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2024, 02, 26);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 931, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 931, null, null);
 
         // Assert
         result.Instalments.Count.Should().Be(1);
@@ -83,7 +83,7 @@ public class MathsAndEnglishPaymentsTests
         var withdrawalDate = new DateTime(2023, 6, 15);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, withdrawalDate);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, withdrawalDate, null);
 
         // Assert
         result.Instalments.Count.Should().Be(5);
@@ -104,9 +104,28 @@ public class MathsAndEnglishPaymentsTests
         var withdrawalDate = startDate.AddDays(actualDuration - 1);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, withdrawalDate);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, withdrawalDate, null);
 
         // Assert
         result.Instalments.Any().Should().Be(expectedToQualifyAfterWithdrawal);
+    }
+
+    [TestCase(20)]
+    [TestCase(93)]
+    [TestCase(100)]
+    [TestCase(130)]
+    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForPriorLearning(int priorLearningPercentage)
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 8, 1);
+        var endDate = new DateTime(2023, 12, 31);
+        var expectedAdjustedAmount = 211.6m * priorLearningPercentage / 100m;
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 1058, null, priorLearningPercentage);
+
+        // Assert
+        result.Instalments.Count.Should().Be(5);
+        result.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(expectedAdjustedAmount));
     }
 }

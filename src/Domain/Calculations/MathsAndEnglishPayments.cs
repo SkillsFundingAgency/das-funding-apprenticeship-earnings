@@ -6,22 +6,27 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class MathsAndEnglishPayments
 {
-    public static MathsAndEnglish GenerateMathsAndEnglishPayments(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate)
+    public static MathsAndEnglish GenerateMathsAndEnglishPayments(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate, int? priorLearningPercentage)
     {
         var instalments = new List<MathsAndEnglishInstalment>();
 
         // This is invalid, it should never happen but should not result in any payments
-        if (startDate > endDate) return new MathsAndEnglish(startDate, endDate, course, amount, instalments, withdrawalDate);
+        if (startDate > endDate) return new MathsAndEnglish(startDate, endDate, course, amount, instalments, withdrawalDate, priorLearningPercentage);
         
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
         if(startDate.Month == endDate.Month && startDate.Year == endDate.Year)
-            return new MathsAndEnglish(startDate, endDate, course, amount, new List<MathsAndEnglishInstalment> { new(endDate.ToAcademicYear(), endDate.ToDeliveryPeriod(), amount) }, withdrawalDate);
+            return new MathsAndEnglish(startDate, endDate, course, amount, new List<MathsAndEnglishInstalment> { new(endDate.ToAcademicYear(), endDate.ToDeliveryPeriod(), amount) }, withdrawalDate, priorLearningPercentage);
 
         var lastCensusDate = endDate.LastCensusDate();
         var paymentDate = startDate.LastDayOfMonth();
 
+        // Adjust for prior learning if applicable
+        var adjustedAmount = priorLearningPercentage.HasValue
+            ? amount * priorLearningPercentage.Value / 100m
+            : amount;
+
         var numberOfInstalments = ((lastCensusDate.Year - paymentDate.Year) * 12 + lastCensusDate.Month - paymentDate.Month) + 1;
-        var monthlyAmount = amount / numberOfInstalments;
+        var monthlyAmount = adjustedAmount / numberOfInstalments;
 
         while (paymentDate <= lastCensusDate)
         {
@@ -40,9 +45,9 @@ public static class MathsAndEnglishPayments
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
         if (withdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
-            return new MathsAndEnglish(startDate, endDate, course, amount, new List<MathsAndEnglishInstalment>(), withdrawalDate);
+            return new MathsAndEnglish(startDate, endDate, course, amount, new List<MathsAndEnglishInstalment>(), withdrawalDate, priorLearningPercentage);
 
-        return new MathsAndEnglish(startDate, endDate, course, amount, instalments, withdrawalDate);
+        return new MathsAndEnglish(startDate, endDate, course, amount, instalments, withdrawalDate, priorLearningPercentage);
     }
 
     private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
