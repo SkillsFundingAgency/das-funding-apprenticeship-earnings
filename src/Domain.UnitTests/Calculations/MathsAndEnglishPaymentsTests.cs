@@ -114,15 +114,15 @@ public class MathsAndEnglishPaymentsTests
     [TestCase(93)]
     [TestCase(100)]
     [TestCase(130)]
-    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForPriorLearning(int priorLearningPercentage)
+    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForPriorLearning(int priorLearningAdjustmentPercentage)
     {
         // Arrange
         var startDate = new DateTime(2023, 8, 1);
         var endDate = new DateTime(2023, 12, 31);
-        var expectedAdjustedAmount = 211.6m * priorLearningPercentage / 100m;
+        var expectedAdjustedAmount = 211.6m * priorLearningAdjustmentPercentage / 100m;
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 1058, null, priorLearningPercentage);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 1058, null, priorLearningAdjustmentPercentage);
 
         // Assert
         result.Instalments.Count.Should().Be(5);

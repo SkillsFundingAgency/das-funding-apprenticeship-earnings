@@ -34,7 +34,7 @@ public class MathsAndEnglishModel
     public decimal Amount { get; set; }
 
     public DateTime? WithdrawalDate { get; set; }
-    public int? PriorLearningPercentage { get; set; }
+    public int? PriorLearningAdjustmentPercentage { get; set; }
 
     public List<MathsAndEnglishInstalmentModel> Instalments { get; set; } = [];
 }
