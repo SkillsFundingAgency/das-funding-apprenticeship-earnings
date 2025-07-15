@@ -18,7 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel
         public short AcademicYear { get; set; }
         public byte DeliveryPeriod { get; set; }
         public decimal Amount { get; set; }
-        public Guid LearningEpisodeKey { get; set; }
+        public Guid ApprenticeshipEpisodeKey { get; set; }
         public bool IsNonLevyFullyFunded { get; set; }
     }
 }
