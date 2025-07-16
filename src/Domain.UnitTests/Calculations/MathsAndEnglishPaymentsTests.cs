@@ -99,6 +99,7 @@ public class MathsAndEnglishPaymentsTests
         result.Instalments.Count.Should().Be(3);
         result.Instalments.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Amount.Should().Be(50));
         result.Instalments.Single(x => x.DeliveryPeriod == 5).Amount.Should().Be(200);
+        result.ActualEndDate.Should().Be(actualEndDate);
     }
 
 }

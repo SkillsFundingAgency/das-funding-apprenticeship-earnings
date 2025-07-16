@@ -28,11 +28,11 @@ public static class MathsAndEnglishPayments
         var instalments = new List<MathsAndEnglishInstalment>();
 
         // This is invalid, it should never happen but should not result in any payments
-        if (command.StartDate > command.EndDate) return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments);
+        if (command.StartDate > command.EndDate) return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, null);
         
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
         if(command.StartDate.Month == command.EndDate.Month && command.StartDate.Year == command.EndDate.Year)
-            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment> { new(command.EndDate.ToAcademicYear(), command.EndDate.ToDeliveryPeriod(), command.Amount) });
+            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment> { new(command.EndDate.ToAcademicYear(), command.EndDate.ToDeliveryPeriod(), command.Amount) }, null);
 
         var lastCensusDate = command.EndDate.LastCensusDate();
         var paymentDate = command.StartDate.LastDayOfMonth();
@@ -72,6 +72,6 @@ public static class MathsAndEnglishPayments
             instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(), command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(), balancingAmount));
         }
 
-        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments);
+        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.ActualEndDate);
     }
 }

@@ -13,6 +13,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public DateTime EndDate => _model.EndDate;
     public string Course => _model.Course;
     public decimal Amount => _model.Amount;
+    public DateTime? ActualEndDate => _model.ActualEndDate;
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
 
     private MathsAndEnglish(MathsAndEnglishModel model)
@@ -21,7 +22,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments)
+    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments, DateTime? actualEndDate)
     {
         _instalments = instalments;
         _model = new MathsAndEnglishModel();
@@ -30,6 +31,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.EndDate = endDate;
         _model.Course = course;
         _model.Amount = amount;
+        _model.ActualEndDate = actualEndDate;
         _model.Instalments = instalments.ToModels<MathsAndEnglishInstalment, MathsAndEnglishInstalmentModel>(model => model.MathsAndEnglishKey = _model.Key);
     }
 
@@ -52,6 +54,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
                EndDate == compare.EndDate &&
                Course == compare.Course &&
                Amount == compare.Amount &&
+               ActualEndDate == compare.ActualEndDate &&
                Instalments.AreSame(compare.Instalments);
     }
 }
