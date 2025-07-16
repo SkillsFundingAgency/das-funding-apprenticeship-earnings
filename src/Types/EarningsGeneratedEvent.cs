@@ -17,6 +17,6 @@ public class EarningsGeneratedEvent
     public DateTime PlannedEndDate { get; set; }
     public long ApprovalsApprenticeshipId { get; set; }
     public Guid EarningsProfileId { get; set; }
-    public int AgeAtStartOfApprenticeship { get; set; }
+    public int AgeAtStartOfLearning { get; set; }
 }
 #pragma warning restore CS8618

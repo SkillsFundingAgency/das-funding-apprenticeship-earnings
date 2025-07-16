@@ -29,7 +29,7 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
 
     public async Task Handle(SaveMathsAndEnglishCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveMathsAndEnglishCommand for apprenticeship {ApprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling SaveMathsAndEnglishCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
         var mathsAndEnglishCourses = command.MathsAndEnglishDetails.Select(x =>
             MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(new GenerateMathsAndEnglishPaymentsCommand(x.StartDate, x.EndDate, x.Course, x.Amount, x.ActualEndDate))).ToList();
@@ -40,9 +40,9 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {ApprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
         await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel), cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {ApprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 }

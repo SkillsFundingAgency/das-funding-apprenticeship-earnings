@@ -1,51 +1,51 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
-public class ApprenticeshipWithdrawnEventBuilder
+public class LearningWithdrawnEventBuilder
 {
-    private Guid _apprenticeshipKey = Guid.NewGuid();
+    private Guid _learningKey = Guid.NewGuid();
     private long _apprenticeshipId = 123;
     private string _reason = "Withdrawal test";
     private DateTime _lastDayOfLearning = new DateTime(2020, 08, 31);
 
-    public ApprenticeshipWithdrawnEventBuilder WithApprenticeshipKey(Guid key)
+    public LearningWithdrawnEventBuilder WithLearningKey(Guid key)
     {
-        _apprenticeshipKey = key;
+        _learningKey = key;
         return this;
     }
 
-    public ApprenticeshipWithdrawnEventBuilder WithApprenticeshipId(long id)
+    public LearningWithdrawnEventBuilder WithApprenticeshipId(long id)
     {
         _apprenticeshipId = id;
         return this;
     }
 
-    public ApprenticeshipWithdrawnEventBuilder WithReason(string reason)
+    public LearningWithdrawnEventBuilder WithReason(string reason)
     {
         _reason = reason;
         return this;
     }
 
-    public ApprenticeshipWithdrawnEventBuilder WithLastDayOfLearning(DateTime date)
+    public LearningWithdrawnEventBuilder WithLastDayOfLearning(DateTime date)
     {
         _lastDayOfLearning = date;
         return this;
     }
 
-    public ApprenticeshipWithdrawnEventBuilder WithExistingApprenticeshipData(ApprenticeshipCreatedEvent apprenticeship)
+    public LearningWithdrawnEventBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
     {
-        _apprenticeshipKey = apprenticeship.ApprenticeshipKey;
+        _learningKey = apprenticeship.LearningKey;
         _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         return this;
     }
 
-    public ApprenticeshipWithdrawnEvent Build()
+    public LearningWithdrawnEvent Build()
     {
-        return new ApprenticeshipWithdrawnEvent
+        return new LearningWithdrawnEvent
         {
-            ApprenticeshipKey = _apprenticeshipKey,
-            ApprenticeshipId = _apprenticeshipId,
+            LearningKey = _learningKey,
+            ApprovalsApprenticeshipId = _apprenticeshipId,
             Reason = _reason,
             LastDayOfLearning = _lastDayOfLearning
         };

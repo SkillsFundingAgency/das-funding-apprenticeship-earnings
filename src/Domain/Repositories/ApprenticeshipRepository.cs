@@ -60,9 +60,9 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     private async Task ReleaseEvents(Apprenticeship.Apprenticeship apprenticeship)
     {
-        foreach (var domainEvent in apprenticeship.FlushEvents())
+        foreach (var @event in apprenticeship.FlushEvents())
         {
-            await _messageSession.Publish(domainEvent); 
+            await _messageSession.Publish(@event); 
         }
     }
 

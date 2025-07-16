@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -33,7 +33,7 @@ public class WhenReGenerateEarningsGerenatedEvent
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,
-            fundingType: Apprenticeships.Enums.FundingType.NonLevy);
+            fundingType: Learning.Enums.FundingType.NonLevy);
 
         _apprenticeship.CalculateEarnings(_mockSystemClock.Object); 
     }
@@ -68,7 +68,7 @@ public class WhenReGenerateEarningsGerenatedEvent
         result.EmployerAccountId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
         result.PlannedEndDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
         result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
-        result.AgeAtStartOfApprenticeship.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+        result.AgeAtStartOfLearning.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
 
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 
