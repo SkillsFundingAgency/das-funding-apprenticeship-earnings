@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
 
@@ -52,7 +51,6 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.CalculateEpisodeEarnings(this, systemClock);
-        AddEvent(new EarningsCalculatedEvent(this));
     }
 
     public void RecalculateEarnings(LearningEvent apprenticeshipEvent, ISystemClockService systemClock)
@@ -60,7 +58,6 @@ public class Apprenticeship : AggregateRoot
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
         episode.Update(apprenticeshipEvent.Episode);
         episode.CalculateEpisodeEarnings(this, systemClock);
-        AddEvent(new EarningsRecalculatedEvent(this));
     }
 
     public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
@@ -69,7 +66,6 @@ public class Apprenticeship : AggregateRoot
         {
             episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
         }
-        AddEvent(new EarningsRecalculatedEvent(this));
     }
 
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
@@ -87,7 +83,6 @@ public class Apprenticeship : AggregateRoot
         if(currentEpisode.AgeAtStartOfApprenticeship > 18) // Only recalculate if the age is 19 or older
         {
             currentEpisode.CalculateEpisodeEarnings(this, systemClock);
-            AddEvent(new EarningsRecalculatedEvent(this));
         }
 
     }
@@ -103,7 +98,6 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.AddAdditionalEarnings(additionalPayments, additionalPaymentType, systemClock);
-        AddEvent(new EarningsRecalculatedEvent(this));
     }
 
     /// <summary>
@@ -115,6 +109,5 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
-        AddEvent(new EarningsRecalculatedEvent(this));
     }
 }

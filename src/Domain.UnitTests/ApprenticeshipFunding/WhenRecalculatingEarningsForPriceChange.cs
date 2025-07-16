@@ -3,13 +3,13 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
@@ -102,7 +102,7 @@ public class WhenRecalculatingEarningsForPriceChange
         _sut!.RecalculateEarnings(_LearningPriceChangedEvent, _mockSystemClock.Object);
 
         var events = _sut.FlushEvents();
-        events.Should().ContainSingle(x => x.GetType() == typeof(EarningsRecalculatedEvent));
+        events.Should().ContainSingle(x => x.GetType() == typeof(ArchiveEarningsProfileEvent));
     }
 
     [Test]

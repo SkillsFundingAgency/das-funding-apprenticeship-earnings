@@ -5,7 +5,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -59,15 +58,6 @@ public class WhenCalculateEarnings
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
         currentEpisode.EarningsProfile.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(decimal.Round(currentEpisode.EarningsProfile.OnProgramTotal / 12m, 5)));
-    }
-
-    [Test]
-    public void ThenEarningsCalculatedEventIsCreated()
-    {
-        _sut.CalculateEarnings(_mockSystemClock.Object);
-
-        var events = _sut.FlushEvents();
-        events.Should().ContainSingle(x => x.GetType() == typeof(EarningsCalculatedEvent));
     }
     
     [Test]

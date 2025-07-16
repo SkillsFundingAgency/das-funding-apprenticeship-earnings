@@ -9,17 +9,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEventServices(this IServiceCollection serviceCollection)
     {
-        serviceCollection.Scan(scan =>
-            {
-                scan.FromAssembliesOf(typeof(ServiceCollectionExtensions))
-                    .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)))
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime();
-            })
-            .AddScoped<IDomainEventDispatcher, DomainEventDispatcher>()
-            .AddScoped<IAcademicYearService, AcademicYearService>()
-            .AddScoped<IDateService, DateService>();
-
+        serviceCollection.AddScoped<IAcademicYearService, AcademicYearService>();
+        serviceCollection.AddScoped<IDateService, DateService>();
         return serviceCollection;
     }
 }

@@ -7,8 +7,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship.Events;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
@@ -106,8 +106,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _apprenticeship.RecalculateEarnings(_learningStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        var events = _apprenticeship.FlushEvents().OfType<EarningsRecalculatedEvent>().ToList();
+        var events = _apprenticeship.FlushEvents().OfType<ArchiveEarningsProfileEvent>().ToList();
         events.Should().HaveCount(1);
-        events.First().Apprenticeship.Should().BeEquivalentTo(_apprenticeship);
     }
 }
