@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using System.Text.Json;
@@ -11,14 +11,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 public class StartDateChangedEventHandler(
     ICommandHandler<ProcessEpisodeUpdatedCommand> processEpisodeUpdatedCommandHandler,
     ILogger<StartDateChangedEventHandler> logger)
-    : IHandleMessages<ApprenticeshipStartDateChangedEvent>
+    : IHandleMessages<LearningStartDateChangedEvent>
 {
-    public async Task Handle(ApprenticeshipStartDateChangedEvent message, IMessageHandlerContext context)
+    public async Task Handle(LearningStartDateChangedEvent message, IMessageHandlerContext context)
     {
         logger.LogInformation("{functionName} processing...", nameof(StartDateChangedEventHandler));
-        logger.LogInformation("ApprenticeshipKey: {key} Received {eventName}: {eventJson}",
-            message.ApprenticeshipKey,
-            nameof(ApprenticeshipStartDateChangedEvent),
+        logger.LogInformation("LearningKey: {key} Received {eventName}: {eventJson}",
+            message.LearningKey,
+            nameof(LearningStartDateChangedEvent),
             JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
 
         await processEpisodeUpdatedCommandHandler.Handle(new ProcessEpisodeUpdatedCommand(message), context.CancellationToken);

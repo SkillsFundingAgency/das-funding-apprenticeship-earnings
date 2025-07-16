@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
@@ -27,7 +27,7 @@ public class AdditionalPaymentsStepDefinitions
     public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<LearningSupportPaymentDetail>().ToList();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/learningSupport", expected);
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learningSupport", expected);
     }
 
     [When(@"care details are saved with")]
@@ -35,7 +35,7 @@ public class AdditionalPaymentsStepDefinitions
     public async Task SaveCareDetails(Table table)
     {
         var request = table.CreateSet<SaveCareDetailsRequest>().Single();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/careDetails", request);
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/careDetails", request);
     }
 
     [Given(@"the following maths and english course information is provided")]
@@ -43,15 +43,15 @@ public class AdditionalPaymentsStepDefinitions
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<MathsAndEnglishDetail>().ToList();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<ApprenticeshipCreatedEvent>().ApprenticeshipKey}/mathsAndEnglish", expected);
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish", expected);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]
     public void ThenRecalculateEventIsSentWithTheFollowingIncentives(Table table)
     {
         var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
-        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == apprenticeshipCreatedEvent.ApprenticeshipKey);
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == learningCreatedEvent.LearningKey);
 
         foreach (var expectedAdditionalPayment in data)
         {
@@ -67,9 +67,9 @@ public class AdditionalPaymentsStepDefinitions
     {
         var data = table.CreateSet<AdditionalPaymentDbExpectationModel>().ToList();
 
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         var additionalPaymentsInDb = updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments;
 
@@ -118,9 +118,9 @@ public class AdditionalPaymentsStepDefinitions
     [Then(@"no Additional Payments are persisted")]
     public async Task ThenNoAdditionalPaymentsArePersisted()
     {
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
     }
@@ -144,29 +144,29 @@ public class AdditionalPaymentsStepDefinitions
     [Then("a first incentive payment is generated")]
     public void AssertFirstIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then("no first incentive payment is generated")]
     public void AssertNoFirstIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then("a second incentive payment is generated")]
     public void AssertSecondIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then("no second incentive payment is generated")]
     public void AssertNoSecondIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, _scenarioContext.Get<ApprenticeshipStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
     }
 
     [Then(@"Maths and english instalments are persisted as follows")]
@@ -174,9 +174,9 @@ public class AdditionalPaymentsStepDefinitions
     {
         var data = table.CreateSet<MathsAndEnglishInstalmentDbExpectationModel>().ToList();
 
-        var apprenticeshipCreatedEvent = _scenarioContext.Get<ApprenticeshipCreatedEvent>();
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(apprenticeshipCreatedEvent.ApprenticeshipKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
 

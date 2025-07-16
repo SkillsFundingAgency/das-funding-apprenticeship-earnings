@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Apprenticeships.Types;
+﻿using SFA.DAS.Learning.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -11,7 +11,7 @@ public class EpisodePriceModel
     {
     }
 
-    public EpisodePriceModel(Guid episodeKey, ApprenticeshipEpisodePrice price)
+    public EpisodePriceModel(Guid episodeKey, LearningEpisodePrice price)
     {
         Key = price.Key;
         EpisodeKey = episodeKey;

@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -88,13 +90,13 @@ public class Startup
         services
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
+        services.AddSingleton<ITelemetryInitializer, CorrelationTelemetryInitializer>();
 
-        var sqlConnectionNeedsAccessToken = NotLocal(Configuration);
-        services.AddEntityFrameworkForApprenticeships(ApplicationSettings, sqlConnectionNeedsAccessToken);
+        services.AddEntityFrameworkForApprenticeships(ApplicationSettings);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
-        services.AddFunctionHealthChecks(ApplicationSettings, sqlConnectionNeedsAccessToken);
+        services.AddFunctionHealthChecks(ApplicationSettings);
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
@@ -107,13 +109,4 @@ public class Startup
     {
         return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
     }
-
-    private static bool NotLocal(IConfiguration configuration)
-    {
-        var env = configuration!["EnvironmentName"];
-        var isLocal = env.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
-        var isLocalAcceptanceTests = env.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
-        return !isLocal && !isLocalAcceptanceTests;
-    }
-
 }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Apprenticeships.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Mappers;
@@ -118,7 +118,7 @@ public class EarningsQueryRepository : IEarningsQueryRepository
             var endDate = _academicYearService.EndOfCurrentAcademicYear(searchDate);
             query = query.Where(x => x.Episodes.Any(y =>
                 y.Prices.Any(price => price.EndDate >= startDate) && // end date is at least after the start of this academic year
-                y.Prices.Any(price => price.StartDate < endDate)));  // start date is at least before the end of this academic year
+                y.Prices.Any(price => price.StartDate <= endDate)));  // start date is at least before the end of this academic year
         }
 
         var apprenticeships = query
