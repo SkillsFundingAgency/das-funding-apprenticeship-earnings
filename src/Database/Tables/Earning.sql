@@ -11,7 +11,7 @@
     [DeliveryPeriod] TINYINT NULL,
 	[AcademicYear] SMALLINT NULL,
     [Amount] DECIMAL(15,5) NOT NULL, 
-    [LearningEpisodeKey] UNIQUEIDENTIFIER NULL, 
+    [ApprenticeshipEpisodeKey] UNIQUEIDENTIFIER NULL, 
     [IsNonLevyFullyFunded] BIT NOT NULL DEFAULT 0
 )
 GO
