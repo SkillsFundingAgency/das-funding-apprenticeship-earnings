@@ -43,6 +43,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
+    public DateTime? CompletionDate => _model.CompletionDate;
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -150,6 +151,8 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         _earningsProfile.Update(systemClock,
             instalments: balancedInstalments.Append(completionInstalment).ToList());
+
+        _model.CompletionDate = completionDate;
     }
 
     private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)
