@@ -8,7 +8,7 @@ public class MathsAndEnglishModel
 {
     public MathsAndEnglishModel() { }
 
-    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime endDate, decimal amount)
+    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime endDate, decimal amount, DateTime? actualEndDate)
     {
         Key = Guid.NewGuid();
         EarningsProfileId = earningsProfileId;
@@ -16,6 +16,7 @@ public class MathsAndEnglishModel
         StartDate = startDate;
         EndDate = endDate;
         Amount = amount;
+        ActualEndDate = actualEndDate;
     }
 
     [Dapper.Contrib.Extensions.Key]
@@ -31,6 +32,8 @@ public class MathsAndEnglishModel
     public string Course { get; set; } = null!;
 
     public decimal Amount { get; set; }
+
+    public DateTime? ActualEndDate { get; set; }
 
     public List<MathsAndEnglishInstalmentModel> Instalments { get; set; } = [];
 }
