@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿using Microsoft.EntityFrameworkCore.Storage.Json;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 public static class DateTimeExtensions
 {
@@ -34,6 +36,13 @@ public static class DateTimeExtensions
             return short.Parse($"20{academicYear.ToString().Substring(2, 2)}");
         else
             return short.Parse($"20{academicYear.ToString().Substring(0, 2)}");
+    }
+
+    public static DateTime GetCensusDate(this byte deliveryPeriod, short academicYear)
+    {
+        var year = academicYear.ToCalendarYear(deliveryPeriod);
+        var month = deliveryPeriod.ToCalendarMonth();
+        return new DateTime(year, month, 1).LastDayOfMonth();
     }
 
     public static DateTime ToDateTime(this short academicYear, byte deliveryPeriod)
