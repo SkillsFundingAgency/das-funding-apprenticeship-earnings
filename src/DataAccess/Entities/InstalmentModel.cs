@@ -49,6 +49,7 @@ public class InstalmentHistoryModel : InstalmentModelBase
         OriginalKey = original.Key;
         Key = Guid.NewGuid();
         Version = version;
+        Type = original.Type;
     }
 
     public InstalmentHistoryModel() { }
