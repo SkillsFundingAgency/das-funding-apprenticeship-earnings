@@ -54,7 +54,7 @@ public class EarningsProfile : AggregateComponent
         List<AdditionalPayment>? additionalPayments = null, 
         List<MathsAndEnglish>? mathsAndEnglishCourses = null,
         decimal? completionPayment = null
-        )
+    )
     {
         var archiveEvent = Model.EarningsProfileArchivedEvent(systemClock.UtcNow.Date);// this needs to be created before any changes, although it will be discarded if none are made
         var versionChanged = false;
@@ -95,7 +95,6 @@ public class EarningsProfile : AggregateComponent
             Model.Version = Guid.NewGuid();
             AddEvent(archiveEvent);
         }
-             
     }
 
     /// <summary>

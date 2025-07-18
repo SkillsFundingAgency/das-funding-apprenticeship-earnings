@@ -68,7 +68,8 @@ public class ArchiveEarningsProfileCommandHandler : ICommandHandler<ArchiveEarni
             EpisodePriceKey = i.EpisodePriceKey,
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
-            Amount = i.Amount
+            Amount = i.Amount,
+            Type = i.Type
         }).ToList();
     }
 

@@ -38,7 +38,8 @@ internal static class EarningsProfileExtensions
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
             EarningsProfileId = earningsProfile.EarningsProfileId,
-            EpisodePriceKey = i.EpisodePriceKey
+            EpisodePriceKey = i.EpisodePriceKey,
+            Type = i.Type
         }).ToList();
     }
 

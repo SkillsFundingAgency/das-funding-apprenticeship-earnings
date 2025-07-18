@@ -2,11 +2,18 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
+public enum InstalmentType
+{
+    Regular = 0,
+    Completion = 1,
+    Balancing = 2
+}
+
 public class Instalment : IDomainEntity<InstalmentModel>
 {
     private InstalmentModel _model;
 
-    public Instalment(short academicYear, byte deliveryPeriod, decimal amount, Guid priceKey)
+    public Instalment(short academicYear, byte deliveryPeriod, decimal amount, Guid priceKey, InstalmentType instalmentType = InstalmentType.Regular)
     {
         _model = new InstalmentModel
         {
@@ -14,7 +21,8 @@ public class Instalment : IDomainEntity<InstalmentModel>
             AcademicYear = academicYear,
             DeliveryPeriod = deliveryPeriod,
             Amount = amount,
-            EpisodePriceKey = priceKey
+            EpisodePriceKey = priceKey,
+            Type = instalmentType.ToString()
         };
     }
 
@@ -27,6 +35,7 @@ public class Instalment : IDomainEntity<InstalmentModel>
     public byte DeliveryPeriod => _model.DeliveryPeriod;
     public decimal Amount => _model.Amount;
     public Guid EpisodePriceKey => _model.EpisodePriceKey;
+    public InstalmentType Type => Enum.Parse<InstalmentType>(_model.Type);
 
     public InstalmentModel GetModel()
     {
