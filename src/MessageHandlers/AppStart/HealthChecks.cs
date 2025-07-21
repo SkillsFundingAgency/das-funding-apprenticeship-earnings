@@ -13,10 +13,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 public static class HealthChecks
 {
-    public static IServiceCollection AddFunctionHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings, bool sqlConnectionNeedsAccessToken)
+    public static IServiceCollection AddFunctionHealthChecks(this IServiceCollection services, ApplicationSettings applicationSettings)
     {
         services.AddSingleton(sp => new FunctionHealthChecker(
-            new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!, sp.GetSqlAzureIdentityTokenProvider(sqlConnectionNeedsAccessToken)),
+            new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!),
             new ServiceBusReceiveHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusReceiveHealthCheck>>()!),
             new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!)
             ));

@@ -14,6 +14,7 @@ public abstract class InstalmentModelBase
     public byte DeliveryPeriod { get; set; }
     [Precision(15, 5)]
     public decimal Amount { get; set; }
+    public string Type { get; set; }
 
     public InstalmentModelBase(InstalmentModelBase original, Guid earningsProfileId)
     {
@@ -22,6 +23,7 @@ public abstract class InstalmentModelBase
         Amount = original.Amount;
         DeliveryPeriod = original.DeliveryPeriod;
         AcademicYear = original.AcademicYear;
+        Type = original.Type;
     }
 
     public InstalmentModelBase() { }
@@ -47,6 +49,7 @@ public class InstalmentHistoryModel : InstalmentModelBase
         OriginalKey = original.Key;
         Key = Guid.NewGuid();
         Version = version;
+        Type = original.Type;
     }
 
     public InstalmentHistoryModel() { }

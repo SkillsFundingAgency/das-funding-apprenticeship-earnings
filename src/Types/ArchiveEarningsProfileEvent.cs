@@ -57,4 +57,5 @@ public class Instalment : PaymentEntity
 {
     public Guid EarningsProfileId { get; set; }
     public Guid EpisodePriceKey { get; set; }
+    public string Type { get; set; }
 }

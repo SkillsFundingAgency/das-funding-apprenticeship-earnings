@@ -1,7 +1,9 @@
+using Newtonsoft.Json;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
@@ -46,6 +48,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     }
 
     [Then(@"On programme earnings are persisted as follows")]
+    [Then(@"the instalments are balanced as follows")]
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
@@ -63,12 +66,15 @@ public class EarningsGeneratedEventHandlingStepDefinitions
             earningsInDb.Should()
                 .Contain(x => x.Amount == expectedEarning.Amount
                               && x.AcademicYear == expectedEarning.AcademicYear
-                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                              && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
+                , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
 
             queryEarningsDbRecords.Should()
                 .Contain(x => x.Amount == expectedEarning.Amount
                               && x.AcademicYear == expectedEarning.AcademicYear
-                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod);
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                    , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
         }
     }
 }

@@ -18,7 +18,9 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2023, 11, 30);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "M101", 300, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(
+            new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "M101", 300)
+        );
 
         // Assert
         result.Should().NotBeNull();
@@ -33,7 +35,9 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2023, 12, 31);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 300, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(
+            new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 300)
+        );
 
         // Assert
         result.Instalments.Count.Should().Be(3);
@@ -49,7 +53,9 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2023, 12, 31);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E103", 200, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(
+            new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E103", 200)
+        );
 
         // Assert
         result.Instalments.Count.Should().Be(2);
@@ -65,7 +71,9 @@ public class MathsAndEnglishPaymentsTests
         var endDate = new DateTime(2024, 02, 26);
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 931, null);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(
+            new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 931)
+        );
 
         // Assert
         result.Instalments.Count.Should().Be(1);
@@ -109,4 +117,25 @@ public class MathsAndEnglishPaymentsTests
         // Assert
         result.Instalments.Any().Should().Be(expectedToQualifyAfterWithdrawal);
     }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldAdjustForCompletionWithABalancingPayment()
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 10, 1);
+        var endDate = new DateTime(2024, 3, 31);
+        var actualEndDate = new DateTime(2023, 12, 31);
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(
+            new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 300, actualEndDate)
+        );
+
+        // Assert
+        result.Instalments.Count.Should().Be(3);
+        result.Instalments.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Amount.Should().Be(50));
+        result.Instalments.Single(x => x.DeliveryPeriod == 5).Amount.Should().Be(200);
+        result.ActualEndDate.Should().Be(actualEndDate);
+    }
+
 }

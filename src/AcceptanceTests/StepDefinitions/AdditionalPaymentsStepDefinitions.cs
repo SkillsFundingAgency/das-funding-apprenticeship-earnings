@@ -39,10 +39,18 @@ public class AdditionalPaymentsStepDefinitions
     }
 
     [Given(@"the following maths and english course information is provided")]
+    [When(@"the following maths and english completion change request is sent")]
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<MathsAndEnglishDetail>().ToList();
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish", expected);
+    }
+
+    [When(@"the following completion is sent")]
+    public async Task GivenTheFollowingCompletionInformationIsProvided(Table table)
+    {
+        var completionRequestModel = table.CreateSet<CompletionRequestModel>().Single();
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/completion", completionRequestModel);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]
