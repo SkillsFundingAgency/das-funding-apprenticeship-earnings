@@ -1,7 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
@@ -15,7 +13,7 @@ public class GenerateMathsAndEnglishPaymentsCommand
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? ActualEndDate { get; set; }
 
-    public GenerateMathsAndEnglishPaymentsCommand(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate = null)
+    public GenerateMathsAndEnglishPaymentsCommand(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate = null, DateTime? actualEndDate = null)
     {
         StartDate = startDate;
         EndDate = endDate;
@@ -34,9 +32,9 @@ public static class MathsAndEnglishPayments
 
         // This is invalid, it should never happen but should not result in any payments
         if (command.StartDate > command.EndDate) return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate);
-        
+
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
-        if(command.StartDate.Month == command.EndDate.Month && command.StartDate.Year == command.EndDate.Year)
+        if (command.StartDate.Month == command.EndDate.Month && command.StartDate.Year == command.EndDate.Year)
             return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment> { new(command.EndDate.ToAcademicYear(), command.EndDate.ToDeliveryPeriod(), command.Amount) }, command.WithdrawalDate, command.ActualEndDate);
 
         var lastCensusDate = command.EndDate.LastCensusDate();
@@ -56,21 +54,6 @@ public static class MathsAndEnglishPayments
             paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
         }
 
-        // Remove instalments after the withdrawal date
-        if (command.WithdrawalDate.HasValue)
-            instalments.RemoveAll(x => x.DeliveryPeriod.GetCensusDate(x.AcademicYear) > command.WithdrawalDate.Value);
-
-        // Remove all instalments if the withdrawal date is before the end of the qualifying period
-        if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
-            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate);
-
-        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate);
-    }
-
-    private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
-    {
-        var plannedLength = (endDate - startDate).TotalDays + 1;
-        var actualLength = (withdrawalDate - startDate).TotalDays + 1;
         // If an actual end date has been set and is before the planned end date then the learner has completed early and adjustments need to be made
         if (command.ActualEndDate.HasValue && command.ActualEndDate < command.EndDate)
         {
@@ -86,11 +69,27 @@ public static class MathsAndEnglishPayments
                 paymentDateToAdjust = paymentDateToAdjust.AddMonths(1).LastDayOfMonth();
                 balancingCount++;
             }
-            var balancingAmount = balancingCount * monthlyAmount;
-            instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(), command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(), balancingAmount));
 
-            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.ActualEndDate);
+            var balancingAmount = balancingCount * monthlyAmount;
+
+            instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(), command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(), balancingAmount));
         }
+
+        // Remove instalments after the withdrawal date
+        if (command.WithdrawalDate.HasValue)
+            instalments.RemoveAll(x => x.DeliveryPeriod.GetCensusDate(x.AcademicYear) > command.WithdrawalDate.Value);
+
+        // Remove all instalments if the withdrawal date is before the end of the qualifying period
+        if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
+            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate);
+
+        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate);
+    }
+
+    private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
+    {
+        var plannedLength = (endDate - startDate).TotalDays + 1;
+        var actualLength = (withdrawalDate - startDate).TotalDays + 1;
 
         if (plannedLength >= 168)
             return actualLength >= 42;
