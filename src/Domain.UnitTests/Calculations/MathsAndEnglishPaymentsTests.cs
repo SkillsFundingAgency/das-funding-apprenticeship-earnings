@@ -97,6 +97,21 @@ public class MathsAndEnglishPaymentsTests
         result.Instalments.Count.Should().Be(5);
     }
 
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldReturnOneInstalmentIfTheLearnerIsWithdrawnBeforeTheFirstCensusDateButStillWithinTheQualifyingPeriod()
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 1, 1);
+        var endDate = new DateTime(2023, 3, 31); // planned duration within 14 to 167 days so 14 day qualifying period applies
+        var withdrawalDate = new DateTime(2023, 1, 15); // withdrawn before the first census date but still within the qualifying period
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 300, withdrawalDate: withdrawalDate));
+
+        // Assert
+        result.Instalments.Count.Should().Be(1);
+    }
+
     [TestCase(168, 42, true)]
     [TestCase(168, 41, false)]
     [TestCase(14, 14, true)]

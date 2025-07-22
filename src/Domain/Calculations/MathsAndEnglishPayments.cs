@@ -79,6 +79,11 @@ public static class MathsAndEnglishPayments
         if (command.WithdrawalDate.HasValue)
             instalments.RemoveAll(x => x.DeliveryPeriod.GetCensusDate(x.AcademicYear) > command.WithdrawalDate.Value);
 
+        // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
+        if (command.WithdrawalDate.HasValue && command.WithdrawalDate.Value >= command.StartDate && command.WithdrawalDate.Value < command.StartDate.LastDayOfMonth())
+            instalments.Add(new MathsAndEnglishInstalment(command.StartDate.ToAcademicYear(), command.StartDate.ToDeliveryPeriod(), monthlyAmount));
+        
+
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
         if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
             return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate);
