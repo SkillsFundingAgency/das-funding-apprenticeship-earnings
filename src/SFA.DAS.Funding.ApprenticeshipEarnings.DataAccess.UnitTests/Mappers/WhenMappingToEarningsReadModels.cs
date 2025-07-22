@@ -52,7 +52,7 @@ public class WhenMappingApprenticeshipToEarningsReadModels
             FundingType = currentEpisodeModel.FundingType,
             UKPRN = currentEpisodeModel.Ukprn,
             Uln = apprenticeship.Uln,
-            LearningEpisodeKey = currentEpisodeModel.Key,
+            ApprenticeshipEpisodeKey = currentEpisodeModel.Key,
             IsNonLevyFullyFunded = apprenticeship.GetCurrentEpisode(_systemClockService.Object).IsNonLevyFullyFunded,
             FundingEmployerAccountId = currentEpisodeModel.FundingEmployerAccountId
         }).ToList();

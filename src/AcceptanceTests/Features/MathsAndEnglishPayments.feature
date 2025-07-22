@@ -77,7 +77,22 @@ Scenario: Maths and English earnings for a course which does not span a census d
 	Then Maths and english instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod |
 		| Maths1 | 900    | 2021         | 7              |
-
+		
+Scenario: Maths and English completion earnings
+	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	And the apprenticeship commitment is approved
+	And the following maths and english course information is provided
+		| StartDate | EndDate    | Course      | Amount |
+		| 2020-8-1  | 2021-11-1  | Maths1      | 1500   |
+	When the following maths and english completion change request is sent
+		| StartDate | EndDate   | Course | Amount | ActualEndDate |
+		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
+	Then Maths and english instalments are persisted as follows
+		| Course | Amount | AcademicYear | DeliveryPeriod |
+		| Maths1 | 100    | 2021         | 1              |
+		| Maths1 | 100    | 2021         | 2              |
+		| Maths1 | 100    | 2021         | 3              |
+		| Maths1 | 1200   | 2021         | 4              |
 Scenario: Maths and English earnings for a course with prior learning
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved

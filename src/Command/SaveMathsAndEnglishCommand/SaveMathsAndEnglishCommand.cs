@@ -24,4 +24,5 @@ public class MathsAndEnglishDetail
     public decimal Amount { get; set; }
     public DateTime? WithdrawalDate { get; set; }
     public int? PriorLearningAdjustmentPercentage { get; set; }
+    public DateTime? ActualEndDate { get; set; }
 }
