@@ -8,7 +8,7 @@ public class MathsAndEnglishModel
 {
     public MathsAndEnglishModel() { }
 
-    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime endDate, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate)
+    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime endDate, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, int? priorLearningAdjustmentPercentage)
     {
         Key = Guid.NewGuid();
         EarningsProfileId = earningsProfileId;
@@ -18,6 +18,7 @@ public class MathsAndEnglishModel
         Amount = amount;
         WithdrawalDate = withdrawalDate;
         ActualEndDate = actualEndDate;
+        PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
     }
 
     [Dapper.Contrib.Extensions.Key]
