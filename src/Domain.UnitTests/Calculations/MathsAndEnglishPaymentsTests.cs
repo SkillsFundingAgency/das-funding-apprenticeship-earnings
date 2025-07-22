@@ -130,7 +130,7 @@ public class MathsAndEnglishPaymentsTests
         var expectedAdjustedAmount = 211.6m * priorLearningAdjustmentPercentage / 100m;
 
         // Act
-        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(startDate, endDate, "E102", 1058, null, priorLearningAdjustmentPercentage);
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 1058, null, null, priorLearningAdjustmentPercentage));
 
         // Assert
         result.Instalments.Count.Should().Be(5);
