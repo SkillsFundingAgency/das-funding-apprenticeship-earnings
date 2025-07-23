@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
@@ -29,10 +28,8 @@ public class GenerateMathsAndEnglishPaymentsCommand
 
 public static class MathsAndEnglishPayments
 {
-    public static MathsAndEnglish GenerateMathsAndEnglishPayments(GenerateMathsAndEnglishPaymentsCommand command, ILogger? logger = null)
+    public static MathsAndEnglish GenerateMathsAndEnglishPayments(GenerateMathsAndEnglishPaymentsCommand command)
     {
-        logger?.LogInformation("GenerateMathsAndEnglishPayments for course {Course}", command.Course);
-
         var instalments = new List<MathsAndEnglishInstalment>();
 
         // This is invalid, it should never happen but should not result in any payments
@@ -46,7 +43,6 @@ public static class MathsAndEnglishPayments
         var paymentDate = command.StartDate.LastDayOfMonth();
 
         // Adjust for prior learning if applicable
-        logger?.LogInformation("PriorLearningAdjustmentPercentage {PriorLearningAdjustmentPercentage}", command.PriorLearningAdjustmentPercentage);
         var adjustedAmount = command.PriorLearningAdjustmentPercentage.HasValue
             ? command.Amount * command.PriorLearningAdjustmentPercentage.Value / 100m
             : command.Amount;
@@ -94,8 +90,6 @@ public static class MathsAndEnglishPayments
         if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
             return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
 
-        logger?.LogInformation("GenerateMathsAndEnglishPayments for course {Course} complete. (StartDate {StartDate}, EndDate {EndDate}, Amount {Amount}, ActualEndDate {ActualEndDate}, PriorLearningAdjustmentPercentage {PriorLearningAdjustmentPercentage})",
-            command.Course, command.StartDate, command.EndDate, command.Amount, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
         return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
     }
 
