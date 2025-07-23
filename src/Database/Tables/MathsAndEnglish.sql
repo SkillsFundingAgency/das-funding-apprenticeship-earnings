@@ -6,6 +6,8 @@
     [EndDate] DATETIME NOT NULL,
     [Course] NCHAR(50) NOT NULL,
     [Amount] DECIMAL(15,5) NOT NULL, 
-    [ActualEndDate] DATETIME NULL
+    [WithdrawalDate] DATETIME NULL,
+    [ActualEndDate] DATETIME NULL,
+    [PriorLearningAdjustmentPercentage] INT NULL
 )
 GO

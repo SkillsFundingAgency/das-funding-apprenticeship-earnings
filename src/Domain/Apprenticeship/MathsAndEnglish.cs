@@ -13,7 +13,9 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public DateTime EndDate => _model.EndDate;
     public string Course => _model.Course;
     public decimal Amount => _model.Amount;
+    public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? ActualEndDate => _model.ActualEndDate;
+    public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
 
     private MathsAndEnglish(MathsAndEnglishModel model)
@@ -22,7 +24,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments, DateTime? actualEndDate)
+    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments, DateTime? withdrawalDate, DateTime? actualEndDate, int? priorLearningAdjustmentPercentage)
     {
         _instalments = instalments;
         _model = new MathsAndEnglishModel();
@@ -31,8 +33,10 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.EndDate = endDate;
         _model.Course = course;
         _model.Amount = amount;
+        _model.WithdrawalDate = withdrawalDate;
         _model.ActualEndDate = actualEndDate;
         _model.Instalments = instalments.ToModels<MathsAndEnglishInstalment, MathsAndEnglishInstalmentModel>(model => model.MathsAndEnglishKey = _model.Key);
+        _model.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
     }
 
     public MathsAndEnglishModel GetModel()
@@ -54,7 +58,9 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
                EndDate == compare.EndDate &&
                Course == compare.Course &&
                Amount == compare.Amount &&
+               WithdrawalDate == compare.WithdrawalDate &&
                ActualEndDate == compare.ActualEndDate &&
+               PriorLearningAdjustmentPercentage == compare.PriorLearningAdjustmentPercentage &&
                Instalments.AreSame(compare.Instalments);
     }
 }
