@@ -133,6 +133,42 @@ public class MathsAndEnglishPaymentsTests
         result.Instalments.Any().Should().Be(expectedToQualifyAfterWithdrawal);
     }
 
+    [TestCase(20)]
+    [TestCase(93)]
+    [TestCase(100)]
+    [TestCase(130)]
+    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForPriorLearning(int priorLearningAdjustmentPercentage)
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 8, 1);
+        var endDate = new DateTime(2023, 12, 31);
+        var expectedAdjustedAmount = 211.6m * priorLearningAdjustmentPercentage / 100m;
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 1058, null, null, priorLearningAdjustmentPercentage));
+
+        // Assert
+        result.Instalments.Count.Should().Be(5);
+        result.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(expectedAdjustedAmount));
+    }
+
+    [TestCase(0)]
+    [TestCase(null)]
+    public void GenerateMathsAndEnglishPayments_ShouldNotAdjustAmountForPriorLearningWhenNullOrZero(int? priorLearningAdjustmentPercentage)
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 8, 1);
+        var endDate = new DateTime(2023, 12, 31);
+        var expectedUnAdjustedAmount = 211.6m;
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 1058, null, null, priorLearningAdjustmentPercentage));
+
+        // Assert
+        result.Instalments.Count.Should().Be(5);
+        result.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(expectedUnAdjustedAmount));
+    }
+
     [Test]
     public void GenerateMathsAndEnglishPayments_ShouldAdjustForCompletionWithABalancingPayment()
     {
