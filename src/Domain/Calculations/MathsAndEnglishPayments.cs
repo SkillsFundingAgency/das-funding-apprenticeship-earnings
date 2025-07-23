@@ -31,7 +31,7 @@ public static class MathsAndEnglishPayments
 {
     public static MathsAndEnglish GenerateMathsAndEnglishPayments(GenerateMathsAndEnglishPaymentsCommand command, ILogger? logger = null)
     {
-        logger?.LogWarning("GenerateMathsAndEnglishPayments for course {Course}", command.Course);
+        logger?.LogInformation("GenerateMathsAndEnglishPayments for course {Course}", command.Course);
 
         var instalments = new List<MathsAndEnglishInstalment>();
 
@@ -46,7 +46,7 @@ public static class MathsAndEnglishPayments
         var paymentDate = command.StartDate.LastDayOfMonth();
 
         // Adjust for prior learning if applicable
-        logger?.LogWarning("PriorLearningAdjustmentPercentage {PriorLearningAdjustmentPercentage}", command.PriorLearningAdjustmentPercentage);
+        logger?.LogInformation("PriorLearningAdjustmentPercentage {PriorLearningAdjustmentPercentage}", command.PriorLearningAdjustmentPercentage);
         var adjustedAmount = command.PriorLearningAdjustmentPercentage.HasValue
             ? command.Amount * command.PriorLearningAdjustmentPercentage.Value / 100m
             : command.Amount;
@@ -94,7 +94,7 @@ public static class MathsAndEnglishPayments
         if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
             return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
 
-        logger?.LogWarning("GenerateMathsAndEnglishPayments for course {Course} complete. (StartDate {StartDate}, EndDate {EndDate}, Amount {Amount}, ActualEndDate {ActualEndDate}, PriorLearningAdjustmentPercentage {PriorLearningAdjustmentPercentage})",
+        logger?.LogInformation("GenerateMathsAndEnglishPayments for course {Course} complete. (StartDate {StartDate}, EndDate {EndDate}, Amount {Amount}, ActualEndDate {ActualEndDate}, PriorLearningAdjustmentPercentage {PriorLearningAdjustmentPercentage})",
             command.Course, command.StartDate, command.EndDate, command.Amount, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
         return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
     }
