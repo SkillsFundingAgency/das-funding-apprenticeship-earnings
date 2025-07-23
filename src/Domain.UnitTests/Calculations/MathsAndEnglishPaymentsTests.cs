@@ -137,6 +137,23 @@ public class MathsAndEnglishPaymentsTests
         result.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(expectedAdjustedAmount));
     }
 
+    [TestCase(0)]
+    [TestCase(null)]
+    public void GenerateMathsAndEnglishPayments_ShouldNotAdjustAmountForPriorLearningWhenNullOrZero(int? priorLearningAdjustmentPercentage)
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 8, 1);
+        var endDate = new DateTime(2023, 12, 31);
+        var expectedUnAdjustedAmount = 211.6m;
+
+        // Act
+        var result = MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(new GenerateMathsAndEnglishPaymentsCommand(startDate, endDate, "E102", 1058, null, null, priorLearningAdjustmentPercentage));
+
+        // Assert
+        result.Instalments.Count.Should().Be(5);
+        result.Instalments.Should().AllSatisfy(x => x.Amount.Should().Be(expectedUnAdjustedAmount));
+    }
+
     [Test]
     public void GenerateMathsAndEnglishPayments_ShouldAdjustForCompletionWithABalancingPayment()
     {

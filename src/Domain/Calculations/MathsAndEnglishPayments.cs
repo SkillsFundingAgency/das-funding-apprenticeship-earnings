@@ -43,7 +43,7 @@ public static class MathsAndEnglishPayments
         var paymentDate = command.StartDate.LastDayOfMonth();
 
         // Adjust for prior learning if applicable
-        var adjustedAmount = command.PriorLearningAdjustmentPercentage.HasValue
+        var adjustedAmount = command.PriorLearningAdjustmentPercentage.HasValue && command.PriorLearningAdjustmentPercentage != 0
             ? command.Amount * command.PriorLearningAdjustmentPercentage.Value / 100m
             : command.Amount;
 
