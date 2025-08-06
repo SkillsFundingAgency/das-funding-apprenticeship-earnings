@@ -50,11 +50,11 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
     [TestCase(14, 13, false)]
     [TestCase(13, 1, true)]
     [TestCase(1, 1, true)]
-    public void ThenInstalmentsForThisAcademicYearAreRemovedBasedOnQualifyingPeriod(int aimLength, int withdrawalAfterDays, bool expectedToQualify)
+    public void ThenInstalmentsForThisAcademicYearAreRemovedBasedOnQualifyingPeriod(int plannedDuration, int withdrawalAfterDays, bool expectedToQualify)
     {
         // Arrange
         var actualStartDate = new DateTime(2024, 1, 31);
-        var plannedEndDate = actualStartDate.AddDays(aimLength - 1);
+        var plannedEndDate = actualStartDate.AddDays(plannedDuration - 1);
         var lastDayOfLearning = actualStartDate.AddDays(withdrawalAfterDays - 1);
 
         SetupApprenticeship(actualStartDate, plannedEndDate, 12000m);
