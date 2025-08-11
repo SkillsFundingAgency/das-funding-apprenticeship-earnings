@@ -47,6 +47,7 @@ public class Instalment
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
     public Guid EpisodePriceKey { get; set; }
+    public string InstalmentType { get; set; }
 }
 
 #pragma warning restore CS8618
