@@ -96,7 +96,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model.Ukprn = episodeUpdate.Ukprn;
     }
 
-    public void RemoveEarningsAfter(DateTime lastDayOfLearning, ISystemClockService systemClock)
+    public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
     {
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
         var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(lastDayOfLearning);
@@ -179,7 +179,8 @@ public class ApprenticeshipEpisode : AggregateComponent
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
         var startDate = _model.Prices.Min(x => x.StartDate);
-        var qualifyingDate = startDate.AddDays(Constants.QualifyingPeriod); //With shorter apprenticeships, this qualifying period will change
+        var qualifyingPeriodDays = GetQualifyingPeriodDays(startDate, _model.Prices.Max(x => x.EndDate));
+        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
         if (lastDayOfLearning < qualifyingDate)
         {
             result = _model.EarningsProfile.Instalments.Where(x =>
@@ -220,5 +221,16 @@ public class ApprenticeshipEpisode : AggregateComponent
             .ToList();
         _model.Prices.AddRange(newPrices.Select(x => x.GetModel()));
         _prices.AddRange(newPrices);
+    }
+
+    private int GetQualifyingPeriodDays(DateTime startDate, DateTime plannedEndDate)
+    {
+        var plannedDuration = (int)Math.Floor((plannedEndDate - startDate).TotalDays) + 1;
+        return plannedDuration switch
+        {
+            >= 168 => 42,
+            >= 14 => 14,
+            _ => 1
+        };
     }
 }
