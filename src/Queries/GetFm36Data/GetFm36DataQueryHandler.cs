@@ -56,7 +56,8 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                     AcademicYear = i.AcademicYear,
                     DeliveryPeriod = i.DeliveryPeriod,
                     Amount = i.Amount,
-                    EpisodePriceKey = i.EpisodePriceKey
+                    EpisodePriceKey = i.EpisodePriceKey,
+                    InstalmentType = i.Type.ToString()
                 }).ToList(),
                 AdditionalPayments = x.EarningsProfile!.AdditionalPayments.Select(p => new AdditionalPayment
                 {
