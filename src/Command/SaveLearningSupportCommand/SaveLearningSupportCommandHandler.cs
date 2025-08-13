@@ -33,7 +33,9 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
         _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
         var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
-        LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate)).ToList();
+            LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
+            .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+            .ToList();
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
 
