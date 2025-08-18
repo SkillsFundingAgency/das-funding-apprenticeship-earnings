@@ -42,6 +42,35 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(0);
     }
 
+    [TestCase(168, 42, true)]
+    [TestCase(168, 41, false)]
+    [TestCase(167, 14, true)]
+    [TestCase(167, 13, false)]
+    [TestCase(14, 14, true)]
+    [TestCase(14, 13, false)]
+    [TestCase(13, 1, true)]
+    [TestCase(1, 1, true)]
+    public void ThenInstalmentsForThisAcademicYearAreRemovedBasedOnQualifyingPeriod(int plannedDuration, int withdrawalAfterDays, bool expectedToQualify)
+    {
+        // Arrange
+        var actualStartDate = new DateTime(2024, 1, 31);
+        var plannedEndDate = actualStartDate.AddDays(plannedDuration - 1);
+        var lastDayOfLearning = actualStartDate.AddDays(withdrawalAfterDays - 1);
+
+        SetupApprenticeship(actualStartDate, plannedEndDate, 12000m);
+
+        // Act
+        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+
+        // Assert
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+
+        if(expectedToQualify)
+            currentEpisode.EarningsProfile.Instalments.Should().NotBeEmpty();
+        else
+            currentEpisode.EarningsProfile.Instalments.Count.Should().Be(0);
+    }
+
     [Test]
     public void ThenAllInstalmentsForPreviousAcademicYearArePreserved()
     {

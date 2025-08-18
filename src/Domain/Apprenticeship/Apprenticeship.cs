@@ -64,7 +64,7 @@ public class Apprenticeship : AggregateRoot
     {
         foreach (var episode in ApprenticeshipEpisodes)
         {
-            episode.RemoveEarningsAfter(lastDayOfLearning, systemClock);
+            episode.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, systemClock);
         }
     }
 
