@@ -77,4 +77,16 @@ public class EarningsGeneratedEventHandlingStepDefinitions
                     , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
         }
     }
+
+    [Then(@"no on programme earnings are persisted")]
+    public async Task ThenNoOnProgrammeEarningsArePersisted()
+    {
+        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
+        var queryEarningsDbRecords = await _testContext.SqlDatabase.GetQueryEarnings(learningKeyKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
+
+        earningsInDb.Should().BeEmpty();
+        queryEarningsDbRecords.Should().BeEmpty();
+    }
 }
