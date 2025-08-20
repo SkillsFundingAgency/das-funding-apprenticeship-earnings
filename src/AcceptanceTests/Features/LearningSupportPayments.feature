@@ -112,3 +112,22 @@ Scenario: Add learning support payments for the same period twice, should only r
 		| LearningSupport | 150    | 2021-2-28 |
 		| LearningSupport | 150    | 2021-3-31 |
 	And Earnings are generated with the correct learning amounts
+
+Scenario: Overlapping learning support payments for the same period should not be duplicated
+	Given an apprenticeship has been created
+	And Earnings are generated with the correct learning amounts
+	And the following learning support payment information is provided
+		| StartDate | EndDate   |
+		| 2020-8-1  | 2020-10-1 |
+		| 2020-8-1  | 2021-3-31 |
+	Then Additional Payments are persisted as follows
+		| Type            | Amount | DueDate    |
+		| LearningSupport | 150    | 2020-8-31  |
+		| LearningSupport | 150    | 2020-9-30  |
+		| LearningSupport | 150    | 2020-10-31 |
+		| LearningSupport | 150    | 2020-11-30 |
+		| LearningSupport | 150    | 2020-12-31 |
+		| LearningSupport | 150    | 2021-1-31  |
+		| LearningSupport | 150    | 2021-2-28  |
+		| LearningSupport | 150    | 2021-3-31  |
+	And Earnings are generated with the correct learning amounts
