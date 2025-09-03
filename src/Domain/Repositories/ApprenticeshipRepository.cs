@@ -66,10 +66,4 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             await _messageSession.Publish(@event); 
         }
     }
-
-    public async Task Add(EarningsProfileHistoryModel earningsProfile)
-    {
-        DbContext.EarningsProfileHistories.Add(earningsProfile);
-        await DbContext.SaveChangesAsync();
-    }
 }

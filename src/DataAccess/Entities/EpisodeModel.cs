@@ -39,5 +39,4 @@ public class EpisodeModel
     public DateTime? CompletionDate { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
-    public List<EarningsProfileHistoryModel> EarningsProfileHistory { get; set; } = new();
 }

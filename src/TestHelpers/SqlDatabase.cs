@@ -37,8 +37,6 @@ public class SqlDatabase : IDisposable
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.AdditionalPayments)
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfileHistory)
-            .ThenInclude(y => y.Instalments)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.Prices)
             .Include(x => x.Episodes)

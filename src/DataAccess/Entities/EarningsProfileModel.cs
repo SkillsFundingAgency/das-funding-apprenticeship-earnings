@@ -32,25 +32,3 @@ public class EarningsProfileModel : EarningsProfileModelBase
     public List<AdditionalPaymentModel> AdditionalPayments { get; set; } = null!;
     public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!;
 }
-
-[Dapper.Contrib.Extensions.Table("Domain.EarningsProfileHistory")]
-[Table("EarningsProfileHistory", Schema = "Domain")]
-public class EarningsProfileHistoryModel : EarningsProfileModelBase
-{
-    public EarningsProfileHistoryModel(EarningsProfileModel original, DateTime supersededDate) : base(original)
-    {
-        OriginalEarningsProfileId = original.EarningsProfileId;
-        SupersededDate = supersededDate;
-        Instalments = original.Instalments.Select(x => new InstalmentHistoryModel(x, EarningsProfileId, original.Version)).ToList();
-        AdditionalPayments = original.AdditionalPayments
-            .Select(x => new AdditionalPaymentHistoryModel(x, EarningsProfileId, original.Version)).ToList();
-    }
-
-    public EarningsProfileHistoryModel() {}
-
-    public List<InstalmentHistoryModel> Instalments { get; set; } = null!;
-    public List<AdditionalPaymentHistoryModel> AdditionalPayments { get; set; } = null!;
-    public List<MathsAndEnglishModel> MathsAndEnglishCourses { get; set; } = null!;
-    public DateTime SupersededDate { get; set; }
-    public Guid OriginalEarningsProfileId { get; set; }
-}
