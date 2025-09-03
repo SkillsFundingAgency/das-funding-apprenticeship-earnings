@@ -59,6 +59,7 @@
     <Folder Include="Properties" />
     <Folder Include="Schemas" />
     <Folder Include="Tables" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Schemas\Query.sql" />
@@ -77,5 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="Scripts\PreDeploymentScript.sql" />
   </ItemGroup>
 </Project>
