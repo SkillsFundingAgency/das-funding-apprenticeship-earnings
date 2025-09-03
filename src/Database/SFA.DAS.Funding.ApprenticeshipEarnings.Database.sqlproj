@@ -71,10 +71,10 @@
     <Build Include="Tables\EarningsProfile.sql" />
     <Build Include="Tables\Instalment.sql" />
     <Build Include="Tables\AdditionalPayment.sql" />
-    <Build Include="Tables\AdditionalPaymentHistory.sql" />
     <Build Include="Tables\MathsAndEnglish.sql" />
     <Build Include="Tables\EarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
+    <Build Include="Tables\MathsAndEnglishInstalment.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.refactorlog" />
