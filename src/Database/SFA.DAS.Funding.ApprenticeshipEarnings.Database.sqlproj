@@ -69,13 +69,10 @@
     <Build Include="Tables\EpisodePrice.sql" />
     <Build Include="Tables\EarningsProfile.sql" />
     <Build Include="Tables\Instalment.sql" />
-    <Build Include="Tables\EarningsProfileHistory.sql" />
-    <Build Include="Tables\InstalmentHistory.sql" />
     <Build Include="Tables\AdditionalPayment.sql" />
     <Build Include="Tables\AdditionalPaymentHistory.sql" />
     <Build Include="Tables\MathsAndEnglish.sql" />
-    <Build Include="Tables\MathsAndEnglishInstalment.sql" />
-    <Build Include="Tables\EarningsProfileHistory_1.sql" />
+    <Build Include="Tables\EarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
   </ItemGroup>
   <ItemGroup>

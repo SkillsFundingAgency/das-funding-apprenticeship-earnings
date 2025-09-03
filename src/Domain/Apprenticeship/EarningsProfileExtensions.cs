@@ -37,7 +37,8 @@ internal static class EarningsProfileExtensions
             Amount = i.Amount,
             EpisodePriceKey = i.EpisodePriceKey,
             Type = i.Type
-        }).ToList();
+        }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
+            .ToList();
     }
 
     private static List<Types.AdditionalPayment> GetAdditionalPayments(this EarningsProfileModel earningsProfile)
@@ -55,7 +56,8 @@ internal static class EarningsProfileExtensions
             Amount = ap.Amount,
             AdditionalPaymentType = ap.AdditionalPaymentType,
             DueDate = ap.DueDate
-        }).ToList();
+        }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
+            .ToList();
     }
 
     internal static List<Types.EnglishAndMaths> GetMathsAndEnglish(this EarningsProfileModel earningsProfile)
@@ -77,7 +79,8 @@ internal static class EarningsProfileExtensions
                 AcademicYear = i.AcademicYear,
                 DeliveryPeriod = i.DeliveryPeriod,
                 Amount = i.Amount
-            }).ToList()
+            }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
+                .ToList()
         }).ToList();
     }
 }
