@@ -6,7 +6,7 @@
     [DeliveryPeriod] TINYINT NOT NULL,
     [Amount] DECIMAL(15,5) NOT NULL, 
     [EpisodePriceKey] UNIQUEIDENTIFIER NULL, 
-    [Type] NCHAR(50) NULL
+    [Type] NVARCHAR(50) NULL
 )
 GO
 ALTER TABLE Domain.[Instalment]

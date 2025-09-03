@@ -9,22 +9,21 @@ public class EarningsProfileUpdatedEvent
     public decimal CompletionPayment { get; set; }
     public List<Instalment> Instalments { get; set; } = null!;
     public List<AdditionalPayment> AdditionalPayments { get; set; } = null!;
-    public List<MathsAndEnglish> EnglishAndMaths { get; set; } = null!;
+    public List<EnglishAndMaths> EnglishAndMaths { get; set; } = null!;
 }
 
-
-public class MathsAndEnglish
+public class EnglishAndMaths
 {
+    public Guid EnglishAndMathsKey { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public string Course { get; set; } = null!;
     public decimal Amount { get; set; }
-    public List<MathsAndEnglishInstalment> Instalments { get; set; } = [];
+    public List<EnglishAndMathsInstalments> Instalments { get; set; } = [];
 }
 
-public class MathsAndEnglishInstalment
+public class EnglishAndMathsInstalments
 {
-    public Guid MathsAndEnglishKey { get; set; }
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }

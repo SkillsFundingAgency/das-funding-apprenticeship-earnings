@@ -36,7 +36,7 @@ internal static class EarningsProfileExtensions
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
             EpisodePriceKey = i.EpisodePriceKey,
-            Type = i.Type.Trim()
+            Type = i.Type
         }).ToList();
     }
 
@@ -58,22 +58,22 @@ internal static class EarningsProfileExtensions
         }).ToList();
     }
 
-    internal static List<Types.MathsAndEnglish> GetMathsAndEnglish(this EarningsProfileModel earningsProfile)
+    internal static List<Types.EnglishAndMaths> GetMathsAndEnglish(this EarningsProfileModel earningsProfile)
     {
         if (earningsProfile.MathsAndEnglishCourses == null || !earningsProfile.MathsAndEnglishCourses.Any())
         {
-            return new List<Types.MathsAndEnglish>();
+            return new List<Types.EnglishAndMaths>();
         }
 
-        return earningsProfile.MathsAndEnglishCourses.Select(me => new Types.MathsAndEnglish
+        return earningsProfile.MathsAndEnglishCourses.Select(me => new Types.EnglishAndMaths
         {
+            EnglishAndMathsKey = me.Key,
             StartDate = me.StartDate,
             EndDate = me.EndDate,
             Course = me.Course,
             Amount = me.Amount,
-            Instalments = me.Instalments.Select(i => new Types.MathsAndEnglishInstalment
+            Instalments = me.Instalments.Select(i => new Types.EnglishAndMathsInstalments
             {
-                MathsAndEnglishKey = me.Key,
                 AcademicYear = i.AcademicYear,
                 DeliveryPeriod = i.DeliveryPeriod,
                 Amount = i.Amount
