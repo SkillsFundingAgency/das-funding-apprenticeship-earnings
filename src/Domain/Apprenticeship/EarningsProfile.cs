@@ -31,6 +31,8 @@ public class EarningsProfile : AggregateComponent
         Model.CompletionPayment = completionPayment;
         Model.EpisodeKey = episodeKey;
         Model.Version = Guid.NewGuid();
+
+        AddEvent(Model.CreatedEarningsProfileUpdatedEvent());
     }
 
     public EarningsProfile(EarningsProfileModel model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
@@ -56,7 +58,6 @@ public class EarningsProfile : AggregateComponent
         decimal? completionPayment = null
     )
     {
-        var archiveEvent = Model.EarningsProfileArchivedEvent(systemClock.UtcNow.Date);// this needs to be created before any changes, although it will be discarded if none are made
         var versionChanged = false;
 
         if (onProgramTotal.HasValue && Model.OnProgramTotal != onProgramTotal.Value)
@@ -93,6 +94,7 @@ public class EarningsProfile : AggregateComponent
         if (versionChanged)
         {
             Model.Version = Guid.NewGuid();
+            var archiveEvent = Model.CreatedEarningsProfileUpdatedEvent();
             AddEvent(archiveEvent);
         }
     }

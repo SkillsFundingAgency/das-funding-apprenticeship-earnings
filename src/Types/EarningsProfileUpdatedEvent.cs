@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
-public class ArchiveEarningsProfileEvent
+public class EarningsProfileUpdatedEvent
 {
     public Guid EarningsProfileId { get; set; }
     public Guid EpisodeKey { get; set; }
@@ -9,53 +9,43 @@ public class ArchiveEarningsProfileEvent
     public decimal CompletionPayment { get; set; }
     public List<Instalment> Instalments { get; set; } = null!;
     public List<AdditionalPayment> AdditionalPayments { get; set; } = null!;
-    public List<MathsAndEnglish> MathsAndEnglishCourses { get; set; } = null!;
-    public DateTime SupersededDate { get; set; }
+    public List<MathsAndEnglish> EnglishAndMaths { get; set; } = null!;
 }
 
-public abstract class ArchiveEntity
+
+public class MathsAndEnglish
 {
-    public Guid Key { get; set; }
-    public Guid? EarningsProfileVersion { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public string Course { get; set; } = null!;
+    public decimal Amount { get; set; }
+    public List<MathsAndEnglishInstalment> Instalments { get; set; } = [];
 }
 
-public abstract class PaymentEntity : ArchiveEntity
+public class MathsAndEnglishInstalment
 {
+    public Guid MathsAndEnglishKey { get; set; }
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
 }
 
-public class MathsAndEnglish : ArchiveEntity
+public class AdditionalPayment
 {
-    public Guid EarningsProfileId { get; set; }
-
-    public DateTime StartDate { get; set; }
-
-    public DateTime EndDate { get; set; }
-
-    public string Course { get; set; } = null!;
-
-    public decimal Amount { get; set; }
-
-    public List<MathsAndEnglishInstalment> Instalments { get; set; } = [];
-}
-
-public class MathsAndEnglishInstalment : PaymentEntity
-{
-    public Guid MathsAndEnglishKey { get; set; }
-}
-
-public class AdditionalPayment : PaymentEntity
-{
-    public Guid EarningsProfileId { get; set; }
+    public Guid Key { get; set; }
     public string AdditionalPaymentType { get; set; }
     public DateTime DueDate { get; set; }
+    public short AcademicYear { get; set; }
+    public byte DeliveryPeriod { get; set; }
+    public decimal Amount { get; set; }
 }
 
-public class Instalment : PaymentEntity
+public class Instalment
 {
-    public Guid EarningsProfileId { get; set; }
+    public Guid Key { get; set; }
     public Guid EpisodePriceKey { get; set; }
     public string Type { get; set; }
+    public short AcademicYear { get; set; }
+    public byte DeliveryPeriod { get; set; }
+    public decimal Amount { get; set; }
 }

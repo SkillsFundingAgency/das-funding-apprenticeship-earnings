@@ -13,15 +13,15 @@ public class ArchiveEarningsProfileCommandHandler(IEarningsProfileHistoryReposit
     {
         logger.LogInformation("{handler} - Started", nameof(ArchiveEarningsProfileCommandHandler));
 
-        var json = JsonSerializer.Serialize(command.ArchiveEarningsProfileEvent, new JsonSerializerOptions { WriteIndented = true });
+        var json = JsonSerializer.Serialize(command.EarningsProfileUpdatedEvent, new JsonSerializerOptions { WriteIndented = true });
 
         var history = new EarningsProfileHistory
         {
             Key = Guid.NewGuid(),
             CreatedOn = DateTime.UtcNow,
-            EarningsProfileId = command.ArchiveEarningsProfileEvent.EarningsProfileId,
+            EarningsProfileId = command.EarningsProfileUpdatedEvent.EarningsProfileId,
             State = json,
-            Version = command.ArchiveEarningsProfileEvent.Version
+            Version = command.EarningsProfileUpdatedEvent.Version
         };
 
         await repository.Add(history);

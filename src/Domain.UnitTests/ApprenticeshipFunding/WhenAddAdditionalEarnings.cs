@@ -96,7 +96,7 @@ public class WhenAddAdditionalEarnings
 
         // Assert
         var events = sut.FlushEvents().ToList();
-        events.Any(x => x is Types.ArchiveEarningsProfileEvent).Should().BeTrue();
+        events.Any(x => x is Types.EarningsProfileUpdatedEvent).Should().BeTrue();
     }
 
     private Apprenticeship.Apprenticeship CreateApprenticeship(byte apprenticeAge)

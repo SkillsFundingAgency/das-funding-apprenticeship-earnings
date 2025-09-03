@@ -106,7 +106,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _apprenticeship.RecalculateEarnings(_learningStartDateChangedEvent, _mockSystemClockService.Object);
 
         // Assert
-        var events = _apprenticeship.FlushEvents().OfType<ArchiveEarningsProfileEvent>().ToList();
+        var events = _apprenticeship.FlushEvents().OfType<EarningsProfileUpdatedEvent>().ToList();
         events.Should().HaveCount(1);
     }
 }

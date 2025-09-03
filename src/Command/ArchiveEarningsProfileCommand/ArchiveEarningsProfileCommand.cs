@@ -5,10 +5,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEarningsProfileC
 
 public class ArchiveEarningsProfileCommand : ICommand
 {
-    public ArchiveEarningsProfileCommand(ArchiveEarningsProfileEvent archiveEarningsProfileEvent)
+    public ArchiveEarningsProfileCommand(EarningsProfileUpdatedEvent earningsProfileUpdatedEvent)
     {
-        ArchiveEarningsProfileEvent = archiveEarningsProfileEvent;
+        EarningsProfileUpdatedEvent = earningsProfileUpdatedEvent;
     }
 
-    public ArchiveEarningsProfileEvent ArchiveEarningsProfileEvent { get; }
+    public EarningsProfileUpdatedEvent EarningsProfileUpdatedEvent { get; }
 }

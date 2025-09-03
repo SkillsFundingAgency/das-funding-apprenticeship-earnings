@@ -11,15 +11,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 public class ArchiveEarningsProfileEventHandler(
     ICommandHandler<ArchiveEarningsProfileCommand> earningProfileArchiveCommandHandler,
     ILogger<ArchiveEarningsProfileEventHandler> logger)
-    : IHandleMessages<ArchiveEarningsProfileEvent>
+    : IHandleMessages<EarningsProfileUpdatedEvent>
 {
-    public async Task Handle(ArchiveEarningsProfileEvent message, IMessageHandlerContext context)
+    public async Task Handle(EarningsProfileUpdatedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("{functionName} processing...", nameof(ArchiveEarningsProfileEvent));
+        logger.LogInformation("{functionName} processing...", nameof(EarningsProfileUpdatedEvent));
 
         logger.LogInformation("EarningsProfileId: {key} Received {eventName}: {eventJson}",
             message.EarningsProfileId,
-            nameof(ArchiveEarningsProfileEvent),
+            nameof(EarningsProfileUpdatedEvent),
             JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
 
         await earningProfileArchiveCommandHandler.Handle(new ArchiveEarningsProfileCommand(message), context.CancellationToken);
