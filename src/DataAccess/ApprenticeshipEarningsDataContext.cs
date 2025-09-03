@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.History;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
@@ -22,6 +23,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 
         public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
         public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
+
+        public virtual DbSet<EarningsProfileHistory> EarningsProfileHistories2 { get; set; } //todo: rename this once the other one is removed
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -97,6 +100,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasMany(x => x.MathsAndEnglishCourses)
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
+
+            //New EarningsProfileHistory
+            modelBuilder.Entity<EarningsProfileHistory>()
+                .HasKey(x => x.Key);
 
             // Instalment
             modelBuilder.Entity<InstalmentHistoryModel>()

@@ -14,4 +14,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="EarningsProfileId" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="79819d46-e1c5-4518-b5c7-7e5377eeece8" ChangeDateTime="09/02/2025 15:04:45">
+    <Property Name="ElementName" Value="[History].[EarningsProfileHistory].[Json]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[History].[EarningsProfileHistory]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="State" />
+  </Operation>
 </Operations>
