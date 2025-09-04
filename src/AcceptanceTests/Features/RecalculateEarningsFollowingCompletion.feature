@@ -21,6 +21,7 @@ Scenario: Early Completion
 		| 1000   | 2021         | 6              | Regular    |
 		| 6000   | 2021         | 7              | Balancing  |
 		| 3000   | 2021         | 7              | Completion |
+	And the earnings history is maintained
 
 Scenario: Late Completion
 	Given an apprenticeship has been created with the following information
@@ -48,6 +49,7 @@ Scenario: Late Completion
 		| 1000   | 2021         | 11             | Regular    |
 		| 1000   | 2021         | 12             | Regular    |
 		| 3000   | 2122         | 2              | Completion |
+	And the earnings history is maintained
 
 Scenario: On Time Completion
 	Given an apprenticeship has been created with the following information
@@ -75,3 +77,4 @@ Scenario: On Time Completion
 		| 1000   | 2021         | 11             | Regular    |
 		| 1000   | 2021         | 12             | Regular    |
 		| 3000   | 2021         | 12             | Completion |
+	And the earnings history is maintained

@@ -139,13 +139,7 @@ public class RecalculateEarningsStepDefinitions
             Assert.Fail("No earning history created");
         }
 
-        //todo: change/tighten up these assertions based on implementation changes
-
-        //var previousEarningsProfileId
-        //    = currentEpisode.EarningsProfileHistory.OrderBy(x => x.SupersededDate).Last().EarningsProfileId;
-
-        //Assert.That(currentEpisode.EarningsProfile.EarningsProfileId != Guid.Empty &&
-        //            currentEpisode.EarningsProfile.EarningsProfileId != previousEarningsProfileId);
+        history.First().Version.Should().Be(currentEpisode.EarningsProfile.Version);
     }
 
     [Then("there are (.*) records in earning profile history")]
@@ -163,12 +157,7 @@ public class RecalculateEarningsStepDefinitions
             Assert.Fail("No earning history created");
         }
 
-        //todo: change/tighten up these assertions based on implementation changes
-
-        //if (currentEpisode.EarningsProfileHistory.Count != numberOfRecords)
-        //{
-        //    Assert.Fail($"Expected to find {numberOfRecords} EarningProfileHistory records but found {currentEpisode.EarningsProfileHistory.Count}");
-        //}
+        history.Count.Should().Be(numberOfRecords);
     }
 
     [Then(@"there are (.*) earnings")]

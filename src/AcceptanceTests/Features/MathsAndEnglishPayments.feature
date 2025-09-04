@@ -25,6 +25,7 @@ Scenario: Maths and English earnings for a brand new course
 		| Maths1 | 100    | 2122         | 1              |
 		| Maths1 | 100    | 2122         | 2              |
 		| Maths1 | 100    | 2122         | 3              |
+	And the earnings history is maintained
 
 Scenario: Maths and English earnings past the end of the apprenticeship
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
@@ -46,6 +47,7 @@ Scenario: Maths and English earnings past the end of the apprenticeship
 		| LateEnglish | 100    | 2122         | 3              |
 		| LateEnglish | 100    | 2122         | 4              |
 		| LateEnglish | 100    | 2122         | 5              |
+	And the earnings history is maintained
 	
 Scenario: Maths and English before the start of the apprenticeship
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
@@ -67,6 +69,7 @@ Scenario: Maths and English before the start of the apprenticeship
 		| EarlyMaths | 50     | 2021         | 3              |
 		| EarlyMaths | 50     | 2021         | 4              |
 		| EarlyMaths | 50     | 2021         | 5              |
+	And the earnings history is maintained
 
 Scenario: Maths and English earnings for a course which does not span a census date
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
@@ -77,6 +80,7 @@ Scenario: Maths and English earnings for a course which does not span a census d
 	Then Maths and english instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod |
 		| Maths1 | 900    | 2021         | 7              |
+	And the earnings history is maintained
 		
 Scenario: Maths and English completion earnings
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
@@ -93,6 +97,8 @@ Scenario: Maths and English completion earnings
 		| Maths1 | 100    | 2021         | 2              |
 		| Maths1 | 100    | 2021         | 3              |
 		| Maths1 | 1200   | 2021         | 4              |
+	And the earnings history is maintained
+
 Scenario: Maths and English earnings for a course with prior learning
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
@@ -115,4 +121,4 @@ Scenario: Maths and English earnings for a course with prior learning
 		| Maths1 | 63     | 2021         | 12             |
 		| Maths1 | 63     | 2122         | 1              |
 		| Maths1 | 63     | 2122         | 2              |
-		| Maths1 | 63     | 2122         | 3              |
+	And the earnings history is maintained

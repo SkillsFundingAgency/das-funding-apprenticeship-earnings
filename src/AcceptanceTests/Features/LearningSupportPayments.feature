@@ -39,6 +39,7 @@ Scenario: Learning support payments are not lost on a recalculation
 		| EmployerIncentive | 500    | 2020-10-29 |
 		| ProviderIncentive | 500    | 2021-07-31 |
 		| EmployerIncentive | 500    | 2021-07-31 |
+	And the earnings history is maintained
 
 # where the “Date Applies To” does not reach a census date (i.e. the final day of the month), funding must not be earned for that delivery period
 Scenario: Calculate learning support earnings (from the previous month)
@@ -51,7 +52,7 @@ Scenario: Calculate learning support earnings (from the previous month)
 		| Type            | Amount | DueDate   |
 		| LearningSupport | 150    | 2020-8-31 |
 		| LearningSupport | 150    | 2020-9-30 |
-
+	And the earnings history is maintained
 
 Scenario: Calculate learning support earnings from the current date/month (additional test scenario)
 	Given the date is now 2020-08-01
@@ -63,6 +64,7 @@ Scenario: Calculate learning support earnings from the current date/month (addit
 		| Type            | Amount | DueDate   |
 		| LearningSupport | 150    | 2020-8-31 |
 		| LearningSupport | 150    | 2020-9-30 |
+	And the earnings history is maintained
 
 Scenario: Calculate learning support earnings from a future date (additional test scenario)
 	Given the date is now 2020-08-01
@@ -74,6 +76,7 @@ Scenario: Calculate learning support earnings from a future date (additional tes
 		| Type            | Amount | DueDate    |
 		| LearningSupport | 150    | 2020-9-30  |
 		| LearningSupport | 150    | 2020-10-31 |
+	And the earnings history is maintained
 
 Scenario: Calculate learning support earnings when the “Date Applies To” is after the planned end date (additional test scenario)
 	Given the date is now 2020-08-01
@@ -92,6 +95,7 @@ Scenario: Calculate learning support earnings when the “Date Applies To” is 
 		| LearningSupport | 150    | 2021-3-31  |
 		| LearningSupport | 150    | 2021-4-30  |
 		| LearningSupport | 150    | 2021-5-31  |
+	And the earnings history is maintained
 
 Scenario: Add learning support payments for the same period twice, should only record one LS payment per period, and on programme payments should not be effected
 	Given an apprenticeship has been created
@@ -112,6 +116,7 @@ Scenario: Add learning support payments for the same period twice, should only r
 		| LearningSupport | 150    | 2021-2-28 |
 		| LearningSupport | 150    | 2021-3-31 |
 	And Earnings are generated with the correct learning amounts
+	And the earnings history is maintained
 
 Scenario: Overlapping learning support payments for the same period should not be duplicated
 	Given an apprenticeship has been created
@@ -131,3 +136,4 @@ Scenario: Overlapping learning support payments for the same period should not b
 		| LearningSupport | 150    | 2021-2-28  |
 		| LearningSupport | 150    | 2021-3-31  |
 	And Earnings are generated with the correct learning amounts
+	And the earnings history is maintained

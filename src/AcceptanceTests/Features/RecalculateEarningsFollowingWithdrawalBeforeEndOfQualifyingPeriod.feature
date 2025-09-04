@@ -12,6 +12,7 @@ Scenario: Withdrawal made before end of 42 day qualifying period; recalc earning
 		| LastDayOfLearning |
 		| 2020-09-15        |
 	Then no on programme earnings are persisted
+	And the earnings history is maintained
 
 	Scenario: Withdrawal made before end of 14 qualifying period; recalc earnings as zero
 	Given an apprenticeship has been created with the following information
@@ -25,3 +26,4 @@ Scenario: Withdrawal made before end of 42 day qualifying period; recalc earning
 		| LastDayOfLearning |
 		| 2020-02-12        |
 	Then no on programme earnings are persisted
+	And the earnings history is maintained
