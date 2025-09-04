@@ -128,6 +128,8 @@ public class RecalculateEarningsStepDefinitions
     [Then("the earnings history is maintained")]
     public async Task AssertHistoryUpdated()
     {
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Unable to await recalculation");
+
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
         
@@ -202,6 +204,13 @@ public class RecalculateEarningsStepDefinitions
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
 
         if (!history.Any())
+        {
+            return false;
+        }
+
+        //History always contains 1 record for the initial creation
+        //Therefore, we must disregard this when looking for recalculation
+        if (history.Count == 1)
         {
             return false;
         }
