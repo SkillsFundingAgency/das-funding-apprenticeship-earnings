@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using System.Text.Json;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.History;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEarningsProfileCommand;
 
