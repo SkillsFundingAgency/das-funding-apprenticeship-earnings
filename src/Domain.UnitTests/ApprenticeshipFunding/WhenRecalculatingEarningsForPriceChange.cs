@@ -102,7 +102,7 @@ public class WhenRecalculatingEarningsForPriceChange
         _sut!.RecalculateEarnings(_LearningPriceChangedEvent, _mockSystemClock.Object);
 
         var events = _sut.FlushEvents();
-        events.Should().ContainSingle(x => x.GetType() == typeof(ArchiveEarningsProfileEvent));
+        events.Should().ContainSingle(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
     }
 
     [Test]

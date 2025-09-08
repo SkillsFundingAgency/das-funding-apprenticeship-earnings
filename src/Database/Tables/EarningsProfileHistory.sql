@@ -1,16 +1,18 @@
-﻿CREATE TABLE [Domain].[EarningsProfileHistory]
+﻿CREATE TABLE [History].[EarningsProfileHistory]
 (
-    [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
-    [OnProgramTotal] DECIMAL(15,5) NOT NULL, 
-    [CompletionPayment] DECIMAL(15,5) NULL,
-    [SupersededDate] DATETIME NOT NULL, 
-    [OriginalEarningsProfileId] UNIQUEIDENTIFIER NULL,
-    [Version] UNIQUEIDENTIFIER NULL
+	[Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+	[EarningsProfileId] UNIQUEIDENTIFIER NOT NULL,
+	[Version] UNIQUEIDENTIFIER NOT NULL,
+	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
+	[State] NVARCHAR(MAX) NOT NULL,
+	
+	CONSTRAINT FK_EarningsProfileHistory_EarningsProfile
+        FOREIGN KEY ([EarningsProfileId])
+        REFERENCES Domain.[EarningsProfile]([EarningsProfileId])
 )
 GO
-ALTER TABLE Domain.[EarningsProfileHistory]
-ADD CONSTRAINT FK_EarningsProfileHistory_Episode FOREIGN KEY (EpisodeKey) REFERENCES Domain.Episode ([Key])
-GO
-CREATE INDEX IX_EpisodeKey ON Domain.[EarningsProfileHistory] (EpisodeKey);
-GO
+
+CREATE NONCLUSTERED INDEX IX_EarningsProfileHistory_Version
+    ON [History].[EarningsProfileHistory] ([Version]);
+
+

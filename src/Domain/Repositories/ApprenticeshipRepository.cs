@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
@@ -64,11 +65,5 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
         {
             await _messageSession.Publish(@event); 
         }
-    }
-
-    public async Task Add(EarningsProfileHistoryModel earningsProfile)
-    {
-        DbContext.EarningsProfileHistories.Add(earningsProfile);
-        await DbContext.SaveChangesAsync();
     }
 }

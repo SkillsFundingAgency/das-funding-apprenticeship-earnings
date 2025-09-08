@@ -126,20 +126,21 @@ public class RecalculateEarningsStepDefinitions
     #region Assert
 
     [Then("the earnings history is maintained")]
-    public void AssertHistoryUpdated()
+    public async Task AssertHistoryUpdated()
     {
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Unable to await recalculation");
+
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
-        if (currentEpisode.EarningsProfileHistory == null || !currentEpisode.EarningsProfileHistory.Any())
+        
+        var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
+
+        if (history.Count == 0)
         {
             Assert.Fail("No earning history created");
         }
 
-        var previousEarningsProfileId
-            = currentEpisode.EarningsProfileHistory.OrderBy(x => x.SupersededDate).Last().EarningsProfileId;
-
-        Assert.That(currentEpisode.EarningsProfile.EarningsProfileId != Guid.Empty &&
-                    currentEpisode.EarningsProfile.EarningsProfileId != previousEarningsProfileId);
+        history.First().Version.Should().Be(currentEpisode.EarningsProfile.Version);
     }
 
     [Then("there are (.*) records in earning profile history")]
@@ -150,15 +151,14 @@ public class RecalculateEarningsStepDefinitions
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
-        if (currentEpisode.EarningsProfileHistory == null || !currentEpisode.EarningsProfileHistory.Any())
+        var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
+
+        if (history.Count == 0)
         {
             Assert.Fail("No earning history created");
         }
 
-        if (currentEpisode.EarningsProfileHistory.Count != numberOfRecords)
-        {
-            Assert.Fail($"Expected to find {numberOfRecords} EarningProfileHistory records but found {currentEpisode.EarningsProfileHistory.Count}");
-        }
+        history.Count.Should().Be(numberOfRecords);
     }
 
     [Then(@"there are (.*) earnings")]
@@ -199,9 +199,18 @@ public class RecalculateEarningsStepDefinitions
     private async Task<bool> EnsureRecalculationHasHappened()
     {
         var apprenticeshipEntity = await GetApprenticeshipEntity();
-
         var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-        if (!currentEpisode.EarningsProfileHistory.Any())
+
+        var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
+
+        if (!history.Any())
+        {
+            return false;
+        }
+
+        //History always contains 1 record for the initial creation
+        //Therefore, we must disregard this when looking for recalculation
+        if (history.Count == 1)
         {
             return false;
         }

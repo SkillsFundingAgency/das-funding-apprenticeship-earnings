@@ -132,4 +132,4 @@ Scenario: Incentives are recalculated twice and history is created without keys 
 	And care details are saved with
 	| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
 	| false                          | false        | false   |
-	Then there are 2 records in earning profile history
+	Then there are 3 records in earning profile history

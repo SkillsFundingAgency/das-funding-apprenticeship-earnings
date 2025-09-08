@@ -20,8 +20,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public virtual DbSet<InstalmentModel> Instalments { get; set; }
         public virtual DbSet<AdditionalPaymentModel> AdditionalPayments { get; set; }
 
-        public virtual DbSet<EarningsProfileHistoryModel> EarningsProfileHistories { get; set; }
-        public virtual DbSet<InstalmentHistoryModel> InstalmentHistories { get; set; }
+        public virtual DbSet<EarningsProfileHistory> EarningsProfileHistories2 { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,10 +37,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasKey(a => new { a.Key });
             modelBuilder.Entity<EpisodeModel>()
                 .HasOne(a => a.EarningsProfile).WithOne().HasForeignKey<EarningsProfileModel>(x => x.EpisodeKey);
-            modelBuilder.Entity<EpisodeModel>()
-                .HasMany(a => a.EarningsProfileHistory)
-                .WithOne()
-                .HasForeignKey(x => x.EpisodeKey);
             modelBuilder.Entity<EpisodeModel>()
                 .Property(p => p.FundingType)
                 .HasConversion(
@@ -80,26 +75,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasKey(x => x.Key);
 
             // EarningsProfileHistory
-            modelBuilder.Entity<EarningsProfileHistoryModel>()
-                .HasKey(x => x.EarningsProfileId);
-
-            modelBuilder.Entity<EarningsProfileHistoryModel>()
-                .HasMany(x => x.Instalments)
-                .WithOne()
-                .HasForeignKey(fk => fk.EarningsProfileId);
-
-            modelBuilder.Entity<EarningsProfileHistoryModel>()
-                .HasMany(x => x.AdditionalPayments)
-                .WithOne()
-                .HasForeignKey(fk => fk.EarningsProfileId);
-
-            modelBuilder.Entity<EarningsProfileHistoryModel>()
-                .HasMany(x => x.MathsAndEnglishCourses)
-                .WithOne()
-                .HasForeignKey(fk => fk.EarningsProfileId);
-
-            // Instalment
-            modelBuilder.Entity<InstalmentHistoryModel>()
+            modelBuilder.Entity<EarningsProfileHistory>()
                 .HasKey(x => x.Key);
 
             // AdditionalPayment

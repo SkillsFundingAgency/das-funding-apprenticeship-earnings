@@ -7,6 +7,7 @@ Scenario: Withdrawal made before end of qualifying period; no earnings generated
 		| StartDate | EndDate   | Course | Amount | WithdrawalDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-09-10     |
 	Then no Maths and English earnings are persisted
+	And the earnings history is maintained
 
 Scenario: Withdrawal made after end of qualifying period; only earnings before withdrawal date generated
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
@@ -17,4 +18,5 @@ Scenario: Withdrawal made after end of qualifying period; only earnings before w
 	Then Maths and english instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod |
 		| Maths1 | 100    | 2021         | 1              |
+	And the earnings history is maintained
 	

@@ -37,8 +37,6 @@ public class SqlDatabase : IDisposable
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.AdditionalPayments)
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfileHistory)
-            .ThenInclude(y => y.Instalments)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.Prices)
             .Include(x => x.Episodes)
@@ -52,6 +50,14 @@ public class SqlDatabase : IDisposable
             .SingleOrDefaultAsync(x => x.Key == learningKey);
 
         return apprenticeship;
+    }
+
+    public async Task<List<EarningsProfileHistory>> GetHistory(Guid earningsProfileId)
+    {
+        return await DbContext.EarningsProfileHistories2
+            .Where(x => x.EarningsProfileId == earningsProfileId)
+            .OrderByDescending(x => x.CreatedOn)
+            .ToListAsync();
     }
 
     public async Task<List<Earning>> GetQueryEarnings(Guid apprenticeshipKey)

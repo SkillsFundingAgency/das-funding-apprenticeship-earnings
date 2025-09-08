@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped<IApprenticeshipRepository, ApprenticeshipRepository>();
         serviceCollection.AddScoped<IEarningsQueryRepository, EarningsQueryRepository>();
+        serviceCollection.AddScoped<IEarningsProfileHistoryRepository, EarningsProfileHistoryRepository>();
         return serviceCollection;
     }
 

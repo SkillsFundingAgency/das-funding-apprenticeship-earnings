@@ -5,9 +5,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 internal static class EarningsProfileExtensions
 {
-    internal static ArchiveEarningsProfileEvent EarningsProfileArchivedEvent(this EarningsProfileModel earningsProfile, DateTime supersededDate)
+    internal static EarningsProfileUpdatedEvent CreatedEarningsProfileUpdatedEvent(this EarningsProfileModel earningsProfile)
     {
-        var archiveEarningsProfileEvent = new ArchiveEarningsProfileEvent
+        var archiveEarningsProfileEvent = new EarningsProfileUpdatedEvent
         {
             EarningsProfileId = earningsProfile.EarningsProfileId,
             EpisodeKey = earningsProfile.EpisodeKey,
@@ -16,8 +16,7 @@ internal static class EarningsProfileExtensions
             CompletionPayment = earningsProfile.CompletionPayment,
             Instalments = earningsProfile.GetInstalments(),
             AdditionalPayments = earningsProfile.GetAdditionalPayments(),
-            MathsAndEnglishCourses = earningsProfile.GetMathsAndEnglish(),
-            SupersededDate = supersededDate,
+            EnglishAndMaths = earningsProfile.GetMathsAndEnglish()
         };
 
         return archiveEarningsProfileEvent;
@@ -33,14 +32,13 @@ internal static class EarningsProfileExtensions
         return earningsProfile.Instalments.Select(i => new Types.Instalment
         {
             Key = i.Key,
-            EarningsProfileVersion = earningsProfile.Version,
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
-            EarningsProfileId = earningsProfile.EarningsProfileId,
             EpisodePriceKey = i.EpisodePriceKey,
             Type = i.Type
-        }).ToList();
+        }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
+            .ToList();
     }
 
     private static List<Types.AdditionalPayment> GetAdditionalPayments(this EarningsProfileModel earningsProfile)
@@ -53,38 +51,36 @@ internal static class EarningsProfileExtensions
         return earningsProfile.AdditionalPayments.Select(ap => new Types.AdditionalPayment
         {
             Key = ap.Key,
-            EarningsProfileId = earningsProfile.EarningsProfileId,
             AcademicYear = ap.AcademicYear,
             DeliveryPeriod = ap.DeliveryPeriod,
             Amount = ap.Amount,
             AdditionalPaymentType = ap.AdditionalPaymentType,
             DueDate = ap.DueDate
-        }).ToList();
+        }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
+            .ToList();
     }
 
-    internal static List<Types.MathsAndEnglish> GetMathsAndEnglish(this EarningsProfileModel earningsProfile)
+    internal static List<Types.EnglishAndMaths> GetMathsAndEnglish(this EarningsProfileModel earningsProfile)
     {
         if (earningsProfile.MathsAndEnglishCourses == null || !earningsProfile.MathsAndEnglishCourses.Any())
         {
-            return new List<Types.MathsAndEnglish>();
+            return new List<Types.EnglishAndMaths>();
         }
 
-        return earningsProfile.MathsAndEnglishCourses.Select(me => new Types.MathsAndEnglish
+        return earningsProfile.MathsAndEnglishCourses.Select(me => new Types.EnglishAndMaths
         {
-            Key = me.Key,
-            EarningsProfileId = earningsProfile.EarningsProfileId,
+            EnglishAndMathsKey = me.Key,
             StartDate = me.StartDate,
             EndDate = me.EndDate,
             Course = me.Course,
             Amount = me.Amount,
-            Instalments = me.Instalments.Select(i => new Types.MathsAndEnglishInstalment
+            Instalments = me.Instalments.Select(i => new Types.EnglishAndMathsInstalments
             {
-                Key = i.Key,
-                MathsAndEnglishKey = me.Key,
                 AcademicYear = i.AcademicYear,
                 DeliveryPeriod = i.DeliveryPeriod,
                 Amount = i.Amount
-            }).ToList()
+            }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
+                .ToList()
         }).ToList();
     }
 }

@@ -35,22 +35,3 @@ public class InstalmentModel : InstalmentModelBase
 {
 
 }
-
-[Dapper.Contrib.Extensions.Table("Domain.InstalmentHistory")]
-[Table("InstalmentHistory", Schema = "Domain")]
-public class InstalmentHistoryModel : InstalmentModelBase
-{
-    public Guid? OriginalKey { get; set; }
-    public Guid? Version { get; set; }
-
-    public InstalmentHistoryModel(InstalmentModelBase original, Guid earningsProfileId, Guid version) : base(original, earningsProfileId) 
-    { 
-        EpisodePriceKey = original.EpisodePriceKey;
-        OriginalKey = original.Key;
-        Key = Guid.NewGuid();
-        Version = version;
-        Type = original.Type;
-    }
-
-    public InstalmentHistoryModel() { }
-}
