@@ -121,4 +121,11 @@ public class Apprenticeship : AggregateRoot
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateCompletion(completionDate, systemClock);
     }
+
+    public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, ISystemClockService systemClock)
+    {
+        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEpisodeKey);
+        episode.UpdatePrices(prices);
+        episode.CalculateEpisodeEarnings(this, systemClock);
+    }
 }

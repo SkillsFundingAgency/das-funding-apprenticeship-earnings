@@ -22,6 +22,15 @@ public static class ScenarioContextExtensions
         return builder;
     }
 
+    public static LearningPriceChangedRequestBuilder GetLearningPriceChangedRequestBuilder(this ScenarioContext context)
+    {
+        if (context.TryGetValue(out LearningPriceChangedRequestBuilder builder)) return builder;
+
+        builder = new LearningPriceChangedRequestBuilder();
+        context.Set(builder);
+        return builder;
+    }
+
     public static LearningStartDateChangedEventBuilder GetLearningStartDateChangedEventBuilder(this ScenarioContext context)
     {
         if (context.TryGetValue(out LearningStartDateChangedEventBuilder builder)) return builder;

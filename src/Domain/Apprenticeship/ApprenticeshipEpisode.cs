@@ -85,7 +85,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     public void Update(Learning.Types.LearningEpisode episodeUpdate)
     {
-        UpdatePrices(episodeUpdate);
+        UpdatePrices(episodeUpdate.Prices);
 
         _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfLearning;
         _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
@@ -199,11 +199,11 @@ public class ApprenticeshipEpisode : AggregateComponent
         return result;
     }
 
-    private void UpdatePrices(Learning.Types.LearningEpisode episodeUpdate)
+    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)
     {
         foreach (var existingPrice in _prices.ToList())
         {
-            var updatedPrice = episodeUpdate.Prices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
+            var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
             if (updatedPrice != null)
             {
                 existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice, updatedPrice.FundingBandMaximum);
@@ -215,7 +215,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             }
         }
 
-        var newPrices = episodeUpdate.Prices
+        var newPrices = updatedPrices
             .Where(x => _prices.All(y => y.PriceKey != x.Key))
             .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
             .ToList();

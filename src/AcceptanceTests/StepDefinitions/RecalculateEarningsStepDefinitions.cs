@@ -1,10 +1,11 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -63,7 +64,7 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
-    [When("the following price change request is sent")]
+    [When("the following price change event is sent")]
     public async Task PublishPriceChangeEvent(Table table)
     {
         var data = table.CreateSet<PriceChangeModel>().ToList().Single();
@@ -73,6 +74,20 @@ public class RecalculateEarningsStepDefinitions
             .Build();
         await _testContext.TestFunction.PublishEvent(learningPriceChangedEvent);
         _scenarioContext.Set(learningPriceChangedEvent);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
+    }
+
+    [When("the following price change request is sent")]
+    public async Task SendPriceChangeRequest(Table table)
+    {
+        var data = table.CreateSet<PriceChangeModel>().ToList().Single();
+        var learningPriceChangedRequest = _scenarioContext.GetLearningPriceChangedRequestBuilder()
+            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
+            .WithDataFromSetupModel(data)
+            .Build();
+
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", learningPriceChangedRequest);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
