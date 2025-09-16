@@ -4,7 +4,7 @@ using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
-public class LearningStartDateChangedEventBuilder
+public class StartDateSavePricesRequestBuilder
 {
     private Guid _learningKey = Guid.NewGuid();
     private long _apprenticeshipId = 123;
@@ -20,110 +20,56 @@ public class LearningStartDateChangedEventBuilder
     private long _employerAccountId = 456;
     private int _ageAtStartOfLearning = 19;
 
-    public LearningStartDateChangedEventBuilder WithLearningKey(Guid key)
+    public StartDateSavePricesRequestBuilder WithLearningKey(Guid key)
     {
         _learningKey = key;
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithApprenticeshipId(long id)
-    {
-        _apprenticeshipId = id;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithStartDate(DateTime startDate)
-    {
-        _startDate = startDate;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithEndDate(DateTime endDate)
-    {
-        _endDate = endDate;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithApprovedDate(DateTime date)
-    {
-        _approvedDate = date;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithProviderApprovedBy(string approvedBy)
-    {
-        _providerApprovedBy = approvedBy;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithEmployerApprovedBy(string approvedBy)
-    {
-        _employerApprovedBy = approvedBy;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithInitiator(string initiator)
-    {
-        _initiator = initiator;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithEpisodeKey(Guid episodeKey)
+    public StartDateSavePricesRequestBuilder WithEpisodeKey(Guid episodeKey)
     {
         _episodeKey = episodeKey;
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithPriceKey(Guid priceKey)
-    {
-        _priceKey = priceKey;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithFundingBandMaximum(int max)
+    public StartDateSavePricesRequestBuilder WithFundingBandMaximum(int max)
     {
         _fundingBandMaximum = max;
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithEmployerAccountId(long accountId)
-    {
-        _employerAccountId = accountId;
-        return this;
-    }
-
-    public LearningStartDateChangedEventBuilder WithAgeAtStart(int age)
+    public StartDateSavePricesRequestBuilder WithAgeAtStart(int age)
     {
         _ageAtStartOfLearning = age;
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithDuration(int months)
+    public StartDateSavePricesRequestBuilder WithDuration(int months)
     {
         _endDate = _startDate.AddMonths(months);
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithAdjustedStartDateBy(int months)
+    public StartDateSavePricesRequestBuilder WithAdjustedStartDateBy(int months)
     {
         _startDate = _startDate.AddMonths(months);
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithAdjustedEndDateBy(int months)
+    public StartDateSavePricesRequestBuilder WithAdjustedEndDateBy(int months)
     {
         _endDate = _endDate.AddMonths(months);
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithDataFromSetupModel(StartDateChangeModel model)
+    public StartDateSavePricesRequestBuilder WithDataFromSetupModel(StartDateChangeModel model)
     {
         if (model.NewStartDate.HasValue) _startDate = model.NewStartDate.Value;
         if (model.ApprovedDate.HasValue) _approvedDate = model.ApprovedDate.Value;
         return this;
     }
 
-    public LearningStartDateChangedEventBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
+    public StartDateSavePricesRequestBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
     {
         _learningKey = apprenticeship.LearningKey;
         _episodeKey = apprenticeship.Episode.Key;

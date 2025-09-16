@@ -6,7 +6,7 @@ using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
-public class LearningPriceChangedRequestBuilder
+public class PriceChangeSavePricesRequestBuilder
 {
     private DateTime _effectiveFromDate = new DateTime(2020, 02, 01);
     private Guid _episodeKey = Guid.NewGuid();
@@ -17,7 +17,7 @@ public class LearningPriceChangedRequestBuilder
     private DateTime _endDate = new DateTime(2022, 1, 1);
     private List<LearningEpisodePrice>? _existingPrices;
 
-    public LearningPriceChangedRequestBuilder WithDataFromSetupModel(PriceChangeModel model)
+    public PriceChangeSavePricesRequestBuilder WithDataFromSetupModel(PriceChangeModel model)
     {
         if (model.EffectiveFromDate.HasValue) _effectiveFromDate = model.EffectiveFromDate.Value;
         if (model.NewTrainingPrice.HasValue) _newTrainingPrice = model.NewTrainingPrice.Value;
@@ -25,7 +25,7 @@ public class LearningPriceChangedRequestBuilder
         return this;
     }
 
-    public LearningPriceChangedRequestBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
+    public PriceChangeSavePricesRequestBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
     {
         _episodeKey = apprenticeship.Episode.Key;
         _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;

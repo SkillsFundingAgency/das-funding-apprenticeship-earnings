@@ -30,7 +30,7 @@ public class RecalculateEarningsStepDefinitions
         _scenarioContext.GetLearningCreatedEventBuilder()
             .WithDuration(months);
 
-        _scenarioContext.GetLearningStartDateChangedEventBuilder()
+        _scenarioContext.GetStartDateSavePricesRequestBuilder()
             .WithDuration(months);
     }
 
@@ -41,11 +41,11 @@ public class RecalculateEarningsStepDefinitions
         switch(field)
         {
             case "start":
-                _scenarioContext.GetLearningStartDateChangedEventBuilder()
+                _scenarioContext.GetStartDateSavePricesRequestBuilder()
                     .WithAdjustedStartDateBy(monthChange);
                 break;
             case "end":
-                _scenarioContext.GetLearningStartDateChangedEventBuilder()
+                _scenarioContext.GetStartDateSavePricesRequestBuilder()
                     .WithAdjustedEndDateBy(monthChange);
                 break;
         }
@@ -58,7 +58,7 @@ public class RecalculateEarningsStepDefinitions
     public async Task SendPriceChangeRequest(Table table)
     {
         var data = table.CreateSet<PriceChangeModel>().ToList().Single();
-        var learningPriceChangedRequest = _scenarioContext.GetLearningPriceChangedRequestBuilder()
+        var learningPriceChangedRequest = _scenarioContext.GetPriceChangeSavePricesRequestBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
             .Build();
@@ -72,7 +72,7 @@ public class RecalculateEarningsStepDefinitions
     public async Task SendSavePricesRequestWithUpdatedDates(Table table)
     {
         var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
-        var savePricesRequest = _scenarioContext.GetLearningStartDateChangedEventBuilder()
+        var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
             .Build();
@@ -102,7 +102,7 @@ public class RecalculateEarningsStepDefinitions
     [When("the updated prices with new dates request is sent")]
     public async Task SendUpdatedPriceChangeRequest()
     {
-        var savePricesRequest = _scenarioContext.GetLearningStartDateChangedEventBuilder()
+        var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
                     .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
                     .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
                     .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
