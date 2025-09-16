@@ -1,12 +1,13 @@
-﻿using SFA.DAS.Learning.Types;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -151,29 +152,37 @@ public class AdditionalPaymentsStepDefinitions
     [Then("a first incentive payment is generated")]
     public void AssertFirstIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, savePricesRequest, apprenticeshipModel);
     }
 
     [Then("no first incentive payment is generated")]
     public void AssertNoFirstIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, savePricesRequest, apprenticeshipModel);
     }
 
     [Then("a second incentive payment is generated")]
     public void AssertSecondIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, savePricesRequest, apprenticeshipModel);
     }
 
     [Then("no second incentive payment is generated")]
     public void AssertNoSecondIncentivePayment()
     {
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, _scenarioContext.Get<LearningStartDateChangedEvent>(), _scenarioContext.Get<ApprenticeshipModel>());
+        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, savePricesRequest, apprenticeshipModel);
     }
 
     [Then(@"Maths and english instalments are persisted as follows")]

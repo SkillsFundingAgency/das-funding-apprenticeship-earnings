@@ -1,19 +1,22 @@
-﻿using SFA.DAS.Learning.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
 public static class IncentivesAssertionHelper
 {
-    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, LearningStartDateChangedEvent startDateChangedEvent, ApprenticeshipModel apprenticeshipModel)
+    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, SavePricesRequest savePricesRequest, ApprenticeshipModel apprenticeshipModel)
     {
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
+        var startDate = savePricesRequest.Prices.Min(p => p.StartDate);
+
         var expectedPeriod = second
-            ? startDateChangedEvent.StartDate.AddDays(364).ToAcademicYearAndPeriod()
-            : startDateChangedEvent.StartDate.AddDays(89).ToAcademicYearAndPeriod();
+            ? startDate.AddDays(364).ToAcademicYearAndPeriod()
+            : startDate.AddDays(89).ToAcademicYearAndPeriod();
 
         if (expectedPayment)
             currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>

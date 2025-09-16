@@ -64,20 +64,6 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
-    [When("the following price change event is sent")]
-    public async Task PublishPriceChangeEvent(Table table)
-    {
-        var data = table.CreateSet<PriceChangeModel>().ToList().Single();
-        var learningPriceChangedEvent = _scenarioContext.GetLearningPriceChangedEventBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
-            .WithDataFromSetupModel(data)
-            .Build();
-        await _testContext.TestFunction.PublishEvent(learningPriceChangedEvent);
-        _scenarioContext.Set(learningPriceChangedEvent);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
-    }
-
     [When("the following price change request is sent")]
     public async Task SendPriceChangeRequest(Table table)
     {
@@ -93,17 +79,19 @@ public class RecalculateEarningsStepDefinitions
     }
 
     [When("the following start date change request is sent")]
-    public async Task PublishStartDateChangeEvent(Table table)
+    public async Task SendSavePricesRequestWithUpdatedDates(Table table)
     {
         var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
-        var learningStartDateChangedEvent = _scenarioContext.GetLearningStartDateChangedEventBuilder()
+        var savePricesRequest = _scenarioContext.GetLearningStartDateChangedEventBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
             .Build();
-        await _testContext.TestFunction.PublishEvent(learningStartDateChangedEvent);
-        _scenarioContext.Set(learningStartDateChangedEvent);
 
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", savePricesRequest);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
+
+        _scenarioContext.Set(savePricesRequest);
     }
 
     [When("the following withdrawal is sent")]
@@ -121,20 +109,21 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
 
-    [When("the start date change is approved")]
-	public async Task PublishStartDateChangeEvents()
-	{
-        var learningStartDateChangedEvent = _scenarioContext.GetLearningStartDateChangedEventBuilder()
-            .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
-            .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
-            .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
-            .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
-            .Build();
-        await _testContext.TestFunction.PublishEvent(learningStartDateChangedEvent);
-        _scenarioContext.Set(learningStartDateChangedEvent);
+    [When("the updated prices with new dates request is sent")]
+    public async Task SendUpdatedPriceChangeRequest()
+    {
+        var savePricesRequest = _scenarioContext.GetLearningStartDateChangedEventBuilder()
+                    .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
+                    .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
+                    .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
+                    .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
+                    .Build();
 
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish start date change");
-	}
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", savePricesRequest);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
+    }
+
 
     #endregion
 

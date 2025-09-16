@@ -2,7 +2,6 @@
 using FluentAssertions;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;

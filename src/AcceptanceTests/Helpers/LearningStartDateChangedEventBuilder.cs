@@ -1,5 +1,6 @@
-﻿using SFA.DAS.Learning.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
@@ -133,39 +134,24 @@ public class LearningStartDateChangedEventBuilder
         return this;
     }
 
-    public LearningStartDateChangedEvent Build()
+    public SavePricesRequest Build()
     {
-        return new LearningStartDateChangedEvent
+        var prices = new List<LearningEpisodePrice>
         {
-            LearningKey = _learningKey,
-            ApprovalsApprenticeshipId = _apprenticeshipId,
-            ApprovedDate = _approvedDate,
-            ProviderApprovedBy = _providerApprovedBy,
-            EmployerApprovedBy = _employerApprovedBy,
-            Initiator = _initiator,
-            StartDate = _startDate,
-            Episode = new LearningEpisode
+            new()
             {
-                Key = _episodeKey,
-                Prices = new List<LearningEpisodePrice>
-                {
-                    new()
-                    {
-                        Key = _priceKey,
-                        StartDate = _startDate,
-                        EndDate = _endDate,
-                        TotalPrice = 15000,
-                        FundingBandMaximum = _fundingBandMaximum
-                    }
-                },
-                EmployerAccountId = _employerAccountId,
-                Ukprn = 123,
-                LegalEntityName = "Smiths",
-                TrainingCode = "AbleSeafarer",
-                FundingEmployerAccountId = null,
-                AgeAtStartOfLearning = _ageAtStartOfLearning,
-                FundingPlatform = Learning.Enums.FundingPlatform.DAS
+                Key = _priceKey,
+                StartDate = _startDate,
+                EndDate = _endDate,
+                TotalPrice = 15000,
+                FundingBandMaximum = _fundingBandMaximum
             }
+        };
+
+        return new SavePricesRequest()
+        {
+            ApprenticeshipEpisodeKey = _episodeKey,
+            Prices = prices
         };
     }
 }
