@@ -10,14 +10,10 @@ public class StartDateSavePricesRequestBuilder
     private long _apprenticeshipId = 123;
     private DateTime _startDate = new DateTime(2024, 8, 1);
     private DateTime _approvedDate = DateTime.UtcNow;
-    private string _providerApprovedBy = "";
-    private string _employerApprovedBy = "";
-    private string _initiator = "";
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
     private DateTime _endDate = new DateTime(2025, 8, 1);
     private int _fundingBandMaximum = 18000;
-    private long _employerAccountId = 456;
     private int _ageAtStartOfLearning = 19;
 
     public StartDateSavePricesRequestBuilder WithLearningKey(Guid key)
