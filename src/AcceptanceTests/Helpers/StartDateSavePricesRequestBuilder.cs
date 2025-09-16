@@ -9,7 +9,6 @@ public class StartDateSavePricesRequestBuilder
     private Guid _learningKey = Guid.NewGuid();
     private long _apprenticeshipId = 123;
     private DateTime _startDate = new DateTime(2024, 8, 1);
-    private DateTime _approvedDate = DateTime.UtcNow;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
     private DateTime _endDate = new DateTime(2025, 8, 1);
@@ -61,7 +60,6 @@ public class StartDateSavePricesRequestBuilder
     public StartDateSavePricesRequestBuilder WithDataFromSetupModel(StartDateChangeModel model)
     {
         if (model.NewStartDate.HasValue) _startDate = model.NewStartDate.Value;
-        if (model.ApprovedDate.HasValue) _approvedDate = model.ApprovedDate.Value;
         return this;
     }
 
