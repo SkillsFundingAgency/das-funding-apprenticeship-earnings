@@ -54,16 +54,6 @@ public class RecalculateEarningsStepDefinitions
     #endregion
 
     #region Act
-    [When("the price change is approved by the other party before the end of year")]
-    public async Task PublishPriceChangeEvents()
-    {
-        var learningPriceChangedEvent = _scenarioContext.GetLearningPriceChangedEventBuilder().Build();
-        await _testContext.TestFunction.PublishEvent(learningPriceChangedEvent);
-        _scenarioContext.Set(learningPriceChangedEvent);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
-    }
-
     [When("the following price change request is sent")]
     public async Task SendPriceChangeRequest(Table table)
     {

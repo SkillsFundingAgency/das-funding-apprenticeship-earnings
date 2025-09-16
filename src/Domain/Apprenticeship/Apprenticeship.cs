@@ -53,13 +53,6 @@ public class Apprenticeship : AggregateRoot
         currentEpisode.CalculateEpisodeEarnings(this, systemClock);
     }
 
-    public void RecalculateEarnings(LearningEvent apprenticeshipEvent, ISystemClockService systemClock)
-    {
-        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEvent.Episode.Key);
-        episode.Update(apprenticeshipEvent.Episode);
-        episode.CalculateEpisodeEarnings(this, systemClock);
-    }
-
     public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
     {
         foreach (var episode in ApprenticeshipEpisodes)
@@ -122,10 +115,10 @@ public class Apprenticeship : AggregateRoot
         currentEpisode.UpdateCompletion(completionDate, systemClock);
     }
 
-    public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, ISystemClockService systemClock)
+    public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int ageAtStartOfLearning, ISystemClockService systemClock)
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEpisodeKey);
-        episode.UpdatePrices(prices);
+        episode.UpdatePrices(prices, ageAtStartOfLearning);
         episode.CalculateEpisodeEarnings(this, systemClock);
     }
 }

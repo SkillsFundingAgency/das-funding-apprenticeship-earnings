@@ -10,10 +10,13 @@ public class SavePricesCommand : ICommand
 
     public List<LearningEpisodePrice> Prices { get; }
 
+    public int AgeAtStartOfLearning { get; set; }
+
     public SavePricesCommand(Guid apprenticeshipKey, SavePricesRequest savePricesRequest)
     {
         ApprenticeshipKey = apprenticeshipKey;
         ApprenticeshipEpisodeKey = savePricesRequest.ApprenticeshipEpisodeKey;
         Prices = savePricesRequest.Prices;
+        AgeAtStartOfLearning = savePricesRequest.AgeAtStartOfLearning;
     }
 }

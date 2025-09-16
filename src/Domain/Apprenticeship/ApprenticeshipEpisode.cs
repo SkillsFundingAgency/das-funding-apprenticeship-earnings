@@ -83,19 +83,6 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     }
 
-    public void Update(Learning.Types.LearningEpisode episodeUpdate)
-    {
-        UpdatePrices(episodeUpdate.Prices);
-
-        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfLearning;
-        _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
-        _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
-        _model.FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
-        _model.LegalEntityName = episodeUpdate.LegalEntityName;
-        _model.TrainingCode = episodeUpdate.TrainingCode;
-        _model.Ukprn = episodeUpdate.Ukprn;
-    }
-
     public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
     {
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
@@ -199,8 +186,10 @@ public class ApprenticeshipEpisode : AggregateComponent
         return result;
     }
 
-    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)
+    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
+        _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;
+
         foreach (var existingPrice in _prices.ToList())
         {
             var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
