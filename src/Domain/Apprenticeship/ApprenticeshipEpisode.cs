@@ -222,4 +222,21 @@ public class ApprenticeshipEpisode : AggregateComponent
             _ => 1
         };
     }
+
+    internal bool PricesAreIdentical(List<LearningEpisodePrice> prices)
+    {
+        if (prices.Count != _prices.Count)
+            return false;
+
+        foreach (var price in prices)
+        {
+            var matchingPrice = _prices.SingleOrDefault(x => x.PriceKey == price.Key);
+            if (matchingPrice == null)
+                return false;
+            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice || matchingPrice.FundingBandMaximum != price.FundingBandMaximum)
+                return false;
+        }
+
+        return true;
+    }
 }
