@@ -1,10 +1,11 @@
-﻿using SFA.DAS.Learning.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using System.Collections.ObjectModel;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
+using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -131,10 +132,31 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// <summary>
     /// Updates the completion date and earnings profile accordingly with the completion instalment and balanced instalments if necessary.
     /// </summary>
-    public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
+    public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
     {
-        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, _earningsProfile.Instalments.ToList());
-        var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate, _earningsProfile.CompletionPayment, _earningsProfile.Instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
+        if(!completionDate.HasValue && !_model.CompletionDate.HasValue)
+            return; // No change
+
+        // If previously completed, clear existing completion and balancing instalments. And recalculate instalments
+        if (_model.CompletionDate != null)
+        {
+            _model.CompletionDate = null;
+            _earningsProfile!.Update(systemClock, completionPayment: 0);
+            CalculateEpisodeEarnings(apprenticeship, systemClock);
+
+            if(completionDate.HasValue)
+            {
+                _earningsProfile.PurgeEventsOfType<EarningsProfileUpdatedEvent>();// The version will be updated and archive event raised later
+            }
+            else
+            {
+                return; // No new completion date provided, so just return after recalculating earnings without purging update event
+            }
+        }
+
+        var existingInstalments = _earningsProfile?.Instalments.Where(x=>x.Type != InstalmentType.Completion && x.Type != InstalmentType.Balancing).ToList() ?? new List<Instalment>();
+        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments);
+        var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate!.Value, _earningsProfile!.CompletionPayment, existingInstalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
 
         _earningsProfile.Update(systemClock,
             instalments: balancedInstalments.Append(completionInstalment).ToList());
