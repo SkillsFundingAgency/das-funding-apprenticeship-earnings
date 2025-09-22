@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCompletionCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 
@@ -103,4 +104,26 @@ public class ApprenticeshipController: ControllerBase
         _logger.LogInformation("Successfully saved completion for apprenticeship {ApprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
+
+    [Route("{apprenticeshipKey}/prices")]
+    [HttpPatch]
+    public async Task<IActionResult> SavePrices(Guid apprenticeshipKey, SavePricesRequest savePricesRequest)
+    {
+        _logger.LogInformation("Received request to save prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new SavePricesCommand(apprenticeshipKey, savePricesRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully saved prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
+
 }

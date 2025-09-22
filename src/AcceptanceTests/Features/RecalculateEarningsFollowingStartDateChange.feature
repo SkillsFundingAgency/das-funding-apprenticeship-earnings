@@ -9,8 +9,8 @@ Scenario: New start date earlier than current date and in the same current acade
 		| 2020-10-15 | 2021-08-31 | 15000 | 25000              |
 	And earnings are calculated
 	When the following start date change request is sent
-		| NewStartDate | ApprovedDate |
-		| 2020-09-15   | 2021-01-15   |
+		| NewStartDate |
+		| 2020-09-15   |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 2              |
@@ -35,8 +35,8 @@ Scenario: New start date later than current date and in the same current academi
 		| 2020-10-15 | 2021-08-31 | 15000 | 25000              |
 	And earnings are calculated
 	When the following start date change request is sent
-		| NewStartDate | ApprovedDate |
-		| 2021-03-15   | 2021-01-15   |
+		| NewStartDate | 
+		| 2021-03-15   | 
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 2000   | 2021         | 8              |
@@ -56,8 +56,8 @@ Scenario: New start date in the next academic year
 		| 2020-10-15 | 2022-08-31 | 15000 | 25000              |
 	And earnings are calculated
 	When the following start date change request is sent
-		| NewStartDate | ApprovedDate |
-		| 2022-03-15   | 2021-01-15   |
+		| NewStartDate | 
+		| 2022-03-15   | 
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 2000   | 2122         | 8              |
@@ -73,14 +73,14 @@ Scenario: A new start and end date are earlier than orginal start date
 	And there are 20 earnings
 	And the start date has been moved 2 months earlier
 	And the end date has been moved 2 months earlier
-	When the start date change is approved
+	When the updated prices with new dates request is sent
 	Then there are 20 earnings
 
 Scenario: A new start is earlier than orginal start date but the end date remains the same
 	Given an apprenticeship has been created
 	And there are 20 earnings
 	And the start date has been moved 2 months earlier
-	When the start date change is approved
+	When the updated prices with new dates request is sent
 	Then there are 22 earnings
 
 Scenario: A new earlier start and later end date
@@ -88,5 +88,5 @@ Scenario: A new earlier start and later end date
 	And there are 20 earnings
 	And the start date has been moved 2 months earlier
 	And the end date has been moved 2 months later
-	When the start date change is approved
+	When the updated prices with new dates request is sent
 	Then there are 24 earnings

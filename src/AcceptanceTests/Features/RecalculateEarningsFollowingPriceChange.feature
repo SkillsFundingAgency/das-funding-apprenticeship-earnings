@@ -1,6 +1,6 @@
 ﻿Feature: Recalculate earnings following price change
 
-Scenario: Price change approved in the year it was requested, below or at funding band max; recalc earnings
+Scenario: Price change approved in the year it was requested, below or at funding band max; recalc earnings (by request)
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
@@ -27,7 +27,7 @@ Scenario: Price change approved in the year it was requested, below or at fundin
 		| 1500   | 2021         | 12             |
 	And the earnings history is maintained
 
-Scenario: Price change approved in the year it was requested, above funding band max; recalc earnings
+Scenario: Price change approved in the year it was requested, above funding band max; recalc earnings (by request)
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |

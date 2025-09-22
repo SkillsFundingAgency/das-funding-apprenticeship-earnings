@@ -1,19 +1,19 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessUpdatedEpisodeCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 
-public class ProcessEpisodeUpdatedCommandHandler : ICommandHandler<ProcessEpisodeUpdatedCommand>
+public class SavePricesCommandHandler : ICommandHandler<SavePricesCommand>
 {
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly IMessageSession _messageSession;
     private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
     private readonly ISystemClockService _systemClock;
 
-    public ProcessEpisodeUpdatedCommandHandler(
-        IApprenticeshipRepository apprenticeshipRepository, 
-        IMessageSession messageSession, 
-        IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, 
+    public SavePricesCommandHandler(
+        IApprenticeshipRepository apprenticeshipRepository,
+        IMessageSession messageSession,
+        IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder,
         ISystemClockService systemClock)
     {
         _apprenticeshipRepository = apprenticeshipRepository;
@@ -22,11 +22,11 @@ public class ProcessEpisodeUpdatedCommandHandler : ICommandHandler<ProcessEpisod
         _systemClock = systemClock;
     }
 
-    public async Task Handle(ProcessEpisodeUpdatedCommand command, CancellationToken cancellationToken = default)
+    public async Task Handle(SavePricesCommand command, CancellationToken cancellationToken = default)
     {
-        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.EpisodeUpdatedEvent.LearningKey);
+        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.RecalculateEarnings(command.EpisodeUpdatedEvent, _systemClock);
+        apprenticeshipDomainModel.UpdatePrices(command.Prices, command.ApprenticeshipEpisodeKey, command.AgeAtStartOfLearning, _systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 

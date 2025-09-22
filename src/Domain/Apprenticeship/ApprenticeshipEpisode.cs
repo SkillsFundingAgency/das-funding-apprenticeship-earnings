@@ -83,19 +83,6 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     }
 
-    public void Update(Learning.Types.LearningEpisode episodeUpdate)
-    {
-        UpdatePrices(episodeUpdate);
-
-        _model.AgeAtStartOfApprenticeship = episodeUpdate.AgeAtStartOfLearning;
-        _model.EmployerAccountId = episodeUpdate.EmployerAccountId;
-        _model.FundingEmployerAccountId = episodeUpdate.FundingEmployerAccountId;
-        _model.FundingType = Enum.Parse<FundingType>(episodeUpdate.FundingType.ToString());
-        _model.LegalEntityName = episodeUpdate.LegalEntityName;
-        _model.TrainingCode = episodeUpdate.TrainingCode;
-        _model.Ukprn = episodeUpdate.Ukprn;
-    }
-
     public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
     {
         var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
@@ -199,11 +186,13 @@ public class ApprenticeshipEpisode : AggregateComponent
         return result;
     }
 
-    private void UpdatePrices(Learning.Types.LearningEpisode episodeUpdate)
+    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
+        _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;
+
         foreach (var existingPrice in _prices.ToList())
         {
-            var updatedPrice = episodeUpdate.Prices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
+            var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
             if (updatedPrice != null)
             {
                 existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice, updatedPrice.FundingBandMaximum);
@@ -215,7 +204,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             }
         }
 
-        var newPrices = episodeUpdate.Prices
+        var newPrices = updatedPrices
             .Where(x => _prices.All(y => y.PriceKey != x.Key))
             .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
             .ToList();
@@ -232,5 +221,22 @@ public class ApprenticeshipEpisode : AggregateComponent
             >= 14 => 14,
             _ => 1
         };
+    }
+
+    internal bool PricesAreIdentical(List<LearningEpisodePrice> prices)
+    {
+        if (prices.Count != _prices.Count)
+            return false;
+
+        foreach (var price in prices)
+        {
+            var matchingPrice = _prices.SingleOrDefault(x => x.PriceKey == price.Key);
+            if (matchingPrice == null)
+                return false;
+            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice || matchingPrice.FundingBandMaximum != price.FundingBandMaximum)
+                return false;
+        }
+
+        return true;
     }
 }
