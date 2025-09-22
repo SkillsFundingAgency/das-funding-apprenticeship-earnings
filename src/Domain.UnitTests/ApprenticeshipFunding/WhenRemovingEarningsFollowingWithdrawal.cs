@@ -37,10 +37,10 @@ public class WhenRemovingEarningsFollowingWithdrawal
     public void ThenInstalmentsBeforeLastDayOfLearningArePreserved()
     {
         // Arrange
-        var lastDayOfLearning = new DateTime(2024, 3, 15);
+        var withdrawalDate = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -51,10 +51,10 @@ public class WhenRemovingEarningsFollowingWithdrawal
     public void ThenAdditionalPaymentsBeforeLastDayOfLearningArePreserved()
     {
         // Arrange
-        var lastDayOfLearning = new DateTime(2024, 6, 15);
+        var withdrawalDate = new DateTime(2024, 6, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -81,10 +81,10 @@ public class WhenRemovingEarningsFollowingWithdrawal
     public void ThenAdditionalPaymentsAfterLastDayOfLearningAreRemoved()
     {
         // Arrange
-        var lastDayOfLearning = new DateTime(2024, 3, 15);
+        var withdrawalDate = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -98,10 +98,10 @@ public class WhenRemovingEarningsFollowingWithdrawal
     public void ThenInstalmentsArePreservedForTheLastMonthIfTheLearnerWasInLearningOnTheCensusDate()
     {
         // Arrange
-        var lastDayOfLearning = new DateTime(2024, 3, 31);
+        var withdrawalDate = new DateTime(2024, 3, 31);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -114,10 +114,10 @@ public class WhenRemovingEarningsFollowingWithdrawal
     public void ThenAdditionalPaymentsArePreservedForTheLastMonthIfTheLearnerWasInLearningOnTheCensusDate()
     {
         // Arrange
-        var lastDayOfLearning = new DateTime(2024, 3, 31);
+        var withdrawalDate = new DateTime(2024, 3, 31);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -129,10 +129,10 @@ public class WhenRemovingEarningsFollowingWithdrawal
     public void ThenNewEarningsProfileIdIsGenerated()
     {
         // Arrange
-        var lastDayOfLearning = new DateTime(2024, 6, 30);
+        var withdrawalDate = new DateTime(2024, 6, 30);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);

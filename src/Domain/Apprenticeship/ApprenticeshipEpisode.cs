@@ -84,10 +84,10 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     }
 
-    public void RemovalEarningsFollowingWithdrawal(DateTime lastDayOfLearning, ISystemClockService systemClock)
+    public void RemovalEarningsFollowingWithdrawal(DateTime withdrawalDate, ISystemClockService systemClock)
     {
-        var earningsToKeep = GetEarningsToKeep(lastDayOfLearning);
-        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(lastDayOfLearning);
+        var earningsToKeep = GetEarningsToKeep(withdrawalDate);
+        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(withdrawalDate);
 
         _earningsProfile.Update(
             systemClock,
