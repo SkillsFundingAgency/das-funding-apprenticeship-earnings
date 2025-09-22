@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCompletionCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
@@ -123,6 +124,27 @@ public class ApprenticeshipController: ControllerBase
         }
 
         _logger.LogInformation("Successfully saved prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
+
+    [Route("{apprenticeshipKey}/withdraw")]
+    [HttpPatch]
+    public async Task<IActionResult> WithdrawLearner(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
+    {
+        _logger.LogInformation("Received request to withdraw learner {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new ProcessWithdrawnApprenticeshipCommand(apprenticeshipKey, withdrawRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error withdrawing for learner {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 
