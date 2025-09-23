@@ -2,5 +2,5 @@
 
 public class CompletionRequestModel
 {
-    public DateTime CompletionDate { get; set; }
+    public DateTime? CompletionDate { get; set; }
 }

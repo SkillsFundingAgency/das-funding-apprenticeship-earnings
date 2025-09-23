@@ -109,10 +109,10 @@ public class Apprenticeship : AggregateRoot
     /// Completion payment will be generated.
     /// Balancing payments will be generated if necessary.
     /// </summary>
-    public void UpdateCompletion(DateTime completionDate, ISystemClockService systemClock)
+    public void UpdateCompletion(DateTime? completionDate, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateCompletion(completionDate, systemClock);
+        currentEpisode.UpdateCompletion(this, completionDate, systemClock);
     }
 
     public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int ageAtStartOfLearning, ISystemClockService systemClock)
