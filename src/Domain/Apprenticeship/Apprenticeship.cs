@@ -118,6 +118,12 @@ public class Apprenticeship : AggregateRoot
     public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int ageAtStartOfLearning, ISystemClockService systemClock)
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEpisodeKey);
+
+        if (episode.PricesAreIdentical(prices))
+        {
+            return;
+        }
+
         episode.UpdatePrices(prices, ageAtStartOfLearning);
         episode.CalculateEpisodeEarnings(this, systemClock);
     }
