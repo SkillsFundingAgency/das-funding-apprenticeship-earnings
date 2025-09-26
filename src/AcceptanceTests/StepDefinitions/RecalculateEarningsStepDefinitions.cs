@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -88,13 +88,12 @@ public class RecalculateEarningsStepDefinitions
     public async Task PublishWithdrawnEvent(Table table)
     {
         var data = table.CreateSet<WithdrawalModel>().ToList().Single();
-        var learningWithdrawnEvent = _scenarioContext.GetLearningWithdrawnEventBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
-            .WithLastDayOfLearning(data.LastDayOfLearning)
-            .Build();
 
-        await _testContext.TestFunction.PublishEvent(learningWithdrawnEvent);
-        _scenarioContext.Set(learningWithdrawnEvent);
+        var withdrawLearnerRequest = new WithdrawLearnerRequest { WithdrawalDate = data.LastDayOfLearning };
+
+        _scenarioContext.Set(withdrawLearnerRequest);
+
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/withdraw", withdrawLearnerRequest);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
     }
