@@ -63,14 +63,6 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
 
     private ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand BuildCommand(Apprenticeship apprenticeship)
     {
-        var learningWithdrawnEvent = new LearningWithdrawnEvent
-        {
-            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
-            LearningKey = apprenticeship.ApprenticeshipKey,
-            Reason = _fixture.Create<string>(),
-            LastDayOfLearning = new DateTime(2024, 11, 30)
-        };
-
-        return new ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand(learningWithdrawnEvent);
+        return new ProcessWithdrawnApprenticeshipCommand.ProcessWithdrawnApprenticeshipCommand(apprenticeship.ApprenticeshipKey, new DateTime(2024, 11, 30));
     }
 }
