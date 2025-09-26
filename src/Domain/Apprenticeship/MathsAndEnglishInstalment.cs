@@ -2,6 +2,12 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
+public enum MathsAndEnglishInstalmentType
+{
+    Regular = 0,
+    Balancing = 1
+}
+
 public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalmentModel>
 {
     private MathsAndEnglishInstalmentModel _model;
