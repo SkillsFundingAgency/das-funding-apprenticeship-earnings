@@ -53,3 +53,31 @@ Scenario: Price change approved in the year it was requested, above funding band
 		| 2000   | 2021         | 11             |
 		| 2000   | 2021         | 12             |
 	And the earnings history is maintained
+
+Scenario: Price change following Completion
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 21  |
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price | FundingBandMaximum |
+		| 2024-08-01 | 2026-07-31 | 12000 | 30000              |
+	And earnings are calculated
+	When the following completion is sent
+		| CompletionDate |
+		| 2025-04-01     |
+	When the following price change request is sent
+		| EffectiveFromDate | ChangeRequestDate | NewTrainingPrice | NewAssessmentPrice |
+		| 2024-08-01        | 2024-08-01        | 5000             | 1000               |
+	Then the instalments are balanced as follows
+		| Amount | AcademicYear | DeliveryPeriod | Type       |
+		| 200    | 2425         | 1              | Regular    |
+		| 200    | 2425         | 2              | Regular    |
+		| 200    | 2425         | 3              | Regular    |
+		| 200    | 2425         | 4              | Regular    |
+		| 200    | 2425         | 5              | Regular    |
+		| 200    | 2425         | 6              | Regular    |
+		| 200    | 2425         | 7              | Regular    |
+		| 200    | 2425         | 8              | Regular    |
+		| 1200   | 2425         | 9              | Completion |
+		| 3200   | 2425         | 9              | Balancing  |
+	And the earnings history is maintained
