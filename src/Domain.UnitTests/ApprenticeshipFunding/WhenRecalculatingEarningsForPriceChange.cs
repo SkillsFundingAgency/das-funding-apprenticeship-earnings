@@ -109,4 +109,13 @@ public class WhenRecalculatingEarningsForPriceChange
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
+
+    [Test]
+    public void ThenIfPricesAreTheSameNoRecalculationOccurs()
+    {
+        _prices.First().TotalPrice = _originalPrice;
+        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        var events = _sut.FlushEvents();
+        events.Should().NotContain(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
+    }
 }
