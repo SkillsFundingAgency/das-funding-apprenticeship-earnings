@@ -37,7 +37,19 @@ public static class MathsAndEnglishPayments
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
         if (command.StartDate.Month == command.EndDate.Month && command.StartDate.Year == command.EndDate.Year)
-            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment> { new(command.EndDate.ToAcademicYear(), command.EndDate.ToDeliveryPeriod(), command.Amount) }, command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
+            return new MathsAndEnglish(command.StartDate,
+                command.EndDate,
+                command.Course,
+                command.Amount,
+                [
+                    new(command.EndDate.ToAcademicYear(),
+                        command.EndDate.ToDeliveryPeriod(),
+                        command.Amount,
+                        MathsAndEnglishInstalmentType.Regular)
+                ],
+                command.WithdrawalDate,
+                command.ActualEndDate,
+                command.PriorLearningAdjustmentPercentage);
 
         var lastCensusDate = command.EndDate.LastCensusDate();
         var paymentDate = command.StartDate.LastDayOfMonth();
@@ -55,7 +67,8 @@ public static class MathsAndEnglishPayments
             instalments.Add(new MathsAndEnglishInstalment(
                 paymentDate.ToAcademicYear(),
                 paymentDate.ToDeliveryPeriod(),
-                monthlyAmount
+                monthlyAmount,
+                MathsAndEnglishInstalmentType.Regular
             ));
 
             paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
@@ -79,7 +92,10 @@ public static class MathsAndEnglishPayments
 
             var balancingAmount = balancingCount * monthlyAmount;
 
-            instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(), command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(), balancingAmount));
+            instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(),
+                command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(),
+                balancingAmount,
+                MathsAndEnglishInstalmentType.Balancing));
         }
 
         // Remove instalments after the withdrawal date
@@ -88,7 +104,7 @@ public static class MathsAndEnglishPayments
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
         if (command.WithdrawalDate.HasValue && command.WithdrawalDate.Value >= command.StartDate && command.WithdrawalDate.Value < command.StartDate.LastDayOfMonth())
-            instalments.Add(new MathsAndEnglishInstalment(command.StartDate.ToAcademicYear(), command.StartDate.ToDeliveryPeriod(), monthlyAmount));
+            instalments.Add(new MathsAndEnglishInstalment(command.StartDate.ToAcademicYear(), command.StartDate.ToDeliveryPeriod(), monthlyAmount, MathsAndEnglishInstalmentType.Regular));
         
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
