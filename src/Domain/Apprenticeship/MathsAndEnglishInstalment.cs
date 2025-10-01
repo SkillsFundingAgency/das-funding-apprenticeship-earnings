@@ -2,6 +2,12 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
+public enum MathsAndEnglishInstalmentType
+{
+    Regular = 0,
+    Balancing = 1
+}
+
 public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalmentModel>
 {
     private MathsAndEnglishInstalmentModel _model;
@@ -9,20 +15,22 @@ public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalment
     public short AcademicYear => _model.AcademicYear;
     public byte DeliveryPeriod => _model.DeliveryPeriod;
     public decimal Amount => _model.Amount;
+    public MathsAndEnglishInstalmentType Type => Enum.Parse<MathsAndEnglishInstalmentType>(_model.Type);
 
     internal MathsAndEnglishInstalment(MathsAndEnglishInstalmentModel model)
     {
         _model = model;
     }
 
-    public MathsAndEnglishInstalment(short academicYear, byte deliveryPeriod, decimal amount)
+    public MathsAndEnglishInstalment(short academicYear, byte deliveryPeriod, decimal amount, MathsAndEnglishInstalmentType type)
     {
         _model = new MathsAndEnglishInstalmentModel
         {
             Key = Guid.NewGuid(),
             AcademicYear = academicYear,
             DeliveryPeriod = deliveryPeriod,
-            Amount = amount
+            Amount = amount,
+            Type = type.ToString()
         };
     }
 
