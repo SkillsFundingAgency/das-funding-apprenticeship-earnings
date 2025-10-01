@@ -12,12 +12,12 @@ Scenario: Maths and English completion moved later
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-12-01    |
 	Then Maths and english instalments are persisted as follows
-		| Course | Amount | AcademicYear | DeliveryPeriod |
-		| Maths1 | 100    | 2021         | 1              |
-		| Maths1 | 100    | 2021         | 2              |
-		| Maths1 | 100    | 2021         | 3              |
-		| Maths1 | 100    | 2021         | 4              |
-		| Maths1 | 1100   | 2021         | 5              |
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
+		| Maths1 | 100    | 2021         | 1              | Regular   |
+		| Maths1 | 100    | 2021         | 2              | Regular   |
+		| Maths1 | 100    | 2021         | 3              | Regular   |
+		| Maths1 | 100    | 2021         | 4              | Regular   |
+		| Maths1 | 1100   | 2021         | 5              | Balancing |
 	And the earnings history is maintained
 
 Scenario: Maths and English completion moved earlier
@@ -30,10 +30,10 @@ Scenario: Maths and English completion moved earlier
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-10-01    |
 	Then Maths and english instalments are persisted as follows
-		| Course | Amount | AcademicYear | DeliveryPeriod |
-		| Maths1 | 100    | 2021         | 1              |
-		| Maths1 | 100    | 2021         | 2              |
-		| Maths1 | 1300   | 2021         | 3              |
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type       |
+		| Maths1 | 100    | 2021         | 1              | Regular    |
+		| Maths1 | 100    | 2021         | 2              | Regular    |
+		| Maths1 | 1300   | 2021         | 3              | Balancing |
 	And the earnings history is maintained
 
 Scenario: Maths and English completion removed
@@ -46,20 +46,20 @@ Scenario: Maths and English completion removed
 		| StartDate | EndDate   | Course | Amount |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   |
 	Then Maths and english instalments are persisted as follows
-		| Course | Amount | AcademicYear | DeliveryPeriod |
-		| Maths1 | 100    | 2021         | 1              |
-		| Maths1 | 100    | 2021         | 2              |
-		| Maths1 | 100    | 2021         | 3              |
-		| Maths1 | 100    | 2021         | 4              |
-		| Maths1 | 100    | 2021         | 5              |
-		| Maths1 | 100    | 2021         | 6              |
-		| Maths1 | 100    | 2021         | 7              |
-		| Maths1 | 100    | 2021         | 8              |
-		| Maths1 | 100    | 2021         | 9              |
-		| Maths1 | 100    | 2021         | 10             |
-		| Maths1 | 100    | 2021         | 11             |
-		| Maths1 | 100    | 2021         | 12             |
-		| Maths1 | 100    | 2122         | 1              |
-		| Maths1 | 100    | 2122         | 2              |
-		| Maths1 | 100    | 2122         | 3              |
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
+		| Maths1 | 100    | 2021         | 1              | Regular |
+		| Maths1 | 100    | 2021         | 2              | Regular |
+		| Maths1 | 100    | 2021         | 3              | Regular |
+		| Maths1 | 100    | 2021         | 4              | Regular |
+		| Maths1 | 100    | 2021         | 5              | Regular |
+		| Maths1 | 100    | 2021         | 6              | Regular |
+		| Maths1 | 100    | 2021         | 7              | Regular |
+		| Maths1 | 100    | 2021         | 8              | Regular |
+		| Maths1 | 100    | 2021         | 9              | Regular |
+		| Maths1 | 100    | 2021         | 10             | Regular |
+		| Maths1 | 100    | 2021         | 11             | Regular |
+		| Maths1 | 100    | 2021         | 12             | Regular |
+		| Maths1 | 100    | 2122         | 1              | Regular |
+		| Maths1 | 100    | 2122         | 2              | Regular |
+		| Maths1 | 100    | 2122         | 3              | Regular |
 	And the earnings history is maintained

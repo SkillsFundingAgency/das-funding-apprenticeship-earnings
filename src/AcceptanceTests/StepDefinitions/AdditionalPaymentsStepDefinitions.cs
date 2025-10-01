@@ -204,7 +204,8 @@ public class AdditionalPaymentsStepDefinitions
             courseInDb.Instalments.Should()
                 .Contain(x => x.Amount == expectedInstalment.Amount
                               && x.AcademicYear == expectedInstalment.AcademicYear
-                              && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod);
+                              && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
+                              && x.Type == expectedInstalment.Type);
         }
     }
 

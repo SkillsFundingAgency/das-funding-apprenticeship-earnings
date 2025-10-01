@@ -16,7 +16,7 @@ Scenario: Withdrawal made after end of qualifying period; only earnings before w
 		| StartDate | EndDate   | Course | Amount | WithdrawalDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-09-11     |
 	Then Maths and english instalments are persisted as follows
-		| Course | Amount | AcademicYear | DeliveryPeriod |
-		| Maths1 | 100    | 2021         | 1              |
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
+		| Maths1 | 100    | 2021         | 1              | Regular |
 	And the earnings history is maintained
 	

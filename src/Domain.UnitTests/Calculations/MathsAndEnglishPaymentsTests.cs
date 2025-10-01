@@ -2,6 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
@@ -185,7 +186,10 @@ public class MathsAndEnglishPaymentsTests
         // Assert
         result.Instalments.Count.Should().Be(3);
         result.Instalments.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Amount.Should().Be(50));
+        result.Instalments.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Type.Should().Be(MathsAndEnglishInstalmentType.Regular));
         result.Instalments.Single(x => x.DeliveryPeriod == 5).Amount.Should().Be(200);
+        result.Instalments.Single(x => x.DeliveryPeriod == 5).Type.Should().Be(MathsAndEnglishInstalmentType.Balancing);
+
         result.ActualEndDate.Should().Be(actualEndDate);
     }
 

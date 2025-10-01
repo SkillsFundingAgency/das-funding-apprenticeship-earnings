@@ -8,13 +8,14 @@ public class MathsAndEnglishInstalmentModel
 {
     public MathsAndEnglishInstalmentModel() { }
 
-    public MathsAndEnglishInstalmentModel(Guid mathsAndEnglishKey, short academicYear, byte deliveryPeriod, decimal amount)
+    public MathsAndEnglishInstalmentModel(Guid mathsAndEnglishKey, short academicYear, byte deliveryPeriod, decimal amount, string type)
     {
         Key = Guid.NewGuid();
         MathsAndEnglishKey = mathsAndEnglishKey;
         AcademicYear = academicYear;
         DeliveryPeriod = deliveryPeriod;
         Amount = amount;
+        Type = type;
     }
 
     [Dapper.Contrib.Extensions.Key]
@@ -28,4 +29,5 @@ public class MathsAndEnglishInstalmentModel
     public byte DeliveryPeriod { get; set; }
 
     public decimal Amount { get; set; }
+    public string Type { get; set; }
 }
