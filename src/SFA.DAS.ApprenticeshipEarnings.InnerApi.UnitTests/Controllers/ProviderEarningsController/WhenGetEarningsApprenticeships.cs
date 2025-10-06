@@ -40,7 +40,7 @@ public class WhenGetEarningsApprenticeships
 
         _queryDispatcher.Setup(x => x.Send<GetFm36DataRequest, GetFm36DataResponse>(It.Is<GetFm36DataRequest>(r => r.Ukprn == ukprn))).ReturnsAsync(expectedResult);
 
-        var result = await _sut.EarningsApprenticeships(ukprn, year, period, learningKey);
+        var result = await _sut.EarningsApprenticeship(ukprn, year, period, learningKey);
 
         result.Should().BeOfType<OkObjectResult>();
         var okResult = (OkObjectResult)result;

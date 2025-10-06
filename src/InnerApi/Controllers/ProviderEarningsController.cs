@@ -39,7 +39,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
 
         [Route("fm36/{collectionYear}/{collectionPeriod}")]
         [HttpGet]
-        public async Task<IActionResult> EarningsApprenticeships(long ukprn, short collectionYear, byte collectionPeriod, Guid learningKey)
+        public async Task<IActionResult> EarningsApprenticeship(long ukprn, short collectionYear, byte collectionPeriod, Guid learningKey)
         {
             var request = new GetFm36DataRequest(ukprn, collectionYear, collectionPeriod, learningKey);
             var response = await _queryDispatcher.Send<GetFm36DataRequest, GetFm36DataResponse>(request);
