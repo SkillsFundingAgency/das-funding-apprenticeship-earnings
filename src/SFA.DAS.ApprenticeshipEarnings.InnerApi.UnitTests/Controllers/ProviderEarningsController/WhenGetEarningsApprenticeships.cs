@@ -34,12 +34,13 @@ public class WhenGetEarningsApprenticeships
         var ukprn = _fixture.Create<long>();
         var year = _fixture.Create<short>();
         var period = _fixture.Create<byte>();
-        var apprenticeships = _fixture.Create<List<Apprenticeship>>();
-        var expectedResult = new GetFm36DataResponse (apprenticeships);
+        var learningKey = _fixture.Create<Guid>();
+        var apprenticeship = _fixture.Create<Apprenticeship>();
+        var expectedResult = new GetFm36DataResponse { Apprenticeship = apprenticeship };
 
         _queryDispatcher.Setup(x => x.Send<GetFm36DataRequest, GetFm36DataResponse>(It.Is<GetFm36DataRequest>(r => r.Ukprn == ukprn))).ReturnsAsync(expectedResult);
 
-        var result = await _sut.EarningsApprenticeships(ukprn, year, period);
+        var result = await _sut.EarningsApprenticeships(ukprn, year, period, learningKey);
 
         result.Should().BeOfType<OkObjectResult>();
         var okResult = (OkObjectResult)result;

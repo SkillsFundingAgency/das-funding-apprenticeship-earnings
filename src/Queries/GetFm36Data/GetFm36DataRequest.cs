@@ -8,12 +8,14 @@ public class GetFm36DataRequest : IQuery
     public long Ukprn { get; }
     public short CollectionYear { get; }
     public byte CollectionPeriod { get; }
+    public Guid LearningKey { get; }
 
 
-    public GetFm36DataRequest(long ukprn, short collectionYear, byte collectionPeriod)
+    public GetFm36DataRequest(long ukprn, short collectionYear, byte collectionPeriod, Guid learningKey)
     {
         Ukprn = ukprn;
         CollectionYear = collectionYear;
         CollectionPeriod = collectionPeriod;
+        LearningKey = learningKey;
     }
 }
