@@ -11,6 +11,7 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
     public decimal Amount => _model.Amount;
     public string AdditionalPaymentType => _model.AdditionalPaymentType;
     public DateTime DueDate => _model.DueDate;
+    public bool IsAfterLearningEnded => _model.IsAfterLearningEnded;
 
     private AdditionalPayment(AdditionalPaymentModel model)
     {

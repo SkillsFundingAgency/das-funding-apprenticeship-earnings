@@ -81,20 +81,38 @@ public class ApprenticeshipEpisode : AggregateComponent
                 onProgramTotal:onProgramTotal,
                 completionPayment:completionPayment);
         }
-
     }
 
-    public void RemovalEarningsFollowingWithdrawal(DateTime withdrawalDate, ISystemClockService systemClock)
+    public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
+    {
+        ReEvaluateEarningsAfterEndOfLearning(withdrawalDate, systemClock);
+    }
+
+    public void ReverseWithdrawal(ISystemClockService systemClockService)
+    {
+        ReEvaluateEarningsAfterEndOfLearning(null, systemClockService);
+    }
+
+    public void ReEvaluateEarningsAfterEndOfLearning(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         var earningsToKeep = GetEarningsToKeep(withdrawalDate);
         var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(withdrawalDate);
 
+        foreach (var earning in _model.EarningsProfile.Instalments)
+        {
+            earning.IsAfterLearningEnded = !earningsToKeep.Contains(earning);
+        }
+
+        foreach (var additionalPayment in _model.EarningsProfile.AdditionalPayments)
+        {
+            additionalPayment.IsAfterLearningEnded = !additionalPaymentsToKeep.Contains(additionalPayment);
+        }
+
         _earningsProfile.Update(
             systemClock,
-            instalments: earningsToKeep.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
-            additionalPayments: additionalPaymentsToKeep.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList()
+            instalments: _model.EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
+            additionalPayments: _model.EarningsProfile.AdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList()
             );
-
     }
 
     /// <summary>
@@ -164,28 +182,38 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model.CompletionDate = completionDate;
     }
 
-    private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime lastDayOfLearning)
+    private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime? lastDayOfLearning)
     {
-        var academicYear = lastDayOfLearning.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
+        if (!lastDayOfLearning.HasValue)
+        {
+            return _model.EarningsProfile.AdditionalPayments;
+        }
+
+        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
 
         var additionalPayments = _model.EarningsProfile.AdditionalPayments
             .Where(x =>
                 x.AcademicYear < academicYear //keep earnings from previous academic years
                 || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day ==
-                DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month))
+                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day ==
+                DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month))
             .ToList(); //keep earnings in the last delivery period of learning if the learner is in learning on the census date
 
         return additionalPayments;
     }
 
-    private List<InstalmentModel> GetEarningsToKeep(DateTime lastDayOfLearning)
+    private List<InstalmentModel> GetEarningsToKeep(DateTime? lastDayOfLearning)
     {
+        if (!lastDayOfLearning.HasValue)
+        {
+            return _model.EarningsProfile.Instalments;
+        }
+
         List<InstalmentModel> result;
 
-        var academicYear = lastDayOfLearning.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
+        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
 
         var startDate = _model.Prices.Min(x => x.StartDate);
         var qualifyingPeriodDays = GetQualifyingPeriodDays(startDate, _model.Prices.Max(x => x.EndDate));
@@ -201,7 +229,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             result = _model.EarningsProfile.Instalments.Where(x =>
                     x.AcademicYear < academicYear //keep earnings from previous academic years
             || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
                 .ToList();
         }
 

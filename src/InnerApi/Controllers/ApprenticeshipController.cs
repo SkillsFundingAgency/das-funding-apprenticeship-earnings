@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCompletionCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
@@ -145,6 +146,27 @@ public class ApprenticeshipController: ControllerBase
         }
 
         _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
+
+    [Route("{apprenticeshipKey}/reverse-withdrawal")]
+    [HttpPatch]
+    public async Task<IActionResult> ReverseWithdrawal(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
+    {
+        _logger.LogInformation("Received request to reverse withdrawal of learner {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new ReverseWithdrawalCommand(apprenticeshipKey);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reversing withdrawal of learner {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully reversed withdrawal of learner {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 

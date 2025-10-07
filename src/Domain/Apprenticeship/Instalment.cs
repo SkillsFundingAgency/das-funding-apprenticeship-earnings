@@ -36,6 +36,7 @@ public class Instalment : IDomainEntity<InstalmentModel>
     public decimal Amount => _model.Amount;
     public Guid EpisodePriceKey => _model.EpisodePriceKey;
     public InstalmentType Type => Enum.Parse<InstalmentType>(_model.Type);
+    public bool IsAfterLearningEnded => _model.IsAfterLearningEnded;
 
     public InstalmentModel GetModel()
     {
