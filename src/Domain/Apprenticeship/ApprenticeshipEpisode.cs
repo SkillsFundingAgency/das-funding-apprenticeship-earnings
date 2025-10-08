@@ -98,21 +98,27 @@ public class ApprenticeshipEpisode : AggregateComponent
         var earningsToKeep = GetEarningsToKeep(withdrawalDate);
         var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(withdrawalDate);
 
-        foreach (var earning in _model.EarningsProfile.Instalments)
-        {
-            earning.IsAfterLearningEnded = !earningsToKeep.Contains(earning);
-        }
+        var updatedInstalments = _model.EarningsProfile.Instalments
+            .Select(x => new Instalment(
+                x.AcademicYear,
+                x.DeliveryPeriod,
+                x.Amount,
+                x.EpisodePriceKey,
+                Enum.Parse<InstalmentType>(x.Type),
+                !earningsToKeep.Contains(x)))
+            .ToList();
 
-        foreach (var additionalPayment in _model.EarningsProfile.AdditionalPayments)
-        {
-            additionalPayment.IsAfterLearningEnded = !additionalPaymentsToKeep.Contains(additionalPayment);
-        }
+        var updatedAdditionalPayments = _model.EarningsProfile.AdditionalPayments
+            .Select(x => new AdditionalPayment(
+                x.AcademicYear,
+                x.DeliveryPeriod,
+                x.Amount,
+                x.DueDate,
+                x.AdditionalPaymentType,
+                !additionalPaymentsToKeep.Contains(x)))
+            .ToList();
 
-        _earningsProfile.Update(
-            systemClock,
-            instalments: _model.EarningsProfile.Instalments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.EpisodePriceKey)).ToList(),
-            additionalPayments: _model.EarningsProfile.AdditionalPayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType)).ToList()
-            );
+        _earningsProfile.Update(systemClock, instalments: updatedInstalments, additionalPayments: updatedAdditionalPayments);
     }
 
     /// <summary>

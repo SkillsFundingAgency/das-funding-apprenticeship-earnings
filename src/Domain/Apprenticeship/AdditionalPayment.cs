@@ -18,7 +18,7 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
         _model = model;
     }
 
-    public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType)
+    public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType, bool isAfterLearningEnded = false)
     {
         _model = new AdditionalPaymentModel
         {
@@ -27,7 +27,8 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
             Amount = amount,
             DeliveryPeriod = deliveryPeriod,
             DueDate = dueDate,
-            AdditionalPaymentType = incentiveType
+            AdditionalPaymentType = incentiveType,
+            IsAfterLearningEnded = isAfterLearningEnded
         };
     }
 

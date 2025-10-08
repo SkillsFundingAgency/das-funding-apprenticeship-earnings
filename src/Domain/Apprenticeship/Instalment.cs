@@ -13,7 +13,7 @@ public class Instalment : IDomainEntity<InstalmentModel>
 {
     private InstalmentModel _model;
 
-    public Instalment(short academicYear, byte deliveryPeriod, decimal amount, Guid priceKey, InstalmentType instalmentType = InstalmentType.Regular)
+    public Instalment(short academicYear, byte deliveryPeriod, decimal amount, Guid priceKey, InstalmentType instalmentType = InstalmentType.Regular, bool isAfterLearningEnded = false)
     {
         _model = new InstalmentModel
         {
@@ -22,7 +22,8 @@ public class Instalment : IDomainEntity<InstalmentModel>
             DeliveryPeriod = deliveryPeriod,
             Amount = amount,
             EpisodePriceKey = priceKey,
-            Type = instalmentType.ToString()
+            Type = instalmentType.ToString(),
+            IsAfterLearningEnded = isAfterLearningEnded
         };
     }
 
