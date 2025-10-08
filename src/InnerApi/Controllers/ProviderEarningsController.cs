@@ -37,7 +37,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
             return Ok(response.AcademicYearEarnings);
         }
 
-        [Route("fm36/{collectionYear}/{collectionPeriod}")]
+        [Route("fm36/{collectionYear}/{collectionPeriod}/{learningKey}")]
         [HttpGet]
         public async Task<IActionResult> EarningsApprenticeship(long ukprn, short collectionYear, byte collectionPeriod, Guid learningKey)
         {
