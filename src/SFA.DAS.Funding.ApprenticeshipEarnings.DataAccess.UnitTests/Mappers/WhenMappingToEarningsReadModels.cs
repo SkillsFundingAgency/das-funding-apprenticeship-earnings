@@ -40,7 +40,9 @@ public class WhenMappingApprenticeshipToEarningsReadModels
 
         var apprenticeship = Apprenticeship.Get(apprenticeshipEntityModel);
 
-        var expectedEarnings = currentEpisodeModel.EarningsProfile?.Instalments.Select(x => new Earning
+        var expectedEarnings = currentEpisodeModel.EarningsProfile?.Instalments
+            .Where(x => !x.IsAfterLearningEnded)
+            .Select(x => new Earning
         {
             Id = Guid.NewGuid(),
             AcademicYear = x.AcademicYear,
