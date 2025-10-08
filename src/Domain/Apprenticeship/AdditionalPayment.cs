@@ -50,6 +50,7 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
                DeliveryPeriod == compare.DeliveryPeriod &&
                Amount == compare.Amount &&
                AdditionalPaymentType == compare.AdditionalPaymentType &&
-               DueDate == compare.DueDate;
+               DueDate == compare.DueDate &&
+               IsAfterLearningEnded == compare.IsAfterLearningEnded;
     }
 }

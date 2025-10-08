@@ -56,6 +56,7 @@ public class Instalment : IDomainEntity<InstalmentModel>
         return AcademicYear == compare.AcademicYear &&
                DeliveryPeriod == compare.DeliveryPeriod &&
                Amount == compare.Amount &&
-               EpisodePriceKey == compare.EpisodePriceKey;
+               EpisodePriceKey == compare.EpisodePriceKey &&
+               IsAfterLearningEnded == compare.IsAfterLearningEnded;
     }
 }
