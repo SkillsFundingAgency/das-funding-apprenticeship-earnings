@@ -51,7 +51,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             {
                 Key = x.ApprenticeshipEpisodeKey,
                 NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
-                Instalments = x.EarningsProfile.Instalments.Select(i => new Instalment
+                Instalments = x.EarningsProfile.Instalments.Where(i => !i.IsAfterLearningEnded).Select(i => new Instalment
                 {
                     AcademicYear = i.AcademicYear,
                     DeliveryPeriod = i.DeliveryPeriod,
@@ -59,7 +59,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                     EpisodePriceKey = i.EpisodePriceKey,
                     InstalmentType = i.Type.ToString()
                 }).ToList(),
-                AdditionalPayments = x.EarningsProfile!.AdditionalPayments.Select(p => new AdditionalPayment
+                AdditionalPayments = x.EarningsProfile!.AdditionalPayments.Where(a => !a.IsAfterLearningEnded).Select(p => new AdditionalPayment
                 {
                     AcademicYear = p.AcademicYear,
                     DeliveryPeriod = p.DeliveryPeriod,
