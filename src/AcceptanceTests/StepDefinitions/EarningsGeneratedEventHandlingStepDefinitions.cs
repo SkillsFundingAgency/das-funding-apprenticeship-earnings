@@ -60,7 +60,6 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         earningsInDb.Should().HaveCount(data.Count);
         queryEarningsDbRecords.Should().HaveCount(data.Count);
 
-
         foreach (var expectedEarning in data)
         {
             earningsInDb.Should()

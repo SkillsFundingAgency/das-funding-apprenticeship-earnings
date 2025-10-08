@@ -10,7 +10,7 @@ public static class ApprenticeshipMappers
     {
         var currentEpisode = apprenticeship.GetCurrentEpisode(systemClockService);
 
-        return currentEpisode.EarningsProfile?.Instalments.Select(x => new Earning
+        return currentEpisode.EarningsProfile?.Instalments.Where(x => !x.IsAfterLearningEnded).Select(x => new Earning
         {
             Id = Guid.NewGuid(),
             AcademicYear = x.AcademicYear,
