@@ -17,10 +17,9 @@ public class ArchiveEarningsProfileEventHandler(
     {
         logger.LogInformation("{functionName} processing...", nameof(EarningsProfileUpdatedEvent));
 
-        logger.LogInformation("EarningsProfileId: {key} Received {eventName}: {eventJson}",
+        logger.LogInformation("EarningsProfileId: {Key} Received {EventName}",
             message.EarningsProfileId,
-            nameof(EarningsProfileUpdatedEvent),
-            JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
+            nameof(EarningsProfileUpdatedEvent));
 
         await earningProfileArchiveCommandHandler.Handle(new ArchiveEarningsProfileCommand(message), context.CancellationToken);
     }

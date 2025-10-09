@@ -4,7 +4,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using NServiceBus;
 
@@ -21,9 +20,7 @@ public class LearningCreatedEventHandler(
         {
             logger.LogInformation($"{nameof(LearningCreatedEventHandler)} processing...");
 
-            logger.LogInformation("LearningKey: {0} Received LearningCreatedEvent: {1}",
-                message.LearningKey,
-                JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }));
+            logger.LogInformation("LearningKey: {0} Received LearningCreatedEvent", message.LearningKey);
 
             if (!(message.Episode.FundingPlatform.HasValue && Enum.Parse<FundingPlatform>(message.Episode.FundingPlatform.Value.ToString()) == FundingPlatform.DAS))
             {
