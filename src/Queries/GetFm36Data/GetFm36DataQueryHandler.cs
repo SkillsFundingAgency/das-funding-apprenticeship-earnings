@@ -50,7 +50,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             Episodes = source.ApprenticeshipEpisodes.Select(x => new Episode
             {
                 Key = x.ApprenticeshipEpisodeKey,
-                NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
+                NumberOfInstalments = x.EarningsProfile!.Instalments.Count(i => !i.IsAfterLearningEnded),
                 Instalments = x.EarningsProfile.Instalments.Where(i => !i.IsAfterLearningEnded).Select(i => new Instalment
                 {
                     AcademicYear = i.AcademicYear,
