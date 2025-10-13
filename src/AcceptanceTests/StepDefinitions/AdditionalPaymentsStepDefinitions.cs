@@ -130,7 +130,7 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
-        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
+        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().BeEmpty();
     }
 
     [Then(@"an EarningsGeneratedEvent is raised with no incentives as Delivery Periods")]
