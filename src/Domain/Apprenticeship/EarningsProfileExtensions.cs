@@ -36,7 +36,8 @@ internal static class EarningsProfileExtensions
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
             EpisodePriceKey = i.EpisodePriceKey,
-            Type = i.Type
+            Type = i.Type,
+            IsAfterLearningEnded = i.IsAfterLearningEnded
         }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
             .ToList();
     }
@@ -55,7 +56,8 @@ internal static class EarningsProfileExtensions
             DeliveryPeriod = ap.DeliveryPeriod,
             Amount = ap.Amount,
             AdditionalPaymentType = ap.AdditionalPaymentType,
-            DueDate = ap.DueDate
+            DueDate = ap.DueDate,
+            IsAfterLearningEnded = ap.IsAfterLearningEnded
         }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
             .ToList();
     }

@@ -35,11 +35,11 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         var lastDayOfLearning = new DateTime(2024, 1, 31);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(0);
+        currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(0);
     }
 
     [TestCase(168, 42, true)]
@@ -60,7 +60,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         SetupApprenticeship(actualStartDate, plannedEndDate, 12000m);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -68,7 +68,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         if(expectedToQualify)
             currentEpisode.EarningsProfile.Instalments.Should().NotBeEmpty();
         else
-            currentEpisode.EarningsProfile.Instalments.Count.Should().Be(0);
+            currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(0);
     }
 
     [Test]
@@ -83,12 +83,12 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         var lastDayOfLearning = new DateTime(2024, 8, 11); //withdrawn beginning of 24/25 ay on last day of qualifying period
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(1);
-        currentEpisode.EarningsProfile.Instalments.Should().OnlyContain(x => x.AcademicYear == 2324);
+        currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(1);
+        currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x => x.AcademicYear == 2324);
     }
 
     [Test]
@@ -98,7 +98,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         var lastDayOfLearning = new DateTime(2024, 1, 31);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
