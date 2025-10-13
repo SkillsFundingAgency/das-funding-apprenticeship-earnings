@@ -45,6 +45,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
+    public DateTime? WithdrawalDate => _model.WithdrawalDate;
+    public DateTime? LastDayOfLearning => WithdrawalDate; //coalesce / get earliest of other values here, such as PauseDate
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -85,18 +87,19 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
-        ReEvaluateEarningsAfterEndOfLearning(withdrawalDate, systemClock);
+        _model.WithdrawalDate = withdrawalDate;
+        ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void ReverseWithdrawal(ISystemClockService systemClockService)
     {
-        ReEvaluateEarningsAfterEndOfLearning(null, systemClockService);
+        ReEvaluateEarningsAfterEndOfLearning(systemClockService);
     }
 
-    public void ReEvaluateEarningsAfterEndOfLearning(DateTime? withdrawalDate, ISystemClockService systemClock)
+    public void ReEvaluateEarningsAfterEndOfLearning(ISystemClockService systemClock)
     {
-        var earningsToKeep = GetEarningsToKeep(withdrawalDate);
-        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(withdrawalDate);
+        var earningsToKeep = GetEarningsToKeep(LastDayOfLearning);
+        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(LastDayOfLearning);
 
         var updatedInstalments = _model.EarningsProfile.Instalments
             .Select(x => new Instalment(

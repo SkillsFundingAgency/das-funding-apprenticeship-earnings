@@ -37,6 +37,7 @@ public class EpisodeModel
     public string TrainingCode { get; set; } = null!;
     public int AgeAtStartOfApprenticeship { get; set; }
     public DateTime? CompletionDate { get; set; }
+    public DateTime? WithdrawalDate { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
 }
