@@ -93,6 +93,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     public void ReverseWithdrawal(ISystemClockService systemClockService)
     {
+        _model.WithdrawalDate = null;
         ReEvaluateEarningsAfterEndOfLearning(systemClockService);
     }
 
