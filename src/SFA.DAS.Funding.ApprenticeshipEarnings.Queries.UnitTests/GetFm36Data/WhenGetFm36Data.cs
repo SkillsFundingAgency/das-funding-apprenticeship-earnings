@@ -41,33 +41,32 @@ public class WhenGetFm36Data
     public async Task Handle_NoApprenticeships_ReturnsEmptyResponse()
     {
         // Arrange
-        var query = new GetFm36DataRequest(_fixture.Create<long>(), 2021, 1);
+        var query = new GetFm36DataRequest(_fixture.Create<long>(), 2021, 1, _fixture.Create<Guid>());
         _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns((List<Domain.Apprenticeship.Apprenticeship>)null);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should().BeEmpty();
+        result.Apprenticeship.Should().BeNull();
     }
 
     [Test]
     public async Task Handle_ApprenticeshipsExist_ReturnsMappedResponse()
     {
         // Arrange
-        var query = new GetFm36DataRequest( _fixture.Create<long>(), 2021, 1);
+        var query = new GetFm36DataRequest( _fixture.Create<long>(), 2021, 1, _fixture.Create<Guid>());
         var currentEpisode = CreateCurrentEpisode();
         var expectedApprenticeship = CreateApprenticeship(query.Ukprn, currentEpisode);
-        var domainApprenticeships = new List<Domain.Apprenticeship.Apprenticeship> { expectedApprenticeship };
 
-        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns(domainApprenticeships);
+        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeship(query.LearningKey, query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns(expectedApprenticeship);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should().ContainSingle();
-        var apprenticeship = result.First();
+        result.Apprenticeship.Should().NotBeNull();
+        var apprenticeship = result.Apprenticeship;
         apprenticeship.Key.Should().Be(expectedApprenticeship.ApprenticeshipKey);
         apprenticeship.Ukprn.Should().Be(query.Ukprn);
         apprenticeship.FundingLineType.Should().Be(currentEpisode.AgeAtStartOfApprenticeship < 19

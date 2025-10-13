@@ -37,14 +37,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
             return Ok(response.AcademicYearEarnings);
         }
 
-        [Route("fm36/{collectionYear}/{collectionPeriod}")]
+        [Route("fm36/{collectionYear}/{collectionPeriod}/{learningKey}")]
         [HttpGet]
-        public async Task<IActionResult> EarningsApprenticeships(long ukprn, short collectionYear, byte collectionPeriod)
+        public async Task<IActionResult> EarningsApprenticeship(long ukprn, short collectionYear, byte collectionPeriod, Guid learningKey)
         {
-            var request = new GetFm36DataRequest(ukprn, collectionYear, collectionPeriod);
+            var request = new GetFm36DataRequest(ukprn, collectionYear, collectionPeriod, learningKey);
             var response = await _queryDispatcher.Send<GetFm36DataRequest, GetFm36DataResponse>(request);
 
-            if(response== null || !response.Any())
+            if(response == null || response.Apprenticeship == null)
             {
                 return NotFound();
             }
