@@ -22,7 +22,7 @@ public class ProcessWithdrawnApprenticeshipCommandHandler : ICommandHandler<Proc
     {
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.RemovalEarningsFollowingWithdrawal(command.WithdrawalDate, _systemClock);
+        apprenticeshipDomainModel.Withdraw(command.WithdrawalDate, _systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 

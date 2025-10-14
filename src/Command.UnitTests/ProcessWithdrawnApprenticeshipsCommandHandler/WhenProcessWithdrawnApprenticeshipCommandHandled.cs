@@ -36,6 +36,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
     {
         // Arrange
         var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
+        apprenticeshipModel.Episodes.ForEach(x => x.EarningsProfile.Instalments.ForEach(y => y.Type = InstalmentType.Regular.ToString()));
         var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
         SetupMocks();
         var command = BuildCommand(apprenticeship);

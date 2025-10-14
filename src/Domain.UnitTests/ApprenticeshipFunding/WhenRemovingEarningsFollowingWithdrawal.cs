@@ -40,11 +40,11 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var withdrawalDate = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
+        _sut.Withdraw(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(2);
+        currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
     }
 
     [Test]
@@ -54,11 +54,11 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var withdrawalDate = new DateTime(2024, 6, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
+        _sut.Withdraw(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.AdditionalPayments.Count.Should().Be(2);
+        currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
     }
 
     [Test]
@@ -68,11 +68,11 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var lastDayOfLearning = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Should().OnlyContain(x =>
+        currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
     }
@@ -84,11 +84,11 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var withdrawalDate = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
+        _sut.Withdraw(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.AdditionalPayments.Should().OnlyContain(x =>
+        currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
     }
@@ -101,7 +101,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var withdrawalDate = new DateTime(2024, 3, 31);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
+        _sut.Withdraw(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -117,7 +117,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var withdrawalDate = new DateTime(2024, 3, 31);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
+        _sut.Withdraw(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -132,7 +132,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         var withdrawalDate = new DateTime(2024, 6, 30);
 
         // Act
-        _sut.RemovalEarningsFollowingWithdrawal(withdrawalDate, _mockSystemClock.Object);
+        _sut.Withdraw(withdrawalDate, _mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);

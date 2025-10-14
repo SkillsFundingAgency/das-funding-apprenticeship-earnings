@@ -53,12 +53,16 @@ public class Apprenticeship : AggregateRoot
         currentEpisode.CalculateEpisodeEarnings(this, systemClock);
     }
 
-    public void RemovalEarningsFollowingWithdrawal(DateTime withdrawalDate, ISystemClockService systemClock)
+    public void Withdraw(DateTime withdrawalDate, ISystemClockService systemClock)
     {
-        foreach (var episode in ApprenticeshipEpisodes)
-        {
-            episode.RemovalEarningsFollowingWithdrawal(withdrawalDate, systemClock);
-        }
+        var episode = this.GetCurrentEpisode(systemClock);
+        episode.Withdraw(withdrawalDate, systemClock);
+    }
+
+    public void ReverseWithdrawal(ISystemClockService systemClock)
+    {
+        var episode = this.GetCurrentEpisode(systemClock);
+        episode.ReverseWithdrawal(systemClock);
     }
 
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
