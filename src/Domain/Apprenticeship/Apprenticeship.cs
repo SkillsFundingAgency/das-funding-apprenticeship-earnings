@@ -131,5 +131,6 @@ public class Apprenticeship : AggregateRoot
         episode.UpdatePrices(prices, ageAtStartOfLearning);
         episode.CalculateEpisodeEarnings(this, systemClock);
         episode.UpdateCompletion(this, episode.CompletionDate, systemClock);
+        episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 }
