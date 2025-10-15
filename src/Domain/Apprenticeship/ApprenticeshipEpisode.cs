@@ -183,7 +183,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
 
         var existingInstalments = _earningsProfile?.Instalments.Where(x=>x.Type != InstalmentType.Completion && x.Type != InstalmentType.Balancing).ToList() ?? new List<Instalment>();
-        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments);
+        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments, _model.Prices.Max(x => x.EndDate));
         var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate!.Value, _earningsProfile!.CompletionPayment, existingInstalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
 
         _earningsProfile.Update(systemClock,
