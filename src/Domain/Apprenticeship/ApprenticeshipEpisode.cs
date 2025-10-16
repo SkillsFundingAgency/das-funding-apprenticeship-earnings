@@ -162,10 +162,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
     {
-        if (completionDate.GetValueOrDefault() == _model.CompletionDate.GetValueOrDefault())
-        {
-            return; //no change
-        }
+        if(!completionDate.HasValue && !_model.CompletionDate.HasValue)
+            return; // No change
 
         // If previously completed, clear existing completion and balancing instalments. And recalculate instalments
         if (_model.CompletionDate != null)
