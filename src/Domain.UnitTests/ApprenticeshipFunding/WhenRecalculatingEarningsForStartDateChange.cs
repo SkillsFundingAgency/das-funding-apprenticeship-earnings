@@ -41,6 +41,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         prices[2].EndDate = new DateTime(2024, 2, 1);
         LearningEpisode.Prices = prices;
         LearningEpisode.WithdrawalDate = null;
+        LearningEpisode.CompletionDate = null;
 
         var apprenticeshipEntityModel = _fixture
             .Build<ApprenticeshipModel>()
