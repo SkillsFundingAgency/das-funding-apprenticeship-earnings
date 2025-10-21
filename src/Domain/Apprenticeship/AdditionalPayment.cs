@@ -11,13 +11,14 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
     public decimal Amount => _model.Amount;
     public string AdditionalPaymentType => _model.AdditionalPaymentType;
     public DateTime DueDate => _model.DueDate;
+    public bool IsAfterLearningEnded => _model.IsAfterLearningEnded;
 
     private AdditionalPayment(AdditionalPaymentModel model)
     {
         _model = model;
     }
 
-    public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType)
+    public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType, bool isAfterLearningEnded = false)
     {
         _model = new AdditionalPaymentModel
         {
@@ -26,7 +27,8 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
             Amount = amount,
             DeliveryPeriod = deliveryPeriod,
             DueDate = dueDate,
-            AdditionalPaymentType = incentiveType
+            AdditionalPaymentType = incentiveType,
+            IsAfterLearningEnded = isAfterLearningEnded
         };
     }
 
@@ -49,6 +51,7 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
                DeliveryPeriod == compare.DeliveryPeriod &&
                Amount == compare.Amount &&
                AdditionalPaymentType == compare.AdditionalPaymentType &&
-               DueDate == compare.DueDate;
+               DueDate == compare.DueDate &&
+               IsAfterLearningEnded == compare.IsAfterLearningEnded;
     }
 }

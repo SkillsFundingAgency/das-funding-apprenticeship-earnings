@@ -15,8 +15,8 @@ public abstract class AdditionalPaymentModelBase
     [Precision(15, 5)]
     public decimal Amount { get; set; }
     public string AdditionalPaymentType { get; set; }
-
     public DateTime DueDate { get; set; }
+    public bool IsAfterLearningEnded { get; set; }
 
     public AdditionalPaymentModelBase(AdditionalPaymentModelBase original, Guid earningsProfileId)
     {
@@ -27,6 +27,7 @@ public abstract class AdditionalPaymentModelBase
         AcademicYear = original.AcademicYear;
         AdditionalPaymentType = original.AdditionalPaymentType;
         DueDate = original.DueDate;
+        IsAfterLearningEnded = original.IsAfterLearningEnded;
     }
 
     public AdditionalPaymentModelBase() { }
