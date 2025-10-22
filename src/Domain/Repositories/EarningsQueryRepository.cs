@@ -91,27 +91,21 @@ public class EarningsQueryRepository : IEarningsQueryRepository
         return result;
     }
 
-    public Apprenticeship.Apprenticeship? GetApprenticeship(Guid learningKey, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
+    public List<Apprenticeship.Apprenticeship> GetApprenticeships(List<Guid>? learningKeys, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
     {
         var query = GetApprenticeshipsQuery(ukprn, searchDate, onlyActiveApprenticeships);
-        query = query.Where(x => x.Key == learningKey);
+        if (learningKeys != null && learningKeys.Any())
+            query = query.Where(x => learningKeys.Contains(x.Key));
 
         var apprenticeships = query
             .Select(z => Apprenticeship.Apprenticeship.Get(z))
             .ToList();
 
         if (apprenticeships == null || !apprenticeships.Any())
-            return null;
+            return new List<Apprenticeship.Apprenticeship>();
 
         // now get apprenticeships which currently belong to the ukprn
-        try
-        {
-            return apprenticeships.Where(x => x.GetCurrentEpisode(searchDate).UKPRN == ukprn).SingleOrDefault();
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new InvalidOperationException($"Multiple apprenticeships found for learningKey {learningKey} and ukprn {ukprn} on date {searchDate:yyyy-MM-dd}", ex);
-        }
+        return apprenticeships.Where(x => x.GetCurrentEpisode(searchDate).UKPRN == ukprn).ToList();
     }
 
     /// <summary>

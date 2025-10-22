@@ -37,18 +37,18 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers
             return Ok(response.AcademicYearEarnings);
         }
 
-        [Route("fm36/{collectionYear}/{collectionPeriod}/{learningKey}")]
-        [HttpGet]
-        public async Task<IActionResult> EarningsApprenticeship(long ukprn, short collectionYear, byte collectionPeriod, Guid learningKey)
+        /// <summary>
+        /// Gets the fm36 earnings for the provider
+        /// </summary>
+        /// <remarks>
+        /// Although this endpoint is a POST, it is used to retrieve data.
+        /// </remarks>
+        [Route("fm36/{collectionYear}/{collectionPeriod}")]
+        [HttpPost]
+        public async Task<IActionResult> GetFm36Earnings([FromBody] List<Guid> learningKeys, long ukprn, short collectionYear, byte collectionPeriod)
         {
-            var request = new GetFm36DataRequest(ukprn, collectionYear, collectionPeriod, learningKey);
+            var request = new GetFm36DataRequest(ukprn, collectionYear, collectionPeriod, learningKeys);
             var response = await _queryDispatcher.Send<GetFm36DataRequest, GetFm36DataResponse>(request);
-
-            if(response == null || response.Apprenticeship == null)
-            {
-                return NotFound();
-            }
-
             return Ok(response);
         }
     }
