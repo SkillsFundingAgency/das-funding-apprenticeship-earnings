@@ -45,6 +45,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
+    public DateTime? WithdrawalDate => _model.WithdrawalDate;
+    public DateTime? LastDayOfLearning => WithdrawalDate; //coalesce / get earliest of other values here, such as PauseDate
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -85,18 +87,20 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
-        ReEvaluateEarningsAfterEndOfLearning(withdrawalDate, systemClock);
+        _model.WithdrawalDate = withdrawalDate;
+        ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void ReverseWithdrawal(ISystemClockService systemClockService)
     {
-        ReEvaluateEarningsAfterEndOfLearning(null, systemClockService);
+        _model.WithdrawalDate = null;
+        ReEvaluateEarningsAfterEndOfLearning(systemClockService);
     }
 
-    public void ReEvaluateEarningsAfterEndOfLearning(DateTime? withdrawalDate, ISystemClockService systemClock)
+    public void ReEvaluateEarningsAfterEndOfLearning(ISystemClockService systemClock)
     {
-        var earningsToKeep = GetEarningsToKeep(withdrawalDate);
-        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(withdrawalDate);
+        var earningsToKeep = GetEarningsToKeep(LastDayOfLearning);
+        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(LastDayOfLearning);
 
         var updatedInstalments = _model.EarningsProfile.Instalments
             .Select(x => new Instalment(
@@ -179,7 +183,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
 
         var existingInstalments = _earningsProfile?.Instalments.Where(x=>x.Type != InstalmentType.Completion && x.Type != InstalmentType.Balancing).ToList() ?? new List<Instalment>();
-        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments);
+        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments, _model.Prices.Max(x => x.EndDate));
         var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate!.Value, _earningsProfile!.CompletionPayment, existingInstalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
 
         _earningsProfile.Update(systemClock,

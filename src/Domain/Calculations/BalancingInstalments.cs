@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class BalancingInstalments
 {
-    public static List<Instalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<Instalment> instalments)
+    public static List<Instalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<Instalment> instalments, DateTime plannedEndDate)
     {
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var completionYear = completionDate.ToAcademicYear();
@@ -14,7 +14,7 @@ public static class BalancingInstalments
 
         var nextPeriod = completionDate.LastDayOfMonth().AddDays(1).ToDeliveryPeriod();
         var nextPeriodYear = completionDate.LastDayOfMonth().AddDays(1).ToAcademicYear();
-        var completionOnTime = !instalments.Any(x => x.AcademicYear == nextPeriodYear && x.DeliveryPeriod == nextPeriod);
+        var completionOnTime = !instalments.Any(x => x.AcademicYear == nextPeriodYear && x.DeliveryPeriod == nextPeriod) && completionDate >= plannedEndDate;
 
         //No balancing is required if either:
         // there is no instalment for the completion period (it's after the current price episodes/end date)
