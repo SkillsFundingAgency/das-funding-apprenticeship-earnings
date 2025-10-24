@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
@@ -41,85 +42,100 @@ public class WhenGetFm36Data
     public async Task Handle_NoApprenticeships_ReturnsEmptyResponse()
     {
         // Arrange
-        var query = new GetFm36DataRequest(_fixture.Create<long>(), 2021, 1);
+        var query = new GetFm36DataRequest(_fixture.Create<long>(), 2021, 1, _fixture.Create<List<Guid>>());
         _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns((List<Domain.Apprenticeship.Apprenticeship>)null);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should().BeEmpty();
+        result.Apprenticeships.Should().BeNull();
     }
 
     [Test]
     public async Task Handle_ApprenticeshipsExist_ReturnsMappedResponse()
     {
         // Arrange
-        var query = new GetFm36DataRequest( _fixture.Create<long>(), 2021, 1);
-        var currentEpisode = CreateCurrentEpisode();
-        var expectedApprenticeship = CreateApprenticeship(query.Ukprn, currentEpisode);
-        var domainApprenticeships = new List<Domain.Apprenticeship.Apprenticeship> { expectedApprenticeship };
+        var query = new GetFm36DataRequest( _fixture.Create<long>(), 2021, 1, _fixture.Create<List<Guid>>());
+        var expectedApprenticeships = new List<Domain.Apprenticeship.Apprenticeship>();
+        foreach(var learningKey in query.LearningKeys)
+        {
+            var currentEpisode = CreateCurrentEpisode(learningKey);
+            var apprenticeship = CreateApprenticeship(learningKey, query.Ukprn, currentEpisode);
+            expectedApprenticeships.Add(apprenticeship);
+        }
 
-        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns(domainApprenticeships);
+        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.LearningKeys, query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns(expectedApprenticeships);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should().ContainSingle();
-        var apprenticeship = result.First();
-        apprenticeship.Key.Should().Be(expectedApprenticeship.ApprenticeshipKey);
-        apprenticeship.Ukprn.Should().Be(query.Ukprn);
-        apprenticeship.FundingLineType.Should().Be(currentEpisode.AgeAtStartOfApprenticeship < 19
-            ? "16-18 Apprenticeship (Employer on App Service)"
-            : "19+ Apprenticeship (Employer on App Service)");
-        apprenticeship.Episodes.Should().ContainSingle();
+        result.Apprenticeships.Should().NotBeNull();
 
-        var episodeResult = apprenticeship.Episodes.First();
-        episodeResult.Key.Should().Be(currentEpisode.Key);
-        episodeResult.CompletionPayment.Should().Be(currentEpisode.EarningsProfile.CompletionPayment);
-        episodeResult.OnProgramTotal.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
-        episodeResult.Instalments.Should().HaveCount(currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded));
-        episodeResult.AdditionalPayments.Should().HaveCount(currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded));
-
-        foreach(var expectedInstalment in currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded))
+        foreach (var expectedApprenticeship in expectedApprenticeships)
         {
-            var domainInstalment = episodeResult.Instalments.Single(x => 
-                x.AcademicYear == expectedInstalment.AcademicYear && 
-                x.DeliveryPeriod == expectedInstalment.DeliveryPeriod &&
-                x.Amount == expectedInstalment.Amount);
+
+            
+            var apprenticeship = result.Apprenticeships.Single(x=>x.Key == expectedApprenticeship.ApprenticeshipKey);
+            var currentEpisode = expectedApprenticeship.GetCurrentEpisode(_testTime);
+            apprenticeship.Key.Should().Be(expectedApprenticeship.ApprenticeshipKey);
+            apprenticeship.Ukprn.Should().Be(query.Ukprn);
+            apprenticeship.FundingLineType.Should().Be(currentEpisode.AgeAtStartOfApprenticeship < 19
+                ? "16-18 Apprenticeship (Employer on App Service)"
+                : "19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.Episodes.Should().ContainSingle();
+
+            var episodeResult = apprenticeship.Episodes.First();
+            episodeResult.Key.Should().Be(currentEpisode.ApprenticeshipEpisodeKey);
+            episodeResult.CompletionPayment.Should().Be(currentEpisode.EarningsProfile.CompletionPayment);
+            episodeResult.OnProgramTotal.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
+            episodeResult.Instalments.Should().HaveCount(currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded));
+            episodeResult.AdditionalPayments.Should().HaveCount(currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded));
+
+            foreach (var expectedInstalment in currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded))
+            {
+                var domainInstalment = episodeResult.Instalments.Single(x =>
+                    x.AcademicYear == expectedInstalment.AcademicYear &&
+                    x.DeliveryPeriod == expectedInstalment.DeliveryPeriod &&
+                    x.Amount == expectedInstalment.Amount);
+            }
+
+            foreach (var expectedAdditionalPayment in currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded))
+            {
+                var additionalPayment = episodeResult.AdditionalPayments.Single(x =>
+                    x.AcademicYear == expectedAdditionalPayment.AcademicYear &&
+                    x.DeliveryPeriod == expectedAdditionalPayment.DeliveryPeriod &&
+                    x.Amount == expectedAdditionalPayment.Amount &&
+                    x.AdditionalPaymentType == expectedAdditionalPayment.AdditionalPaymentType &&
+                    x.DueDate == expectedAdditionalPayment.DueDate);
+            }
         }
 
-        foreach (var expectedAdditionalPayment in currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded))
-        {
-            var additionalPayment = episodeResult.AdditionalPayments.Single(x =>
-                x.AcademicYear == expectedAdditionalPayment.AcademicYear &&
-                x.DeliveryPeriod == expectedAdditionalPayment.DeliveryPeriod &&
-                x.Amount == expectedAdditionalPayment.Amount &&
-                x.AdditionalPaymentType == expectedAdditionalPayment.AdditionalPaymentType &&
-                x.DueDate == expectedAdditionalPayment.DueDate);
-        }
+
 
     }
 
     /// <summary>
     /// Creates an episode with a date range that will result in it being the current episode
     /// </summary>
-    private EpisodeModel CreateCurrentEpisode()
+    private EpisodeModel CreateCurrentEpisode(Guid learningKey)
     {
         var episode = _fixture.Create<EpisodeModel>();
 
         episode.Prices.First().StartDate = _testTime.AddDays(-60);
         episode.Prices.First().EndDate = _testTime.AddDays(60);
         episode.EarningsProfile.Instalments.ForEach(x => x.Type = "Regular");
+        episode.ApprenticeshipKey = learningKey;
 
         return episode;
     }
 
-    private Domain.Apprenticeship.Apprenticeship CreateApprenticeship(long ukprn, EpisodeModel episode)
+    private Domain.Apprenticeship.Apprenticeship CreateApprenticeship(Guid learningKey, long ukprn, EpisodeModel episode)
     {
         var domainApprenticeship = _fixture.Create<ApprenticeshipModel>();
 
+        domainApprenticeship.Key = learningKey;
         var episodes = new List<EpisodeModel>();
 
         episode.Ukprn = ukprn;

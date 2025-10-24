@@ -22,21 +22,19 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
 
     public async Task<GetFm36DataResponse> Handle(GetFm36DataRequest query, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling GetFm36DataRequest for Ukprn: {ukprn} Year:{collectionYear} Period:{collectionPeriod}", query.Ukprn, query.CollectionYear, query.CollectionPeriod);
+        _logger.LogInformation("Handling GetFm36DataRequest for Ukprn: {ukprn} Year:{collectionYear} Period:{collectionPeriod} LearningKeys:{learningKeys}", query.Ukprn, query.CollectionYear, query.CollectionPeriod, query.LearningKeysLogInfo());
 
-        var domainApprenticeships = _earningsQueryRepository.GetApprenticeships(query.Ukprn, query.CollectionYear.ToDateTime(query.CollectionPeriod), true);
+        var domainApprenticeships = _earningsQueryRepository.GetApprenticeships(query.LearningKeys, query.Ukprn, query.CollectionYear.ToDateTime(query.CollectionPeriod), true);
 
-        if (domainApprenticeships == null)
+        if (domainApprenticeships == null || !domainApprenticeships.Any())
         {
             _logger.LogInformation("No apprenticeships found for: {ukprn}", query.Ukprn);
             return new GetFm36DataResponse();
         }
 
-        _logger.LogInformation("{numberOfApprenticeships} apprenticeships found for: {ukprn}", domainApprenticeships.Count, query.Ukprn);
-
         var apprenticeships = domainApprenticeships.Select(x => MapApprenticeship(x)).ToList();
 
-        return new GetFm36DataResponse(apprenticeships);
+        return new GetFm36DataResponse { Apprenticeships = apprenticeships };
     }
 
     private Apprenticeship MapApprenticeship(Domain.Apprenticeship.Apprenticeship source)

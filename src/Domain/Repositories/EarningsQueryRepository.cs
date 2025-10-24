@@ -91,6 +91,25 @@ public class EarningsQueryRepository : IEarningsQueryRepository
         return result;
     }
 
+    public List<Apprenticeship.Apprenticeship> GetApprenticeships(List<Guid>? learningKeys, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
+    {
+        var query = GetApprenticeshipsQuery(ukprn, searchDate, onlyActiveApprenticeships);
+        if (learningKeys != null && learningKeys.Any())
+            query = query.Where(x => learningKeys.Contains(x.Key));
+
+        var apprenticeships = query
+            .AsNoTracking()
+            .AsSplitQuery()
+            .ToList()
+            .Select(z => Apprenticeship.Apprenticeship.Get(z));
+
+        if (apprenticeships == null || !apprenticeships.Any())
+            return new List<Apprenticeship.Apprenticeship>();
+
+        // now get apprenticeships which currently belong to the ukprn
+        return apprenticeships.Where(x => x.GetCurrentEpisode(searchDate).UKPRN == ukprn).ToList();
+    }
+
     /// <summary>
     /// Retrieves a list of apprenticeships for a specific provider.
     /// </summary>
@@ -99,6 +118,23 @@ public class EarningsQueryRepository : IEarningsQueryRepository
     /// <param name="onlyActiveApprenticeships">If true, only apprenticeships that are currently active (i.e., have started and not finished) will be included.</param>
     /// <returns>A list of apprenticeships for the specified provider, or null if no matching apprenticeships are found.</returns>
     public List<Apprenticeship.Apprenticeship>? GetApprenticeships(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
+    {
+        var query = GetApprenticeshipsQuery(ukprn, searchDate, onlyActiveApprenticeships);
+
+        var apprenticeships = query
+            .Select(z => Apprenticeship.Apprenticeship.Get(z))
+            .ToList();
+
+        if (apprenticeships == null || !apprenticeships.Any())
+            return null;
+
+        // now get apprenticeships which currently belong to the ukprn
+        var currentApprenticeships = apprenticeships.Where(x => x.GetCurrentEpisode(searchDate).UKPRN == ukprn).ToList();
+
+        return currentApprenticeships;
+    }
+
+    private IQueryable<DataAccess.Entities.ApprenticeshipModel> GetApprenticeshipsQuery(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
     {
         // first get any apprenticeships which belonged to the ukprn, splitting this query will improve performance
         IQueryable<DataAccess.Entities.ApprenticeshipModel> query = DbContext.Apprenticeships
@@ -121,16 +157,8 @@ public class EarningsQueryRepository : IEarningsQueryRepository
                 y.Prices.Any(price => price.StartDate <= endDate)));  // start date is at least before the end of this academic year
         }
 
-        var apprenticeships = query
-            .Select(z => Apprenticeship.Apprenticeship.Get(z))
-            .ToList();
-
-        if (apprenticeships == null || !apprenticeships.Any())
-            return null;
-
-        // now get apprenticeships which currently belong to the ukprn
-        var currentApprenticeships = apprenticeships.Where(x => x.GetCurrentEpisode(searchDate).UKPRN == ukprn).ToList();
-
-        return currentApprenticeships;
+        return query;
     }
+
+
 }
