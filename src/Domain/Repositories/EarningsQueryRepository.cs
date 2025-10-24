@@ -98,8 +98,10 @@ public class EarningsQueryRepository : IEarningsQueryRepository
             query = query.Where(x => learningKeys.Contains(x.Key));
 
         var apprenticeships = query
-            .Select(z => Apprenticeship.Apprenticeship.Get(z))
-            .ToList();
+            .AsNoTracking()
+            .AsSplitQuery()
+            .ToList()
+            .Select(z => Apprenticeship.Apprenticeship.Get(z));
 
         if (apprenticeships == null || !apprenticeships.Any())
             return new List<Apprenticeship.Apprenticeship>();
