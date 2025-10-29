@@ -1,17 +1,9 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
 #pragma warning disable CS8618
 
-public class GetFm36DataResponse : List<Apprenticeship>
+public class GetFm36DataResponse
 {
-    public GetFm36DataResponse()
-    {
-        
-    }
-
-    public GetFm36DataResponse(List<Apprenticeship> apprenticeships)
-    {
-        AddRange(apprenticeships); 
-    }
+    public List<Apprenticeship> Apprenticeships { get; set; }
 }
 
 public class Apprenticeship

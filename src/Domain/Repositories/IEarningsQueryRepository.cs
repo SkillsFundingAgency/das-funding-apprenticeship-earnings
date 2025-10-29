@@ -9,4 +9,5 @@ public interface IEarningsQueryRepository
     Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short academicYear);
     Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short academicYear);
     List<Apprenticeship.Apprenticeship>? GetApprenticeships(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
+    List<Apprenticeship.Apprenticeship> GetApprenticeships(List<Guid>? learningKeys, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
 }
