@@ -201,14 +201,16 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         var academicYear = lastDayOfLearning.Value.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
+        var isCensusDay = lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month);
 
         var additionalPayments = _model.EarningsProfile.AdditionalPayments
             .Where(x =>
-                x.AcademicYear < academicYear //keep earnings from previous academic years
-                || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day ==
-                DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month))
-            .ToList(); //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+                    x.AdditionalPaymentType == InstalmentTypes.LearningSupport || // always keep LearningSupport
+                    x.AcademicYear < academicYear || // keep earnings from previous academic years
+                    (x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod) || // keep earlier periods in same year
+                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) // keep current period if on census day
+            )
+            .ToList();
 
         return additionalPayments;
     }
