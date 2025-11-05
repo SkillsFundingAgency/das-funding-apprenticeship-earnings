@@ -88,7 +88,8 @@ public class AdditionalPaymentsStepDefinitions
             additionalPaymentsInDb.Should()
                 .Contain(x => x.Amount == expectedAdditionalPayment.Amount
                 && x.DueDate == expectedAdditionalPayment.DueDate
-                && x.AdditionalPaymentType == expectedAdditionalPayment.Type);
+                && x.AdditionalPaymentType == expectedAdditionalPayment.Type
+                && x.IsAfterLearningEnded == expectedAdditionalPayment.IsAfterLearningEnded);
         }
     }
 
