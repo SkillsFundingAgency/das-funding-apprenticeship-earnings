@@ -46,8 +46,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
-    public DateTime? PauseDate => null; // Placeholder property to ensure PauseDate is considered in LastDayOfLearning.
-                                        // When implementing the pause logic, update this property — it's easy to overlook.
+    public DateTime? PauseDate => _model.PauseDate;
     public DateTime? LastDayOfLearning => new[] { CompletionDate, WithdrawalDate, PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
 
     public string FundingLineType =>
@@ -303,5 +302,10 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
 
         return true;
+    }
+
+    internal void UpdatePause(DateTime pauseDate)
+    {
+        _model.PauseDate = pauseDate;
     }
 }

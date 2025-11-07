@@ -1,6 +1,7 @@
-﻿using SFA.DAS.Learning.Types;
+﻿using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -133,5 +134,12 @@ public class Apprenticeship : AggregateRoot
         episode.CalculateEpisodeEarnings(this, systemClock);
         episode.UpdateCompletion(this, episode.CompletionDate, systemClock);
         episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
+    }
+
+    public void Pause(DateTime pauseDate, ISystemClockService systemClock)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdatePause(pauseDate);
+        currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 }

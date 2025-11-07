@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
@@ -170,4 +171,24 @@ public class ApprenticeshipController: ControllerBase
         return Ok();
     }
 
+    [Route("{apprenticeshipKey}/pause")]
+    [HttpPatch]
+    public async Task<IActionResult> Pause(Guid apprenticeshipKey, PauseRequest pauseRequest)
+    {
+        _logger.LogInformation("Received request to pause learner {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new PauseCommand(apprenticeshipKey, pauseRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error pausing learner {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully paused learner {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
 }
