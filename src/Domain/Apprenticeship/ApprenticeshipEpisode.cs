@@ -210,7 +210,8 @@ public class ApprenticeshipEpisode : AggregateComponent
                     x.AdditionalPaymentType == InstalmentTypes.LearningSupport || // always keep LearningSupport
                     x.AcademicYear < academicYear || // keep earnings from previous academic years
                     (x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod) || // keep earlier periods in same year
-                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) // keep current period if on census day
+                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) || // keep current period if on census day
+                    (x.DueDate <= lastDayOfLearning.Value && x.IsIncentivePayment()) // keep incentive payments due on or before last day of learning
             )
             .ToList();
 
