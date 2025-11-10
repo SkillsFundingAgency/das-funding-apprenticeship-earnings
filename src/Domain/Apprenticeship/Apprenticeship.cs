@@ -136,10 +136,11 @@ public class Apprenticeship : AggregateRoot
         episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
-    public void Pause(DateTime pauseDate, ISystemClockService systemClock)
+    public void Pause(DateTime? pauseDate, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdatePause(pauseDate);
         currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
+
 }

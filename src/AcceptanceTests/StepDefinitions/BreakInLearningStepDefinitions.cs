@@ -22,6 +22,7 @@ public class BreakInLearningStepDefinitions
     }
 
     [When(@"a pause date of (.*) is sent")]
+    [Given(@"a pause date of (.*) is sent")]
     public async Task WhenAPauseDateOfIsSent(DateTime pauseDate)
     {
         var pauseRequest = new PauseRequest
@@ -29,5 +30,11 @@ public class BreakInLearningStepDefinitions
             PauseDate = pauseDate
         };
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/pause", pauseRequest);
+    }
+
+    [When(@"a pause is removed")]
+    public async Task WhenAPauseIsRemoved()
+    {
+        await _testContext.TestInnerApi.Delete($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/pause");
     }
 }

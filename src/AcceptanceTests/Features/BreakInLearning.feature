@@ -21,14 +21,21 @@ Scenario: Training provider records a break in learning without specifying a ret
 		| 400    | 2021         | 6              |
 		| 400    | 2021         | 7              |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate    |
-		| LearningSupport | 150    | 2020-8-31  |
-		| LearningSupport | 150    | 2020-9-30  |
-		| LearningSupport | 150    | 2020-10-31 |
-		| LearningSupport | 150    | 2020-11-30 |
-		| LearningSupport | 150    | 2020-12-31 |
-		| LearningSupport | 150    | 2021-1-31  |
-		| LearningSupport | 150    | 2021-2-28  |
+		| Type            | Amount | DueDate    | IsAfterLearningEnded |
+		| LearningSupport | 150    | 2020-8-31  | false                |
+		| LearningSupport | 150    | 2020-9-30  | false                |
+		| LearningSupport | 150    | 2020-10-31 | false                |
+		| LearningSupport | 150    | 2020-11-30 | false                |
+		| LearningSupport | 150    | 2020-12-31 | false                |
+		| LearningSupport | 150    | 2021-1-31  | false                |
+		| LearningSupport | 150    | 2021-2-28  | false                |
+		| LearningSupport | 150    | 2021-3-31  | true                 |
+		| LearningSupport | 150    | 2021-4-30  | true                 |
+		| LearningSupport | 150    | 2021-5-31  | true                 |
+		| LearningSupport | 150    | 2021-6-30  | true                 |
+		| LearningSupport | 150    | 2021-7-31  | true                 |
+		| LearningSupport | 150    | 2021-8-31  | true                 |
+		| LearningSupport | 150    | 2021-9-30  | true                 |
 
 Scenario: Training provider records a break in learning (last day of month) without specifying a return
 	Given an apprenticeship has been created with the following information
@@ -50,15 +57,21 @@ Scenario: Training provider records a break in learning (last day of month) with
 		| 400    | 2021         | 7              |
 		| 400    | 2021         | 8              |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate    |
-		| LearningSupport | 150    | 2020-8-31  |
-		| LearningSupport | 150    | 2020-9-30  |
-		| LearningSupport | 150    | 2020-10-31 |
-		| LearningSupport | 150    | 2020-11-30 |
-		| LearningSupport | 150    | 2020-12-31 |
-		| LearningSupport | 150    | 2021-1-31  |
-		| LearningSupport | 150    | 2021-2-28  |
-		| LearningSupport | 150    | 2021-3-31  |
+		| Type            | Amount | DueDate    | IsAfterLearningEnded |
+		| LearningSupport | 150    | 2020-8-31  | false                |
+		| LearningSupport | 150    | 2020-9-30  | false                |
+		| LearningSupport | 150    | 2020-10-31 | false                |
+		| LearningSupport | 150    | 2020-11-30 | false                |
+		| LearningSupport | 150    | 2020-12-31 | false                |
+		| LearningSupport | 150    | 2021-1-31  | false                |
+		| LearningSupport | 150    | 2021-2-28  | false                |
+		| LearningSupport | 150    | 2021-3-31  | false                |
+		| LearningSupport | 150    | 2021-4-30  | true                 |
+		| LearningSupport | 150    | 2021-5-31  | true                 |
+		| LearningSupport | 150    | 2021-6-30  | true                 |
+		| LearningSupport | 150    | 2021-7-31  | true                 |
+		| LearningSupport | 150    | 2021-8-31  | true                 |
+		| LearningSupport | 150    | 2021-9-30  | true                 |
 
 Scenario: Training provider corrects a previously recorded break in learning (moved later)
 	Given an apprenticeship has been created with the following information
@@ -83,17 +96,21 @@ Scenario: Training provider corrects a previously recorded break in learning (mo
 		| 400    | 2021         | 9              |
 		| 400    | 2021         | 10             |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate    |
-		| LearningSupport | 150    | 2020-8-31  |
-		| LearningSupport | 150    | 2020-9-30  |
-		| LearningSupport | 150    | 2020-10-31 |
-		| LearningSupport | 150    | 2020-11-30 |
-		| LearningSupport | 150    | 2020-12-31 |
-		| LearningSupport | 150    | 2021-1-31  |
-		| LearningSupport | 150    | 2021-2-28  |
-		| LearningSupport | 150    | 2021-3-31  |
-		| LearningSupport | 150    | 2021-4-30  |
-		| LearningSupport | 150    | 2021-5-31  |
+		| Type            | Amount | DueDate    | IsAfterLearningEnded |
+		| LearningSupport | 150    | 2020-8-31  | false                |
+		| LearningSupport | 150    | 2020-9-30  | false                |
+		| LearningSupport | 150    | 2020-10-31 | false                |
+		| LearningSupport | 150    | 2020-11-30 | false                |
+		| LearningSupport | 150    | 2020-12-31 | false                |
+		| LearningSupport | 150    | 2021-1-31  | false                |
+		| LearningSupport | 150    | 2021-2-28  | false                |
+		| LearningSupport | 150    | 2021-3-31  | false                |
+		| LearningSupport | 150    | 2021-4-30  | false                |
+		| LearningSupport | 150    | 2021-5-31  | false                |
+		| LearningSupport | 150    | 2021-6-30  | true                 |
+		| LearningSupport | 150    | 2021-7-31  | true                 |
+		| LearningSupport | 150    | 2021-8-31  | true                 |
+		| LearningSupport | 150    | 2021-9-30  | true                 |
 
 Scenario: Training provider corrects a previously recorded break in learning (moved earlier)
 	Given an apprenticeship has been created with the following information
@@ -114,13 +131,21 @@ Scenario: Training provider corrects a previously recorded break in learning (mo
 		| 400    | 2021         | 5              |
 		| 400    | 2021         | 6              |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate    |
-		| LearningSupport | 150    | 2020-8-31  |
-		| LearningSupport | 150    | 2020-9-30  |
-		| LearningSupport | 150    | 2020-10-31 |
-		| LearningSupport | 150    | 2020-11-30 |
-		| LearningSupport | 150    | 2020-12-31 |
-		| LearningSupport | 150    | 2021-1-31  |
+		| Type            | Amount | DueDate    | IsAfterLearningEnded |
+		| LearningSupport | 150    | 2020-8-31  | false                |
+		| LearningSupport | 150    | 2020-9-30  | false                |
+		| LearningSupport | 150    | 2020-10-31 | false                |
+		| LearningSupport | 150    | 2020-11-30 | false                |
+		| LearningSupport | 150    | 2020-12-31 | false                |
+		| LearningSupport | 150    | 2021-1-31  | false                |
+		| LearningSupport | 150    | 2021-2-28  | true                 |
+		| LearningSupport | 150    | 2021-3-31  | true                 |
+		| LearningSupport | 150    | 2021-4-30  | true                 |
+		| LearningSupport | 150    | 2021-5-31  | true                 |
+		| LearningSupport | 150    | 2021-6-30  | true                 |
+		| LearningSupport | 150    | 2021-7-31  | true                 |
+		| LearningSupport | 150    | 2021-8-31  | true                 |
+		| LearningSupport | 150    | 2021-9-30  | true                 |
 
 Scenario: Training provider removes a previously recorded break in learning
 	Given an apprenticeship has been created with the following information
@@ -149,18 +174,18 @@ Scenario: Training provider removes a previously recorded break in learning
 		| 400    | 2122         | 1              |
 		| 400    | 2122         | 2              |
 	Then Additional Payments are persisted as follows
-		| Type            | Amount | DueDate    |
-		| LearningSupport | 150    | 2020-8-31  |
-		| LearningSupport | 150    | 2020-9-30  |
-		| LearningSupport | 150    | 2020-10-31 |
-		| LearningSupport | 150    | 2020-11-30 |
-		| LearningSupport | 150    | 2020-12-31 |
-		| LearningSupport | 150    | 2021-1-31  |
-		| LearningSupport | 150    | 2021-2-28  |
-		| LearningSupport | 150    | 2021-3-31  |
-		| LearningSupport | 150    | 2021-4-30  |
-		| LearningSupport | 150    | 2021-5-31  |
-		| LearningSupport | 150    | 2021-6-30  |
-		| LearningSupport | 150    | 2021-7-31  |
-		| LearningSupport | 150    | 2021-8-31  |
-		| LearningSupport | 150    | 2021-9-30  |
+		| Type            | Amount | DueDate    | IsAfterLearningEnded |
+		| LearningSupport | 150    | 2020-8-31  | false                |
+		| LearningSupport | 150    | 2020-9-30  | false                |
+		| LearningSupport | 150    | 2020-10-31 | false                |
+		| LearningSupport | 150    | 2020-11-30 | false                |
+		| LearningSupport | 150    | 2020-12-31 | false                |
+		| LearningSupport | 150    | 2021-1-31  | false                |
+		| LearningSupport | 150    | 2021-2-28  | false                |
+		| LearningSupport | 150    | 2021-3-31  | false                |
+		| LearningSupport | 150    | 2021-4-30  | false                |
+		| LearningSupport | 150    | 2021-5-31  | false                |
+		| LearningSupport | 150    | 2021-6-30  | false                |
+		| LearningSupport | 150    | 2021-7-31  | false                |
+		| LearningSupport | 150    | 2021-8-31  | false                |
+		| LearningSupport | 150    | 2021-9-30  | false                |
