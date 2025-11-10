@@ -1,18 +1,18 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
+using System.Data;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class ApprenticeshipEpisode : AggregateComponent
 {
 
-    private ApprenticeshipEpisode(EpisodeModel model, Action<AggregateComponent> addChildToRoot):base(addChildToRoot)
+    private ApprenticeshipEpisode(EpisodeModel model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         _model = model;
 
@@ -46,7 +46,9 @@ public class ApprenticeshipEpisode : AggregateComponent
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
-    public DateTime? LastDayOfLearning => WithdrawalDate; //coalesce / get earliest of other values here, such as PauseDate
+    public DateTime? PauseDate => null; // Placeholder property to ensure PauseDate is considered in LastDayOfLearning.
+                                        // When implementing the pause logic, update this property — it's easy to overlook.
+    public DateTime? LastDayOfLearning => new[] { CompletionDate, WithdrawalDate, PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -208,7 +210,8 @@ public class ApprenticeshipEpisode : AggregateComponent
                     x.AdditionalPaymentType == InstalmentTypes.LearningSupport || // always keep LearningSupport
                     x.AcademicYear < academicYear || // keep earnings from previous academic years
                     (x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod) || // keep earlier periods in same year
-                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) // keep current period if on census day
+                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) || // keep current period if on census day
+                    (x.DueDate <= lastDayOfLearning.Value && x.IsIncentivePayment()) // keep incentive payments due on or before last day of learning
             )
             .ToList();
 
@@ -241,7 +244,8 @@ public class ApprenticeshipEpisode : AggregateComponent
             result = _model.EarningsProfile.Instalments.Where(x =>
                     x.AcademicYear < academicYear //keep earnings from previous academic years
             || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing.ToString() || x.Type == InstalmentType.Completion.ToString())) //keep earnings in the last delivery period of learning if they are balancing or completion payments
                 .ToList();
         }
 
