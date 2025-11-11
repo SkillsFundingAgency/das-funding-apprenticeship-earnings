@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.ReadModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
 {
@@ -10,8 +9,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public ApprenticeshipEarningsDataContext(DbContextOptions<ApprenticeshipEarningsDataContext> options) : base(options)
         {
         }
-
-        public virtual DbSet<Earning> Earning { get; set; } = null!;
 
         public virtual DbSet<ApprenticeshipModel> Apprenticeships { get; set; }
         public virtual DbSet<EpisodeModel> Episodes { get; set; }

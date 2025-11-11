@@ -74,10 +74,8 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
-        var queryEarningsDbRecords = await _testContext.SqlDatabase.GetQueryEarnings(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded);
 
         earningsInDb.Should().BeEmpty();
-        queryEarningsDbRecords.Should().BeEmpty();
     }
 }

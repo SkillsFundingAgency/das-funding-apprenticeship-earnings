@@ -1,10 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetProviderEarningSummary;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries
 {
@@ -16,7 +15,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries
             serviceCollection
                 .Scan(scan =>
                 {
-                    scan.FromAssembliesOf(typeof(GetProviderEarningSummaryQueryHandler))
+                    scan.FromAssembliesOf(typeof(GetFm36DataQueryHandler))
                         .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
                         .AsImplementedInterfaces()
                         .WithTransientLifetime();
