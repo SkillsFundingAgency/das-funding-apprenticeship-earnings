@@ -54,11 +54,9 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
-        var queryEarningsDbRecords = await _testContext.SqlDatabase.GetQueryEarnings(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded);
 
         earningsInDb.Should().HaveCount(data.Count);
-        queryEarningsDbRecords.Should().HaveCount(data.Count);
 
         foreach (var expectedEarning in data)
         {
@@ -68,12 +66,6 @@ public class EarningsGeneratedEventHandlingStepDefinitions
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
                               && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
                 , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
-
-            queryEarningsDbRecords.Should()
-                .Contain(x => x.Amount == expectedEarning.Amount
-                              && x.AcademicYear == expectedEarning.AcademicYear
-                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
-                    , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
         }
     }
 
@@ -82,10 +74,8 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
-        var queryEarningsDbRecords = await _testContext.SqlDatabase.GetQueryEarnings(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded);
 
         earningsInDb.Should().BeEmpty();
-        queryEarningsDbRecords.Should().BeEmpty();
     }
 }
