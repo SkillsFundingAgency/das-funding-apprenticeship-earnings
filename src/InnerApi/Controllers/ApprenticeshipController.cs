@@ -196,7 +196,7 @@ public class ApprenticeshipController: ControllerBase
 
     [Route("{apprenticeshipKey}/pause")]
     [HttpDelete]
-    public async Task<IActionResult> PauseRemoved(Guid apprenticeshipKey)
+    public async Task<IActionResult> RemovePause(Guid apprenticeshipKey)
     {
         _logger.LogInformation("Received request to remove pause for learner {apprenticeshipKey}", apprenticeshipKey);
 
