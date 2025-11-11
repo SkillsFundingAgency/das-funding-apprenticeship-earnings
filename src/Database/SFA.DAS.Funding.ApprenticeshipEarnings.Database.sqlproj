@@ -63,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Schemas\Query.sql" />
-    <Build Include="Tables\Earning.sql" />
     <Build Include="Schemas\Domain.sql" />
     <Build Include="Tables\Apprenticeship.sql" />
     <Build Include="Tables\Episode.sql" />
@@ -81,5 +80,8 @@
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\PreDeploymentScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\PostDeploymentScript.sql" />
   </ItemGroup>
 </Project>
