@@ -2,10 +2,10 @@
 
 public static class NServiceBusExtensions
 {
-    public static void SetConventions(this ConventionsBuilder conventions, params Type[] excludedEventTypes)
+    public static void SetConventions(this ConventionsBuilder conventions, params Type[] includedEventTypes)
     {
         conventions.DefiningEventsAs(type =>
-            IsEvent(type) && !excludedEventTypes.Contains(type));
+            IsEvent(type) && includedEventTypes.Contains(type));
 
         conventions.DefiningCommandsAs(IsCommand);
         conventions.DefiningMessagesAs(IsMessage);
