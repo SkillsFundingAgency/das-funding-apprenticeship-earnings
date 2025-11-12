@@ -16,17 +16,11 @@ internal static class NServiceBusConfiguration
     {
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
-            var messageTypes = new[]
-            {
-                typeof(LearningCreatedEvent),
-                typeof(EarningsProfileUpdatedEvent)
-            };
-
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
-            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions(messageTypes);
+            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
 
             endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
