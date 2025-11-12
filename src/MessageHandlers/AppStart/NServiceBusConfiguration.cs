@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Net;
 using System.Security.Cryptography;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
@@ -14,11 +16,18 @@ internal static class NServiceBusConfiguration
     {
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
+            var excludedMessageTypes = new[]
+            {
+                typeof(EarningsGeneratedEvent),
+                typeof(ApprenticeshipEarningsRecalculatedEvent),
+                typeof(LearningWithdrawnEvent)
+            };
+
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
-            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
+            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions(excludedMessageTypes);
 
             endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
