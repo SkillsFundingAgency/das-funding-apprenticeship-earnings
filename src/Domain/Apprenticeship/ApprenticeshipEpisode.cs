@@ -125,13 +125,13 @@ public class ApprenticeshipEpisode : AggregateComponent
         _earningsProfile.Update(systemClock, instalments: updatedInstalments, additionalPayments: updatedAdditionalPayments);
     }
 
-    public void WithdrawMathsAndEnglish(string course, DateTime? withdrawalDate, ISystemClockService systemClock)
+    public void WithdrawMathsAndEnglish(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
     {
-        var courseToWithdraw = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == course);
-        if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {course}", nameof(course));
+        var courseToWithdraw = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
+        if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", nameof(courseName));
 
         courseToWithdraw.WithdrawalDate = withdrawalDate;
-        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(course, systemClock);
+        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(courseName, systemClock);
     }
 
     public void ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(string courseName, ISystemClockService systemClock)
