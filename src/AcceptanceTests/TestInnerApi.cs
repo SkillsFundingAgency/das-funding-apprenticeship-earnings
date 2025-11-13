@@ -97,6 +97,10 @@ public class TestInnerApi : IDisposable
         var responseString = await response.Content.ReadAsStringAsync();
     }
 
+    public async Task Delete(string route)
+    {
+        var response = await _httpClient.DeleteAsync(route);
+    }
 
     public async Task DisposeAsync()
     {

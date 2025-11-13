@@ -76,6 +76,22 @@ public class LearningCreatedEventBuilder
         if (model.EndDate.HasValue) _endDate = model.EndDate.Value;
 
         _dateOfBirth = _systemClock.UtcNow.AddYears(-_ageAtStart).AddDays(1).DateTime;
+
+        if (model.Price.HasValue)
+        {
+            _totalPrice = model.Price.Value;
+            WithPricesFromSetupModels(new List<PriceEpisodeSetupModel>
+            {
+                new PriceEpisodeSetupModel
+                {
+                    StartDate = _startDate,
+                    EndDate = _endDate,
+                    Price = (int)_totalPrice,
+                    FundingBandMaximum = _fundingBandMaximum
+                }
+            });
+        }
+
         return this;
     }
 
