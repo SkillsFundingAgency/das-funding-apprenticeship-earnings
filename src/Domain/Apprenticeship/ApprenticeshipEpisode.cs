@@ -125,6 +125,59 @@ public class ApprenticeshipEpisode : AggregateComponent
         _earningsProfile.Update(systemClock, instalments: updatedInstalments, additionalPayments: updatedAdditionalPayments);
     }
 
+    public void WithdrawMathsAndEnglish(string course, DateTime? withdrawalDate, ISystemClockService systemClock)
+    {
+        var courseToWithdraw = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == course);
+        if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {course}", nameof(course));
+
+        courseToWithdraw.WithdrawalDate = withdrawalDate;
+        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(course, systemClock);
+    }
+
+    public void ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(string courseName, ISystemClockService systemClock)
+    {
+        var course = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
+        if (course == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", courseName);
+
+        var earningsToKeep = GetMathsAndEnglishEarningsToKeep(course, course.WithdrawalDate); //todo as we update MathsAndEnglish to support BIL we need to pass a computed value here
+
+        var updatedCourses = new List<MathsAndEnglish>();
+
+        foreach (var mathsAndEnglishModel in _model.EarningsProfile.MathsAndEnglishCourses)
+        {
+            if(mathsAndEnglishModel.Course != courseName)
+            {
+                updatedCourses.Add(new MathsAndEnglish(
+                    mathsAndEnglishModel.StartDate,
+                    mathsAndEnglishModel.EndDate,
+                    mathsAndEnglishModel.Course,
+                    mathsAndEnglishModel.Amount,
+                    mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
+                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type))).ToList(),
+                    mathsAndEnglishModel.WithdrawalDate,
+                    mathsAndEnglishModel.ActualEndDate,
+                    mathsAndEnglishModel.PriorLearningAdjustmentPercentage
+                ));
+            }
+            else
+            {
+                updatedCourses.Add(new MathsAndEnglish(
+                    mathsAndEnglishModel.StartDate,
+                    mathsAndEnglishModel.EndDate,
+                    mathsAndEnglishModel.Course,
+                    mathsAndEnglishModel.Amount,
+                    earningsToKeep.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
+                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type))).ToList(),
+                    mathsAndEnglishModel.WithdrawalDate,
+                    mathsAndEnglishModel.ActualEndDate,
+                    mathsAndEnglishModel.PriorLearningAdjustmentPercentage
+                ));
+            }
+        }
+
+        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
+    }
+
     /// <summary>
     /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
     /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
@@ -244,6 +297,27 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
 
         return result;
+    }
+
+    private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)
+    {
+        if (!lastDayOfLearning.HasValue)
+        {
+            return course.Instalments.ToList();
+        }
+
+        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
+
+        var instalments = course.Instalments
+            .Where(x =>
+                x.AcademicYear < academicYear //keep earnings from previous academic years
+                || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day ==
+                DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month))
+            .ToList(); //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+
+        return instalments;
     }
 
     internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
@@ -128,27 +129,6 @@ public class ApprenticeshipController: ControllerBase
         return Ok();
     }
 
-    [Route("{apprenticeshipKey}/withdraw")]
-    [HttpPatch]
-    public async Task<IActionResult> WithdrawLearner(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
-    {
-        _logger.LogInformation("Received request to withdraw learner {apprenticeshipKey}", apprenticeshipKey);
-
-        try
-        {
-            var command = new ProcessWithdrawnApprenticeshipCommand(apprenticeshipKey, withdrawRequest);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error withdrawing for learner {apprenticeshipKey}", apprenticeshipKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
-        return Ok();
-    }
-
     [Route("{apprenticeshipKey}/reverse-withdrawal")]
     [HttpPatch]
     public async Task<IActionResult> ReverseWithdrawal(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
@@ -170,4 +150,45 @@ public class ApprenticeshipController: ControllerBase
         return Ok();
     }
 
+    [Route("{apprenticeshipKey}/withdraw")]
+    [HttpPatch]
+    public async Task<IActionResult> WithdrawLearner(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
+    {
+        _logger.LogInformation("Received request to withdraw learner {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new ProcessWithdrawnApprenticeshipCommand(apprenticeshipKey, withdrawRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error withdrawing for learner {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
+
+    [Route("{apprenticeshipKey}/mathsAndEnglish/withdraw")]
+    [HttpPatch]
+    public async Task<IActionResult> WithdrawMathsAndEnglish(Guid apprenticeshipKey, MathsAndEnglishWithdrawRequest withdrawRequest)
+    {
+        _logger.LogInformation("Received request to withdraw maths and english course {course} for {apprenticeshipKey}", apprenticeshipKey);
+
+        try
+        {
+            var command = new ProcessWithdrawnApprenticeshipCommand(apprenticeshipKey, withdrawRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error withdrawing for maths and english course {course} for {apprenticeshipKey}", apprenticeshipKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
+        return Ok();
+    }
 }

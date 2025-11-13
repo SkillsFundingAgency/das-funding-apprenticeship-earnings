@@ -133,4 +133,9 @@ public class Apprenticeship : AggregateRoot
         episode.UpdateCompletion(this, episode.CompletionDate, systemClock);
         episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
+
+    public void WithdrawMathsAndEnglishCourse(string course, DateTime withdrawalDate, ISystemClockService systemClock)
+    {
+        throw new NotImplementedException();
+    }
 }
