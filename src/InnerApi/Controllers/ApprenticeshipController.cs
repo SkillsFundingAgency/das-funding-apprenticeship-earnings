@@ -179,7 +179,7 @@ public class ApprenticeshipController: ControllerBase
 
         try
         {
-            var command = new ProcessWithdrawnApprenticeshipCommand(apprenticeshipKey, withdrawRequest);
+            var command = new ProcessWithdrawnMathsAndEnglishCommand(apprenticeshipKey, withdrawRequest);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
