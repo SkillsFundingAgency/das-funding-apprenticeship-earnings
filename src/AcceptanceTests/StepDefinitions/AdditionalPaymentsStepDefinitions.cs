@@ -41,6 +41,7 @@ public class AdditionalPaymentsStepDefinitions
 
     [Given(@"the following maths and english course information is provided")]
     [When(@"the following maths and english completion change request is sent")]
+    [When(@"the following maths and english course information is provided")]
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<MathsAndEnglishDetail>().ToList();
@@ -197,6 +198,17 @@ public class AdditionalPaymentsStepDefinitions
 
         var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
 
+        // Check number of instalments per course
+        var expectedCourses = data.Select(d => d.Course).Distinct().ToList();
+        foreach (var course in expectedCourses)
+        {
+            var expectedInstalmentCount = data.Count(d => d.Course == course);
+            var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == course);
+            courseInDb.Should().NotBeNull();
+            courseInDb.Instalments.Should().HaveCount(expectedInstalmentCount);
+        }
+
+        // Check individual instalments
         foreach (var expectedInstalment in data)
         {
             var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == expectedInstalment.Course);

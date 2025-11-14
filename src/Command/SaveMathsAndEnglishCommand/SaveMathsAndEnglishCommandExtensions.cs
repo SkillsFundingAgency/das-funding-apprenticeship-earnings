@@ -13,6 +13,7 @@ public static class SaveMathsAndEnglishCommandExtensions
             mathsAndEnglishDetails.Amount,
             mathsAndEnglishDetails.WithdrawalDate,
             mathsAndEnglishDetails.ActualEndDate,
+            mathsAndEnglishDetails.PauseDate,
             mathsAndEnglishDetails.PriorLearningAdjustmentPercentage);
     }
 }
