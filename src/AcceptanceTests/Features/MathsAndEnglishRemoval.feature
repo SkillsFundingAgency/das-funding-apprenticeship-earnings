@@ -8,9 +8,8 @@ Scenario: Maths and English withdrawal back to start
 	And the following maths and english course information is provided
 		| StartDate | EndDate   | Course | Amount |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   |
-	#todo although this is working it's not using the new endpoint...
-	When the following maths and english withdrawal change request is sent
-		| StartDate | EndDate   | Course | Amount | WithdrawalDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 |   1500 | 2020-8-1       |
+	When the following maths and english withdrawal is sent
+		| LastDayOfLearning | Course |
+		| 2020-8-1          | Maths1 |
 	Then no Maths and English earnings are persisted
 	And the earnings history is maintained
