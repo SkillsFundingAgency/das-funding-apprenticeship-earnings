@@ -10,7 +10,8 @@
     [TrainingCode] NCHAR(50) NOT NULL,
     [AgeAtStartOfApprenticeship] INT NOT NULL, 
     [CompletionDate] DATETIME NULL, 
-    [WithdrawalDate] DATETIME NULL
+    [WithdrawalDate] DATETIME NULL, 
+    [PauseDate] DATETIME NULL
 )
 GO
 ALTER TABLE Domain.Episode

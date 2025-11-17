@@ -1,6 +1,7 @@
-﻿using SFA.DAS.Learning.Types;
+﻿using Microsoft.Extensions.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -117,6 +118,7 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateCompletion(this, completionDate, systemClock);
+        currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int ageAtStartOfLearning, ISystemClockService systemClock)
@@ -134,6 +136,13 @@ public class Apprenticeship : AggregateRoot
         episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
+    public void Pause(DateTime? pauseDate, ISystemClockService systemClock)
+    {
+        var currentEpisode = this.GetCurrentEpisode(systemClock);
+        currentEpisode.UpdatePause(pauseDate);
+        currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
+    }
+    
     public void WithdrawMathsAndEnglishCourse(string courseName, DateTime withdrawalDate, ISystemClockService systemClock)
     {
         var episode = this.GetCurrentEpisode(systemClock);

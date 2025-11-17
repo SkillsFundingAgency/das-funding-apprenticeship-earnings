@@ -20,6 +20,7 @@ public class LearningCreatedEventBuilder
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
+    private TestSystemClock _systemClock = new TestSystemClock();
 
     public LearningCreatedEventBuilder WithStartDate(DateTime startDate)
     {
@@ -71,7 +72,26 @@ public class LearningCreatedEventBuilder
     public LearningCreatedEventBuilder WithDataFromSetupModel(ApprenticeshipCreatedSetupModel model)
     {
         if (model.Age.HasValue) _ageAtStart = model.Age.Value;
-        
+        if (model.StartDate.HasValue) _startDate = model.StartDate.Value;
+        if (model.EndDate.HasValue) _endDate = model.EndDate.Value;
+
+        _dateOfBirth = _systemClock.UtcNow.AddYears(-_ageAtStart).AddDays(1).DateTime;
+
+        if (model.Price.HasValue)
+        {
+            _totalPrice = model.Price.Value;
+            WithPricesFromSetupModels(new List<PriceEpisodeSetupModel>
+            {
+                new PriceEpisodeSetupModel
+                {
+                    StartDate = _startDate,
+                    EndDate = _endDate,
+                    Price = (int)_totalPrice,
+                    FundingBandMaximum = _fundingBandMaximum
+                }
+            });
+        }
+
         return this;
     }
 

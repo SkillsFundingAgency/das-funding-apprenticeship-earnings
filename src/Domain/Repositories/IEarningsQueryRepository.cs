@@ -1,12 +1,7 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
-
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 
 public interface IEarningsQueryRepository
 {
-    Task Add(Apprenticeship.Apprenticeship apprenticeship);
-    Task Replace(Apprenticeship.Apprenticeship apprenticeship);
-    Task<ProviderEarningsSummary> GetProviderSummary(long ukprn, short academicYear);
-    Task<AcademicYearEarnings> GetAcademicYearEarnings(long ukprn, short academicYear);
     List<Apprenticeship.Apprenticeship>? GetApprenticeships(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
+    List<Apprenticeship.Apprenticeship> GetApprenticeships(List<Guid>? learningKeys, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
 }
