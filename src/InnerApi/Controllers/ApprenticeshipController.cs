@@ -177,7 +177,7 @@ public class ApprenticeshipController: ControllerBase
     [HttpPatch]
     public async Task<IActionResult> WithdrawMathsAndEnglish(Guid apprenticeshipKey, MathsAndEnglishWithdrawRequest withdrawRequest)
     {
-        _logger.LogInformation("Received request to withdraw maths and english course {course} for {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to withdraw maths and english course {course} for {apprenticeshipKey}", withdrawRequest.Course, apprenticeshipKey);
 
         try
         {
@@ -186,11 +186,11 @@ public class ApprenticeshipController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error withdrawing for maths and english course {course} for {apprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error withdrawing for maths and english course {course} for {apprenticeshipKey}", withdrawRequest.Course, apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully withdrew maths and english course {course} for {apprenticeshipKey}", withdrawRequest.Course, apprenticeshipKey);
         return Ok();
     }
     [Route("{apprenticeshipKey}/pause")]
