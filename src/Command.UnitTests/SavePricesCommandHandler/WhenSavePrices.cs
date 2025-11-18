@@ -149,7 +149,6 @@ public class WhenSavePrices
                 EndDate = existingPrice.EndDate,
                 TrainingPrice = 5000, 
                 EndPointAssessmentPrice = 500,
-                FundingBandMaximum = 6000,
                 TotalPrice = 5500
             });
         }

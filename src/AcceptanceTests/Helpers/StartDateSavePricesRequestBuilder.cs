@@ -68,7 +68,7 @@ public class StartDateSavePricesRequestBuilder
         _learningKey = apprenticeship.LearningKey;
         _episodeKey = apprenticeship.Episode.Key;
         _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
-        _fundingBandMaximum = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().FundingBandMaximum;
+        _fundingBandMaximum = apprenticeship.Episode.FundingBandMaximum;
         _ageAtStartOfLearning = apprenticeship.Episode.AgeAtStartOfLearning;
         _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         return this;
@@ -83,8 +83,7 @@ public class StartDateSavePricesRequestBuilder
                 Key = _priceKey,
                 StartDate = _startDate,
                 EndDate = _endDate,
-                TotalPrice = 15000,
-                FundingBandMaximum = _fundingBandMaximum
+                TotalPrice = 15000
             }
         };
 

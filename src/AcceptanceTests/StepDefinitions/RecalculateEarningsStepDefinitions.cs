@@ -104,7 +104,7 @@ public class RecalculateEarningsStepDefinitions
         var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
                     .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
                     .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
-                    .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.Prices.First().FundingBandMaximum)
+                    .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.FundingBandMaximum)
                     .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
                     .Build();
 

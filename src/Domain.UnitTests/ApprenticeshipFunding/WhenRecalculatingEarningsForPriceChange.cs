@@ -50,8 +50,7 @@ public class WhenRecalculatingEarningsForPriceChange
                 Key = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().PriceKey,
                 StartDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().StartDate,
                 EndDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().EndDate,
-                TotalPrice = _updatedPrice,
-                FundingBandMaximum = (int)(Math.Ceiling(_updatedPrice) + 1)
+                TotalPrice = _updatedPrice
             }
         };
         _ageAtStartOfLearning = 20;

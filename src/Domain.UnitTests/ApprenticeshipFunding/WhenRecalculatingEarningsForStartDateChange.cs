@@ -31,7 +31,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         _mockSystemClockService = new Mock<ISystemClockService>();
         _mockSystemClockService.Setup(x => x.UtcNow).Returns(new DateTimeOffset(new DateTime(2023, 11, 1)));
 
-        var LearningEpisode = _fixture.Create<EpisodeModel>();
+        var learningEpisode = _fixture.Create<EpisodeModel>();
         var prices = _fixture.CreateMany<EpisodePriceModel>(3).ToList();
         prices[0].StartDate = new DateTime(2023, 2, 1);
         prices[0].EndDate = new DateTime(2023, 5, 1);
@@ -39,18 +39,18 @@ public class WhenRecalculatingEarningsForStartDateChange
         prices[1].EndDate = new DateTime(2023, 7, 1);
         prices[2].StartDate = new DateTime(2023, 7, 1);
         prices[2].EndDate = new DateTime(2024, 2, 1);
-        LearningEpisode.Prices = prices;
-        LearningEpisode.WithdrawalDate = null;
-        LearningEpisode.CompletionDate = null;
+        learningEpisode.Prices = prices;
+        learningEpisode.WithdrawalDate = null;
+        learningEpisode.CompletionDate = null;
+        learningEpisode.FundingBandMaximum = int.MaxValue;
 
         var apprenticeshipEntityModel = _fixture
             .Build<ApprenticeshipModel>()
-            .With(x => x.Episodes, new List<EpisodeModel> { LearningEpisode })
+            .With(x => x.Episodes, new List<EpisodeModel> { learningEpisode })
             .Create();
 
         _apprenticeship = Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);
         _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
-
 
         _episodeKey = _currentEpisode.ApprenticeshipEpisodeKey;
         _prices = new List<LearningEpisodePrice>

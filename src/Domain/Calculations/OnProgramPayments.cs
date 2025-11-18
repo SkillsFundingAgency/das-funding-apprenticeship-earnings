@@ -6,7 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class OnProgramPayments
 {
-    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
+    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
     {
         var onProgramPayments = new List<OnProgramPayment>();
         onProgramTotal = 0;
@@ -19,7 +19,7 @@ public static class OnProgramPayments
         {
             var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(
                 price.AgreedPrice,
-                price.FundingBandMaximum);
+                fundingBandMaximum);
             onProgramTotal = apprenticeshipFunding.OnProgramTotal;
             completionPayment = apprenticeshipFunding.CompletionPayment;
 
