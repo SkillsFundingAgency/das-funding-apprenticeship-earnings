@@ -252,6 +252,11 @@ public class ApprenticeshipEpisode : AggregateComponent
         return result;
     }
 
+    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
+    {
+        _model.FundingBandMaximum = fundingBandMaximum;
+    }
+
     internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
         _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;

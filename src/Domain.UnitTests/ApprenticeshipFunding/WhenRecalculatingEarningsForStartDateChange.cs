@@ -23,6 +23,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     private Guid _episodeKey;
     private List<LearningEpisodePrice> _prices;
     private int _ageAtStartOfLearning;
+    private int _fundingBandMaximum;
 
     [SetUp]
     public void Setup()
@@ -63,13 +64,14 @@ public class WhenRecalculatingEarningsForStartDateChange
             }
         };
         _ageAtStartOfLearning = 20;
+        _fundingBandMaximum = (int)learningEpisode.FundingBandMaximum;
     }
 
     [Test]
     public void ThenTheStartDateAndEndDateAreUpdated()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
 
         // Assert
         var updatedPrice = _currentEpisode.Prices.FirstOrDefault(p => p.PriceKey == _prices.First().Key);
@@ -82,7 +84,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheAgeAtStartOfLearningIsUpdated()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
 
         // Assert
         _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_ageAtStartOfLearning);
@@ -92,7 +94,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheDeletedPricesAreRemoved()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
 
         // Assert
         _currentEpisode.Prices.Should().OnlyContain(p => _prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
@@ -102,7 +104,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenAnEarningsRecalculatedEventIsAdded()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsProfileUpdatedEvent>().ToList();
