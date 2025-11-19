@@ -11,5 +11,5 @@ Scenario: Maths and English withdrawal back to start
 	When the following maths and english withdrawal is sent
 		| LastDayOfLearning | Course |
 		| 2020-8-1          | Maths1 |
-	Then no Maths and English earnings are persisted
+	Then all Maths and English earnings are soft deleted
 	And the earnings history is maintained

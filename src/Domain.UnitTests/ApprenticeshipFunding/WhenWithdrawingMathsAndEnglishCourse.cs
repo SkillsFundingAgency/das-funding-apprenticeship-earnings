@@ -36,18 +36,18 @@ public class WhenWithdrawingMathsAndEnglishCourse
 
         var mathsAndEnglishCourse = new MathsAndEnglish(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), _courseName, 1200m, new List<MathsAndEnglishInstalment>
         {
-            new MathsAndEnglishInstalment(2324, 6, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2324, 7, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2324, 8, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2324, 9, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2324, 10, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2324, 11, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2324, 12, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2425, 1, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2425, 2, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2425, 3, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2425, 4, 100m, MathsAndEnglishInstalmentType.Regular),
-            new MathsAndEnglishInstalment(2425, 5, 100m, MathsAndEnglishInstalmentType.Regular)
+            new MathsAndEnglishInstalment(2324, 6, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2324, 7, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2324, 8, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2324, 9, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2324, 10, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2324, 11, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2324, 12, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2425, 1, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2425, 2, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2425, 3, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2425, 4, 100m, MathsAndEnglishInstalmentType.Regular, false),
+            new MathsAndEnglishInstalment(2425, 5, 100m, MathsAndEnglishInstalmentType.Regular, false)
         }, null, null, null);
 
         episode.UpdateMathsAndEnglishCourses(new() { mathsAndEnglishCourse }, _mockSystemClock.Object);
@@ -66,13 +66,13 @@ public class WhenWithdrawingMathsAndEnglishCourse
         var episode = _sut.ApprenticeshipEpisodes.First();
         var course = episode.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Should().OnlyContain(x =>
+        course.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 8)); // up to April
     }
 
     [Test]
-    public void Then_Instalments_After_WithdrawalDate_Are_Removed()
+    public void Then_Instalments_After_WithdrawalDate_Are_SoftDeleted()
     {
         // Arrange
         var withdrawalDate = new DateTime(2024, 4, 15);
@@ -84,8 +84,9 @@ public class WhenWithdrawingMathsAndEnglishCourse
         var episode = _sut.ApprenticeshipEpisodes.First();
         var course = episode.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Should().NotContain(x =>
+        course.Instalments.Where(x => !x.IsAfterLearningEnded).Should().NotContain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod > 8);
+        course.Instalments.Count.Should().Be(12); //total count including soft deleted records should still be 12
     }
 
     [Test]

@@ -5,7 +5,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
-using System.Data;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -154,7 +153,7 @@ public class ApprenticeshipEpisode : AggregateComponent
                     mathsAndEnglishModel.Course,
                     mathsAndEnglishModel.Amount,
                     mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type))).ToList(),
+                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), x.IsAfterLearningEnded)).ToList(),
                     mathsAndEnglishModel.WithdrawalDate,
                     mathsAndEnglishModel.ActualEndDate,
                     mathsAndEnglishModel.PriorLearningAdjustmentPercentage
@@ -167,8 +166,12 @@ public class ApprenticeshipEpisode : AggregateComponent
                     mathsAndEnglishModel.EndDate,
                     mathsAndEnglishModel.Course,
                     mathsAndEnglishModel.Amount,
-                    earningsToKeep.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type))).ToList(),
+                    mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
+                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), !earningsToKeep.Any(e => 
+                            e.AcademicYear == x.AcademicYear && 
+                            e.DeliveryPeriod == x.DeliveryPeriod &&
+                            e.Amount == x.Amount &&
+                            e.Type == x.Type))).ToList(),
                     mathsAndEnglishModel.WithdrawalDate,
                     mathsAndEnglishModel.ActualEndDate,
                     mathsAndEnglishModel.PriorLearningAdjustmentPercentage

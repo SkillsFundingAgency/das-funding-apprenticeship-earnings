@@ -223,6 +223,19 @@ public class AdditionalPaymentsStepDefinitions
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
     }
 
+    [Then(@"all Maths and English earnings are soft deleted")]
+    public async Task ThenAllMathsAndEnglishInstalmentsAreSoftDeleted()
+    {
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
+
+        var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses.SelectMany(x => x.Instalments);
+
+        mathsAndEnglishInstalmentsInDb.Should().OnlyContain(x => x.IsAfterLearningEnded,
+            "Expected all maths and english instalments to be soft deleted");
+    }
+
 }
 
 
