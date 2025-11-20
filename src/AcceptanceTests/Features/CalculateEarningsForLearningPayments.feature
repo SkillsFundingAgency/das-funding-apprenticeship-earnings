@@ -34,9 +34,10 @@ Scenario: Funding Band Maximum Cap
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 3750
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-08-01 | 2021-01-31 | 8000  | 3750               |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-01-31 | 8000  |
 	When earnings are calculated
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
