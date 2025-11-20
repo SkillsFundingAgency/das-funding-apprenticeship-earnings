@@ -5,6 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -148,7 +149,8 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         foreach (var mathsAndEnglishModel in _model.EarningsProfile.MathsAndEnglishCourses)
         {
-            if(courseName != null && mathsAndEnglishModel.Course != courseName)
+            var skipReevaluation = courseName != null && mathsAndEnglishModel.Course != courseName;
+            if (skipReevaluation)
             {
                 updatedCourses.Add(new MathsAndEnglish(
                     mathsAndEnglishModel.StartDate,
@@ -326,13 +328,15 @@ public class ApprenticeshipEpisode : AggregateComponent
             .Where(x =>
                 x.AcademicYear < academicYear //keep earnings from previous academic years
                 || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day ==
-                DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month))
-            .ToList(); //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod 
+                                                  && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod 
+                                                  && course.StartDate.ToAcademicYear() == academicYear && course.StartDate.ToDeliveryPeriod() == deliveryPeriod 
+                                                  && lastDayOfLearning.Value > course.StartDate) // special case if the withdrawal date is on/after the start date but before a census date we should keep the instalment for the first month of learning
+            .ToList(); 
 
         return instalments;
     }
-
     internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
         _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;

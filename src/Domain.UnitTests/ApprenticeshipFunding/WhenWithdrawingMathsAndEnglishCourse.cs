@@ -90,6 +90,42 @@ public class WhenWithdrawingMathsAndEnglishCourse
     }
 
     [Test]
+    public void Then_A_Single_Instalment_Where_The_Withdrawal_Date_Is_Before_The_Census_Date_Is_Kept()
+    {
+        // Arrange
+        var withdrawalDate = new DateTime(2024, 1, 15);
+
+        // Act
+        _sut.WithdrawMathsAndEnglishCourse(_courseName, withdrawalDate, _mockSystemClock.Object);
+
+        // Assert
+        var episode = _sut.ApprenticeshipEpisodes.First();
+        var course = episode.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
+
+        course.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+            x.AcademicYear == 2324 && x.DeliveryPeriod == 6);
+        course.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(1);
+        course.Instalments.Count.Should().Be(12); //total count including soft deleted records should still be 12
+    }
+
+    [Test]
+    public void Then_No_Instalments_Are_Kept_When_Withdrawing_Back_To_The_Start()
+    {
+        // Arrange
+        var withdrawalDate = new DateTime(2024, 1, 1);
+
+        // Act
+        _sut.WithdrawMathsAndEnglishCourse(_courseName, withdrawalDate, _mockSystemClock.Object);
+
+        // Assert
+        var episode = _sut.ApprenticeshipEpisodes.First();
+        var course = episode.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
+
+        course.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(0);
+        course.Instalments.Count.Should().Be(12); //total count including soft deleted records should still be 12
+    }
+
+    [Test]
     public void Then_WithdrawalDate_Is_Stored_On_Course()
     {
         // Arrange
