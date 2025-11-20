@@ -131,21 +131,24 @@ public class ApprenticeshipEpisode : AggregateComponent
         if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", nameof(courseName));
 
         courseToWithdraw.WithdrawalDate = withdrawalDate;
-        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(courseName, systemClock);
+        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, courseName);
     }
 
-    public void ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(string courseName, ISystemClockService systemClock)
+    public void ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(ISystemClockService systemClock, string? courseName = null)
     {
-        var course = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
-        if (course == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", courseName);
+        MathsAndEnglishModel? course;
 
-        var earningsToKeep = GetMathsAndEnglishEarningsToKeep(course, course.WithdrawalDate); //todo as we update MathsAndEnglish to support BIL we need to pass a computed value here
+        if (courseName != null)
+        {
+            course = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
+            if (course == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", courseName);
+        }
 
         var updatedCourses = new List<MathsAndEnglish>();
 
         foreach (var mathsAndEnglishModel in _model.EarningsProfile.MathsAndEnglishCourses)
         {
-            if(mathsAndEnglishModel.Course != courseName)
+            if(courseName != null && mathsAndEnglishModel.Course != courseName)
             {
                 updatedCourses.Add(new MathsAndEnglish(
                     mathsAndEnglishModel.StartDate,
@@ -161,6 +164,8 @@ public class ApprenticeshipEpisode : AggregateComponent
             }
             else
             {
+                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, mathsAndEnglishModel.WithdrawalDate); //todo as we update MathsAndEnglish to support BIL we need to pass a computed value here
+
                 updatedCourses.Add(new MathsAndEnglish(
                     mathsAndEnglishModel.StartDate,
                     mathsAndEnglishModel.EndDate,
@@ -210,8 +215,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
-        _earningsProfile.Update(systemClock,
-            mathsAndEnglishCourses: mathsAndEnglishCourses);
+        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
+        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock);
     }
 
     /// <summary>
