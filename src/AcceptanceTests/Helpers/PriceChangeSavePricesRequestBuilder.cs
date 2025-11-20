@@ -57,6 +57,7 @@ public class PriceChangeSavePricesRequestBuilder
         return new SavePricesRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
+            FundingBandMaximum = _fundingBandMaximum,
             Prices = prices
         };
     }

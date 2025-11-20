@@ -86,8 +86,7 @@ public class LearningCreatedEventBuilder
                 {
                     StartDate = _startDate,
                     EndDate = _endDate,
-                    Price = (int)_totalPrice,
-                    FundingBandMaximum = _fundingBandMaximum
+                    Price = (int)_totalPrice
                 }
             });
         }

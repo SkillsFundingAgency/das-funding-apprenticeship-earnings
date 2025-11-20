@@ -116,6 +116,13 @@ public class LearningCreatedEventPublishingStepDefinitions
             .WithDataFromSetupModel(table.CreateSet<ApprenticeshipCreatedSetupModel>().Single());
     }
 
+    [Given(@"a funding band maximum of (.*)")]
+    public void GivenTheFollowingPriceEpisodes(int fundingBandMaximum)
+    {
+        _scenarioContext.GetLearningCreatedEventBuilder()
+            .WithFundingBandMaximum(fundingBandMaximum);
+    }
+
     [Given(@"the following Price Episodes")]
     public void GivenTheFollowingPriceEpisodes(Table table)
     {
