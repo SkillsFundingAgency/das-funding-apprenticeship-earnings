@@ -136,6 +136,7 @@ public class WhenSavePrices
         var saveRequest = new SavePricesRequest
         {
             ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey,
+            FundingBandMaximum = int.MaxValue,
             Prices = new List<LearningEpisodePrice>()
         };
 
