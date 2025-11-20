@@ -121,7 +121,7 @@ public class Apprenticeship : AggregateRoot
         currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
-    public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int ageAtStartOfLearning, ISystemClockService systemClock)
+    public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int fundingBandMaximum, int ageAtStartOfLearning, ISystemClockService systemClock)
     {
         var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEpisodeKey);
 
@@ -130,6 +130,7 @@ public class Apprenticeship : AggregateRoot
             return;
         }
 
+        episode.UpdateFundingBandMaximum(fundingBandMaximum);
         episode.UpdatePrices(prices, ageAtStartOfLearning);
         episode.CalculateEpisodeEarnings(this, systemClock);
         episode.UpdateCompletion(this, episode.CompletionDate, systemClock);

@@ -22,32 +22,31 @@ public class WhenCreatingANewApprenticeship
     [Test]
     public void ThenTheApprenticeshipIsCreated()
     {
-        var LearningCreatedEvent = _fixture.Create<LearningCreatedEvent>();
+        var learningCreatedEvent = _fixture.Create<LearningCreatedEvent>();
 
-        var apprenticeship = _factory.CreateNew(LearningCreatedEvent);
+        var apprenticeship = _factory.CreateNew(learningCreatedEvent);
 
-        LearningCreatedEvent.LearningKey.Should().Be(apprenticeship.ApprenticeshipKey);
-        LearningCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
-        LearningCreatedEvent.Uln.Should().Be(apprenticeship.Uln);
+        learningCreatedEvent.LearningKey.Should().Be(apprenticeship.ApprenticeshipKey);
+        learningCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
+        learningCreatedEvent.Uln.Should().Be(apprenticeship.Uln);
         
         var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
-            x.UKPRN == LearningCreatedEvent.Episode.Ukprn &&
-            x.EmployerAccountId == LearningCreatedEvent.Episode.EmployerAccountId &&
-            x.TrainingCode == LearningCreatedEvent.Episode.TrainingCode &&
-            x.LegalEntityName == LearningCreatedEvent.Episode.LegalEntityName &&
-            x.AgeAtStartOfApprenticeship == LearningCreatedEvent.Episode.AgeAtStartOfLearning &&
-            x.FundingEmployerAccountId == LearningCreatedEvent.Episode.FundingEmployerAccountId &&
-            x.ApprenticeshipEpisodeKey == LearningCreatedEvent.Episode.Key);
+            x.UKPRN == learningCreatedEvent.Episode.Ukprn &&
+            x.EmployerAccountId == learningCreatedEvent.Episode.EmployerAccountId &&
+            x.TrainingCode == learningCreatedEvent.Episode.TrainingCode &&
+            x.LegalEntityName == learningCreatedEvent.Episode.LegalEntityName &&
+            x.AgeAtStartOfApprenticeship == learningCreatedEvent.Episode.AgeAtStartOfLearning &&
+            x.FundingEmployerAccountId == learningCreatedEvent.Episode.FundingEmployerAccountId &&
+            x.ApprenticeshipEpisodeKey == learningCreatedEvent.Episode.Key);
 
         episode.Should().NotBeNull();
 
-        var price = LearningCreatedEvent.Episode.Prices.First();
+        var price = learningCreatedEvent.Episode.Prices.First();
         episode.Prices.Count.Should().Be(1);
         episode.Prices.Should().ContainSingle(x =>
             x.PriceKey == price.Key &&
             x.StartDate == price.StartDate &&
             x.EndDate == price.EndDate &&
-            x.AgreedPrice == price.TotalPrice &&
-            x.FundingBandMaximum == price.FundingBandMaximum);
+            x.AgreedPrice == price.TotalPrice);
     }
 }

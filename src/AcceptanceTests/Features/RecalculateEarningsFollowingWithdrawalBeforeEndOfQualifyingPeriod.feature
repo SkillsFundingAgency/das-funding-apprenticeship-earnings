@@ -4,9 +4,10 @@ Scenario: Withdrawal made before end of 42 day qualifying period; recalc earning
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-08-15 | 2021-07-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
 	When the following withdrawal is sent
 		| LastDayOfLearning |
@@ -18,9 +19,10 @@ Scenario: Withdrawal made before end of 42 day qualifying period; recalc earning
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-01-31 | 2020-02-13 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-01-31 | 2020-02-13 | 15000 |
 	And earnings are calculated
 	When the following withdrawal is sent
 		| LastDayOfLearning |

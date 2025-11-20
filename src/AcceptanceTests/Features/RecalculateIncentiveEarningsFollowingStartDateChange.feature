@@ -4,9 +4,10 @@ Scenario: Apprenticeship start date change results in less than 365 days
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 17  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-08-01 | 2022-07-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2022-07-31 | 15000 |
 	And earnings are calculated
 	When the following start date change request is sent
 		| NewStartDate | 
@@ -19,8 +20,8 @@ Scenario: Apprenticeship start date change results in less than 90 days
 		| Age |
 		| 17  |
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-08-01 | 2022-07-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2022-07-31 | 15000 |
 	And earnings are calculated
 	When the following start date change request is sent
 		| NewStartDate |
@@ -32,9 +33,10 @@ Scenario: Apprenticeship start date change results in 365 days
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 17  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2022-05-04 | 2022-07-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2022-05-04 | 2022-07-31 | 15000 |
 	And earnings are calculated
 	When the following start date change request is sent
 		| NewStartDate | 

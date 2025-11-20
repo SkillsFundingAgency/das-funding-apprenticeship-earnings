@@ -4,9 +4,10 @@ Scenario: New start date earlier than current date and in the same current acade
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-10-15 | 2021-08-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-10-15 | 2021-08-31 | 15000 |
 	And earnings are calculated
 	When the following start date change request is sent
 		| NewStartDate |
@@ -30,9 +31,10 @@ Scenario: New start date later than current date and in the same current academi
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-10-15 | 2021-08-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-10-15 | 2021-08-31 | 15000 |
 	And earnings are calculated
 	When the following start date change request is sent
 		| NewStartDate | 
@@ -51,9 +53,10 @@ Scenario: New start date in the next academic year
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-10-15 | 2022-08-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-10-15 | 2022-08-31 | 15000 |
 	And earnings are calculated
 	When the following start date change request is sent
 		| NewStartDate | 

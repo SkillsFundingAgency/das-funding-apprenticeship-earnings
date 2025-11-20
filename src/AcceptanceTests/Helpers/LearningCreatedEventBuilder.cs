@@ -86,8 +86,7 @@ public class LearningCreatedEventBuilder
                 {
                     StartDate = _startDate,
                     EndDate = _endDate,
-                    Price = (int)_totalPrice,
-                    FundingBandMaximum = _fundingBandMaximum
+                    Price = (int)_totalPrice
                 }
             });
         }
@@ -101,8 +100,7 @@ public class LearningCreatedEventBuilder
         {
             TotalPrice = x.Price,
             StartDate = x.StartDate,
-            EndDate = x.EndDate,
-            FundingBandMaximum = x.FundingBandMaximum ?? x.Price,
+            EndDate = x.EndDate
         }).ToList();
         return this;
     }
@@ -147,6 +145,7 @@ public class LearningCreatedEventBuilder
             Episode = new LearningEpisode
             {
                 Key = _episodeKey,
+                FundingBandMaximum = _fundingBandMaximum,
                 Prices = _prices.Any() ? _prices : new List<LearningEpisodePrice>
                 {
                     new LearningEpisodePrice
@@ -155,7 +154,6 @@ public class LearningCreatedEventBuilder
                         TotalPrice = _totalPrice,
                         StartDate = _startDate,
                         EndDate = _endDate,
-                        FundingBandMaximum = _fundingBandMaximum
                     }
                 },
                 EmployerAccountId = _employerAccountId,

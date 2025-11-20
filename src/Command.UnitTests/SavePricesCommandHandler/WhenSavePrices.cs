@@ -136,6 +136,7 @@ public class WhenSavePrices
         var saveRequest = new SavePricesRequest
         {
             ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey,
+            FundingBandMaximum = int.MaxValue,
             Prices = new List<LearningEpisodePrice>()
         };
 
@@ -149,7 +150,6 @@ public class WhenSavePrices
                 EndDate = existingPrice.EndDate,
                 TrainingPrice = 5000, 
                 EndPointAssessmentPrice = 500,
-                FundingBandMaximum = 6000,
                 TotalPrice = 5500
             });
         }

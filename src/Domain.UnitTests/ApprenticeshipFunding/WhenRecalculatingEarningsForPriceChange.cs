@@ -25,6 +25,7 @@ public class WhenRecalculatingEarningsForPriceChange
     private Guid _episodeKey;
     private List<LearningEpisodePrice> _prices;
     private int _ageAtStartOfLearning;
+    private int _fundingBandMaximum;
 
     public WhenRecalculatingEarningsForPriceChange()
     {
@@ -50,18 +51,18 @@ public class WhenRecalculatingEarningsForPriceChange
                 Key = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().PriceKey,
                 StartDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().StartDate,
                 EndDate = _existingApprenticeship.ApprenticeshipEpisodes.First().Prices.First().EndDate,
-                TotalPrice = _updatedPrice,
-                FundingBandMaximum = (int)(Math.Ceiling(_updatedPrice) + 1)
+                TotalPrice = _updatedPrice
             }
         };
         _ageAtStartOfLearning = 20;
+        _fundingBandMaximum = int.MaxValue;
 
     }
 
     [Test]
     public void ThenTheAgreedPriceIsUpdated()
     {
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.Prices.OrderBy(x => x.StartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
     }
@@ -69,7 +70,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheOnProgramTotalIsCalculated()
     {
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
@@ -77,7 +78,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheCompletionAmountIsCalculated()
     {
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
@@ -85,7 +86,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
     {
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
@@ -96,7 +97,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenEarningsRecalculatedEventIsCreated()
     {
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
 
         var events = _sut.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
@@ -105,7 +106,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [Test]
     public void ThenTheEarningsProfileIdIsGenerated()
     {
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
@@ -114,7 +115,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenIfPricesAreTheSameNoRecalculationOccurs()
     {
         _prices.First().TotalPrice = _originalPrice;
-        _sut!.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
         var events = _sut.FlushEvents();
         events.Should().NotContain(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
     }

@@ -18,7 +18,6 @@ public class EpisodePriceModel
         StartDate = price.StartDate;
         EndDate = price.EndDate;
         AgreedPrice = price.TotalPrice;
-        FundingBandMaximum = price.FundingBandMaximum;
     }
 
     [Dapper.Contrib.Extensions.Key]
@@ -28,5 +27,4 @@ public class EpisodePriceModel
 	public DateTime StartDate { get; set; }
 	public DateTime EndDate { get; set; }
     public decimal AgreedPrice { get; set; }
-	public decimal FundingBandMaximum { get; set; }
 }

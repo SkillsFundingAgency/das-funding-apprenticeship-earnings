@@ -29,7 +29,7 @@ public class PriceChangeSavePricesRequestBuilder
     {
         _episodeKey = apprenticeship.Episode.Key;
         _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
-        _fundingBandMaximum = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().FundingBandMaximum;
+        _fundingBandMaximum = apprenticeship.Episode.FundingBandMaximum;
         _existingPrices = apprenticeship.Episode.Prices;
         return this;
     }
@@ -51,13 +51,13 @@ public class PriceChangeSavePricesRequestBuilder
             EndPointAssessmentPrice = _newAssessmentPrice,
             StartDate = _effectiveFromDate,
             EndDate = _endDate,
-            FundingBandMaximum = _fundingBandMaximum,
             TotalPrice = _newTrainingPrice + _newAssessmentPrice
         });
 
         return new SavePricesRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
+            FundingBandMaximum = _fundingBandMaximum,
             Prices = prices
         };
     }

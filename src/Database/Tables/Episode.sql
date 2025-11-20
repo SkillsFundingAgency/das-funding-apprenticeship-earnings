@@ -11,7 +11,8 @@
     [AgeAtStartOfApprenticeship] INT NOT NULL, 
     [CompletionDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
-    [PauseDate] DATETIME NULL
+    [PauseDate] DATETIME NULL,
+    [FundingBandMaximum] DECIMAL(15,5) NULL
 )
 GO
 ALTER TABLE Domain.Episode
