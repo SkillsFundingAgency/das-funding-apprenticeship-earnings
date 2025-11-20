@@ -90,6 +90,7 @@ public class StartDateSavePricesRequestBuilder
         return new SavePricesRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
+            FundingBandMaximum = _fundingBandMaximum,
             Prices = prices
         };
     }
