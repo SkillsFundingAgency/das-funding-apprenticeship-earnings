@@ -107,7 +107,6 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
-        currentEpisode.ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock);
     }
 
     /// <summary>
