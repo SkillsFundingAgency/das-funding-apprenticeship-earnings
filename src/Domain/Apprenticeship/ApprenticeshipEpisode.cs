@@ -132,22 +132,23 @@ public class ApprenticeshipEpisode : AggregateComponent
         if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", nameof(courseName));
 
         courseToWithdraw.WithdrawalDate = withdrawalDate;
-        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, courseName);
+        var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, _model.EarningsProfile.MathsAndEnglishCourses, courseName);
+        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
     }
 
-    public void ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(ISystemClockService systemClock, string? courseName = null)
+    public List<MathsAndEnglish> ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(ISystemClockService systemClock, List<MathsAndEnglishModel> courses, string? courseName = null)
     {
         MathsAndEnglishModel? course;
 
         if (courseName != null)
         {
-            course = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
+            course = courses.SingleOrDefault(x => x.Course == courseName);
             if (course == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", courseName);
         }
 
         var updatedCourses = new List<MathsAndEnglish>();
 
-        foreach (var mathsAndEnglishModel in _model.EarningsProfile.MathsAndEnglishCourses)
+        foreach (var mathsAndEnglishModel in courses)
         {
             var skipReevaluation = courseName != null && mathsAndEnglishModel.Course != courseName;
             if (skipReevaluation)
@@ -186,7 +187,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             }
         }
 
-        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
+        return updatedCourses;
     }
 
     /// <summary>
@@ -217,8 +218,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
-        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
-        ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock);
+        var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, mathsAndEnglishCourses.Select(x => x.GetModel()).ToList());
+        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
     }
 
     /// <summary>
