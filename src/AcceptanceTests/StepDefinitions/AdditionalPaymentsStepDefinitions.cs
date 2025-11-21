@@ -206,7 +206,7 @@ public class AdditionalPaymentsStepDefinitions
             var expectedInstalmentCount = data.Count(d => d.Course == course);
             var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == course);
             courseInDb.Should().NotBeNull();
-            courseInDb.Instalments.Should().HaveCount(expectedInstalmentCount);
+            courseInDb.Instalments.Where(x => !x.IsAfterLearningEnded).Should().HaveCount(expectedInstalmentCount);
         }
 
         // Check individual instalments
