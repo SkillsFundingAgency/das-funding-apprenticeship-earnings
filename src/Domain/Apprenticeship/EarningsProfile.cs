@@ -1,7 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -56,8 +55,7 @@ public class EarningsProfile : AggregateComponent
         List<Instalment>? instalments = null, 
         List<AdditionalPayment>? additionalPayments = null, 
         List<MathsAndEnglish>? mathsAndEnglishCourses = null,
-        decimal? completionPayment = null,
-        bool forceRePublish = false
+        decimal? completionPayment = null
     )
     {
         var versionChanged = false;
@@ -93,14 +91,7 @@ public class EarningsProfile : AggregateComponent
             versionChanged = true;
         }
 
-        if(forceRePublish)
-        {
-            PurgeEventsOfType<EarningsProfileUpdatedEvent>();
-            Model.Version = Guid.NewGuid();
-            var archiveEvent = Model.CreatedEarningsProfileUpdatedEvent();
-            AddEvent(archiveEvent);
-        }
-        else if (versionChanged)
+        if (versionChanged)
         {
             Model.Version = Guid.NewGuid();
             var archiveEvent = Model.CreatedEarningsProfileUpdatedEvent();
