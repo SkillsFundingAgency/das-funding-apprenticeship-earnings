@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
@@ -113,6 +114,17 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
+    [When("the following maths and english withdrawal is sent")]
+    public async Task SendMathsAndEnglishWithdrawalRequest(Table table)
+    {
+        var data = table.CreateSet<MathsAndEnglishWithdrawalModel>().ToList().Single();
+        var withdrawRequest = new MathsAndEnglishWithdrawRequest() { WithdrawalDate = data.LastDayOfLearning, Course  = data.Course };
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish/withdraw", withdrawRequest);
+
+        _scenarioContext.Set(withdrawRequest);
+
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
+    }
 
     #endregion
 
