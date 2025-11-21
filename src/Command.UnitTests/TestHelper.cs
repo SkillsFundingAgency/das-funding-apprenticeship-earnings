@@ -13,6 +13,12 @@ internal static class TestHelper
 {
     internal static Apprenticeship BuildApprenticeship(this Fixture fixture)
     {
+        var apprenticeshipEntityModel = fixture.BuildApprenticeshipModel();
+        return Apprenticeship.Get(apprenticeshipEntityModel);
+    }
+
+    internal static ApprenticeshipModel BuildApprenticeshipModel(this Fixture fixture)
+    {
         var episodeModel = fixture
             .Build<EpisodeModel>()
             .With(x => x.Prices, new List<EpisodePriceModel>{ fixture.Build<EpisodePriceModel>()
@@ -31,6 +37,6 @@ internal static class TestHelper
             .With(x => x.Episodes, new List<EpisodeModel> { episodeModel })
             .Create();
 
-        return Apprenticeship.Get(apprenticeshipEntityModel);
+        return apprenticeshipEntityModel;
     }
 }

@@ -37,7 +37,9 @@ public class MathsAndEnglishModel
 
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? ActualEndDate { get; set; }
+    public DateTime? PauseDate { get; set; }
     public int? PriorLearningAdjustmentPercentage { get; set; }
 
     public List<MathsAndEnglishInstalmentModel> Instalments { get; set; } = [];
+
 }
