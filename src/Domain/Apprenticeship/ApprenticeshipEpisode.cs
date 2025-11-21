@@ -162,6 +162,7 @@ public class ApprenticeshipEpisode : AggregateComponent
                         x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), x.IsAfterLearningEnded)).ToList(),
                     mathsAndEnglishModel.WithdrawalDate,
                     mathsAndEnglishModel.ActualEndDate,
+                    mathsAndEnglishModel.PauseDate,
                     mathsAndEnglishModel.PriorLearningAdjustmentPercentage
                 ));
             }
@@ -182,6 +183,7 @@ public class ApprenticeshipEpisode : AggregateComponent
                             e.Type == x.Type))).ToList(),
                     mathsAndEnglishModel.WithdrawalDate,
                     mathsAndEnglishModel.ActualEndDate,
+                    mathsAndEnglishModel.PauseDate,
                     mathsAndEnglishModel.PriorLearningAdjustmentPercentage
                 ));
             }

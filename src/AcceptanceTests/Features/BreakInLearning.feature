@@ -110,7 +110,7 @@ Scenario: Training provider removes a previously recorded break in learning
 		| 400    | 2122         | 1              |
 		| 400    | 2122         | 2              |
 
-Scenario: Training provider records a break in learning without specifying a return (MathsAndEnglish)
+Scenario: (MathsAndEnglish) Training provider records a break in learning without specifying a return
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
@@ -131,7 +131,7 @@ Scenario: Training provider records a break in learning without specifying a ret
 		| Maths1 | 100    | 2021         | 6              | Regular |
 		| Maths1 | 100    | 2021         | 7              | Regular |
 
-Scenario: Training provider corrects a previously recorded break in learning (moved later MathsAndEnglish)
+Scenario: (MathsAndEnglish) Training provider corrects a previously recorded break in learning (moved later)
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
@@ -158,7 +158,7 @@ Scenario: Training provider corrects a previously recorded break in learning (mo
 		| Maths1 | 100    | 2021         | 9              | Regular |
 		| Maths1 | 100    | 2021         | 10             | Regular |
 
-Scenario: Training provider corrects a previously recorded break in learning (moved earlier MathsAndEnglish)
+Scenario: (MathsAndEnglish) Training provider corrects a previously recorded break in learning (moved earlier)
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
@@ -181,7 +181,7 @@ Scenario: Training provider corrects a previously recorded break in learning (mo
 		| Maths1 | 100    | 2021         | 5              | Regular |
 		| Maths1 | 100    | 2021         | 6              | Regular |
 
-Scenario: Training provider removes a previously recorded break in learning (MathsAndEnglish)
+Scenario: (MathsAndEnglish) Training provider removes a previously recorded break in learning
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
@@ -212,7 +212,7 @@ Scenario: Training provider removes a previously recorded break in learning (Mat
 		| Maths1   | 100    | 2122         | 1              | Regular |
 		| Maths1   | 100    | 2122         | 2              | Regular |
 
-Scenario: Pausing an English course does not effect a maths course (MathsAndEnglish)
+Scenario: (MathsAndEnglish) Pausing an English course does not effect a maths course
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
