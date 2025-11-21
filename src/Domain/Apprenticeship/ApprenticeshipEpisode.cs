@@ -186,7 +186,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             }
         }
 
-        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
+        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses, forceRePublish:true);
     }
 
     /// <summary>
