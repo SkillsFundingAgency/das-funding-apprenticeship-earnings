@@ -220,7 +220,7 @@ public class AdditionalPaymentsStepDefinitions
                               && x.AcademicYear == expectedInstalment.AcademicYear
                               && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
                               && x.Type == expectedInstalment.Type
-                              && (expectedInstalment.IsAfterLearningEnded.HasValue && x.IsAfterLearningEnded == expectedInstalment.IsAfterLearningEnded.Value));
+                              && (!expectedInstalment.IsAfterLearningEnded.HasValue || x.IsAfterLearningEnded == expectedInstalment.IsAfterLearningEnded.Value));
         }
     }
 
