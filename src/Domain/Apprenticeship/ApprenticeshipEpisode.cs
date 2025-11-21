@@ -168,7 +168,8 @@ public class ApprenticeshipEpisode : AggregateComponent
             }
             else
             {
-                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, mathsAndEnglishModel.WithdrawalDate); //todo as we update MathsAndEnglish to support BIL we need to pass a computed value here
+                var lastDayOfLearning = new[] { mathsAndEnglishModel.WithdrawalDate, mathsAndEnglishModel.PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
+                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, lastDayOfLearning);
 
                 updatedCourses.Add(new MathsAndEnglish(
                     mathsAndEnglishModel.StartDate,

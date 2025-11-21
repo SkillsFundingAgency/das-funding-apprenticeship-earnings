@@ -114,8 +114,10 @@ public static class MathsAndEnglishPayments
         if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
             return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
 
-        if(command.PauseDate.HasValue)
-            instalments.RemoveAll(x => x.DeliveryPeriod.GetCensusDate(x.AcademicYear) > command.PauseDate.Value);
+        if (command.PauseDate.HasValue)
+        {
+            SoftDeleteAfterDate(instalments, command.PauseDate.Value);
+        }
 
         return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
     }
@@ -132,4 +134,31 @@ public static class MathsAndEnglishPayments
 
         return actualLength >= 1;
     }
+
+    private static void SoftDeleteAfterDate(
+        List<MathsAndEnglishInstalment> instalments,
+        DateTime cutoff)
+    {
+        // Copy instalments to be soft deleted
+        var itemsToReplace = instalments
+            .Where(i => i.DeliveryPeriod.GetCensusDate(i.AcademicYear) > cutoff)
+            .ToList();
+
+        foreach (var oldInst in itemsToReplace)
+        {
+            // Create a new instance with the same values but flagged
+            var newInst = new MathsAndEnglishInstalment(
+                academicYear: oldInst.AcademicYear,
+                deliveryPeriod: oldInst.DeliveryPeriod,
+                amount: oldInst.Amount,
+                type: oldInst.Type,
+                isAfterLearningEnded: true
+            );
+
+            // Replace in the original list
+            var index = instalments.IndexOf(oldInst);
+            instalments[index] = newInst;
+        }
+    }
+
 }
