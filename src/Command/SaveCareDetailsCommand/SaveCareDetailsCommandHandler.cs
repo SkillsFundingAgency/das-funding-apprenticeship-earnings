@@ -33,6 +33,7 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
         apprenticeshipDomainModel.UpdateCareDetails(command.HasEHCP, command.IsCareLeaver, command.CareLeaverEmployerConsentGiven, _systemClockService);
+        apprenticeshipDomainModel.CalculateEarnings(_systemClockService);
 
         var hasRecalculatedEarnings = apprenticeshipDomainModel.HasEvent<EarningsProfileUpdatedEvent>();
 
