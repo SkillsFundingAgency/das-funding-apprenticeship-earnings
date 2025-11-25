@@ -30,7 +30,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         var episode = _sut.ApprenticeshipEpisodes.First();
 
-        episode.CalculateEpisodeEarnings(_sut, _mockSystemClock.Object);
+        episode.Calculate(_sut, _mockSystemClock.Object);
     }
 
     [Test]

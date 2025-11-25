@@ -33,6 +33,7 @@ public class SaveCompletionCommandHandler : ICommandHandler<SaveCompletionComman
         var apprenticeship = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeship.UpdateCompletion(command.CompletionDetails.CompletionDate, _systemClock);
+        apprenticeship.CalculateEarnings(_systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeship);
 

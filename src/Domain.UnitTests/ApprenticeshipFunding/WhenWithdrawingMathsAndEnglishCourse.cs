@@ -32,7 +32,7 @@ public class WhenWithdrawingMathsAndEnglishCourse
         _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         var episode = _sut.ApprenticeshipEpisodes.First();
 
-        episode.CalculateEpisodeEarnings(_sut, _mockSystemClock.Object);
+        episode.Calculate(_sut, _mockSystemClock.Object);
 
         var mathsAndEnglishCourse = new MathsAndEnglish(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), _courseName, 1200m, new List<MathsAndEnglishInstalment>
         {

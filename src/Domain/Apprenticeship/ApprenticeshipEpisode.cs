@@ -180,40 +180,6 @@ public class ApprenticeshipEpisode : AggregateComponent
 
 
 
-
-    //Called by UpdateCompletion, App.CalculateEarnings, App.UpdateCareDetails, App.UpdatePrices
-    public void CalculateEpisodeEarnings(Apprenticeship apprenticeship, ISystemClockService systemClock)
-    {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
-        var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
-
-        var incentivePayments = IncentivePayments.GenerateIncentivePayments(
-            AgeAtStartOfApprenticeship, 
-            _prices.Min(p => p.StartDate), 
-            _prices.Max(p => p.EndDate),
-            apprenticeship.HasEHCP,
-            apprenticeship.IsCareLeaver,
-            apprenticeship.CareLeaverEmployerConsentGiven);
-
-        var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
-        
-
-        if(_earningsProfile == null)
-        {
-            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey);
-            _model.EarningsProfile = _earningsProfile.GetModel();
-        }
-        else
-        {
-            additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
-            _earningsProfile.Update(systemClock, 
-                instalments: instalments, 
-                additionalPayments:additionalPayments,
-                onProgramTotal:onProgramTotal,
-                completionPayment:completionPayment);
-        }
-    }
-
     public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _model.WithdrawalDate = withdrawalDate;
@@ -359,33 +325,6 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
     {
-        if(!completionDate.HasValue && !_model.CompletionDate.HasValue)
-            return; // No change
-
-        // If previously completed, clear existing completion and balancing instalments. And recalculate instalments
-        if (_model.CompletionDate != null)
-        {
-            _model.CompletionDate = null;
-            _earningsProfile!.Update(systemClock, completionPayment: 0);
-            CalculateEpisodeEarnings(apprenticeship, systemClock);
-
-            if(completionDate.HasValue)
-            {
-                _earningsProfile.PurgeEventsOfType<EarningsProfileUpdatedEvent>();// The version will be updated and archive event raised later
-            }
-            else
-            {
-                return; // No new completion date provided, so just return after recalculating earnings without purging update event
-            }
-        }
-
-        var existingInstalments = _earningsProfile?.Instalments.Where(x=>x.Type != InstalmentType.Completion && x.Type != InstalmentType.Balancing).ToList() ?? new List<Instalment>();
-        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments, _model.Prices.Max(x => x.EndDate));
-        var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate!.Value, _earningsProfile!.CompletionPayment, existingInstalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
-
-        _earningsProfile.Update(systemClock,
-            instalments: balancedInstalments.Append(completionInstalment).ToList());
-
         _model.CompletionDate = completionDate;
     }
 
