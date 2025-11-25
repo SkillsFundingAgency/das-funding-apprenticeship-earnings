@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
@@ -48,10 +47,20 @@ public class Apprenticeship : AggregateRoot
         return _model;
     }
 
-    public void CalculateEarnings(ISystemClockService systemClock)
+    public void CalculateEarnings(ISystemClockService systemClock, Guid? episodeKey = null)
     {
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.CalculateEpisodeEarnings(this, systemClock);
+        ApprenticeshipEpisode episode;
+
+        if(episodeKey.HasValue)
+        {
+            episode = this.GetEpisode(episodeKey.Value);
+        }
+        else
+        {
+            episode = this.GetCurrentEpisode(systemClock);
+        }
+
+        episode.Calculate(this, systemClock);
     }
 
     public void Withdraw(DateTime withdrawalDate, ISystemClockService systemClock)
@@ -123,7 +132,7 @@ public class Apprenticeship : AggregateRoot
 
     public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int ageAtStartOfLearning, ISystemClockService systemClock)
     {
-        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEpisodeKey);
+        var episode = this.GetEpisode(apprenticeshipEpisodeKey);
 
         if (episode.PricesAreIdentical(prices))
         {
@@ -131,9 +140,6 @@ public class Apprenticeship : AggregateRoot
         }
 
         episode.UpdatePrices(prices, ageAtStartOfLearning);
-        episode.CalculateEpisodeEarnings(this, systemClock);
-        episode.UpdateCompletion(this, episode.CompletionDate, systemClock);
-        episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void Pause(DateTime? pauseDate, ISystemClockService systemClock)
@@ -148,4 +154,5 @@ public class Apprenticeship : AggregateRoot
         var episode = this.GetCurrentEpisode(systemClock);
         episode.WithdrawMathsAndEnglish(courseName, withdrawalDate, systemClock);
     }
+
 }

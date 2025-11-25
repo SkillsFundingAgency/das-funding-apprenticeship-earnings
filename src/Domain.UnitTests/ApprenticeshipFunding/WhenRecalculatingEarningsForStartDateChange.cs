@@ -70,6 +70,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.CalculateEarnings(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
         var updatedPrice = _currentEpisode.Prices.FirstOrDefault(p => p.PriceKey == _prices.First().Key);
@@ -83,6 +84,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.CalculateEarnings(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
         _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_ageAtStartOfLearning);
@@ -93,6 +95,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.CalculateEarnings(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
         _currentEpisode.Prices.Should().OnlyContain(p => _prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
@@ -103,6 +106,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _apprenticeship.UpdatePrices(_prices, _episodeKey, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _apprenticeship.CalculateEarnings(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsProfileUpdatedEvent>().ToList();

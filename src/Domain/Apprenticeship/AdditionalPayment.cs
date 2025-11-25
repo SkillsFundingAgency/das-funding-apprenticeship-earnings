@@ -42,6 +42,11 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
         return new AdditionalPayment(model);
     }
 
+    internal void SoftDelete()
+    {
+        _model.IsAfterLearningEnded = true;
+    }
+
     public bool AreSame(AdditionalPaymentModel? compare)
     {
         if (compare == null)
