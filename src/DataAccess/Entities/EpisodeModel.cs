@@ -40,5 +40,6 @@ public class EpisodeModel
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? PauseDate { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
+    public List<EpisodeBreakInLearningModel> BreaksInLearning { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
 }

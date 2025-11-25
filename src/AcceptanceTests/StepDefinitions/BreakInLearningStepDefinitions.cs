@@ -1,4 +1,8 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
+﻿using Polly;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.BreakInLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Learning.Types;
 using System;
@@ -6,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -38,4 +43,26 @@ public class BreakInLearningStepDefinitions
         await _testContext.TestInnerApi.Delete($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/pause");
     }
 
+    [When(@"SLD informs us that the break in learning was")]
+    public async Task WhenSLDInformsUsThatTheBreakInLearningWas(Table table)
+    {
+        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+
+        var breaksInLearning = table.CreateSet<BreakInLearningModel>().ToList();
+
+        var breaksInLearningRequest = new BreaksInLearningRequest();
+        breaksInLearningRequest.EpisodeKey = learningCreatedEvent.Episode.Key;
+        breaksInLearningRequest.BreaksInLearning = new List<BreakInLearningPeriod>();
+
+        foreach (var breakInLearning in breaksInLearning)
+        {
+            breaksInLearningRequest.BreaksInLearning.Add(new BreakInLearningPeriod
+            {
+                StartDate = breakInLearning.StartDate,
+                EndDate = breakInLearning.EndDate
+            });
+        }
+
+        await _testContext.TestInnerApi.Patch($"/apprenticeship/{learningCreatedEvent.LearningKey}/breaksInLearning ", breaksInLearningRequest);
+    }
 }

@@ -5,7 +5,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -17,6 +16,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model = model;
 
         _prices = _model.Prices.Select(Price.Get).ToList();
+        _breaksInLearning = _model.BreaksInLearning.Select(EpisodeBreakInLearning.Get).ToList();
         if (_model.EarningsProfile != null)
         {
             _earningsProfile = this.GetEarningsProfileFromModel(_model.EarningsProfile);
@@ -31,6 +31,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     private readonly EpisodeModel _model;
     private List<Price> _prices;
+    private List<EpisodeBreakInLearning> _breaksInLearning;
     private EarningsProfile? _earningsProfile;
 
     public Guid ApprenticeshipEpisodeKey => _model.Key;
@@ -43,6 +44,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
+    public IReadOnlyCollection<EpisodeBreakInLearning> BreaksInLearning => new ReadOnlyCollection<EpisodeBreakInLearning>(_breaksInLearning);
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
@@ -398,5 +400,21 @@ public class ApprenticeshipEpisode : AggregateComponent
     internal void UpdatePause(DateTime? pauseDate)
     {
         _model.PauseDate = pauseDate;
+    }
+
+    public void UpdateBreaksInLearning(List<EpisodeBreakInLearning> breaksInLearning)
+    {
+        foreach( var existingBreak in _breaksInLearning.ToList())
+        {
+            var matchingBreak = breaksInLearning.SingleOrDefault(x =>
+                x.StartDate == existingBreak.StartDate && 
+                x.EndDate == existingBreak.EndDate);
+            
+            if (matchingBreak == null)
+            {
+                _breaksInLearning.Remove(existingBreak);
+                _model.BreaksInLearning.Remove(existingBreak.GetModel());
+            }
+        }
     }
 }
