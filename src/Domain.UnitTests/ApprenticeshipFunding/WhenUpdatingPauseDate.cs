@@ -41,6 +41,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(withdrawalDate, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -55,6 +56,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(withdrawalDate, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -69,6 +71,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -85,6 +88,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(withdrawalDate, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -102,13 +106,13 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(withdrawalDate, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Should().Contain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod == 8);
     }
-
 
     [Test]
     public void ThenAdditionalPaymentsArePreservedForTheLastMonthIfTheLearnerWasInLearningOnTheCensusDate()
@@ -118,6 +122,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(withdrawalDate, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -133,9 +138,11 @@ internal class WhenUpdatingPauseDate
         var numberOfAdditionalPayments = _sut.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded);
         var lastDayOfLearning = new DateTime(2024, 3, 15);
         _sut.Pause(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Act
         _sut.Pause(null, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -151,6 +158,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _sut.Pause(withdrawalDate, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
