@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SFA.DAS.Learning.Types" Version="6.8.38-prerelease-34" />
+    <PackageReference Include="SFA.DAS.Learning.Types" Version="6.8.74-prerelease-7" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 

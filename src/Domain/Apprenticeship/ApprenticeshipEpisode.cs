@@ -47,6 +47,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
+    public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => new[] { CompletionDate, WithdrawalDate, PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
 
     public string FundingLineType =>
@@ -56,7 +57,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     public void CalculateEpisodeEarnings(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
@@ -315,6 +316,11 @@ public class ApprenticeshipEpisode : AggregateComponent
         return result;
     }
 
+    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
+    {
+        _model.FundingBandMaximum = fundingBandMaximum;
+    }
+
     private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)
     {
         if (!lastDayOfLearning.HasValue)
@@ -347,7 +353,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
             if (updatedPrice != null)
             {
-                existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice, updatedPrice.FundingBandMaximum);
+                existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice);
             }
             else
             {
@@ -358,7 +364,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         var newPrices = updatedPrices
             .Where(x => _prices.All(y => y.PriceKey != x.Key))
-            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
+            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice))
             .ToList();
         _model.Prices.AddRange(newPrices.Select(x => x.GetModel()));
         _prices.AddRange(newPrices);
@@ -385,7 +391,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             var matchingPrice = _prices.SingleOrDefault(x => x.PriceKey == price.Key);
             if (matchingPrice == null)
                 return false;
-            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice || matchingPrice.FundingBandMaximum != price.FundingBandMaximum)
+            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice)
                 return false;
         }
 

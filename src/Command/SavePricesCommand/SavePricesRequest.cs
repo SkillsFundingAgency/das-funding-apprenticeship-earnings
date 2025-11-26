@@ -9,4 +9,5 @@ public class SavePricesRequest
 
     public List<LearningEpisodePrice> Prices { get; set; } = new();
     public int AgeAtStartOfLearning { get; set; }
+    public int FundingBandMaximum { get; set; }
 }
