@@ -183,42 +183,11 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _model.WithdrawalDate = withdrawalDate;
-        ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void ReverseWithdrawal(ISystemClockService systemClockService)
     {
         _model.WithdrawalDate = null;
-        ReEvaluateEarningsAfterEndOfLearning(systemClockService);
-    }
-
-    //Called by App.UpdateCompletion, App.UpdatePrices, App.Pause, Withdraw, ReverseWithdrawal
-    public void ReEvaluateEarningsAfterEndOfLearning(ISystemClockService systemClock)
-    {
-        var earningsToKeep = GetEarningsToKeep(LastDayOfLearning);
-        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(LastDayOfLearning);
-
-        var updatedInstalments = _model.EarningsProfile.Instalments
-            .Select(x => new Instalment(
-                x.AcademicYear,
-                x.DeliveryPeriod,
-                x.Amount,
-                x.EpisodePriceKey,
-                Enum.Parse<InstalmentType>(x.Type),
-                !earningsToKeep.Contains(x)))
-            .ToList();
-
-        var updatedAdditionalPayments = _model.EarningsProfile.AdditionalPayments
-            .Select(x => new AdditionalPayment(
-                x.AcademicYear,
-                x.DeliveryPeriod,
-                x.Amount,
-                x.DueDate,
-                x.AdditionalPaymentType,
-                !additionalPaymentsToKeep.Contains(x)))
-            .ToList();
-
-        _earningsProfile.Update(systemClock, instalments: updatedInstalments, additionalPayments: updatedAdditionalPayments);
     }
 
     public void WithdrawMathsAndEnglish(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)

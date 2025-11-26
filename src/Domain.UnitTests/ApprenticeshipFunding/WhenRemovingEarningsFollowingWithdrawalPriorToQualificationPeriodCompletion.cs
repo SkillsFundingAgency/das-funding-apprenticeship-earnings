@@ -36,6 +36,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -61,6 +62,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -84,6 +86,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -99,6 +102,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
+        _sut.CalculateEarnings(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);

@@ -28,6 +28,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal
             var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
             apprenticeshipDomainModel.ReverseWithdrawal(_systemClock);
+            apprenticeshipDomainModel.CalculateEarnings(_systemClock);
 
             await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
