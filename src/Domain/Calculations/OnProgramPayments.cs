@@ -42,6 +42,44 @@ public static class OnProgramPayments
         return onProgramPayments;
     }
 
+    public static List<Instalment> SoftDeleteAfterLastDayOfLearning(List<Instalment> instalments, List<Price> prices, DateTime lastDayOfLearning)
+    {
+        List<Instalment> result;
+
+        var academicYear = lastDayOfLearning.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
+
+        var startDate = prices.Min(x => x.StartDate);
+        var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, prices.Max(x => x.EndDate));
+        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
+        if (lastDayOfLearning < qualifyingDate)
+        {
+            result = instalments.Where(x =>
+                    x.AcademicYear < academicYear) //keep earnings from previous academic years
+                .ToList();
+        }
+        else
+        {
+            result = instalments.Where(x =>
+                    x.AcademicYear < academicYear //keep earnings from previous academic years
+            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing || x.Type == InstalmentType.Completion)) //keep earnings in the last delivery period of learning if they are balancing or completion payments
+                .ToList();
+        }
+
+        instalments.ForEach(i =>
+        {
+            if (!result.Contains(i))
+            {
+                i.SoftDelete();
+            }
+        });
+
+        return instalments;
+    }
+
+
     private static IEnumerable<OnProgramPayment> GenerateEarningsForPeriod(decimal total, DateTime periodStartDate, DateTime periodEndDate, DateTime apprenticeshipEndDate, Guid priceKey)
     {
         var periodInstalmentCount = CalculateInstalmentCount(periodStartDate, periodEndDate);

@@ -43,6 +43,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasMany(a => a.Prices)
                 .WithOne()  
                 .HasForeignKey(x => x.EpisodeKey);
+            modelBuilder.Entity<EpisodeModel>()
+                .HasMany(a => a.BreaksInLearning)
+                .WithOne()
+                .HasForeignKey(x => x.EpisodeKey);
 
             // EpisodePrice
             modelBuilder.Entity<EpisodePriceModel>()

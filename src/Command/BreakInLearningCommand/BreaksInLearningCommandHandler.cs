@@ -28,8 +28,17 @@ public class BreaksInLearningCommandHandler : ICommandHandler<BreaksInLearningCo
 
 
         episode.UpdateBreaksInLearning(breaksInLearning);
+        apprenticeshipDomainModel.Calculate(_systemClock, command.EpisodeKey);
 
-        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+        try
+        {
+            await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+        }
+        catch(Exception ex)
+        {
+            // Log exception or handle it as needed
+            throw;
+        }
 
     }
 }

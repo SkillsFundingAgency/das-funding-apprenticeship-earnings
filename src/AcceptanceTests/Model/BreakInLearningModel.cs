@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
-internal class BreakInLearningModel
+public class BreakInLearningModel
 {
-    internal DateTime StartDate { get; set; }
-    internal DateTime EndDate { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }

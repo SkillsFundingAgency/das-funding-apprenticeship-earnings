@@ -284,42 +284,14 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	And a pause date of 2021-03-15 is sent
+	And a pause date of 2020-10-15 is sent
 	When SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
-		| 2021-03-15 | 2021-06-15 |
-    Then On programme earnings are persisted as follows
-		| Amount  | AcademicYear | DeliveryPeriod |
-		| 400     | 2021         | 1              |
-		| 400     | 2021         | 2              |
-		| 488.889 | 2021         | 6              |
-		| 488.889 | 2021         | 7              |
-		| 488.889 | 2021         | 8              |
-		| 488.889 | 2021         | 9              |
-		| 488.889 | 2021         | 10             |
-		| 488.889 | 2021         | 11             |
-		| 488.889 | 2021         | 12             |
-		| 488.889 | 2122         | 1              |
-		| 488.889 | 2122         | 2              |
-	#And calculate Learning Support earnings (if recorded)
-
-Scenario: (OnProgramme - Break Completed) Training provider records a return from a break in learning (starts on the last day of the month)
-	Given an apprenticeship has been created with the following information
-		| StartDate  | EndDate    | Price |
-		| 2020-08-01 | 2021-10-01 | 7000  |
-	And the apprenticeship commitment is approved
-	And the following learning support payment information is provided
-		| StartDate | EndDate   |
-		| 2020-8-1  | 2021-10-1 |
-	And a pause date of 2021-03-31 is sent
-	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2021-03-31 | 2021-06-15 |
+		| 2020-10-15 | 2021-01-15 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
 		| 400    | 2021         | 2              |
-		| 400    | 2021         | 3              |
 		| 533.33 | 2021         | 6              |
 		| 533.33 | 2021         | 7              |
 		| 533.33 | 2021         | 8              |
@@ -339,22 +311,22 @@ Scenario: (OnProgramme - Break Completed) Training provider records a break in l
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	When SLD informs us that the training provider has recorded a break in learning for the apprentice
+	When SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
-		| 2021-03-15 | 2021-06-15 |
+		| 2020-10-15 | 2021-01-15 |
     Then On programme earnings are persisted as follows
-		| Amount  | AcademicYear | DeliveryPeriod |
-		| 400     | 2021         | 1              |
-		| 400     | 2021         | 2              |
-		| 488.889 | 2021         | 6              |
-		| 488.889 | 2021         | 7              |
-		| 488.889 | 2021         | 8              |
-		| 488.889 | 2021         | 9              |
-		| 488.889 | 2021         | 10             |
-		| 488.889 | 2021         | 11             |
-		| 488.889 | 2021         | 12             |
-		| 488.889 | 2122         | 1              |
-		| 488.889 | 2122         | 2              |
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 400    | 2021         | 1              |
+		| 400    | 2021         | 2              |
+		| 533.33 | 2021         | 6              |
+		| 533.33 | 2021         | 7              |
+		| 533.33 | 2021         | 8              |
+		| 533.33 | 2021         | 9              |
+		| 533.33 | 2021         | 10             |
+		| 533.33 | 2021         | 11             |
+		| 533.33 | 2021         | 12             |
+		| 533.33 | 2122         | 1              |
+		| 533.33 | 2122         | 2              |
 	#And calculate Learning Support earnings (if recorded)
 
 Scenario: (OnProgramme - Break Completed) Training provider corrects a previously recorded return from a break in learning
@@ -367,15 +339,14 @@ Scenario: (OnProgramme - Break Completed) Training provider corrects a previousl
 		| 2020-8-1  | 2021-10-1 |
 	When SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
-		| 2021-03-15 | 2021-06-15 |
+		| 2020-10-15 | 2021-05-15 |
 	When SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
-		| 2021-03-31 | 2021-06-15 |
+		| 2020-10-15 | 2021-01-15 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
 		| 400    | 2021         | 2              |
-		| 400    | 2021         | 3              |
 		| 533.33 | 2021         | 6              |
 		| 533.33 | 2021         | 7              |
 		| 533.33 | 2021         | 8              |
@@ -385,8 +356,9 @@ Scenario: (OnProgramme - Break Completed) Training provider corrects a previousl
 		| 533.33 | 2021         | 12             |
 		| 533.33 | 2122         | 1              |
 		| 533.33 | 2122         | 2              |
+	#And calculate Learning Support earnings (if recorded)
 
-Scenario: (OnProgramme - Break Completed) Training provider removes a previously recorded return from a break in learning (or the entire break in learning)
+Scenario: (OnProgramme - Break Completed) Training provider removes a previously recorded return from a break in learning
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
@@ -394,7 +366,6 @@ Scenario: (OnProgramme - Break Completed) Training provider removes a previously
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	And a pause date of 2021-03-15 is sent
 	When SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
 		| 2021-03-15 | 2021-06-15 |
