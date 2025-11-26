@@ -36,7 +36,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.CalculateEarnings(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -62,7 +62,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.CalculateEarnings(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -86,7 +86,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.CalculateEarnings(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -102,7 +102,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.CalculateEarnings(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object);
 
         // Assert
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
@@ -120,6 +120,6 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         var episode = _sut.ApprenticeshipEpisodes.First();
 
-        episode.Calculate(_sut, _mockSystemClock.Object);
+        episode.CalculateOnProgram(_sut, _mockSystemClock.Object);
     }
 }

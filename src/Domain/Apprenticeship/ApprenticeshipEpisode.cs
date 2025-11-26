@@ -58,11 +58,11 @@ public class ApprenticeshipEpisode : AggregateComponent
             : "19+ Apprenticeship (Employer on App Service)";
 
 
-    public void Calculate(Apprenticeship apprenticeship, ISystemClockService systemClock)
+    public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
         (var instalments, var additionalPayments, var onProgramTotal, var completionPayment) = GenerateBasicEarnings(apprenticeship);
 
-        if (_model.CompletionDate != null) // If completed, generate bal and comp payments
+        if (_model.CompletionDate != null)
         {
             instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_model.CompletionDate.Value, instalments, _model.Prices.Max(x => x.EndDate));
             var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_model.CompletionDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
@@ -295,64 +295,6 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
     {
         _model.CompletionDate = completionDate;
-    }
-
-    private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return _model.EarningsProfile.AdditionalPayments;
-        }
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-        var isCensusDay = lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month);
-
-        var additionalPayments = _model.EarningsProfile.AdditionalPayments
-            .Where(x =>
-                    x.AdditionalPaymentType == InstalmentTypes.LearningSupport || // always keep LearningSupport
-                    x.AcademicYear < academicYear || // keep earnings from previous academic years
-                    (x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod) || // keep earlier periods in same year
-                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) || // keep current period if on census day
-                    (x.DueDate <= lastDayOfLearning.Value && x.IsIncentivePayment()) // keep incentive payments due on or before last day of learning
-            )
-            .ToList();
-
-        return additionalPayments;
-    }
-
-    private List<InstalmentModel> GetEarningsToKeep(DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return _model.EarningsProfile.Instalments;
-        }
-
-        List<InstalmentModel> result;
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-
-        var startDate = _model.Prices.Min(x => x.StartDate);
-        var qualifyingPeriodDays = GetQualifyingPeriodDays(startDate, _model.Prices.Max(x => x.EndDate));
-        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
-        if (lastDayOfLearning < qualifyingDate)
-        {
-            result = _model.EarningsProfile.Instalments.Where(x =>
-                    x.AcademicYear < academicYear) //keep earnings from previous academic years
-                .ToList();
-        }
-        else
-        {
-            result = _model.EarningsProfile.Instalments.Where(x =>
-                    x.AcademicYear < academicYear //keep earnings from previous academic years
-            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing.ToString() || x.Type == InstalmentType.Completion.ToString())) //keep earnings in the last delivery period of learning if they are balancing or completion payments
-                .ToList();
-        }
-
-        return result;
     }
 
     private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)

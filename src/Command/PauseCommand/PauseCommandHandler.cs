@@ -20,7 +20,7 @@ public class PauseCommandHandler : ICommandHandler<PauseCommand>
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.Pause(command.PauseDate, _systemClock);
-        apprenticeshipDomainModel.CalculateEarnings(_systemClock);
+        apprenticeshipDomainModel.Calculate(_systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 

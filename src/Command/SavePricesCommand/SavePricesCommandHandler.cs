@@ -27,7 +27,7 @@ public class SavePricesCommandHandler : ICommandHandler<SavePricesCommand>
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.UpdatePrices(command.Prices, command.ApprenticeshipEpisodeKey, command.AgeAtStartOfLearning, _systemClock);
-        apprenticeshipDomainModel.CalculateEarnings(_systemClock, command.ApprenticeshipEpisodeKey);
+        apprenticeshipDomainModel.Calculate(_systemClock, command.ApprenticeshipEpisodeKey);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 

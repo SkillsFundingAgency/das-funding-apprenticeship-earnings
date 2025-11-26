@@ -20,7 +20,7 @@ public class PauseRemoveCommandHandler : ICommandHandler<PauseRemoveCommand>
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.Pause(null, _systemClock);
-        apprenticeshipDomainModel.CalculateEarnings(_systemClock);
+        apprenticeshipDomainModel.Calculate(_systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
