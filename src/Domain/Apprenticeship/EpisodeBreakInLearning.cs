@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -10,7 +11,7 @@ public class EpisodeBreakInLearning
     public Guid EpisodeKey => _model.EpisodeKey;
     public DateTime StartDate => _model.StartDate;
     public DateTime EndDate => _model.EndDate;
-    //public int DurationInCensusDates  DONT APPROVE PR IF I DIDN'T IMPLEMENT THIS
+    public int DurationInCensusDates  => StartDate.NumberOfCensusDates(EndDate);
 
     public EpisodeBreakInLearning(Guid episodeKey, DateTime startDate, DateTime endDate)
     {
