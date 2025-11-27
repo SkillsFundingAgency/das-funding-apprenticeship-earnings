@@ -275,7 +275,6 @@ Scenario: (MathsAndEnglish) Pausing an English course does not effect a maths co
 		| English1 | 100    | 2122         | 1              | Regular | True                 |
 		| English1 | 100    | 2122         | 2              | Regular | True                 |
 
-
 Scenario: (OnProgramme - Break Completed) Training provider records a return from a break in learning
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
@@ -301,7 +300,6 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
 		| 533.33 | 2021         | 12             |
 		| 533.33 | 2122         | 1              |
 		| 533.33 | 2122         | 2              |
-	#And calculate Learning Support earnings (if recorded)
 
 Scenario: (OnProgramme - Break Completed) Training provider records a break in learning and the return at the same time
 	Given an apprenticeship has been created with the following information
@@ -327,7 +325,6 @@ Scenario: (OnProgramme - Break Completed) Training provider records a break in l
 		| 533.33 | 2021         | 12             |
 		| 533.33 | 2122         | 1              |
 		| 533.33 | 2122         | 2              |
-	#And calculate Learning Support earnings (if recorded)
 
 Scenario: (OnProgramme - Break Completed) Training provider corrects a previously recorded return from a break in learning
 	Given an apprenticeship has been created with the following information
@@ -356,7 +353,6 @@ Scenario: (OnProgramme - Break Completed) Training provider corrects a previousl
 		| 533.33 | 2021         | 12             |
 		| 533.33 | 2122         | 1              |
 		| 533.33 | 2122         | 2              |
-	#And calculate Learning Support earnings (if recorded)
 
 Scenario: (OnProgramme - Break Completed) Training provider removes a previously recorded return from a break in learning
 	Given an apprenticeship has been created with the following information
@@ -387,4 +383,3 @@ Scenario: (OnProgramme - Break Completed) Training provider removes a previously
 		| 400    | 2021         | 12             |
 		| 400    | 2122         | 1              |
 		| 400    | 2122         | 2              |
-	#And calculate Learning Support earnings (if recorded)
