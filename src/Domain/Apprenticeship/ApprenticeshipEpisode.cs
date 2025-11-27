@@ -237,40 +237,6 @@ public class ApprenticeshipEpisode : AggregateComponent
         return instalments;
     }
 
-    private List<InstalmentModel> GetEarningsToKeep(DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return _model.EarningsProfile.Instalments;
-        }
-
-        List<InstalmentModel> result;
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-
-        var startDate = _model.Prices.Min(x => x.StartDate);
-        var qualifyingPeriodDays = GetQualifyingPeriodDays(startDate, _model.Prices.Max(x => x.EndDate));
-        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
-        if (lastDayOfLearning < qualifyingDate)
-        {
-            result = _model.EarningsProfile.Instalments.Where(x =>
-                    x.AcademicYear < academicYear) //keep earnings from previous academic years
-                .ToList();
-        }
-        else
-        {
-            result = _model.EarningsProfile.Instalments.Where(x =>
-                    x.AcademicYear < academicYear //keep earnings from previous academic years
-            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing.ToString() || x.Type == InstalmentType.Completion.ToString())) //keep earnings in the last delivery period of learning if they are balancing or completion payments
-                .ToList();
-        }
-
-        return result;
-    }
-
     internal void UpdateFundingBandMaximum(int fundingBandMaximum)
     {
         _model.FundingBandMaximum = fundingBandMaximum;
@@ -359,7 +325,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     // any external factors (e.g. a break in learning, these will be applied later)
     private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, out var onProgramTotal, out var completionPayment);
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(

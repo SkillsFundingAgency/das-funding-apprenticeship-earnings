@@ -65,7 +65,7 @@ internal static class FixtureExtensions
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
             FundingBandMaximum = x.FundingBandMaximum,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
+            Prices = MapPricesToModel(x.Prices, newStartDate),
             Key = x.ApprenticeshipEpisodeKey
         }).ToList();
 
