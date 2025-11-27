@@ -11,6 +11,7 @@ public class SavePricesCommand : ICommand
     public List<LearningEpisodePrice> Prices { get; }
 
     public int AgeAtStartOfLearning { get; set; }
+    public int FundingBandMaximum { get; set; }
 
     public SavePricesCommand(Guid apprenticeshipKey, SavePricesRequest savePricesRequest)
     {
@@ -18,5 +19,6 @@ public class SavePricesCommand : ICommand
         ApprenticeshipEpisodeKey = savePricesRequest.ApprenticeshipEpisodeKey;
         Prices = savePricesRequest.Prices;
         AgeAtStartOfLearning = savePricesRequest.AgeAtStartOfLearning;
+        FundingBandMaximum = savePricesRequest.FundingBandMaximum;
     }
 }

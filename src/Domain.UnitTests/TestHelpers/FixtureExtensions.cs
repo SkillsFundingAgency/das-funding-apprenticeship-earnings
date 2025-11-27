@@ -19,19 +19,19 @@ internal static class FixtureExtensions
             .With(x => x.DateOfBirth, startDate.AddYears(-age))
             .Create();
 
-        apprenticeshipEntityModel.Episode = new SFA.DAS.Learning.Types.LearningEpisode()
+        apprenticeshipEntityModel.Episode = new LearningEpisode()
         {
             Key = Guid.NewGuid(),
             Ukprn = 10000001, 
             EmployerAccountId = 10000001, 
             FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value,
+            FundingBandMaximum = int.MaxValue,
             Prices = new List<LearningEpisodePrice>{ new()
                 {
                     Key = Guid.NewGuid(),
                     StartDate = startDate,
                     EndDate = endDate,
-                    TotalPrice = agreedPrice,
-                    FundingBandMaximum = (int)agreedPrice + 1
+                    TotalPrice = agreedPrice
                 }
             },
             AgeAtStartOfLearning = age
@@ -64,7 +64,8 @@ internal static class FixtureExtensions
             LegalEntityName = x.LegalEntityName,
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
-            Prices = MapPricesToModel(x.Prices, newStartDate),
+            FundingBandMaximum = x.FundingBandMaximum,
+            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
             Key = x.ApprenticeshipEpisodeKey
         }).ToList();
 
@@ -105,7 +106,6 @@ internal static class FixtureExtensions
         return prices?.Select(x => new EpisodePriceModel
         {
             Key = x.PriceKey,
-            FundingBandMaximum = x.FundingBandMaximum,
             StartDate = newStartDate ?? x.StartDate,
             AgreedPrice = x.AgreedPrice,
             EndDate = x.EndDate

@@ -12,7 +12,7 @@ public static class OnProgramPayments
         return onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
     }
 
-    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, out decimal onProgramTotal, out decimal completionPayment)
+    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(IEnumerable<Price> prices, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
     {
         var onProgramPayments = new List<OnProgramPayment>();
         onProgramTotal = 0;
@@ -25,7 +25,7 @@ public static class OnProgramPayments
         {
             var apprenticeshipFunding = new ApprenticeshipFunding.ApprenticeshipFunding(
                 price.AgreedPrice,
-                price.FundingBandMaximum);
+                fundingBandMaximum);
             onProgramTotal = apprenticeshipFunding.OnProgramTotal;
             completionPayment = apprenticeshipFunding.CompletionPayment;
 

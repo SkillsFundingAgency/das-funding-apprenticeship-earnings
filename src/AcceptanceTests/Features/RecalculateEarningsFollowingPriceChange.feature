@@ -4,9 +4,10 @@ Scenario: Price change approved in the year it was requested, below or at fundin
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 25000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-08-15 | 2021-07-31 | 15000 | 25000              |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
 	When the following price change request is sent
 		| EffectiveFromDate | ChangeRequestDate | NewTrainingPrice | NewAssessmentPrice |
@@ -31,9 +32,10 @@ Scenario: Price change approved in the year it was requested, above funding band
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
+	And a funding band maximum of 22500
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2020-08-15 | 2021-07-31 | 15000 | 22500              |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
 	When the following price change request is sent
 		| EffectiveFromDate | ChangeRequestDate | NewTrainingPrice | NewAssessmentPrice |
@@ -58,9 +60,10 @@ Scenario: Price change following Completion
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 21  |
+	And a funding band maximum of 30000
 	And the following Price Episodes
-		| StartDate  | EndDate    | Price | FundingBandMaximum |
-		| 2024-08-01 | 2026-07-31 | 12000 | 30000              |
+		| StartDate  | EndDate    | Price |
+		| 2024-08-01 | 2026-07-31 | 12000 |
 	And earnings are calculated
 	When the following completion is sent
 		| CompletionDate |

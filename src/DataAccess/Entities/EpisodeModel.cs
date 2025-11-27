@@ -22,6 +22,7 @@ public class EpisodeModel
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;
         AgeAtStartOfApprenticeship = learningEpisode.AgeAtStartOfLearning;
+        FundingBandMaximum = learningEpisode.FundingBandMaximum;
         Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
     }
 
@@ -39,6 +40,7 @@ public class EpisodeModel
     public DateTime? CompletionDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? PauseDate { get; set; }
+    public decimal FundingBandMaximum { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
     public List<EpisodeBreakInLearningModel> BreaksInLearning { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;

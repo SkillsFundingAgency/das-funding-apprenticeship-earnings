@@ -49,6 +49,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
+    public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
 
     public string FundingLineType =>
@@ -235,7 +236,46 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         return instalments;
     }
-    
+
+    private List<InstalmentModel> GetEarningsToKeep(DateTime? lastDayOfLearning)
+    {
+        if (!lastDayOfLearning.HasValue)
+        {
+            return _model.EarningsProfile.Instalments;
+        }
+
+        List<InstalmentModel> result;
+
+        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
+
+        var startDate = _model.Prices.Min(x => x.StartDate);
+        var qualifyingPeriodDays = GetQualifyingPeriodDays(startDate, _model.Prices.Max(x => x.EndDate));
+        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
+        if (lastDayOfLearning < qualifyingDate)
+        {
+            result = _model.EarningsProfile.Instalments.Where(x =>
+                    x.AcademicYear < academicYear) //keep earnings from previous academic years
+                .ToList();
+        }
+        else
+        {
+            result = _model.EarningsProfile.Instalments.Where(x =>
+                    x.AcademicYear < academicYear //keep earnings from previous academic years
+            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing.ToString() || x.Type == InstalmentType.Completion.ToString())) //keep earnings in the last delivery period of learning if they are balancing or completion payments
+                .ToList();
+        }
+
+        return result;
+    }
+
+    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
+    {
+        _model.FundingBandMaximum = fundingBandMaximum;
+    }
+
     internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
         _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;
@@ -245,7 +285,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
             if (updatedPrice != null)
             {
-                existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice, updatedPrice.FundingBandMaximum);
+                existingPrice.Update(updatedPrice.StartDate, updatedPrice.EndDate, updatedPrice.TotalPrice);
             }
             else
             {
@@ -256,7 +296,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         var newPrices = updatedPrices
             .Where(x => _prices.All(y => y.PriceKey != x.Key))
-            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice, x.FundingBandMaximum))
+            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice))
             .ToList();
         _model.Prices.AddRange(newPrices.Select(x => x.GetModel()));
         _prices.AddRange(newPrices);
@@ -272,7 +312,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             var matchingPrice = _prices.SingleOrDefault(x => x.PriceKey == price.Key);
             if (matchingPrice == null)
                 return false;
-            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice || matchingPrice.FundingBandMaximum != price.FundingBandMaximum)
+            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice)
                 return false;
         }
 

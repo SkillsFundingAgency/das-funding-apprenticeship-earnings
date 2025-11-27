@@ -11,15 +11,14 @@ public class Price
         _model = model;
     }
 
-    public Price(Guid priceKey, DateTime startDate, DateTime endDate, decimal agreedPrice, decimal fundingBandMaximum)
+    public Price(Guid priceKey, DateTime startDate, DateTime endDate, decimal agreedPrice)
     {
         _model = new EpisodePriceModel
         {
             Key = priceKey,
             StartDate = startDate,
             EndDate = endDate,
-            AgreedPrice = agreedPrice,
-            FundingBandMaximum = fundingBandMaximum
+            AgreedPrice = agreedPrice
         };
     }
 
@@ -27,19 +26,17 @@ public class Price
     public DateTime StartDate => _model.StartDate;
     public DateTime EndDate => _model.EndDate;
     public decimal AgreedPrice => _model.AgreedPrice;
-    public decimal FundingBandMaximum => _model.FundingBandMaximum;
 
     public static Price Get(EpisodePriceModel model)
     {
         return new Price(model);
     }
 
-    public void Update(DateTime startDate, DateTime endDate, decimal totalPrice, int fundingBandMaximum)
+    public void Update(DateTime startDate, DateTime endDate, decimal totalPrice)
     {
         _model.StartDate = startDate;
         _model.EndDate = endDate;
         _model.AgreedPrice = totalPrice;
-        _model.FundingBandMaximum = fundingBandMaximum;
     }
 
     public EpisodePriceModel GetModel()
