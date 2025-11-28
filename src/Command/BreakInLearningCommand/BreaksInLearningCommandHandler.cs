@@ -1,17 +1,17 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.BreakInLearningCommand;
 
 public class BreaksInLearningCommandHandler : ICommandHandler<BreaksInLearningCommand>
 {
-
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClock;
 
-    public BreaksInLearningCommandHandler(IApprenticeshipRepository apprenticeshipRepository, ISystemClockService systemClock)
+    public BreaksInLearningCommandHandler(
+        IApprenticeshipRepository apprenticeshipRepository, 
+        ISystemClockService systemClock)
     {
         _apprenticeshipRepository = apprenticeshipRepository;
         _systemClock = systemClock;
@@ -29,16 +29,7 @@ public class BreaksInLearningCommandHandler : ICommandHandler<BreaksInLearningCo
 
         episode.UpdateBreaksInLearning(breaksInLearning);
         apprenticeshipDomainModel.Calculate(_systemClock, command.EpisodeKey);
-
-        try
-        {
-            await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-        }
-        catch(Exception ex)
-        {
-            // Log exception or handle it as needed
-            throw;
-        }
+        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
     }
 }

@@ -60,7 +60,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
-        (var instalments, var additionalPayments, var onProgramTotal, var completionPayment) = GenerateBasicEarnings(apprenticeship);
+        var(instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(apprenticeship);
 
         if (BreaksInLearning.Any())
         {
