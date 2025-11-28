@@ -48,7 +48,7 @@ public class WhenWithdrawingMathsAndEnglishCourse
             new MathsAndEnglishInstalment(2425, 3, 100m, MathsAndEnglishInstalmentType.Regular, false),
             new MathsAndEnglishInstalment(2425, 4, 100m, MathsAndEnglishInstalmentType.Regular, false),
             new MathsAndEnglishInstalment(2425, 5, 100m, MathsAndEnglishInstalmentType.Regular, false)
-        }, null, null, null);
+        }, null, null, null, null);
 
         episode.UpdateMathsAndEnglishCourses(new() { mathsAndEnglishCourse }, _mockSystemClock.Object);
     }

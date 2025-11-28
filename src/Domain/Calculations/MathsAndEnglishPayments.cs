@@ -1,5 +1,6 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
@@ -12,9 +13,10 @@ public class GenerateMathsAndEnglishPaymentsCommand
     public decimal Amount { get; set; }
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? ActualEndDate { get; set; }
+    public DateTime? PauseDate { get; set; }
     public int? PriorLearningAdjustmentPercentage { get; set; }
 
-    public GenerateMathsAndEnglishPaymentsCommand(DateTime startDate, DateTime endDate, string course, decimal amount,  DateTime? withdrawalDate = null, DateTime? actualEndDate = null, int? priorLearningAdjustmentPercentage = null)
+    public GenerateMathsAndEnglishPaymentsCommand(DateTime startDate, DateTime endDate, string course, decimal amount,  DateTime? withdrawalDate = null, DateTime? actualEndDate = null, DateTime? pauseDate = null, int? priorLearningAdjustmentPercentage = null)
     {
         StartDate = startDate;
         EndDate = endDate;
@@ -22,6 +24,7 @@ public class GenerateMathsAndEnglishPaymentsCommand
         Amount = amount;
         WithdrawalDate = withdrawalDate;
         ActualEndDate = actualEndDate;
+        PauseDate = pauseDate;
         PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
     }
 }
@@ -33,7 +36,7 @@ public static class MathsAndEnglishPayments
         var instalments = new List<MathsAndEnglishInstalment>();
 
         // This is invalid, it should never happen but should not result in any payments
-        if (command.StartDate > command.EndDate) return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
+        if (command.StartDate > command.EndDate) return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
         if (command.StartDate.Month == command.EndDate.Month && command.StartDate.Year == command.EndDate.Year)
@@ -50,6 +53,7 @@ public static class MathsAndEnglishPayments
                 ],
                 command.WithdrawalDate,
                 command.ActualEndDate,
+                command.PauseDate,
                 command.PriorLearningAdjustmentPercentage);
 
         var lastCensusDate = command.EndDate.LastCensusDate();
@@ -108,10 +112,14 @@ public static class MathsAndEnglishPayments
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period //todo soft delete these too?
         if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
-            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
-        
+            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
 
-        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
+        if (command.PauseDate.HasValue)
+        {
+            SoftDeleteAfterDate(instalments, command.PauseDate.Value);
+        }
+
+        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
     }
 
     private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
@@ -126,4 +134,31 @@ public static class MathsAndEnglishPayments
 
         return actualLength >= 1;
     }
+
+    private static void SoftDeleteAfterDate(
+        List<MathsAndEnglishInstalment> instalments,
+        DateTime cutoff)
+    {
+        // Copy instalments to be soft deleted
+        var itemsToReplace = instalments
+            .Where(i => i.DeliveryPeriod.GetCensusDate(i.AcademicYear) > cutoff)
+            .ToList();
+
+        foreach (var oldInst in itemsToReplace)
+        {
+            // Create a new instance with the same values but flagged
+            var newInst = new MathsAndEnglishInstalment(
+                academicYear: oldInst.AcademicYear,
+                deliveryPeriod: oldInst.DeliveryPeriod,
+                amount: oldInst.Amount,
+                type: oldInst.Type,
+                isAfterLearningEnded: true
+            );
+
+            // Replace in the original list
+            var index = instalments.IndexOf(oldInst);
+            instalments[index] = newInst;
+        }
+    }
+
 }

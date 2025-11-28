@@ -37,4 +37,5 @@ public class BreakInLearningStepDefinitions
     {
         await _testContext.TestInnerApi.Delete($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/pause");
     }
+
 }

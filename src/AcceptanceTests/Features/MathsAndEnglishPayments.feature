@@ -121,4 +121,5 @@ Scenario: Maths and English earnings for a course with prior learning
 		| Maths1 | 63     | 2021         | 12             | Regular |
 		| Maths1 | 63     | 2122         | 1              | Regular |
 		| Maths1 | 63     | 2122         | 2              | Regular |
+		| Maths1 | 63     | 2122         | 3              | Regular |
 	And the earnings history is maintained

@@ -163,12 +163,14 @@ public class ApprenticeshipEpisode : AggregateComponent
                         x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), x.IsAfterLearningEnded)).ToList(),
                     mathsAndEnglishModel.WithdrawalDate,
                     mathsAndEnglishModel.ActualEndDate,
+                    mathsAndEnglishModel.PauseDate,
                     mathsAndEnglishModel.PriorLearningAdjustmentPercentage
                 ));
             }
             else
             {
-                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, mathsAndEnglishModel.WithdrawalDate); //todo as we update MathsAndEnglish to support BIL we need to pass a computed value here
+                var lastDayOfLearning = new[] { mathsAndEnglishModel.WithdrawalDate, mathsAndEnglishModel.PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
+                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, lastDayOfLearning);
 
                 updatedCourses.Add(new MathsAndEnglish(
                     mathsAndEnglishModel.StartDate,
@@ -183,6 +185,7 @@ public class ApprenticeshipEpisode : AggregateComponent
                             e.Type == x.Type))).ToList(),
                     mathsAndEnglishModel.WithdrawalDate,
                     mathsAndEnglishModel.ActualEndDate,
+                    mathsAndEnglishModel.PauseDate,
                     mathsAndEnglishModel.PriorLearningAdjustmentPercentage
                 ));
             }

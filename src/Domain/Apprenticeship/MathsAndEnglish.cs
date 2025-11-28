@@ -15,6 +15,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public decimal Amount => _model.Amount;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? ActualEndDate => _model.ActualEndDate;
+    public DateTime? PauseDate => _model.PauseDate;
     public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
 
@@ -24,7 +25,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments, DateTime? withdrawalDate, DateTime? actualEndDate, int? priorLearningAdjustmentPercentage)
+    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments, DateTime? withdrawalDate, DateTime? actualEndDate, DateTime? pauseDate, int? priorLearningAdjustmentPercentage)
     {
         _instalments = instalments;
         _model = new MathsAndEnglishModel();
@@ -35,6 +36,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.Amount = amount;
         _model.WithdrawalDate = withdrawalDate;
         _model.ActualEndDate = actualEndDate;
+        _model.PauseDate = pauseDate;
         _model.Instalments = instalments.ToModels<MathsAndEnglishInstalment, MathsAndEnglishInstalmentModel>(model => model.MathsAndEnglishKey = _model.Key);
         _model.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
     }
