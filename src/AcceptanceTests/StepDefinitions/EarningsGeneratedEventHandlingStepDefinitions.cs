@@ -61,7 +61,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         foreach (var expectedEarning in data)
         {
             earningsInDb.Should()
-                .Contain(x => x.Amount.RoundTo(2) == expectedEarning.Amount.RoundTo(2)
+                .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
                               && x.AcademicYear == expectedEarning.AcademicYear
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
                               && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
