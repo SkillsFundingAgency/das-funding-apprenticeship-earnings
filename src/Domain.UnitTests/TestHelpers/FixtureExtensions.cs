@@ -65,7 +65,7 @@ internal static class FixtureExtensions
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
             FundingBandMaximum = x.FundingBandMaximum,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
+            Prices = MapPricesToModel(x.Prices, newStartDate),
             Key = x.ApprenticeshipEpisodeKey
         }).ToList();
 
@@ -78,7 +78,8 @@ internal static class FixtureExtensions
         {
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
-            Amount = i.Amount
+            Amount = i.Amount,
+            EpisodePriceKey = i.EpisodePriceKey
         }).ToList();
 
         var additionalPayments = earningsProfile.AdditionalPayments.Select(p => new AdditionalPaymentModel
@@ -100,7 +101,7 @@ internal static class FixtureExtensions
         };
     }
 
-    internal static List<EpisodePriceModel>? MapPricesToModel(IReadOnlyCollection<Price>? prices, decimal fundingBandMaximum, DateTime? newStartDate)
+    internal static List<EpisodePriceModel>? MapPricesToModel(IReadOnlyCollection<Price>? prices, DateTime? newStartDate)
     {
         return prices?.Select(x => new EpisodePriceModel
         {

@@ -69,4 +69,25 @@ public static class DateTimeExtensions
         var day = DateTime.DaysInMonth(date.Year, date.Month);
         return new DateTime(date.Year, date.Month, day);
     }
+
+    public static int NumberOfCensusDates(this DateTime start, DateTime end)
+    {
+        if(end < start)
+            throw new ArgumentException("End date must be greater than or equal to start date");
+
+        int count = 0;
+
+        var current = new DateTime(start.Year, start.Month, DateTime.DaysInMonth(start.Year, start.Month));
+
+        while (current <= end)
+        {
+            if (current >= start)
+                count++;
+
+            current = current.AddMonths(1); // will this work correctly if the month is february?
+            current = new DateTime(current.Year, current.Month, DateTime.DaysInMonth(current.Year, current.Month));
+        }
+
+        return count;
+    }
 }

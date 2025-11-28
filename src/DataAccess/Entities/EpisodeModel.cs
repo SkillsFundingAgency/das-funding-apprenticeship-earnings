@@ -42,5 +42,6 @@ public class EpisodeModel
     public DateTime? PauseDate { get; set; }
     public decimal FundingBandMaximum { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
+    public List<EpisodeBreakInLearningModel> BreaksInLearning { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
 }
