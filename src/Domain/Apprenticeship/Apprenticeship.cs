@@ -143,5 +143,10 @@ public class Apprenticeship : AggregateRoot
         currentEpisode.UpdatePause(pauseDate);
         currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
-
+    
+    public void WithdrawMathsAndEnglishCourse(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
+    {
+        var episode = this.GetCurrentEpisode(systemClock);
+        episode.WithdrawMathsAndEnglish(courseName, withdrawalDate, systemClock);
+    }
 }

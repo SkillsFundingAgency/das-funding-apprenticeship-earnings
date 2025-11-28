@@ -45,7 +45,8 @@ public static class MathsAndEnglishPayments
                     new(command.EndDate.ToAcademicYear(),
                         command.EndDate.ToDeliveryPeriod(),
                         command.Amount,
-                        MathsAndEnglishInstalmentType.Regular)
+                        MathsAndEnglishInstalmentType.Regular,
+                        false)
                 ],
                 command.WithdrawalDate,
                 command.ActualEndDate,
@@ -68,7 +69,8 @@ public static class MathsAndEnglishPayments
                 paymentDate.ToAcademicYear(),
                 paymentDate.ToDeliveryPeriod(),
                 monthlyAmount,
-                MathsAndEnglishInstalmentType.Regular
+                MathsAndEnglishInstalmentType.Regular,
+                false
             ));
 
             paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
@@ -84,7 +86,7 @@ public static class MathsAndEnglishPayments
             {
                 instalments.RemoveAll(x =>
                     x.AcademicYear == paymentDateToAdjust.ToAcademicYear() &&
-                    x.DeliveryPeriod == paymentDateToAdjust.ToDeliveryPeriod());
+                    x.DeliveryPeriod == paymentDateToAdjust.ToDeliveryPeriod());  //todo soft delete these too?
 
                 paymentDateToAdjust = paymentDateToAdjust.AddMonths(1).LastDayOfMonth();
                 balancingCount++;
@@ -95,21 +97,19 @@ public static class MathsAndEnglishPayments
             instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(),
                 command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(),
                 balancingAmount,
-                MathsAndEnglishInstalmentType.Balancing));
+                MathsAndEnglishInstalmentType.Balancing,
+                false));
         }
-
-        // Remove instalments after the withdrawal date
-        if (command.WithdrawalDate.HasValue)
-            instalments.RemoveAll(x => x.DeliveryPeriod.GetCensusDate(x.AcademicYear) > command.WithdrawalDate.Value);
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
         if (command.WithdrawalDate.HasValue && command.WithdrawalDate.Value >= command.StartDate && command.WithdrawalDate.Value < command.StartDate.LastDayOfMonth())
-            instalments.Add(new MathsAndEnglishInstalment(command.StartDate.ToAcademicYear(), command.StartDate.ToDeliveryPeriod(), monthlyAmount, MathsAndEnglishInstalmentType.Regular));
+            instalments.Add(new MathsAndEnglishInstalment(command.StartDate.ToAcademicYear(), command.StartDate.ToDeliveryPeriod(), monthlyAmount, MathsAndEnglishInstalmentType.Regular, false));
         
 
-        // Remove all instalments if the withdrawal date is before the end of the qualifying period
+        // Remove all instalments if the withdrawal date is before the end of the qualifying period //todo soft delete these too?
         if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
             return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
+        
 
         return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PriorLearningAdjustmentPercentage);
     }
