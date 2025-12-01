@@ -14,7 +14,8 @@ public class Apprenticeship : AggregateRoot
             ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
             Key = learningCreatedEvent.LearningKey,
             Uln = learningCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) }
+            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) },
+            DateOfBirth = learningCreatedEvent.DateOfBirth
         };
         _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
@@ -34,6 +35,7 @@ public class Apprenticeship : AggregateRoot
     public bool HasEHCP => _model?.HasEHCP ?? false;
     public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
     public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
+    public DateTime DateOfBirth => _model?.DateOfBirth ?? DateTime.MinValue;
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     

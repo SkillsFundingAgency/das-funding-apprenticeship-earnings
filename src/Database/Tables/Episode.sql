@@ -8,7 +8,6 @@
     [FundingEmployerAccountId] BIGINT NULL, 
     [LegalEntityName] NVARCHAR(255) NOT NULL,
     [TrainingCode] NCHAR(50) NOT NULL,
-    [AgeAtStartOfApprenticeship] INT NOT NULL, 
     [CompletionDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
     [PauseDate] DATETIME NULL,

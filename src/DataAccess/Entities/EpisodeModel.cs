@@ -21,7 +21,6 @@ public class EpisodeModel
         FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;
-        AgeAtStartOfApprenticeship = learningEpisode.AgeAtStartOfLearning;
         FundingBandMaximum = learningEpisode.FundingBandMaximum;
         Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
     }
@@ -36,7 +35,6 @@ public class EpisodeModel
 	public long? FundingEmployerAccountId { get; set; }
     public string LegalEntityName { get; set; } = null!;
     public string TrainingCode { get; set; } = null!;
-    public int AgeAtStartOfApprenticeship { get; set; }
     public DateTime? CompletionDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? PauseDate { get; set; }
