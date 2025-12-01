@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
-using System.Data;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using System.Data;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
@@ -28,6 +29,8 @@ public class SqlDatabase : IDisposable
 
     public async Task<ApprenticeshipModel?> GetApprenticeship(Guid learningKey)
     {
+        ClearCachedEntities();
+
         var apprenticeship = await DbContext.Apprenticeships
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
@@ -137,6 +140,17 @@ public class SqlDatabase : IDisposable
         catch (Exception ex)
         {
             Console.WriteLine($"[{nameof(SqlDatabase)}] {nameof(DeleteFile)} exception thrown: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Prevents tests asserting against cached entities that will have been modified outside of the DbContext
+    /// </summary>
+    private void ClearCachedEntities()
+    {
+        foreach (var entry in DbContext.ChangeTracker.Entries().ToList())
+        {
+            entry.State = EntityState.Detached;
         }
     }
 

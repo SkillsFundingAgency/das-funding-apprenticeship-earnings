@@ -6,33 +6,65 @@ Scenario: (change of dob) 90th and 365th day count must be recalculated (always 
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price | Age |
 		| 2020-08-01 | 2021-10-01 | 7000  | 17  |
-	And a training provider has recorded a change of learning start date and/or date of birth
-	And the learner was eligible for 16-18 or 19-24 incentives before the change
-	And the learner is still eligible for 16-18 or 19-24 incentives after the change
-	When the due dates of the incentive earnings are calculated
-	Then the 90th and 365th due dates for incentive payments are recalculated based on the latest learning start date
-	And earnings based on the previous learning start date are removed
+	And the apprenticeship commitment is approved
+	And Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+		| ProviderIncentive | 500    | 2020-10-29 | false                |
+		| EmployerIncentive | 500    | 2020-10-29 | false                |
+		| ProviderIncentive | 500    | 2021-07-31 | false                |
+		| EmployerIncentive | 500    | 2021-07-31 | false                |
+	When a new date of birth 2003-02-01 is sent
+	Then Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+		| ProviderIncentive | 500    | 2020-10-29 | false                |
+		| EmployerIncentive | 500    | 2020-10-29 | false                |
+		| ProviderIncentive | 500    | 2021-07-31 | false                |
+		| EmployerIncentive | 500    | 2021-07-31 | false                |
+	And date of birth is updated to 2003-02-01
 
 Scenario: (change of dob) 90th and 365th day count must be recalculated (was eligible, now ineligible)
-	Given a training provider has recorded a change of learning start date and/or date of birth
-	And the learner was eligible for 16-18 or 19-24 incentives before the change
-	And the learner is now ineligible for 16-18 or 19-24 incentives after the change
-	When the due dates of the incentive earnings are calculated
-	Then incentive earnings based on the previous learning start date are removed
-	And the future incentive earnings based on the latest learning start date are removed
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price | Age |
+		| 2020-08-01 | 2021-10-01 | 7000  | 17  |
+	And the apprenticeship commitment is approved
+	And Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+		| ProviderIncentive | 500    | 2020-10-29 | false                |
+		| EmployerIncentive | 500    | 2020-10-29 | false                |
+		| ProviderIncentive | 500    | 2021-07-31 | false                |
+		| EmployerIncentive | 500    | 2021-07-31 | false                |
+	When a new date of birth 2000-02-01 is sent
+	Then Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+	And date of birth is updated to 2000-02-01
 
 Scenario: (change of dob) 90th and 365th day count must be recalculated (was ineligible, now eligible)
-	Given a training provider has recorded a change of learning start date and/or date of birth
-	And the learner was ineligible for 16-18 or 19-24 incentives before the change
-	And the learner is now eligible for 16-18 or 19-24 incentives after the change
-	When the due dates of the incentive earnings are calculated
-	Then update the incentive earnings based on the latest learning start date
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price | Age |
+		| 2020-08-01 | 2021-10-01 | 7000  | 22  |
+	And the apprenticeship commitment is approved
+	And Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+	When a new date of birth 2003-02-01 is sent
+	Then Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+		| ProviderIncentive | 500    | 2020-10-29 | false                |
+		| EmployerIncentive | 500    | 2020-10-29 | false                |
+		| ProviderIncentive | 500    | 2021-07-31 | false                |
+		| EmployerIncentive | 500    | 2021-07-31 | false                |
+	And date of birth is updated to 2003-02-01
 
 Scenario: (change of dob) No incentives generated (always ineligible)
-	Given a training provider has recorded a change of learning start date and/or date of birth
-	And the learner was ineligible for 16-18 or 19-24 incentives before the change
-	And the learner is still ineligible for 16-18 or 19-24 incentives after the change
-	Then do not record/update incentive earnings for that apprentice
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price | Age |
+		| 2020-08-01 | 2021-10-01 | 7000  | 22  |
+	And the apprenticeship commitment is approved
+	And Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+	When a new date of birth 1997-02-01 is sent
+	Then Additional Payments are persisted as follows
+		| Type              | Amount | DueDate    | IsAfterLearningEnded |
+	And date of birth is updated to 1997-02-01
 
 
 #(change of start date)

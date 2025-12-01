@@ -35,7 +35,7 @@ public class Apprenticeship : AggregateRoot
     public bool HasEHCP => _model?.HasEHCP ?? false;
     public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
     public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
-    public DateTime DateOfBirth => _model?.DateOfBirth ?? DateTime.MinValue;
+    public DateTime DateOfBirth => _model.DateOfBirth;
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     
@@ -150,4 +150,12 @@ public class Apprenticeship : AggregateRoot
         episode.WithdrawMathsAndEnglish(courseName, withdrawalDate, systemClock);
     }
 
+    public void UpdateDateOfBirth(DateTime dateOfBirth)
+    {
+        _model.DateOfBirth = dateOfBirth;
+        foreach (var episode in ApprenticeshipEpisodes)
+        {
+            episode.UpdateAgeAtStart(dateOfBirth);
+        }
+    }
 }

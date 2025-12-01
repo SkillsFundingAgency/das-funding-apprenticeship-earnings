@@ -22,7 +22,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             _earningsProfile = this.GetEarningsProfileFromModel(_model.EarningsProfile);
         }
 
-        _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(_prices.Min(x => x.StartDate));
+        UpdateAgeAtStart(dateOfBirth);
     }
 
     internal static ApprenticeshipEpisode Get(Apprenticeship apprenticeship, EpisodeModel entity)
@@ -344,4 +344,8 @@ public class ApprenticeshipEpisode : AggregateComponent
         return (instalments, additionalPayments, onProgramTotal, completionPayment);
     }
 
+    internal void UpdateAgeAtStart(DateTime dateOfBirth)
+    {
+        _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(_prices.Min(x => x.StartDate));
+    }
 }
