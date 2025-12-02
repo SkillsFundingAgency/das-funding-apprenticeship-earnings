@@ -283,7 +283,6 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	And a pause date of 2020-10-15 is sent
 	When SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
 		| 2020-10-15 | 2021-01-15 |
