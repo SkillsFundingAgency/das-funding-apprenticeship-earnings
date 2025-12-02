@@ -41,6 +41,7 @@ public class AdditionalPaymentsStepDefinitions
 
     [Given(@"the following maths and english course information is provided")]
     [When(@"the following maths and english completion change request is sent")]
+    [When(@"the following maths and english course information is provided")]
     [When(@"the following maths and english withdrawal change request is sent")]
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
@@ -198,6 +199,17 @@ public class AdditionalPaymentsStepDefinitions
 
         var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
 
+        // Check number of instalments per course
+        var expectedCourses = data.Select(d => d.Course).Distinct().ToList();
+        foreach (var course in expectedCourses)
+        {
+            var expectedInstalmentCount = data.Count(d => d.Course == course && d.IsAfterLearningEnded != true);
+            var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == course);
+            courseInDb.Should().NotBeNull();
+            courseInDb.Instalments.Where(x => !x.IsAfterLearningEnded).Should().HaveCount(expectedInstalmentCount);
+        }
+
+        // Check individual instalments
         foreach (var expectedInstalment in data)
         {
             var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == expectedInstalment.Course);
@@ -207,7 +219,8 @@ public class AdditionalPaymentsStepDefinitions
                 .Contain(x => x.Amount == expectedInstalment.Amount
                               && x.AcademicYear == expectedInstalment.AcademicYear
                               && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
-                              && x.Type == expectedInstalment.Type);
+                              && x.Type == expectedInstalment.Type
+                              && (!expectedInstalment.IsAfterLearningEnded.HasValue || x.IsAfterLearningEnded == expectedInstalment.IsAfterLearningEnded.Value));
         }
     }
 

@@ -7,4 +7,5 @@ public class MathsAndEnglishInstalmentDbExpectationModel
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
     public string Type { get; set; }
+    public bool? IsAfterLearningEnded { get; set; }
 }

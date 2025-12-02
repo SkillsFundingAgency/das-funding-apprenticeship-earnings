@@ -42,8 +42,8 @@ public class WhenUpdateMathsAndEnglishCourses
         // Arrange
         var courses = new List<MathsAndEnglish>
         {
-            new(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), "M102", 300, new List < MathsAndEnglishInstalment >(), null, null, null),
-            new(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), "M103", 450, new List < MathsAndEnglishInstalment >(), null, null, null)
+            new(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), "M102", 300, new List < MathsAndEnglishInstalment >(), null, null, null, null),
+            new(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), "M103", 450, new List < MathsAndEnglishInstalment >(), null, null, null, null)
         };
 
         var sut = CreateApprenticeship();
@@ -66,7 +66,7 @@ public class WhenUpdateMathsAndEnglishCourses
 
         var courses = new List<MathsAndEnglish>
         {
-            new(new DateTime(2021, 2, 1), new DateTime(2021, 3, 31), "M101", 200, new List<MathsAndEnglishInstalment>(), null, null, null)
+            new(new DateTime(2021, 2, 1), new DateTime(2021, 3, 31), "M101", 200, new List<MathsAndEnglishInstalment>(), null, null, null, null)
         };
 
         // Act

@@ -35,7 +35,7 @@ public class WhenProcessWithdrawnApprenticeshipCommandHandled
     public async Task ThenTheApprenticeshipIsWithdrawnAndEventIsPublished()
     {
         // Arrange
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
+        var apprenticeshipModel = _fixture.BuildApprenticeshipModel();
         apprenticeshipModel.Episodes.ForEach(x => x.EarningsProfile.Instalments.ForEach(y => y.Type = InstalmentType.Regular.ToString()));
         var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
         SetupMocks();
