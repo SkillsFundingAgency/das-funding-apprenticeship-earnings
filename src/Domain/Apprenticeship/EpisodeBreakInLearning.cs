@@ -12,6 +12,7 @@ public class EpisodeBreakInLearning
     public DateTime StartDate => _model.StartDate;
     public DateTime EndDate => _model.EndDate;
     public int DurationInCensusDates  => StartDate.NumberOfCensusDates(EndDate);
+    public int Duration => (_model.EndDate - _model.StartDate).Days + 1;
 
     public EpisodeBreakInLearning(Guid episodeKey, DateTime startDate, DateTime endDate)
     {
