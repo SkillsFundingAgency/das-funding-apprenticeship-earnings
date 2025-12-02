@@ -293,11 +293,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
 
             var expectedPayments = new[]
             {
-        ExpectedIncentivePayment(expected90DayIncentiveDate, "ProviderIncentive"),
-        ExpectedIncentivePayment(expected90DayIncentiveDate, "EmployerIncentive"),
-        ExpectedIncentivePayment(expected365DayIncentiveDate, "ProviderIncentive"),
-        ExpectedIncentivePayment(expected365DayIncentiveDate, "EmployerIncentive")
-    };
+                ExpectedIncentivePayment(expected90DayIncentiveDate, "ProviderIncentive"),
+                ExpectedIncentivePayment(expected90DayIncentiveDate, "EmployerIncentive"),
+                ExpectedIncentivePayment(expected365DayIncentiveDate, "ProviderIncentive"),
+                ExpectedIncentivePayment(expected365DayIncentiveDate, "EmployerIncentive")
+            };
 
             result.Should().HaveCount(4);
             result.Should().BeEquivalentTo(expectedPayments, opts => opts.Excluding(p => p.Amount));
@@ -325,11 +325,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
 
             var expectedPayments = new[]
             {
-        ExpectedIncentivePayment(expected90DayIncentiveDate, "ProviderIncentive"),
-        ExpectedIncentivePayment(expected90DayIncentiveDate, "EmployerIncentive"),
-        ExpectedIncentivePayment(expected365DayIncentiveDate, "ProviderIncentive"),
-        ExpectedIncentivePayment(expected365DayIncentiveDate, "EmployerIncentive")
-    };
+                ExpectedIncentivePayment(expected90DayIncentiveDate, "ProviderIncentive"),
+                ExpectedIncentivePayment(expected90DayIncentiveDate, "EmployerIncentive"),
+                ExpectedIncentivePayment(expected365DayIncentiveDate, "ProviderIncentive"),
+                ExpectedIncentivePayment(expected365DayIncentiveDate, "EmployerIncentive")
+            };
 
             result.Should().HaveCount(4);
             result.Should().BeEquivalentTo(expectedPayments, opts => opts.Excluding(p => p.Amount));
