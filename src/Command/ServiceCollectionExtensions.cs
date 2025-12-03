@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
@@ -24,7 +25,8 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddScoped<IApprenticeshipFactory, ApprenticeshipFactory>()
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
-            .AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>();
+            .AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>()
+            .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>();
         return serviceCollection;
     }
 

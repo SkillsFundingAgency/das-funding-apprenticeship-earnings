@@ -9,6 +9,7 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ internal class TestStartup
     private readonly Startup _startUp;
     private readonly IEnumerable<MessageHandler> _queueTriggeredFunctions;
     private readonly IMessageSession _messageSession;
+    private readonly IFundingBandMaximumService _fundingBandMaximumService;
 
     public TestStartup(
         TestContext testContext, 
@@ -33,6 +35,7 @@ internal class TestStartup
         _startUp.Configuration = GenerateConfiguration(testContext);
         _queueTriggeredFunctions = queueTriggeredFunctions;
         _messageSession = messageSession;
+        _fundingBandMaximumService = testContext.FundingBandMaximumService;
     }
 
     public void Configure()
@@ -52,6 +55,8 @@ internal class TestStartup
         }
 
         collection.AddSingleton<ISystemClockService, TestSystemClock>();// override DI in Startup
+
+        collection.AddSingleton<IFundingBandMaximumService>(_fundingBandMaximumService);
     }
 
     private static IConfigurationRoot GenerateConfiguration(TestContext testContext)

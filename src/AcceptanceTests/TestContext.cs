@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
@@ -8,6 +9,7 @@ public class TestContext : IDisposable
     public TestInnerApi? TestInnerApi { get; set; }
     public SqlDatabase? SqlDatabase { get; set; }
     public TestMessageSession MessageSession { get; set; }
+    public IFundingBandMaximumService FundingBandMaximumService { get; set; }
 
     public void Dispose()
     {
@@ -19,6 +21,7 @@ public class TestContext : IDisposable
     public TestContext()
     {
         MessageSession = new TestMessageSession();
+        FundingBandMaximumService = new TestFundingBandMaximumService();
     }
 
 }

@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.EarningsOuterApiClient;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
@@ -50,5 +51,28 @@ public static class ServiceCollectionExtensions
         var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
         services.AddSingleton<IMessageSession>(endpointInstance);
 
+    }
+
+    public static IServiceCollection AddEarningsOuterApiClient(this IServiceCollection serviceCollection, EarningOuterApiConfiguration outerConfig)
+    {
+        outerConfig.BaseUrl = EnsureBaseAddressFormat(outerConfig.BaseUrl);
+        serviceCollection.AddScoped<IEarningsOuterApiClient, EarningsOuterApiClient.EarningsOuterApiClient>(x =>
+        {
+            var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(outerConfig.BaseUrl);
+            httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", outerConfig.Key);
+            httpClient.DefaultRequestHeaders.Add("X-Version", "1");
+            return new EarningsOuterApiClient.EarningsOuterApiClient(httpClient);
+        });
+
+        return serviceCollection;
+    }
+
+    private static string EnsureBaseAddressFormat(string baseAddress)
+    {
+        if (baseAddress.EndsWith('/'))
+            return baseAddress;
+
+        return baseAddress + '/';
     }
 }
