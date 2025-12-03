@@ -10,20 +10,21 @@ internal static class BreaksInLearning
     {
         GuardClause(instalments);
 
-        var instalmentsTotal = instalments.Sum(i => i.Amount);
         var instalmentCount = instalments.Count;
         var updatedInstalments = new List<Instalment>();
+        var missedPaymentValue = 0m;
 
         foreach (var instalment in instalments.OrderBy(i => i.DeliveryPeriod.GetCensusDate(i.AcademicYear)))
         {
             if (IsInstalmentDueDuringBreak(instalment, breaksInLearning))
             {
-                // This instalment falls within a break in learning, so do not include it and its amount
-                // should not be counted towards the total
+                missedPaymentValue += instalment.Amount;
             }
             else
             {
-                var instalmentAmount = instalmentsTotal / instalmentCount;
+                var missedPaymentShare = missedPaymentValue / instalmentCount;
+                var instalmentAmount = instalment.Amount + missedPaymentShare;
+                missedPaymentValue -= missedPaymentShare;
 
                 updatedInstalments.Add(new Instalment(
                     instalment.AcademicYear, 
@@ -31,7 +32,6 @@ internal static class BreaksInLearning
                     instalmentAmount,
                     instalment.EpisodePriceKey));
 
-                instalmentsTotal = instalmentsTotal - instalmentAmount;
             }
 
             instalmentCount--;
