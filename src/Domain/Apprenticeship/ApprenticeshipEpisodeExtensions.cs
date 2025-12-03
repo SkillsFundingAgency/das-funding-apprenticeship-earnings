@@ -42,32 +42,13 @@ public static class LearningEpisodeExtensions
         var plausibleLastDaysOfLearning = new List<DateTime?>()
         {
             episode.CompletionDate,
-            episode.WithdrawalDate
+            episode.WithdrawalDate,
+            episode.PauseDate
         };
-
-        if (IsPauseDateOutsideBreaks(episode))
-        {
-            plausibleLastDaysOfLearning.Add(episode.PauseDate);
-        }
 
         return plausibleLastDaysOfLearning
             .Where(d => d.HasValue)
             .OrderBy(d => d.Value)
             .FirstOrDefault();
-    }
-
-    private static bool IsPauseDateOutsideBreaks(ApprenticeshipEpisode episode)
-    {
-        if (!episode.PauseDate.HasValue || episode.BreaksInLearning == null)
-            return true;
-
-        var pauseDate = episode.PauseDate.Value;
-
-        // Pause is inside a break if it is >= Start and <= End
-        bool insideBreak = episode.BreaksInLearning.Any(b =>
-            pauseDate >= b.StartDate &&
-            pauseDate <= b.EndDate);
-
-        return !insideBreak;
     }
 }
