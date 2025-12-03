@@ -15,4 +15,5 @@ public class ApprenticeshipModel
     public bool? HasEHCP { get; set; }
     public bool? IsCareLeaver { get; set; }
     public bool? CareLeaverEmployerConsentGiven { get; set; }
+    public DateTime DateOfBirth { get; set; }
 }

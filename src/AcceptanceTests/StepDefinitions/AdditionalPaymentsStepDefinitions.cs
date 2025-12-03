@@ -72,6 +72,7 @@ public class AdditionalPaymentsStepDefinitions
 
     }
 
+    [Given(@"Additional Payments are persisted as follows")]
     [Then(@"Additional Payments are persisted as follows")]
     public async Task ThenAdditionalPaymentsArePersistedAsFollows(Table table)
     {

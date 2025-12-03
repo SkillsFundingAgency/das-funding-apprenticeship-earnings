@@ -28,7 +28,7 @@ public class LearningCreatedEventPublishingStepDefinitions
 
         _scenarioContext.GetLearningCreatedEventBuilder()
             .WithStartDate(new DateTime(2020, 8, 1))
-            .WithDateOfBirth(new DateTime(2002, 9, 1))
+            .WithAgeAtStart(18)
             .WithAgeAtStart(18);
     }
 
@@ -39,8 +39,7 @@ public class LearningCreatedEventPublishingStepDefinitions
 
         _scenarioContext.GetLearningCreatedEventBuilder()
             .WithStartDate(new DateTime(2020, 8, 1))
-            .WithDateOfBirth(new DateTime(2000, 9, 1))
-            .WithAgeAtStart(19);
+            .WithAgeAtStart(20);
     }
 
     [Given(@"An apprenticeship starts on (.*) and ends on (.*)")]

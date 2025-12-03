@@ -1,6 +1,7 @@
-﻿using SFA.DAS.Learning.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
@@ -9,7 +10,6 @@ public class LearningCreatedEventBuilder
     private Guid _learningKey = Guid.NewGuid();
     private string _uln = new Random().Next().ToString();
     private long _approvalsApprenticeshipId = EventBuilderSharedDefaults.ApprovalsApprenticeshipId;
-    private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
     private List<LearningEpisodePrice> _prices = new();
     private DateTime _startDate = new DateTime(2019, 01, 01);
     private DateTime _endDate = new DateTime(2021, 1, 1);
@@ -31,12 +31,6 @@ public class LearningCreatedEventBuilder
     public LearningCreatedEventBuilder WithEndDate(DateTime endDate)
     {
         _endDate = endDate;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithDateOfBirth(DateTime dob)
-    {
-        _dateOfBirth = dob;
         return this;
     }
 
@@ -75,8 +69,6 @@ public class LearningCreatedEventBuilder
         if (model.StartDate.HasValue) _startDate = model.StartDate.Value;
         if (model.EndDate.HasValue) _endDate = model.EndDate.Value;
 
-        _dateOfBirth = _systemClock.UtcNow.AddYears(-_ageAtStart).AddDays(1).DateTime;
-
         if (model.Price.HasValue)
         {
             _totalPrice = model.Price.Value;
@@ -102,6 +94,9 @@ public class LearningCreatedEventBuilder
             StartDate = x.StartDate,
             EndDate = x.EndDate
         }).ToList();
+
+        _startDate = _prices.Min(x => x.StartDate);
+
         return this;
     }
     public LearningCreatedEventBuilder WithLearningKey(Guid key)
@@ -141,7 +136,7 @@ public class LearningCreatedEventBuilder
             LearningKey = _learningKey,
             Uln = _uln,
             ApprovalsApprenticeshipId = _approvalsApprenticeshipId,
-            DateOfBirth = _dateOfBirth,
+            DateOfBirth = CalculateDateOfBirth(_startDate, _ageAtStart),
             Episode = new LearningEpisode
             {
                 Key = _episodeKey,
@@ -166,5 +161,10 @@ public class LearningCreatedEventBuilder
                 AgeAtStartOfLearning = _ageAtStart
             }
         };
+    }
+
+    private static DateTime CalculateDateOfBirth(DateTime startDate, int age)
+    {
+        return startDate.AddYears(-age).AddDays(1);
     }
 }
