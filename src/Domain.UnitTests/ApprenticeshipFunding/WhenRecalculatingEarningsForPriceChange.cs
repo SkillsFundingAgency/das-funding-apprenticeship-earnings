@@ -40,7 +40,7 @@ public class WhenRecalculatingEarningsForPriceChange
         _originalPrice = _fixture.Create<decimal>();
         _updatedPrice = _fixture.Create<decimal>();
         _existingApprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2021, 12, 31), _originalPrice);
-        _existingApprenticeship.CalculateEarnings(_mockSystemClock.Object);
+        _existingApprenticeship.Calculate(_mockSystemClock.Object);
         _sut = _fixture.CreateUpdatedApprenticeship(_existingApprenticeship, newPrice: _updatedPrice);
 
         _episodeKey = _existingApprenticeship.ApprenticeshipEpisodes.First().ApprenticeshipEpisodeKey;
@@ -63,6 +63,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheAgreedPriceIsUpdated()
     {
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.Prices.OrderBy(x => x.StartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
     }
@@ -71,6 +72,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheOnProgramTotalIsCalculated()
     {
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
@@ -79,6 +81,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheCompletionAmountIsCalculated()
     {
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
@@ -87,6 +90,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
     {
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
@@ -98,6 +102,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenEarningsRecalculatedEventIsCreated()
     {
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
 
         var events = _sut.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
@@ -107,6 +112,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheEarningsProfileIdIsGenerated()
     {
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
@@ -116,6 +122,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _prices.First().TotalPrice = _originalPrice;
         _sut!.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, _episodeKey);
         var events = _sut.FlushEvents();
         events.Should().NotContain(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
     }

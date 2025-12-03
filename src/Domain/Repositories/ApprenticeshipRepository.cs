@@ -47,6 +47,8 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
+            .Include(x=> x.Episodes)
+            .ThenInclude(y=> y.BreaksInLearning)
             .AsSplitQuery()
             .SingleAsync(x => x.Key == key);
 

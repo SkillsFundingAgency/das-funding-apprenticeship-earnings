@@ -80,7 +80,7 @@ public class WhenUpdateMathsAndEnglishCourses
     private Apprenticeship.Apprenticeship CreateApprenticeship()
     {
         var sut = _fixture.CreateApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice);
-        sut.CalculateEarnings(_mockSystemClockService.Object);
+        sut.Calculate(_mockSystemClockService.Object);
         return sut;
     }
 }

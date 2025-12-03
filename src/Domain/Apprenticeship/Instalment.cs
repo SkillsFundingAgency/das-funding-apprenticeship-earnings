@@ -49,6 +49,11 @@ public class Instalment : IDomainEntity<InstalmentModel>
         return new Instalment(model);
     }
 
+    internal void SoftDelete()
+    {
+        _model.IsAfterLearningEnded = true;
+    }
+
     public bool AreSame(InstalmentModel? compare)
     {
         if (compare == null)

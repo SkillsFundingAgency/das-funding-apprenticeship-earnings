@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Internal;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
@@ -48,10 +47,20 @@ public class Apprenticeship : AggregateRoot
         return _model;
     }
 
-    public void CalculateEarnings(ISystemClockService systemClock)
+    public void Calculate(ISystemClockService systemClock, Guid? episodeKey = null)
     {
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.CalculateEpisodeEarnings(this, systemClock);
+        ApprenticeshipEpisode episode;
+
+        if(episodeKey.HasValue)
+        {
+            episode = this.GetEpisode(episodeKey.Value);
+        }
+        else
+        {
+            episode = this.GetCurrentEpisode(systemClock);
+        }
+
+        episode.CalculateOnProgram(this, systemClock);
     }
 
     public void Withdraw(DateTime withdrawalDate, ISystemClockService systemClock)
@@ -77,12 +86,6 @@ public class Apprenticeship : AggregateRoot
         _model.IsCareLeaver = isCareLeaver;
         _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-
-        if(currentEpisode.AgeAtStartOfApprenticeship > 18) // Only recalculate if the age is 19 or older
-        {
-            currentEpisode.CalculateEpisodeEarnings(this, systemClock);
-        }
-
     }
 
     /// <summary>
@@ -118,12 +121,11 @@ public class Apprenticeship : AggregateRoot
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateCompletion(this, completionDate, systemClock);
-        currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int fundingBandMaximum, int ageAtStartOfLearning, ISystemClockService systemClock)
     {
-        var episode = ApprenticeshipEpisodes.Single(x => x.ApprenticeshipEpisodeKey == apprenticeshipEpisodeKey);
+        var episode = this.GetEpisode(apprenticeshipEpisodeKey);
 
         if (episode.PricesAreIdentical(prices))
         {
@@ -132,16 +134,12 @@ public class Apprenticeship : AggregateRoot
 
         episode.UpdateFundingBandMaximum(fundingBandMaximum);
         episode.UpdatePrices(prices, ageAtStartOfLearning);
-        episode.CalculateEpisodeEarnings(this, systemClock);
-        episode.UpdateCompletion(this, episode.CompletionDate, systemClock);
-        episode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void Pause(DateTime? pauseDate, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdatePause(pauseDate);
-        currentEpisode.ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
     
     public void WithdrawMathsAndEnglishCourse(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
@@ -149,4 +147,5 @@ public class Apprenticeship : AggregateRoot
         var episode = this.GetCurrentEpisode(systemClock);
         episode.WithdrawMathsAndEnglish(courseName, withdrawalDate, systemClock);
     }
+
 }

@@ -31,11 +31,11 @@ public class PauseRemoveCommandHandlerTests
         _repositoryMock = new Mock<IApprenticeshipRepository>();
         _systemClockMock = new Mock<ISystemClockService>();
         _handler = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseRemoveCommand.PauseRemoveCommandHandler(_repositoryMock.Object, _systemClockMock.Object);
-        _pauseDate = new DateTime(2024, 10, 10);
         _apprenticeship = _fixture.BuildApprenticeship();
+        _pauseDate = GetValidPauseDate(_apprenticeship);
         _apprenticeshipKey = _apprenticeship.ApprenticeshipKey;
 
-        _apprenticeship.Pause(new DateTime(2024, 10, 10), _systemClockMock.Object);
+        _apprenticeship.Pause(_pauseDate, _systemClockMock.Object);
 
         _repositoryMock
             .Setup(r => r.Get(_apprenticeshipKey))
@@ -75,4 +75,22 @@ public class PauseRemoveCommandHandlerTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
     }
 
+    /// <summary>
+    /// Gets a pause date that falls within the valid range for pausing an apprenticeship.
+    /// </summary>
+    private static DateTime GetValidPauseDate(Apprenticeship apprenticeship)
+    {
+        var earliestStartDate = apprenticeship.ApprenticeshipEpisodes
+            .SelectMany(e => e.Prices)
+            .Min(e => e.StartDate);
+
+        var latestEndDate = apprenticeship.ApprenticeshipEpisodes
+            .SelectMany(e => e.Prices)
+            .Max(e => e.EndDate);
+
+        var apprenticeshipDurationDays = (latestEndDate - earliestStartDate).TotalDays;
+
+        var validPauseDate = earliestStartDate.AddDays(apprenticeshipDurationDays / 2);
+        return validPauseDate;
+    }
 }

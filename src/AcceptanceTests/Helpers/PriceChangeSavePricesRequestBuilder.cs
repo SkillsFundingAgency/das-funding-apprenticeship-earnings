@@ -22,6 +22,7 @@ public class PriceChangeSavePricesRequestBuilder
         if (model.EffectiveFromDate.HasValue) _effectiveFromDate = model.EffectiveFromDate.Value;
         if (model.NewTrainingPrice.HasValue) _newTrainingPrice = model.NewTrainingPrice.Value;
         if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice = model.NewAssessmentPrice.Value;
+        if (model.EndDate.HasValue) _endDate = model.EndDate.Value;
         return this;
     }
 
