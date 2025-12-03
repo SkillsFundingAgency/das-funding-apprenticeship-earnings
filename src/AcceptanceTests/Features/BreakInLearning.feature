@@ -383,3 +383,32 @@ Scenario: (OnProgramme - Break Completed) Training provider removes a previously
 		| 400    | 2021         | 12             |
 		| 400    | 2122         | 1              |
 		| 400    | 2122         | 2              |
+
+Scenario: (OnProgramme - Break Completed) Training provider records a return from a break in learning with an updated price
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+ 		| 2020-08-01 | 2021-10-01 | 7000  |
+ 	And the apprenticeship commitment is approved
+ 	And the following learning support payment information is provided
+ 		| StartDate | EndDate   |
+ 		| 2020-8-1  | 2021-10-1 |
+ 	And a pause date of 2020-10-15 is sent
+	When the following price change request is sent
+		| EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+		| 2021-05-01        | 2021-10-01 | 7500             | 500                |
+ 	When SLD informs us that the break in learning was
+ 		| StartDate  | EndDate    |
+ 		| 2020-10-15 | 2021-01-15 |
+    Then On programme earnings are persisted as follows
+ 		| Amount | AcademicYear | DeliveryPeriod |
+ 		| 400    | 2021         | 1              |
+		| 400    | 2021         | 2              |
+		| 533.33 | 2021         | 6              |
+		| 533.33 | 2021         | 7              |
+		| 533.33 | 2021         | 8              |
+		| 533.33 | 2021         | 9              |
+		| 693.33 | 2021         | 10             |
+		| 693.33 | 2021         | 11             |
+		| 693.33 | 2021         | 12             |
+		| 693.33 | 2122         | 1              |
+		| 693.33 | 2122         | 2              |
