@@ -12,7 +12,6 @@ public class StartDateSavePricesRequestBuilder
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
     private DateTime _endDate = new DateTime(2025, 8, 1);
-    private int _fundingBandMaximum = 18000;
     private int _ageAtStartOfLearning = 19;
 
     public StartDateSavePricesRequestBuilder WithLearningKey(Guid key)
@@ -24,12 +23,6 @@ public class StartDateSavePricesRequestBuilder
     public StartDateSavePricesRequestBuilder WithEpisodeKey(Guid episodeKey)
     {
         _episodeKey = episodeKey;
-        return this;
-    }
-
-    public StartDateSavePricesRequestBuilder WithFundingBandMaximum(int max)
-    {
-        _fundingBandMaximum = max;
         return this;
     }
 
@@ -68,13 +61,12 @@ public class StartDateSavePricesRequestBuilder
         _learningKey = apprenticeship.LearningKey;
         _episodeKey = apprenticeship.Episode.Key;
         _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
-        _fundingBandMaximum = apprenticeship.Episode.FundingBandMaximum;
         _ageAtStartOfLearning = apprenticeship.Episode.AgeAtStartOfLearning;
         _apprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         return this;
     }
 
-    public SavePricesRequest Build()
+    public SavePricesRequest Build(int fundingBandMaximum)
     {
         var prices = new List<LearningEpisodePrice>
         {
@@ -90,7 +82,7 @@ public class StartDateSavePricesRequestBuilder
         return new SavePricesRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
-            FundingBandMaximum = _fundingBandMaximum,
+            FundingBandMaximum = fundingBandMaximum,
             Prices = prices
         };
     }

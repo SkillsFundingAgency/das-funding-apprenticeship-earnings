@@ -9,7 +9,7 @@ public class TestContext : IDisposable
     public TestInnerApi? TestInnerApi { get; set; }
     public SqlDatabase? SqlDatabase { get; set; }
     public TestMessageSession MessageSession { get; set; }
-    public IFundingBandMaximumService FundingBandMaximumService { get; set; }
+    public ITestFundingBandMaximumService FundingBandMaximumService { get; set; }
 
     public void Dispose()
     {

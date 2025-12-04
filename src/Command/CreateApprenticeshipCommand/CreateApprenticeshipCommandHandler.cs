@@ -37,7 +37,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
         public async Task<Apprenticeship> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
         {
             var fundingBandMaximum = await GetFundingBandMaximum(command.LearningCreatedEvent);
-            var apprenticeship = _apprenticeshipFactory.CreateNew(command.LearningCreatedEvent);
+            var apprenticeship = _apprenticeshipFactory.CreateNew(command.LearningCreatedEvent, fundingBandMaximum);
             apprenticeship.Calculate(_systemClock);
             await _apprenticeshipRepository.Add(apprenticeship);
             await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(apprenticeship));

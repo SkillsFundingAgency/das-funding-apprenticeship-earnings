@@ -64,7 +64,7 @@ public class RecalculateEarningsStepDefinitions
         var learningPriceChangedRequest = _scenarioContext.GetPriceChangeSavePricesRequestBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
-            .Build();
+            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", learningPriceChangedRequest);
 
@@ -78,7 +78,7 @@ public class RecalculateEarningsStepDefinitions
         var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
-            .Build();
+            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", savePricesRequest);
 
@@ -105,9 +105,8 @@ public class RecalculateEarningsStepDefinitions
         var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
                     .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
                     .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
-                    .WithFundingBandMaximum(_scenarioContext.Get<LearningCreatedEvent>().Episode.FundingBandMaximum)
                     .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
-                    .Build();
+                    .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
         await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", savePricesRequest);
 

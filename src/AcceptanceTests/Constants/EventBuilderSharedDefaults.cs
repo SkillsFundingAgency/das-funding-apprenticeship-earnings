@@ -2,7 +2,6 @@
 
 public static class EventBuilderSharedDefaults
 {
-    public static int FundingBandMaximum = int.MaxValue;
     public static long ApprovalsApprenticeshipId = 120;
     public static long EmployerAccountId = 12345678;
 

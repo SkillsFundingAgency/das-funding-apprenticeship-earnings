@@ -11,7 +11,7 @@ public class EpisodeModel
     {
     }
 
-    public EpisodeModel(Guid apprenticeshipKey, LearningEpisode learningEpisode) : base()
+    public EpisodeModel(Guid apprenticeshipKey, LearningEpisode learningEpisode, int fundingBandMaximum) : base()
     {
         Key = learningEpisode.Key;
         ApprenticeshipKey = apprenticeshipKey;
@@ -21,7 +21,7 @@ public class EpisodeModel
         FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;
-        FundingBandMaximum = learningEpisode.FundingBandMaximum;
+        FundingBandMaximum = fundingBandMaximum;
         Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
     }
 
