@@ -37,6 +37,7 @@ public class WhenRecalculatingEarningsForPriceChange
     [SetUp]
     public void SetUp()
     {
+        _ageAtStartOfLearning = 20;
         _originalPrice = _fixture.Create<decimal>();
         _updatedPrice = _fixture.Create<decimal>();
         _existingApprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2021, 12, 31), _originalPrice);
@@ -54,7 +55,7 @@ public class WhenRecalculatingEarningsForPriceChange
                 TotalPrice = _updatedPrice
             }
         };
-        _ageAtStartOfLearning = 20;
+        
         _fundingBandMaximum = int.MaxValue;
 
     }

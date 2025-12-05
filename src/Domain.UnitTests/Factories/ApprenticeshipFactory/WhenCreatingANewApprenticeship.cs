@@ -1,8 +1,9 @@
-﻿using System.Linq;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Learning.Types;
+using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.ApprenticeshipFactory;
 
@@ -22,9 +23,9 @@ public class WhenCreatingANewApprenticeship
     [Test]
     public void ThenTheApprenticeshipIsCreated()
     {
-        var learningCreatedEvent = _fixture.Create<LearningCreatedEvent>();
+        var learningCreatedEvent = _fixture.CreateLearningCreatedEvent();
 
-        var apprenticeship = _factory.CreateNew(learningCreatedEvent);
+        var apprenticeship = _factory.CreateNew(learningCreatedEvent, _fixture.Create<int>());
 
         learningCreatedEvent.LearningKey.Should().Be(apprenticeship.ApprenticeshipKey);
         learningCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);

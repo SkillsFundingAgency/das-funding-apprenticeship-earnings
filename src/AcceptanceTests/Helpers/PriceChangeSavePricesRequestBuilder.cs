@@ -10,7 +10,6 @@ public class PriceChangeSavePricesRequestBuilder
 {
     private DateTime _effectiveFromDate = new DateTime(2020, 02, 01);
     private Guid _episodeKey = Guid.NewGuid();
-    private int _fundingBandMaximum = EventBuilderSharedDefaults.FundingBandMaximum;
     private Guid _priceChangePriceKey = Guid.NewGuid();
     private decimal _newTrainingPrice = 17000;
     private decimal _newAssessmentPrice = 3000;
@@ -30,12 +29,11 @@ public class PriceChangeSavePricesRequestBuilder
     {
         _episodeKey = apprenticeship.Episode.Key;
         _endDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
-        _fundingBandMaximum = apprenticeship.Episode.FundingBandMaximum;
         _existingPrices = apprenticeship.Episode.Prices;
         return this;
     }
 
-    public SavePricesRequest Build()
+    public SavePricesRequest Build(int fundingBandMaximum)
     {
         var prices = new List<LearningEpisodePrice>();
 
@@ -58,7 +56,7 @@ public class PriceChangeSavePricesRequestBuilder
         return new SavePricesRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
-            FundingBandMaximum = _fundingBandMaximum,
+            FundingBandMaximum = fundingBandMaximum,
             Prices = prices
         };
     }

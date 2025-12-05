@@ -28,7 +28,7 @@ public class LearningCreatedEventPublishingStepDefinitions
 
         _scenarioContext.GetLearningCreatedEventBuilder()
             .WithStartDate(new DateTime(2020, 8, 1))
-            .WithDateOfBirth(new DateTime(2002, 9, 1))
+            .WithAgeAtStart(18)
             .WithAgeAtStart(18);
     }
 
@@ -39,8 +39,7 @@ public class LearningCreatedEventPublishingStepDefinitions
 
         _scenarioContext.GetLearningCreatedEventBuilder()
             .WithStartDate(new DateTime(2020, 8, 1))
-            .WithDateOfBirth(new DateTime(2000, 9, 1))
-            .WithAgeAtStart(19);
+            .WithAgeAtStart(20);
     }
 
     [Given(@"An apprenticeship starts on (.*) and ends on (.*)")]
@@ -100,8 +99,9 @@ public class LearningCreatedEventPublishingStepDefinitions
     {
         var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
             .WithTotalPrice(35000)
-            .WithFundingBandMaximum(30000)
             .Build();
+
+        _testContext.FundingBandMaximumService.SetFundingBandMaximum(30000);
 
         await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
         _scenarioContext.Set(learningCreatedEvent);
@@ -119,8 +119,7 @@ public class LearningCreatedEventPublishingStepDefinitions
     [Given(@"a funding band maximum of (.*)")]
     public void GivenTheFollowingPriceEpisodes(int fundingBandMaximum)
     {
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithFundingBandMaximum(fundingBandMaximum);
+        _testContext.FundingBandMaximumService.SetFundingBandMaximum(fundingBandMaximum);
     }
 
     [Given(@"the following Price Episodes")]
