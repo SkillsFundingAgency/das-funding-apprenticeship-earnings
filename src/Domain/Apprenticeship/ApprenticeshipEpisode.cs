@@ -4,9 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using BreaksInLearningCalculator = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations.BreaksInLearning;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -64,11 +62,6 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
         var(instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(apprenticeship);
-
-        if (BreaksInLearning.Any())
-        {
-            instalments = BreaksInLearningCalculator.RecalculateInstalments(instalments, BreaksInLearning);
-        }
 
         if (_model.CompletionDate != null)
         {
