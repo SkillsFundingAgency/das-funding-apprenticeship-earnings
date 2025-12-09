@@ -11,15 +11,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal
     public class ReverseWithdrawalCommandHandler : ICommandHandler<ReverseWithdrawalCommand>
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-        private readonly IMessageSession _messageSession;
-        private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
         private readonly ISystemClockService _systemClock;
 
-        public ReverseWithdrawalCommandHandler(IApprenticeshipRepository apprenticeshipRepository, IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
+        public ReverseWithdrawalCommandHandler(IApprenticeshipRepository apprenticeshipRepository, ISystemClockService systemClock)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
-            _messageSession = messageSession;
-            _eventBuilder = eventBuilder;
             _systemClock = systemClock;
         }
 
@@ -31,8 +27,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal
             apprenticeshipDomainModel.Calculate(_systemClock);
 
             await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
-            await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
         }
     }
 

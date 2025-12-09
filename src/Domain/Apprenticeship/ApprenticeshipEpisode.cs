@@ -1,10 +1,13 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using NServiceBus;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -89,6 +92,11 @@ public class ApprenticeshipEpisode : AggregateComponent
                 additionalPayments: additionalPayments,
                 onProgramTotal: onProgramTotal,
                 completionPayment: completionPayment);
+        }
+
+        if (this.HasEvent<EarningsProfileUpdatedEvent>()) // if earnings were updated, raise recalculated event (this is done here instead of in earningProfile as here we have access to the apprenticeship)
+        {
+            this.AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(apprenticeship));
         }
     }
 
