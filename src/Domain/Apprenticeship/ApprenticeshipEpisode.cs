@@ -1,8 +1,10 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using BreaksInLearningCalculator = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations.BreaksInLearning;
 
@@ -51,6 +53,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public DateTime? PauseDate => _model.PauseDate;
     public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
+    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -325,7 +328,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     // any external factors (e.g. a break in learning, these will be applied later)
     private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(

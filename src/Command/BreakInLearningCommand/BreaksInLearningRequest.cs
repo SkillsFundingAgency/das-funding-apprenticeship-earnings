@@ -12,5 +12,6 @@ public class BreakInLearningPeriod
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public DateTime PreviousPeriodExpectedEndDate { get; set; }
 }
 #pragma warning restore CS8618

@@ -285,8 +285,8 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
 		| 2020-8-1  | 2021-10-1 |
 	And a pause date of 2020-10-15 is sent
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-01-15 |
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                    |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -310,8 +310,8 @@ Scenario: (OnProgramme - Break Completed) Training provider records a break in l
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-01-15 |
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                    |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -332,14 +332,14 @@ Scenario: (OnProgramme - Break Completed) Training provider corrects a previousl
 		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following learning support payment information is provided
-		| StartDate | EndDate   |
+		| StartDate | EndDate   | 
 		| 2020-8-1  | 2021-10-1 |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-05-15 |
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-05-15 | 2021-10-01                    |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-01-15 |
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                    |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -363,8 +363,8 @@ Scenario: (OnProgramme - Break Completed) Training provider removes a previously
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2021-03-15 | 2021-06-15 |
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2021-03-15 | 2021-06-15 | 2021-10-01                    |
 	And SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
     Then On programme earnings are persisted as follows
@@ -396,9 +396,9 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
 	When the following price change request is sent
 		| EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
 		| 2021-05-01        | 2021-10-01 | 7500             | 500                |
- 	When SLD informs us that the break in learning was
- 		| StartDate  | EndDate    |
- 		| 2020-10-15 | 2021-01-15 |
+ 	And SLD informs us that the break in learning was
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                    |
     Then On programme earnings are persisted as follows
  		| Amount | AcademicYear | DeliveryPeriod |
  		| 400    | 2021         | 1              |
@@ -412,3 +412,96 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
 		| 693.33 | 2021         | 12             |
 		| 693.33 | 2122         | 1              |
 		| 693.33 | 2122         | 2              |
+
+Scenario: (OnProgramme – Break Completed) Apprenticeship duration is increased after BIL with no price change
+    Given an apprenticeship has been created with the following information
+        | StartDate   | EndDate     | Price |
+        | 2023-10-01  | 2024-09-30  | 15000 |
+    And the apprenticeship commitment is approved
+    And the following learning support payment information is provided
+        | StartDate   | EndDate     |
+        | 2023-10-01  | 2024-09-30  |
+    And a pause date of 2024-02-01 is sent
+    When SLD informs us that the break in learning was
+        | StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+        | 2024-02-01 | 2024-04-30 | 2024-09-30                    |
+    And the following price change request is sent
+        | EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+        | 2024-05-01        | 2025-03-31 | 14500            | 500                |
+    Then On programme earnings are persisted as follows
+        | Amount        | AcademicYear | DeliveryPeriod |
+        | 1000          | 2324         | 3              |
+        | 1000          | 2324         | 4              |
+        | 1000          | 2324         | 5              |
+        | 1000          | 2324         | 6              |
+        | 727.2727273   | 2324         | 10             |
+        | 727.2727273   | 2324         | 11             |
+        | 727.2727273   | 2324         | 12             |
+        | 727.2727273   | 2425         | 1              |
+        | 727.2727273   | 2425         | 2              |
+        | 727.2727273   | 2425         | 3              |
+        | 727.2727273   | 2425         | 4              |
+        | 727.2727273   | 2425         | 5              |
+        | 727.2727273   | 2425         | 6              |
+        | 727.2727273   | 2425         | 7              |
+        | 727.2727273   | 2425         | 8              |
+
+Scenario: (OnProgramme – Break Completed) Apprenticeship duration is increased after BIL with a price increase
+    Given an apprenticeship has been created with the following information
+        | StartDate   | EndDate     | Price |
+        | 2023-10-01  | 2024-09-30  | 15000 |
+    And the apprenticeship commitment is approved
+    And a pause date of 2024-02-01 is sent
+    When SLD informs us that the break in learning was
+        | StartDate   | EndDate     | PreviousPeriodExpectedEndDate |
+        | 2024-02-01  | 2024-04-30  | 2024-09-30                    |
+    And the following price change request is sent
+        | EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+        | 2024-03-01        | 2025-03-31 | 17500            | 500                |
+    Then On programme earnings are persisted as follows
+        | Amount        | AcademicYear | DeliveryPeriod |
+        | 1000          | 2324         | 3              |
+        | 1000          | 2324         | 4              |
+        | 1000          | 2324         | 5              |
+        | 1000          | 2324         | 6              |
+        | 945.4545455   | 2324         | 10             |
+        | 945.4545455   | 2324         | 11             |
+        | 945.4545455   | 2324         | 12             |
+        | 945.4545455   | 2425         | 1              |
+        | 945.4545455   | 2425         | 2              |
+        | 945.4545455   | 2425         | 3              |
+        | 945.4545455   | 2425         | 4              |
+        | 945.4545455   | 2425         | 5              |
+        | 945.4545455   | 2425         | 6              |
+        | 945.4545455   | 2425         | 7              |
+        | 945.4545455   | 2425         | 8              |
+
+Scenario: (OnProgramme – Break Completed) End date is pushed back to account for BIL with no price change
+    Given an apprenticeship has been created with the following information
+        | StartDate   | EndDate     | Price |
+        | 2023-10-01  | 2024-09-30  | 15000 |
+    And the apprenticeship commitment is approved
+    And the following learning support payment information is provided
+        | StartDate   | EndDate     |
+        | 2023-10-01  | 2024-09-30  |
+    And a pause date of 2024-02-01 is sent
+    When SLD informs us that the break in learning was
+		| StartDate  | EndDate    | PreviousPeriodExpectedEndDate |
+		| 2024-02-01 | 2024-04-30 | 2024-09-30                    |
+    And the following price change request is sent
+        | EffectiveFromDate | EndDate     | NewTrainingPrice | NewAssessmentPrice |
+        | 2024-05-01        | 2024-12-31  | 15000            | 0                  |
+    Then On programme earnings are persisted as follows
+        | Amount | AcademicYear | DeliveryPeriod |
+        | 1000   | 2324         | 3              |
+        | 1000   | 2324         | 4              |
+        | 1000   | 2324         | 5              |
+        | 1000   | 2324         | 6              |
+        | 1000   | 2324         | 10             |
+        | 1000   | 2324         | 11             |
+        | 1000   | 2324         | 12             |
+        | 1000   | 2425         | 1              |
+        | 1000   | 2425         | 2              |
+        | 1000   | 2425         | 3              |
+        | 1000   | 2425         | 4              |
+        | 1000   | 2425         | 5              |
