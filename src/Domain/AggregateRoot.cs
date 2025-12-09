@@ -93,6 +93,13 @@ public abstract class AggregateComponent
         return _events.Any(x => x is T);
     }
 
+    public virtual bool HasEvent<T>(Func<T, bool> predicate)
+    {
+        return _events
+            .OfType<T>()          
+            .Any(predicate);
+    }
+
     public void PurgeEventsOfType<T>()
     {
         _events.RemoveAll(e => e is T);

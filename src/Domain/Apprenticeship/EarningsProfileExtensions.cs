@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 internal static class EarningsProfileExtensions
 {
-    internal static EarningsProfileUpdatedEvent CreatedEarningsProfileUpdatedEvent(this EarningsProfileModel earningsProfile)
+    internal static EarningsProfileUpdatedEvent CreatedEarningsProfileUpdatedEvent(this EarningsProfileModel earningsProfile, bool initialGeneration = false)
     {
         var archiveEarningsProfileEvent = new EarningsProfileUpdatedEvent
         {
@@ -16,7 +16,8 @@ internal static class EarningsProfileExtensions
             CompletionPayment = earningsProfile.CompletionPayment,
             Instalments = earningsProfile.GetInstalments(),
             AdditionalPayments = earningsProfile.GetAdditionalPayments(),
-            EnglishAndMaths = earningsProfile.GetMathsAndEnglish()
+            EnglishAndMaths = earningsProfile.GetMathsAndEnglish(),
+            InitialGeneration = initialGeneration
         };
 
         return archiveEarningsProfileEvent;

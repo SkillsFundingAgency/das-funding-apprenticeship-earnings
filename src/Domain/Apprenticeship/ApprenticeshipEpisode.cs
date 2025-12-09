@@ -94,7 +94,7 @@ public class ApprenticeshipEpisode : AggregateComponent
                 completionPayment: completionPayment);
         }
 
-        if (this.HasEvent<EarningsProfileUpdatedEvent>()) // if earnings were updated, raise recalculated event (this is done here instead of in earningProfile as here we have access to the apprenticeship)
+        if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
             this.AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(apprenticeship));
         }
