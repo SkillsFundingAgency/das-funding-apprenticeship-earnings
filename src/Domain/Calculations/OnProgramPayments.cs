@@ -11,17 +11,16 @@ public static class OnProgramPayments
         var onProgramPayments = new List<OnProgramPayment>();
         var runningTotal = 0m;
         completionPayment = 0;
+        onProgramTotal = 0;
 
-        foreach (var periodInLearning in periodsInLearning)
+        foreach (var periodInLearning in periodsInLearning.OrderBy(x => x.StartDate))
         {
             var paymentsForPeriod = GenerateForLearningPeriod(periodInLearning, runningTotal, fundingBandMaximum, out var periodOnProgramTotal, out var periodCompletionPayment);
             runningTotal += paymentsForPeriod.Sum(x=>x.Amount);
             completionPayment = periodCompletionPayment;
-
+            onProgramTotal = periodOnProgramTotal;
             onProgramPayments.AddRange(paymentsForPeriod);
         }
-
-        onProgramTotal = runningTotal;
 
         return onProgramPayments;
     }
