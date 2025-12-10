@@ -394,8 +394,8 @@ Scenario: (OnProgramme - Break Completed) Training provider records a return fro
  		| 2020-8-1  | 2021-10-1 |
  	And a pause date of 2020-10-15 is sent
 	When the following price change request is sent
-		| EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
-		| 2021-05-01        | 2021-10-01 | 7500             | 500                |
+		| StartDate  | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+		| 2021-05-01 | 2021-10-01 | 7500             | 500                |
  	And SLD informs us that the break in learning was
 		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
 		| 2020-10-15 | 2021-01-15 | 2021-10-01                 |
@@ -426,8 +426,8 @@ Scenario: (OnProgramme – Break Completed) Apprenticeship duration is increased
         | StartDate  | EndDate    | PriorPeriodExpectedEndDate |
         | 2024-02-01 | 2024-04-30 | 2024-09-30                 |
     And the following price change request is sent
-        | EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
-        | 2024-05-01        | 2025-03-31 | 14500            | 500                |
+        | StartDate  | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+        | 2024-05-01 | 2025-03-31 | 14500            | 500                |
     Then On programme earnings are persisted as follows
         | Amount        | AcademicYear | DeliveryPeriod |
         | 1000          | 2324         | 3              |
@@ -456,8 +456,8 @@ Scenario: (OnProgramme – Break Completed) Apprenticeship duration is increased
         | StartDate  | EndDate    | PriorPeriodExpectedEndDate |
         | 2024-02-01 | 2024-04-30 | 2024-09-30                 |
     And the following price change request is sent
-        | EffectiveFromDate | EndDate    | NewTrainingPrice | NewAssessmentPrice |
-        | 2024-03-01        | 2025-03-31 | 17500            | 500                |
+        | StartDate  | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+        | 2024-03-01 | 2025-03-31 | 17500            | 500                |
     Then On programme earnings are persisted as follows
         | Amount        | AcademicYear | DeliveryPeriod |
         | 1000          | 2324         | 3              |
@@ -489,8 +489,8 @@ Scenario: (OnProgramme – Break Completed) End date is pushed back to account f
 		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
 		| 2024-02-01 | 2024-04-30 | 2024-09-30                 |
     And the following price change request is sent
-        | EffectiveFromDate | EndDate     | NewTrainingPrice | NewAssessmentPrice |
-        | 2024-05-01        | 2024-12-31  | 15000            | 0                  |
+        | StartDate  | EndDate    | NewTrainingPrice | NewAssessmentPrice |
+        | 2024-05-01 | 2024-12-31 | 15000            | 0                  |
     Then On programme earnings are persisted as follows
         | Amount | AcademicYear | DeliveryPeriod |
         | 1000   | 2324         | 3              |

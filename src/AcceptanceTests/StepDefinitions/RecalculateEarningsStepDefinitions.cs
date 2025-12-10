@@ -59,7 +59,7 @@ public class RecalculateEarningsStepDefinitions
     [When("the following price change request is sent")]
     public async Task SendPriceChangeRequest(Table table)
     {
-        var data = table.CreateSet<PriceChangeModel>().ToList().Single();
+        var data = table.CreateSet<UpdateOnProgrammeModel>().ToList().Single();
         var learningPriceChangedRequest = _scenarioContext.GetPriceChangeSavePricesRequestBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
