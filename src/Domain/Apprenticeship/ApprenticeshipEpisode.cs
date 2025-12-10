@@ -1,10 +1,13 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using NServiceBus;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
-using BreaksInLearningCalculator = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations.BreaksInLearning;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -54,6 +57,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public DateTime? PauseDate => _model.PauseDate;
     public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
+    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
 
     public string FundingLineType =>
         _ageAtStartOfApprenticeship < 19
@@ -64,11 +68,6 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
         var(instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(apprenticeship);
-
-        if (BreaksInLearning.Any())
-        {
-            instalments = BreaksInLearningCalculator.RecalculateInstalments(instalments, BreaksInLearning);
-        }
 
         if (_model.CompletionDate != null)
         {
@@ -96,6 +95,11 @@ public class ApprenticeshipEpisode : AggregateComponent
                 additionalPayments: additionalPayments,
                 onProgramTotal: onProgramTotal,
                 completionPayment: completionPayment);
+        }
+
+        if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
+        {
+            this.AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(apprenticeship));
         }
     }
 
@@ -328,7 +332,8 @@ public class ApprenticeshipEpisode : AggregateComponent
     // any external factors (e.g. a break in learning, these will be applied later)
     private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(

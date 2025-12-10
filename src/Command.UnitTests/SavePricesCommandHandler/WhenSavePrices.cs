@@ -26,8 +26,6 @@ public class WhenSavePrices
 {
     private readonly Fixture _fixture = new();
     private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
-    private Mock<IMessageSession> _mockMessageSession;
-    private Mock<IApprenticeshipEarningsRecalculatedEventBuilder> _mockEventBuilder;
     private Mock<ISystemClockService> _mockSystemClock;
     private SavePricesCommand.SavePricesCommandHandler _handler;
 
@@ -35,18 +33,10 @@ public class WhenSavePrices
     public void SetUp()
     {
         _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-        _mockMessageSession = new Mock<IMessageSession>();
-        _mockEventBuilder = new Mock<IApprenticeshipEarningsRecalculatedEventBuilder>();
         _mockSystemClock = new Mock<ISystemClockService>();
-
-        _mockEventBuilder
-            .Setup(x => x.Build(It.IsAny<Apprenticeship>()))
-            .Returns(new ApprenticeshipEarningsRecalculatedEvent());
 
         _handler = new SavePricesCommand.SavePricesCommandHandler(
             _mockApprenticeshipRepository.Object,
-            _mockMessageSession.Object,
-            _mockEventBuilder.Object,
             _mockSystemClock.Object);
 
     }
@@ -105,29 +95,6 @@ public class WhenSavePrices
 
         // Assert
         _mockApprenticeshipRepository.Verify(repo => repo.Update(apprenticeship), Times.Once);
-    }
-
-    [Test]
-    public async Task Handle_ShouldPublishEvent_FromEventBuilder()
-    {
-        // Arrange
-        var apprenticeship = _fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
-        var expectedEvent = new ApprenticeshipEarningsRecalculatedEvent();
-
-        _mockApprenticeshipRepository
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
-
-        _mockEventBuilder
-            .Setup(b => b.Build(apprenticeship))
-            .Returns(expectedEvent);
-
-        // Act
-        await _handler.Handle(command);
-
-        // Assert
-        _mockMessageSession.Verify(m => m.Publish(expectedEvent, It.IsAny<PublishOptions>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private SavePricesCommand.SavePricesCommand BuildCommand(Apprenticeship apprenticeship)

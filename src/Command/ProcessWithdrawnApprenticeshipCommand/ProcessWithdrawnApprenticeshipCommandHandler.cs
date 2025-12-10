@@ -6,15 +6,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprent
 public class ProcessWithdrawnApprenticeshipCommandHandler : ICommandHandler<ProcessWithdrawnApprenticeshipCommand>
 {
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
-    private readonly IMessageSession _messageSession;
-    private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
     private readonly ISystemClockService _systemClock;
 
-    public ProcessWithdrawnApprenticeshipCommandHandler(IApprenticeshipRepository apprenticeshipRepository, IMessageSession messageSession, IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder, ISystemClockService systemClock)
+    public ProcessWithdrawnApprenticeshipCommandHandler(IApprenticeshipRepository apprenticeshipRepository, ISystemClockService systemClock)
     {
         _apprenticeshipRepository = apprenticeshipRepository;
-        _messageSession = messageSession;
-        _eventBuilder = eventBuilder;
         _systemClock = systemClock;
     }
 
@@ -26,7 +22,5 @@ public class ProcessWithdrawnApprenticeshipCommandHandler : ICommandHandler<Proc
         apprenticeshipDomainModel.Calculate(_systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
-        await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
     }
 }

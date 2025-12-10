@@ -23,13 +23,12 @@ public class BreaksInLearningCommandHandler : ICommandHandler<BreaksInLearningCo
         var episode = apprenticeshipDomainModel.GetEpisode(command.EpisodeKey);
 
         var breaksInLearning = command.BreaksInLearning
-            .Select(b => new EpisodeBreakInLearning(command.EpisodeKey, b.StartDate, b.EndDate))
+            .Select(b => new EpisodeBreakInLearning(command.EpisodeKey, b.StartDate, b.EndDate, b.PriorPeriodExpectedEndDate))
             .ToList();
 
 
         episode.UpdateBreaksInLearning(breaksInLearning);
         apprenticeshipDomainModel.Calculate(_systemClock, command.EpisodeKey);
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
     }
 }

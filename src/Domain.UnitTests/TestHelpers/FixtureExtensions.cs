@@ -127,13 +127,34 @@ internal static class FixtureExtensions
                 AdditionalPaymentType = p.AdditionalPaymentType
             }).ToList();
 
+        var mathAndEnglishCourses = earningsProfile.MathsAndEnglishCourses.Select(c => new MathsAndEnglishModel
+        {
+            Course = c.Course,
+            WithdrawalDate = c.WithdrawalDate,
+            StartDate = c.StartDate,
+            Instalments = c.Instalments.Select(i => new MathsAndEnglishInstalmentModel
+            {
+                AcademicYear = i.AcademicYear,
+                IsAfterLearningEnded = i.IsAfterLearningEnded,
+                DeliveryPeriod = i.DeliveryPeriod,
+                Amount = i.Amount,
+                Type = i.Type.ToString()
+            }).ToList(),
+            Amount = c.Amount,
+            ActualEndDate = c.ActualEndDate,
+            EndDate = c.EndDate,
+            PauseDate = c.PauseDate,
+            PriorLearningAdjustmentPercentage = c.PriorLearningAdjustmentPercentage
+        }).ToList();
+
         return new EarningsProfileModel
         {
             OnProgramTotal = earningsProfile.OnProgramTotal,
             Instalments = instalments,
             AdditionalPayments = additionalPayments,
             CompletionPayment = earningsProfile.CompletionPayment,
-            EarningsProfileId = earningsProfile.EarningsProfileId
+            EarningsProfileId = earningsProfile.EarningsProfileId,
+            MathsAndEnglishCourses = mathAndEnglishCourses
         };
     }
 

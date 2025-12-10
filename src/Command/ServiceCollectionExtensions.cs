@@ -23,8 +23,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection
             .AddScoped<IApprenticeshipFactory, ApprenticeshipFactory>()
-            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
-            .AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>();
+            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
         return serviceCollection;
     }
 
