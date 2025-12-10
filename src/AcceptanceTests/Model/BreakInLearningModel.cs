@@ -10,5 +10,5 @@ public class BreakInLearningModel
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public DateTime PreviousPeriodExpectedEndDate { get; internal set; }
+    public DateTime PriorPeriodExpectedEndDate { get; internal set; }
 }

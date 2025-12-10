@@ -11,10 +11,10 @@ public class EpisodeBreakInLearning
     public Guid EpisodeKey => _model.EpisodeKey;
     public DateTime StartDate => _model.StartDate;
     public DateTime EndDate => _model.EndDate;
-    public DateTime PreviousPeriodExpectedEndDate => _model.PreviousPeriodExpectedEndDate;
+    public DateTime PriorPeriodExpectedEndDate => _model.PriorPeriodExpectedEndDate;
     public int DurationInCensusDates  => StartDate.NumberOfCensusDates(EndDate);
 
-    public EpisodeBreakInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime previousPeriodExpectedEndDate)
+    public EpisodeBreakInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime priorPeriodExpectedEndDate)
     {
         _model = new EpisodeBreakInLearningModel
         {
@@ -22,7 +22,7 @@ public class EpisodeBreakInLearning
             EpisodeKey = episodeKey,
             StartDate = startDate,
             EndDate = endDate,
-            PreviousPeriodExpectedEndDate = previousPeriodExpectedEndDate
+            PriorPeriodExpectedEndDate = priorPeriodExpectedEndDate
         };
     }
 

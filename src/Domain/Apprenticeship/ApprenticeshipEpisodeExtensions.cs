@@ -120,7 +120,7 @@ public static class LearningEpisodeExtensions
 
             var pricesInPeriod = episode.Prices.Where(p => p.StartDate <= endDate && p.EndDate >= startDate);
 
-            periods.Add(pricesInPeriod.CreatePeriodFromPrices(startDate, endDate, bil.PreviousPeriodExpectedEndDate));
+            periods.Add(pricesInPeriod.CreatePeriodFromPrices(startDate, endDate, bil.PriorPeriodExpectedEndDate));
 
             // Next period starts the day after the break ends
             startDate = bil.EndDate.AddDays(1);

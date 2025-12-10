@@ -60,7 +60,7 @@ public class BreakInLearningStepDefinitions
             {
                 StartDate = breakInLearning.StartDate,
                 EndDate = breakInLearning.EndDate,
-                PreviousPeriodExpectedEndDate = breakInLearning.PreviousPeriodExpectedEndDate
+                PriorPeriodExpectedEndDate = breakInLearning.PriorPeriodExpectedEndDate
             });
         }
 

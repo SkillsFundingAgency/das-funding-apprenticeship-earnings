@@ -23,7 +23,7 @@ public class BreaksInLearningCommandHandler : ICommandHandler<BreaksInLearningCo
         var episode = apprenticeshipDomainModel.GetEpisode(command.EpisodeKey);
 
         var breaksInLearning = command.BreaksInLearning
-            .Select(b => new EpisodeBreakInLearning(command.EpisodeKey, b.StartDate, b.EndDate, b.PreviousPeriodExpectedEndDate))
+            .Select(b => new EpisodeBreakInLearning(command.EpisodeKey, b.StartDate, b.EndDate, b.PriorPeriodExpectedEndDate))
             .ToList();
 
 
