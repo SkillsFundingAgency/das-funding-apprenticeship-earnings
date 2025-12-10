@@ -33,7 +33,7 @@ public class EarningsProfile : AggregateComponent
         Model.EpisodeKey = episodeKey;
         Model.Version = Guid.NewGuid();
 
-        AddEvent(Model.CreatedEarningsProfileUpdatedEvent());
+        AddEvent(Model.CreatedEarningsProfileUpdatedEvent(true));
     }
 
     public EarningsProfile(EarningsProfileModel model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)

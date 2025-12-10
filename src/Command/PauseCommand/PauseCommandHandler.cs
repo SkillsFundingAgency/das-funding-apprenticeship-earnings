@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+﻿using NServiceBus;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
@@ -23,6 +24,5 @@ public class PauseCommandHandler : ICommandHandler<PauseCommand>
         apprenticeshipDomainModel.Calculate(_systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
     }
 }

@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
             .AddSingleton<IApprenticeshipEarningsRecalculatedEventBuilder, ApprenticeshipEarningsRecalculatedEventBuilder>()
             .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>();
+            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
         return serviceCollection;
     }
 

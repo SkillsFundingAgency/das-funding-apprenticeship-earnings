@@ -10,6 +10,7 @@ public class EarningsProfileUpdatedEvent
     public List<Instalment> Instalments { get; set; } = null!;
     public List<AdditionalPayment> AdditionalPayments { get; set; } = null!;
     public List<EnglishAndMaths> EnglishAndMaths { get; set; } = null!;
+    public bool InitialGeneration { get; set; }
 }
 
 public class EnglishAndMaths
