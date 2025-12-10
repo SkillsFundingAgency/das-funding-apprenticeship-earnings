@@ -26,16 +26,6 @@ public class RecalculateEarningsStepDefinitions
 
 
     #region Arrange
-    //[Given(@"there are (.*) earnings")]
-    //public void SetDuration(int months)
-    //{
-    //    _scenarioContext.GetLearningCreatedEventBuilder()
-    //        .WithDuration(months);
-
-    //    _scenarioContext.GetStartDateSavePricesRequestBuilder()
-    //        .WithDuration(months);
-    //}
-
     [Given(@"the (.*) date has been moved (.*) months (.*)")]
     public void AdjustDate(string field, int months, string action)
     {
