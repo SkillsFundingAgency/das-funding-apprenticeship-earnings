@@ -57,23 +57,6 @@ public class RecalculateEarningsStepDefinitions
 
     #region Act
 
-
-    [When("the following start date change request is sent")]
-    public async Task SendSavePricesRequestWithUpdatedDates(Table table)
-    {
-        var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
-        var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
-            .WithDataFromSetupModel(data)
-            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
-
-        await _testContext.TestInnerApi.Put($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", savePricesRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
-
-        _scenarioContext.Set(savePricesRequest);
-    }
-
     [When("the following withdrawal is sent")]
     public async Task SendWithdrawalRequest(Table table)
     {

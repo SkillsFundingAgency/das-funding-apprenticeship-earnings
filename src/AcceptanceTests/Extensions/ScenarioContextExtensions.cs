@@ -14,11 +14,11 @@ public static class ScenarioContextExtensions
         return builder;
     }
 
-    public static PriceChangeSavePricesRequestBuilder GetPriceChangeSavePricesRequestBuilder(this ScenarioContext context)
+    public static UpdateOnProgrammeRequestBuilder GetUpdateOnProgrammeRequestBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out PriceChangeSavePricesRequestBuilder builder)) return builder;
+        if (context.TryGetValue(out UpdateOnProgrammeRequestBuilder builder)) return builder;
 
-        builder = new PriceChangeSavePricesRequestBuilder();
+        builder = new UpdateOnProgrammeRequestBuilder();
         context.Set(builder);
         return builder;
     }

@@ -30,14 +30,16 @@ public class UpdateOnProgrammeStepDefinitions
     {
         var data = GetUpdateOnProgrammeModel(table);
 
-        var learningPriceChangedRequest = _scenarioContext.GetPriceChangeSavePricesRequestBuilder()
+        var updateOnProgrammeRequest = _scenarioContext.GetUpdateOnProgrammeRequestBuilder()
             .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
             .WithDataFromSetupModel(data)
             .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
-        await _testContext.TestInnerApi.Put($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", learningPriceChangedRequest);
+        await _testContext.TestInnerApi.Put($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
 
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
+        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish earning recalculation");
+
+        _scenarioContext.Set(updateOnProgrammeRequest);
     }
 
     private UpdateOnProgrammeModel GetUpdateOnProgrammeModel(Table table)

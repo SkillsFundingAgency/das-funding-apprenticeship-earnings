@@ -8,10 +8,10 @@ public class StartDateSavePricesRequestBuilder
 {
     private Guid _learningKey = Guid.NewGuid();
     private long _apprenticeshipId = 123;
-    private DateTime _startDate = new DateTime(2024, 8, 1);
+    private DateTime _startDate = new DateTime(2020, 02, 01);
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
-    private DateTime _endDate = new DateTime(2025, 8, 1);
+    private DateTime _endDate = new DateTime(2022, 1, 1);
     private int _ageAtStartOfLearning = 19;
 
     public StartDateSavePricesRequestBuilder WithLearningKey(Guid key)
@@ -47,12 +47,6 @@ public class StartDateSavePricesRequestBuilder
     public StartDateSavePricesRequestBuilder WithAdjustedEndDateBy(int months)
     {
         _endDate = _endDate.AddMonths(months);
-        return this;
-    }
-
-    public StartDateSavePricesRequestBuilder WithDataFromSetupModel(StartDateChangeModel model)
-    {
-        if (model.NewStartDate.HasValue) _startDate = model.NewStartDate.Value;
         return this;
     }
 

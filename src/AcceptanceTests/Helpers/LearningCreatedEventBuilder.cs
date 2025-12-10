@@ -86,7 +86,9 @@ public class LearningCreatedEventBuilder
         {
             TotalPrice = x.Price,
             StartDate = x.StartDate,
-            EndDate = x.EndDate
+            EndDate = x.EndDate,
+            TrainingPrice = x.Price * 0.8m,
+            EndPointAssessmentPrice = x.Price * 0.2m
         }).ToList();
 
         _startDate = _prices.Min(x => x.StartDate);

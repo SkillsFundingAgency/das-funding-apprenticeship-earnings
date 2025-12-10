@@ -9,9 +9,9 @@ Scenario: New start date earlier than current date and in the same current acade
 		| StartDate  | EndDate    | Price |
 		| 2020-10-15 | 2021-08-31 | 15000 |
 	And earnings are calculated
-	When the following start date change request is sent
-		| NewStartDate |
-		| 2020-09-15   |
+	When the following on-programme request is sent
+		| Key                | Value      |
+		| PriceStartDate     | 2020-09-15 |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 2              |
@@ -36,9 +36,9 @@ Scenario: New start date later than current date and in the same current academi
 		| StartDate  | EndDate    | Price |
 		| 2020-10-15 | 2021-08-31 | 15000 |
 	And earnings are calculated
-	When the following start date change request is sent
-		| NewStartDate | 
-		| 2021-03-15   | 
+	When the following on-programme request is sent
+		| Key                | Value      |
+		| PriceStartDate     | 2021-03-15 |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 2000   | 2021         | 8              |
@@ -58,9 +58,9 @@ Scenario: New start date in the next academic year
 		| StartDate  | EndDate    | Price |
 		| 2020-10-15 | 2022-08-31 | 15000 |
 	And earnings are calculated
-	When the following start date change request is sent
-		| NewStartDate | 
-		| 2022-03-15   | 
+	When the following on-programme request is sent
+		| Key                | Value      |
+		| PriceStartDate     | 2022-03-15 |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 2000   | 2122         | 8              |

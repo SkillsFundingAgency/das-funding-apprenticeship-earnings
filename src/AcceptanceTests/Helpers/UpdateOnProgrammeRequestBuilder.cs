@@ -15,15 +15,16 @@ public class UpdateOnProgrammeRequestBuilder
     private DateTime _priceEndDate = new DateTime(2022, 1, 1);
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceChangePriceKey = Guid.NewGuid();
-    private decimal _newTrainingPrice = 17000;
-    private decimal _newAssessmentPrice = 3000;
+    private TrackedValue<decimal> _newTrainingPrice = new TrackedValue<decimal>(17000);
+    private TrackedValue<decimal> _newAssessmentPrice = new TrackedValue<decimal>(3000);
+    private bool _hasPriceChanged => _newTrainingPrice.HasChanged || _newAssessmentPrice.HasChanged;
     private List<LearningEpisodePrice>? _existingPrices;
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
     {
         if (model.PriceStartDate.HasValue) _priceStartDate = model.PriceStartDate.Value;
-        if (model.NewTrainingPrice.HasValue) _newTrainingPrice = model.NewTrainingPrice.Value;
-        if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice = model.NewAssessmentPrice.Value;
+        if (model.NewTrainingPrice.HasValue) _newTrainingPrice.SetValue(model.NewTrainingPrice.Value);
+        if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice.SetValue(model.NewAssessmentPrice.Value);
         if (model.PriceEndDate.HasValue) _priceEndDate = model.PriceEndDate.Value;
         return this;
     }
@@ -31,8 +32,14 @@ public class UpdateOnProgrammeRequestBuilder
     public UpdateOnProgrammeRequestBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
     {
         _episodeKey = apprenticeship.Episode.Key;
-        _priceEndDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last().EndDate;
+
+        var lastEpisodePrice = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last();
+        _priceEndDate = lastEpisodePrice.EndDate;
+        _newTrainingPrice.ResetValue(lastEpisodePrice.TrainingPrice.Value);
+        _newAssessmentPrice.ResetValue(lastEpisodePrice.EndPointAssessmentPrice.Value);
+
         _existingPrices = apprenticeship.Episode.Prices;
+
         return this;
     }
 
@@ -40,7 +47,7 @@ public class UpdateOnProgrammeRequestBuilder
     {
         var prices = new List<LearningEpisodePrice>();
 
-        if (_existingPrices != null && _existingPrices.Any())
+        if (_existingPrices != null && _existingPrices.Any() && _hasPriceChanged)
         {
             _existingPrices.OrderBy(x => x.StartDate).Last().EndDate = _priceStartDate.AddDays(-1);
             prices.AddRange(_existingPrices);
@@ -49,11 +56,11 @@ public class UpdateOnProgrammeRequestBuilder
         prices.Add(new()
         {
             Key = _priceChangePriceKey,
-            TrainingPrice = _newTrainingPrice,
-            EndPointAssessmentPrice = _newAssessmentPrice,
+            TrainingPrice = _newTrainingPrice.Value,
+            EndPointAssessmentPrice = _newAssessmentPrice.Value,
             StartDate = _priceStartDate,
             EndDate = _priceEndDate,
-            TotalPrice = _newTrainingPrice + _newAssessmentPrice
+            TotalPrice = _newTrainingPrice.Value + _newAssessmentPrice.Value
         });
 
         return new UpdateOnProgrammeRequest()
@@ -63,5 +70,31 @@ public class UpdateOnProgrammeRequestBuilder
             Prices = prices,
             IncludesFundingBandMaximumUpdate = true
         };
+    }
+}
+
+internal class TrackedValue<T>
+{
+    private T _value;
+    private bool _hasChanged = false;
+
+    internal T Value => _value;
+    internal bool HasChanged => _hasChanged;
+
+    internal void SetValue(T value)
+    {
+        _hasChanged = true;
+        _value = value;
+    }
+
+    internal void ResetValue(T value)
+    {
+        _hasChanged = false;
+        _value = value;
+    }
+
+    public TrackedValue(T initialValue)
+    {
+        _value = initialValue;
     }
 }
