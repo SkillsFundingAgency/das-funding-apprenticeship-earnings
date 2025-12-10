@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using System;
 using System.Threading.Tasks;
 
@@ -32,13 +32,13 @@ public class WhenSavePrices
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<SavePricesRequest>();
+        var request = _fixture.Create<UpdateOnProgrammeRequest>();
 
         // Act
-        var result = await _controller.SavePrices(learningKey, request);
+        var result = await _controller.UpdateOnProgramme(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SavePricesCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateOnProgrammeCommand>(), default), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
@@ -47,14 +47,14 @@ public class WhenSavePrices
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<SavePricesRequest>();
+        var request = _fixture.Create<UpdateOnProgrammeRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<SavePricesCommand>(), default))
+            .Setup(x => x.Send(It.IsAny<UpdateOnProgrammeCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.SavePrices(learningKey, request);
+        var result = await _controller.UpdateOnProgramme(learningKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();

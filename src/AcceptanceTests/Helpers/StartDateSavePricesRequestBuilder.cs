@@ -1,5 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
@@ -66,7 +66,7 @@ public class StartDateSavePricesRequestBuilder
         return this;
     }
 
-    public SavePricesRequest Build(int fundingBandMaximum)
+    public UpdateOnProgrammeRequest Build(int fundingBandMaximum)
     {
         var prices = new List<LearningEpisodePrice>
         {
@@ -79,10 +79,11 @@ public class StartDateSavePricesRequestBuilder
             }
         };
 
-        return new SavePricesRequest()
+        return new UpdateOnProgrammeRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
             FundingBandMaximum = fundingBandMaximum,
+            IncludesFundingBandMaximumUpdate = true,
             Prices = prices
         };
     }

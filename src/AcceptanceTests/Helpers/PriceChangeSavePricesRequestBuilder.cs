@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Learning.Enums;
 using SFA.DAS.Learning.Types;
 
@@ -33,7 +33,7 @@ public class PriceChangeSavePricesRequestBuilder
         return this;
     }
 
-    public SavePricesRequest Build(int fundingBandMaximum)
+    public UpdateOnProgrammeRequest Build(int fundingBandMaximum)
     {
         var prices = new List<LearningEpisodePrice>();
 
@@ -53,11 +53,12 @@ public class PriceChangeSavePricesRequestBuilder
             TotalPrice = _newTrainingPrice + _newAssessmentPrice
         });
 
-        return new SavePricesRequest()
+        return new UpdateOnProgrammeRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
             FundingBandMaximum = fundingBandMaximum,
-            Prices = prices
+            Prices = prices,
+            IncludesFundingBandMaximumUpdate = true
         };
     }
 }

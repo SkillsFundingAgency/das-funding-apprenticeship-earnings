@@ -11,7 +11,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCompletionCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveDateOfBirthCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 
@@ -112,24 +112,25 @@ public class ApprenticeshipController: ControllerBase
         return Ok();
     }
 
-    [Route("{apprenticeshipKey}/prices")]
-    [HttpPatch]
-    public async Task<IActionResult> SavePrices(Guid apprenticeshipKey, SavePricesRequest savePricesRequest)
+
+    [Route("{apprenticeshipKey}/on-programme")]
+    [HttpPut]
+    public async Task<IActionResult> UpdateOnProgramme(Guid apprenticeshipKey, UpdateOnProgrammeRequest updateOnProgrammeRequest)
     {
-        _logger.LogInformation("Received request to save prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to update on-programme for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
 
         try
         {
-            var command = new SavePricesCommand(apprenticeshipKey, savePricesRequest);
+            var command = new UpdateOnProgrammeCommand(apprenticeshipKey, updateOnProgrammeRequest);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error updating on-programme for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved prices for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully updated on-programme for apprenticeship {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 

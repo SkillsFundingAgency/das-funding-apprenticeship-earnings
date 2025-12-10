@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -19,7 +19,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.SavePricesCommandHandler;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
 [TestFixture]
 public class WhenSavePrices
@@ -27,7 +27,7 @@ public class WhenSavePrices
     private readonly Fixture _fixture = new();
     private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
     private Mock<ISystemClockService> _mockSystemClock;
-    private SavePricesCommand.SavePricesCommandHandler _handler;
+    private UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler _handler;
 
     [SetUp]
     public void SetUp()
@@ -35,7 +35,7 @@ public class WhenSavePrices
         _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
         _mockSystemClock = new Mock<ISystemClockService>();
 
-        _handler = new SavePricesCommand.SavePricesCommandHandler(
+        _handler = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler(
             _mockApprenticeshipRepository.Object,
             _mockSystemClock.Object);
 
@@ -97,13 +97,14 @@ public class WhenSavePrices
         _mockApprenticeshipRepository.Verify(repo => repo.Update(apprenticeship), Times.Once);
     }
 
-    private SavePricesCommand.SavePricesCommand BuildCommand(Apprenticeship apprenticeship)
+    private UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Apprenticeship apprenticeship)
     {
         var currentEpisode = apprenticeship.ApprenticeshipEpisodes.First();
-        var saveRequest = new SavePricesRequest
+        var saveRequest = new UpdateOnProgrammeRequest
         {
             ApprenticeshipEpisodeKey = currentEpisode.ApprenticeshipEpisodeKey,
             FundingBandMaximum = int.MaxValue,
+            IncludesFundingBandMaximumUpdate = true,
             Prices = new List<LearningEpisodePrice>()
         };
 
@@ -121,6 +122,6 @@ public class WhenSavePrices
             });
         }
 
-        return new SavePricesCommand.SavePricesCommand(apprenticeship.ApprenticeshipKey, saveRequest);
+        return new UpdateOnProgrammeCommand.UpdateOnProgrammeCommand(apprenticeship.ApprenticeshipKey, saveRequest);
     }
 }

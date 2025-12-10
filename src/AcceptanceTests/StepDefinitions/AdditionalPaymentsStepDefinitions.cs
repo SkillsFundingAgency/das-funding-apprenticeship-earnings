@@ -3,7 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -156,37 +156,37 @@ public class AdditionalPaymentsStepDefinitions
     [Then("a first incentive payment is generated")]
     public void AssertFirstIncentivePayment()
     {
-        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, savePricesRequest, apprenticeshipModel);
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, updateOnProgrammeRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, updateOnProgrammeRequest, apprenticeshipModel);
     }
 
     [Then("no first incentive payment is generated")]
     public void AssertNoFirstIncentivePayment()
     {
-        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, savePricesRequest, apprenticeshipModel);
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, updateOnProgrammeRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, updateOnProgrammeRequest, apprenticeshipModel);
     }
 
     [Then("a second incentive payment is generated")]
     public void AssertSecondIncentivePayment()
     {
-        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, savePricesRequest, apprenticeshipModel);
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, updateOnProgrammeRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, updateOnProgrammeRequest, apprenticeshipModel);
     }
 
     [Then("no second incentive payment is generated")]
     public void AssertNoSecondIncentivePayment()
     {
-        var savePricesRequest = _scenarioContext.Get<SavePricesRequest>();
+        var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
-        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, savePricesRequest, apprenticeshipModel);
-        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, savePricesRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, updateOnProgrammeRequest, apprenticeshipModel);
+        IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, updateOnProgrammeRequest, apprenticeshipModel);
     }
 
     [Then(@"Maths and english instalments are persisted as follows")]

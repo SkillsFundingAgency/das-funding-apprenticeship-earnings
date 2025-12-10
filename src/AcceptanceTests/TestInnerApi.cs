@@ -11,6 +11,7 @@ using NServiceBus;
 using NServiceBus.Testing;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -86,6 +87,11 @@ public class TestInnerApi : IDisposable
         var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
         var response = await _httpClient.PatchAsync(route, content);
     }
+    public async Task Put<T>(string route, T body)
+    {
+        var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+        var response = await _httpClient.PutAsync(route, content);
+    }
 
     public async Task Post<T>(string route, T body)
     {
@@ -127,5 +133,4 @@ public class TestInnerApi : IDisposable
 
         _isDisposed = true;
     }
-
 }

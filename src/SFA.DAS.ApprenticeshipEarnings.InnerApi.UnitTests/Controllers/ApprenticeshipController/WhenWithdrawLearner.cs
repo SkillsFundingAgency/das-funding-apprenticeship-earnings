@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 using System;
 using System.Threading.Tasks;
 
