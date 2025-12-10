@@ -33,6 +33,8 @@ public class UpdateOnProgrammeRequestBuilder
     {
         _episodeKey = apprenticeship.Episode.Key;
 
+        _priceStartDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).First().StartDate;
+
         var lastEpisodePrice = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last();
         _priceEndDate = lastEpisodePrice.EndDate;
         _newTrainingPrice.ResetValue(lastEpisodePrice.TrainingPrice.Value);

@@ -26,15 +26,15 @@ public class RecalculateEarningsStepDefinitions
 
 
     #region Arrange
-    [Given(@"there are (.*) earnings")]
-    public void SetDuration(int months)
-    {
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithDuration(months);
+    //[Given(@"there are (.*) earnings")]
+    //public void SetDuration(int months)
+    //{
+    //    _scenarioContext.GetLearningCreatedEventBuilder()
+    //        .WithDuration(months);
 
-        _scenarioContext.GetStartDateSavePricesRequestBuilder()
-            .WithDuration(months);
-    }
+    //    _scenarioContext.GetStartDateSavePricesRequestBuilder()
+    //        .WithDuration(months);
+    //}
 
     [Given(@"the (.*) date has been moved (.*) months (.*)")]
     public void AdjustDate(string field, int months, string action)
@@ -67,20 +67,6 @@ public class RecalculateEarningsStepDefinitions
         _scenarioContext.Set(withdrawRequest);
 
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
-    }
-
-    [When("the updated prices with new dates request is sent")]
-    public async Task SendUpdatedPriceChangeRequest()
-    {
-        var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
-                    .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
-                    .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
-                    .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
-                    .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
-
-        await _testContext.TestInnerApi.Put($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", savePricesRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
     }
 
     [When("the following maths and english withdrawal is sent")]

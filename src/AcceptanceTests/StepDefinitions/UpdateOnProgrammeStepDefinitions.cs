@@ -25,6 +25,7 @@ public class UpdateOnProgrammeStepDefinitions
         _testContext = testContext;
     }
 
+    [Given(@"the following on-programme request is sent")]
     [When("the following on-programme request is sent")]
     public async Task SendOnProgrammeRequest(Table table)
     {
