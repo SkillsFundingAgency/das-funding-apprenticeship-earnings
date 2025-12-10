@@ -18,10 +18,11 @@ public class PriceChangeSavePricesRequestBuilder
 
     public PriceChangeSavePricesRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
     {
-        if (model.StartDate.HasValue) _effectiveFromDate = model.StartDate.Value;
+        if (model.PriceStartDate.HasValue) _effectiveFromDate = model.PriceStartDate.Value;
+        if (model.PriceEndDate.HasValue) _endDate = model.PriceEndDate.Value;
         if (model.NewTrainingPrice.HasValue) _newTrainingPrice = model.NewTrainingPrice.Value;
         if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice = model.NewAssessmentPrice.Value;
-        if (model.EndDate.HasValue) _endDate = model.EndDate.Value;
+        
         return this;
     }
 

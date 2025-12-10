@@ -2,8 +2,8 @@
 
 public class UpdateOnProgrammeModel
 {
-    public DateTime? EndDate{ get; set; }
-    public DateTime? StartDate { get; set; }
+    public DateTime? PriceStartDate { get; set; }
+    public DateTime? PriceEndDate{ get; set; }
     public decimal? NewTrainingPrice { get; set; }
     public decimal? NewAssessmentPrice { get; set; }
 }

@@ -9,9 +9,11 @@ Scenario: Price change approved in the year it was requested, below or at fundin
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following price change request is sent
-		| StartDate  | ChangeRequestDate | NewTrainingPrice | NewAssessmentPrice |
-		| 2021-02-15 | 2021-01-15        | 18000            | 750                |
+	When the following on-programme request is sent
+		| Key                | Value      |
+		| PriceStartDate     | 2021-02-15 |
+		| NewTrainingPrice   | 18000      |
+		| NewAssessmentPrice | 750        |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 1              |
@@ -37,9 +39,11 @@ Scenario: Price change approved in the year it was requested, above funding band
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following price change request is sent
-		| StartDate  | ChangeRequestDate | NewTrainingPrice | NewAssessmentPrice |
-		| 2021-02-15 | 2021-01-15        | 30000            | 750                |
+	When the following on-programme request is sent
+		| Key                | Value      |
+		| PriceStartDate     | 2021-02-15 |
+		| NewTrainingPrice   | 30000      |
+		| NewAssessmentPrice | 750        |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 1              |
@@ -68,9 +72,11 @@ Scenario: Price change following Completion
 	When the following completion is sent
 		| CompletionDate |
 		| 2025-04-01     |
-	When the following price change request is sent
-		| StartDate  | ChangeRequestDate | NewTrainingPrice | NewAssessmentPrice |
-		| 2024-08-01 | 2024-08-01        | 5000             | 1000               |
+	When the following on-programme request is sent
+		| Key                | Value      |
+		| PriceStartDate     | 2024-08-01 |
+		| NewTrainingPrice   | 5000       |
+		| NewAssessmentPrice | 1000       |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 200    | 2425         | 1              | Regular    |
