@@ -10,21 +10,15 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
     private readonly ILogger<SaveCareDetailsCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClockService;
-    private readonly IMessageSession _messageSession;
-    private readonly IApprenticeshipEarningsRecalculatedEventBuilder _earningsRecalculatedEventBuilder;
 
     public SaveCareDetailsCommandHandler(
         ILogger<SaveCareDetailsCommandHandler> logger, 
         IApprenticeshipRepository apprenticeshipRepository, 
-        ISystemClockService systemClock,
-        IMessageSession messageSession,
-        IApprenticeshipEarningsRecalculatedEventBuilder earningsRecalculatedEventBuilder)
+        ISystemClockService systemClock)
     {
         _logger = logger;
         _apprenticeshipRepository = apprenticeshipRepository;
         _systemClockService = systemClock;
-        _messageSession = messageSession;
-        _earningsRecalculatedEventBuilder = earningsRecalculatedEventBuilder;
     }
 
     public async Task Handle(SaveCareDetailsCommand command, CancellationToken cancellationToken = default)
@@ -33,20 +27,9 @@ public class SaveCareDetailsCommandHandler : ICommandHandler<SaveCareDetailsComm
 
         var apprenticeshipDomainModel = await GetDomainApprenticeship(command.ApprenticeshipKey);
         apprenticeshipDomainModel.UpdateCareDetails(command.HasEHCP, command.IsCareLeaver, command.CareLeaverEmployerConsentGiven, _systemClockService);
-
-        var hasRecalculatedEarnings = apprenticeshipDomainModel.HasEvent<EarningsProfileUpdatedEvent>();
+        apprenticeshipDomainModel.Calculate(_systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
-        if (hasRecalculatedEarnings)
-        {
-            _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
-            await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
-        }
-        else
-        {
-            _logger.LogInformation("No EarningsRecalculatedEvent to publish for apprenticeship {LearningKey}", command.ApprenticeshipKey);
-        }
        
         _logger.LogInformation("Successfully handled SaveCareDetailsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }

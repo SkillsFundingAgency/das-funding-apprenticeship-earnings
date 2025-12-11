@@ -21,6 +21,7 @@ internal static class TestHelper
     {
         var episodeModel = fixture
             .Build<EpisodeModel>()
+            .With(x => x.BreaksInLearning, new List<EpisodeBreakInLearningModel>())
             .With(x=> x.FundingBandMaximum, int.MaxValue)
             .With(x => x.Prices, new List<EpisodePriceModel>{ fixture.Build<EpisodePriceModel>()
                 .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-10))

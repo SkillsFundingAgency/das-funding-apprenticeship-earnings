@@ -33,6 +33,14 @@ public static class ApprenticeshipExtensions
         return GetCurrentEpisode(apprenticeship, systemClock.UtcNow.DateTime);
     }
 
+    public static ApprenticeshipEpisode GetEpisode(this Apprenticeship apprenticeship,  Guid episodeKey)
+    {
+        var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(e => e.ApprenticeshipEpisodeKey == episodeKey);
+        if (episode == null)
+            throw new InvalidOperationException($"No episode found for key {episodeKey}");
+        return episode!;
+    }
+
     public static ApprenticeshipEpisode GetEpisodeFromModel(this Apprenticeship apprenticeship, EpisodeModel entity)
     {
         return ApprenticeshipEpisode.Get(apprenticeship, entity);

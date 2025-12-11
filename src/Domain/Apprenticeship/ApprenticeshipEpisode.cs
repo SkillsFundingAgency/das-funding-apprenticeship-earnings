@@ -1,4 +1,6 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using NServiceBus;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -17,6 +19,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model = model;
 
         _prices = _model.Prices.Select(Price.Get).ToList();
+        _breaksInLearning = _model.BreaksInLearning.Select(EpisodeBreakInLearning.Get).ToList();
         if (_model.EarningsProfile != null)
         {
             _earningsProfile = this.GetEarningsProfileFromModel(_model.EarningsProfile);
@@ -31,6 +34,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     private readonly EpisodeModel _model;
     private List<Price> _prices;
+    private List<EpisodeBreakInLearning> _breaksInLearning;
     private EarningsProfile? _earningsProfile;
 
     public Guid ApprenticeshipEpisodeKey => _model.Key;
@@ -43,35 +47,39 @@ public class ApprenticeshipEpisode : AggregateComponent
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
+    public IReadOnlyCollection<EpisodeBreakInLearning> BreaksInLearning => new ReadOnlyCollection<EpisodeBreakInLearning>(_breaksInLearning);
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
     public decimal FundingBandMaximum => _model.FundingBandMaximum;
-    public DateTime? LastDayOfLearning => new[] { CompletionDate, WithdrawalDate, PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
+    public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
+    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
-    public void CalculateEpisodeEarnings(Apprenticeship apprenticeship, ISystemClockService systemClock)
+
+    public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(Prices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
-        var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
+        var(instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(apprenticeship);
 
-        var incentivePayments = IncentivePayments.GenerateIncentivePayments(
-            AgeAtStartOfApprenticeship, 
-            _prices.Min(p => p.StartDate), 
-            _prices.Max(p => p.EndDate),
-            apprenticeship.HasEHCP,
-            apprenticeship.IsCareLeaver,
-            apprenticeship.CareLeaverEmployerConsentGiven);
+        if (_model.CompletionDate != null)
+        {
+            instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_model.CompletionDate.Value, instalments, _model.Prices.Max(x => x.EndDate));
+            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_model.CompletionDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
+            instalments = instalments.Append(completionInstalment).ToList();
+        }
 
-        var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
-        
+        if(LastDayOfLearning.HasValue)
+        {
+            instalments = OnProgramPayments.SoftDeleteAfterLastDayOfLearning(instalments, _prices, LastDayOfLearning.Value);
+            additionalPayments = AdditionalPayments.SoftDeleteAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
+        }
 
-        if(_earningsProfile == null)
+        if (_earningsProfile == null)
         {
             _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey);
             _model.EarningsProfile = _earningsProfile.GetModel();
@@ -79,52 +87,27 @@ public class ApprenticeshipEpisode : AggregateComponent
         else
         {
             additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
-            _earningsProfile.Update(systemClock, 
-                instalments: instalments, 
-                additionalPayments:additionalPayments,
-                onProgramTotal:onProgramTotal,
-                completionPayment:completionPayment);
+            _earningsProfile.Update(systemClock,
+                instalments: instalments,
+                additionalPayments: additionalPayments,
+                onProgramTotal: onProgramTotal,
+                completionPayment: completionPayment);
+        }
+
+        if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
+        {
+            this.AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(apprenticeship));
         }
     }
 
     public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _model.WithdrawalDate = withdrawalDate;
-        ReEvaluateEarningsAfterEndOfLearning(systemClock);
     }
 
     public void ReverseWithdrawal(ISystemClockService systemClockService)
     {
         _model.WithdrawalDate = null;
-        ReEvaluateEarningsAfterEndOfLearning(systemClockService);
-    }
-
-    public void ReEvaluateEarningsAfterEndOfLearning(ISystemClockService systemClock)
-    {
-        var earningsToKeep = GetEarningsToKeep(LastDayOfLearning);
-        var additionalPaymentsToKeep = GetAdditionalPaymentsToKeep(LastDayOfLearning);
-
-        var updatedInstalments = _model.EarningsProfile.Instalments
-            .Select(x => new Instalment(
-                x.AcademicYear,
-                x.DeliveryPeriod,
-                x.Amount,
-                x.EpisodePriceKey,
-                Enum.Parse<InstalmentType>(x.Type),
-                !earningsToKeep.Contains(x)))
-            .ToList();
-
-        var updatedAdditionalPayments = _model.EarningsProfile.AdditionalPayments
-            .Select(x => new AdditionalPayment(
-                x.AcademicYear,
-                x.DeliveryPeriod,
-                x.Amount,
-                x.DueDate,
-                x.AdditionalPaymentType,
-                !additionalPaymentsToKeep.Contains(x)))
-            .ToList();
-
-        _earningsProfile.Update(systemClock, instalments: updatedInstalments, additionalPayments: updatedAdditionalPayments);
     }
 
     public void WithdrawMathsAndEnglish(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
@@ -211,7 +194,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         existingAdditionalPayments.AddRange(additionalPayments);
 
-        _earningsProfile.Update(
+        _earningsProfile!.Update(
             systemClock,
             additionalPayments: existingAdditionalPayments);
     }
@@ -223,7 +206,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, mathsAndEnglishCourses.Select(x => x.GetModel()).ToList());
-        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
+        _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
     }
 
     /// <summary>
@@ -231,97 +214,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
     {
-        if(!completionDate.HasValue && !_model.CompletionDate.HasValue)
-            return; // No change
-
-        // If previously completed, clear existing completion and balancing instalments. And recalculate instalments
-        if (_model.CompletionDate != null)
-        {
-            _model.CompletionDate = null;
-            _earningsProfile!.Update(systemClock, completionPayment: 0);
-            CalculateEpisodeEarnings(apprenticeship, systemClock);
-
-            if(completionDate.HasValue)
-            {
-                _earningsProfile.PurgeEventsOfType<EarningsProfileUpdatedEvent>();// The version will be updated and archive event raised later
-            }
-            else
-            {
-                return; // No new completion date provided, so just return after recalculating earnings without purging update event
-            }
-        }
-
-        var existingInstalments = _earningsProfile?.Instalments.Where(x=>x.Type != InstalmentType.Completion && x.Type != InstalmentType.Balancing).ToList() ?? new List<Instalment>();
-        var balancedInstalments = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate!.Value, existingInstalments, _model.Prices.Max(x => x.EndDate));
-        var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(completionDate!.Value, _earningsProfile!.CompletionPayment, existingInstalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
-
-        _earningsProfile.Update(systemClock,
-            instalments: balancedInstalments.Append(completionInstalment).ToList());
-
         _model.CompletionDate = completionDate;
-    }
-
-    private List<AdditionalPaymentModel> GetAdditionalPaymentsToKeep(DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return _model.EarningsProfile.AdditionalPayments;
-        }
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-        var isCensusDay = lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month);
-
-        var additionalPayments = _model.EarningsProfile.AdditionalPayments
-            .Where(x =>
-                    x.AdditionalPaymentType == InstalmentTypes.LearningSupport || // always keep LearningSupport
-                    x.AcademicYear < academicYear || // keep earnings from previous academic years
-                    (x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod) || // keep earlier periods in same year
-                    (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && isCensusDay) || // keep current period if on census day
-                    (x.DueDate <= lastDayOfLearning.Value && x.IsIncentivePayment()) // keep incentive payments due on or before last day of learning
-            )
-            .ToList();
-
-        return additionalPayments;
-    }
-
-    private List<InstalmentModel> GetEarningsToKeep(DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return _model.EarningsProfile.Instalments;
-        }
-
-        List<InstalmentModel> result;
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-
-        var startDate = _model.Prices.Min(x => x.StartDate);
-        var qualifyingPeriodDays = GetQualifyingPeriodDays(startDate, _model.Prices.Max(x => x.EndDate));
-        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
-        if (lastDayOfLearning < qualifyingDate)
-        {
-            result = _model.EarningsProfile.Instalments.Where(x =>
-                    x.AcademicYear < academicYear) //keep earnings from previous academic years
-                .ToList();
-        }
-        else
-        {
-            result = _model.EarningsProfile.Instalments.Where(x =>
-                    x.AcademicYear < academicYear //keep earnings from previous academic years
-            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing.ToString() || x.Type == InstalmentType.Completion.ToString())) //keep earnings in the last delivery period of learning if they are balancing or completion payments
-                .ToList();
-        }
-
-        return result;
-    }
-
-    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
-    {
-        _model.FundingBandMaximum = fundingBandMaximum;
     }
 
     private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)
@@ -347,6 +240,12 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         return instalments;
     }
+
+    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
+    {
+        _model.FundingBandMaximum = fundingBandMaximum;
+    }
+
     internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
         _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;
@@ -373,17 +272,6 @@ public class ApprenticeshipEpisode : AggregateComponent
         _prices.AddRange(newPrices);
     }
 
-    private int GetQualifyingPeriodDays(DateTime startDate, DateTime plannedEndDate)
-    {
-        var plannedDuration = (int)Math.Floor((plannedEndDate - startDate).TotalDays) + 1;
-        return plannedDuration switch
-        {
-            >= 168 => 42,
-            >= 14 => 14,
-            _ => 1
-        };
-    }
-
     internal bool PricesAreIdentical(List<LearningEpisodePrice> prices)
     {
         if (prices.Count != _prices.Count)
@@ -405,4 +293,57 @@ public class ApprenticeshipEpisode : AggregateComponent
     {
         _model.PauseDate = pauseDate;
     }
+
+    public void UpdateBreaksInLearning(List<EpisodeBreakInLearning> newBreaks)
+    {
+        // Remove breaks that are no longer present
+        foreach (var existingBreak in _breaksInLearning.ToList())
+        {
+            bool stillExists = newBreaks.Any(nb =>
+                nb.StartDate == existingBreak.StartDate &&
+                nb.EndDate == existingBreak.EndDate);
+
+            if (!stillExists)
+            {
+                _breaksInLearning.Remove(existingBreak);
+                _model.BreaksInLearning.Remove(existingBreak.GetModel());
+            }
+        }
+
+        // Add new breaks that do not already exist
+        foreach (var newBreak in newBreaks)
+        {
+            bool alreadyExists = _breaksInLearning.Any(eb =>
+                eb.StartDate == newBreak.StartDate &&
+                eb.EndDate == newBreak.EndDate);
+
+            if (!alreadyExists)
+            {
+                _breaksInLearning.Add(newBreak);
+                _model.BreaksInLearning.Add(newBreak.GetModel());
+            }
+        }
+    }
+
+    // This will generate instalments and additional payments not taking into account
+    // any external factors (e.g. a break in learning, these will be applied later)
+    private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
+    {
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+
+        var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
+
+        var incentivePayments = IncentivePayments.GenerateIncentivePayments(
+            AgeAtStartOfApprenticeship,
+            _prices.Min(p => p.StartDate),
+            _prices.Max(p => p.EndDate),
+            apprenticeship.HasEHCP,
+            apprenticeship.IsCareLeaver,
+            apprenticeship.CareLeaverEmployerConsentGiven);
+
+        var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
+
+        return (instalments, additionalPayments, onProgramTotal, completionPayment);
+    }
+
 }

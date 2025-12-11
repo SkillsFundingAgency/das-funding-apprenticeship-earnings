@@ -35,7 +35,7 @@ public class WhenBuildingEarningsGeneratedEvent
             agreedPrice: 20000,
             fundingType: Learning.Enums.FundingType.NonLevy);
 
-        _apprenticeship.CalculateEarnings(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         _result = _sut.Build(_apprenticeship);
     }

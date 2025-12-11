@@ -6,19 +6,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAnd
 public class ProcessWithdrawnMathsAndEnglishCommandHandler : ICommandHandler<ProcessWithdrawnMathsAndEnglishCommand>
 {
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
-    private readonly IMessageSession _messageSession;
-    private readonly IApprenticeshipEarningsRecalculatedEventBuilder _eventBuilder;
     private readonly ISystemClockService _systemClock;
 
     public ProcessWithdrawnMathsAndEnglishCommandHandler(
         IApprenticeshipRepository apprenticeshipRepository,
-        IMessageSession messageSession,
-        IApprenticeshipEarningsRecalculatedEventBuilder eventBuilder,
         ISystemClockService systemClock)
     {
         _apprenticeshipRepository = apprenticeshipRepository;
-        _messageSession = messageSession;
-        _eventBuilder = eventBuilder;
         _systemClock = systemClock;
     }
 
@@ -32,7 +26,5 @@ public class ProcessWithdrawnMathsAndEnglishCommandHandler : ICommandHandler<Pro
             _systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
-        await _messageSession.Publish(_eventBuilder.Build(apprenticeshipDomainModel));
     }
 }

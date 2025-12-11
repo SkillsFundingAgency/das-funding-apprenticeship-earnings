@@ -17,8 +17,6 @@ public class WhenSaveMathsAndEnglish
     private Mock<ILogger<SaveMathsAndEnglishCommandHandler>> _mockLogger;
     private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
     private Mock<ISystemClockService> _mockSystemClockService;
-    private Mock<IMessageSession> _mockMessageSession;
-    private Mock<IApprenticeshipEarningsRecalculatedEventBuilder> _mockEarningsRecalculatedEventBuilder;
     private SaveMathsAndEnglishCommandHandler _handler;
 
     [SetUp]
@@ -27,17 +25,10 @@ public class WhenSaveMathsAndEnglish
         _mockLogger = new Mock<ILogger<SaveMathsAndEnglishCommandHandler>>();
         _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
         _mockSystemClockService = new Mock<ISystemClockService>();
-        _mockMessageSession = new Mock<IMessageSession>();
-        _mockEarningsRecalculatedEventBuilder = new Mock<IApprenticeshipEarningsRecalculatedEventBuilder>();
-        _mockEarningsRecalculatedEventBuilder
-            .Setup(x => x.Build(It.IsAny<Apprenticeship>()))
-            .Returns(new ApprenticeshipEarningsRecalculatedEvent());
 
         _handler = new SaveMathsAndEnglishCommandHandler(
             _mockLogger.Object,
             _mockApprenticeshipRepository.Object,
-            _mockMessageSession.Object,
-            _mockEarningsRecalculatedEventBuilder.Object,
             _mockSystemClockService.Object);
     }
 

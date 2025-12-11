@@ -65,7 +65,7 @@ internal static class FixtureExtensions
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,
             FundingBandMaximum = x.FundingBandMaximum,
-            Prices = MapPricesToModel(x.Prices, newPrice == null ? apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice + 1 : newPrice.Value + 1, newStartDate),
+            Prices = MapPricesToModel(x.Prices, newStartDate),
             Key = x.ApprenticeshipEpisodeKey
         }).ToList();
 
@@ -78,7 +78,8 @@ internal static class FixtureExtensions
         {
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
-            Amount = i.Amount
+            Amount = i.Amount,
+            EpisodePriceKey = i.EpisodePriceKey
         }).ToList();
 
         var additionalPayments = earningsProfile.AdditionalPayments.Select(p => new AdditionalPaymentModel
@@ -90,17 +91,38 @@ internal static class FixtureExtensions
                 AdditionalPaymentType = p.AdditionalPaymentType
             }).ToList();
 
+        var mathAndEnglishCourses = earningsProfile.MathsAndEnglishCourses.Select(c => new MathsAndEnglishModel
+        {
+            Course = c.Course,
+            WithdrawalDate = c.WithdrawalDate,
+            StartDate = c.StartDate,
+            Instalments = c.Instalments.Select(i => new MathsAndEnglishInstalmentModel
+            {
+                AcademicYear = i.AcademicYear,
+                IsAfterLearningEnded = i.IsAfterLearningEnded,
+                DeliveryPeriod = i.DeliveryPeriod,
+                Amount = i.Amount,
+                Type = i.Type.ToString()
+            }).ToList(),
+            Amount = c.Amount,
+            ActualEndDate = c.ActualEndDate,
+            EndDate = c.EndDate,
+            PauseDate = c.PauseDate,
+            PriorLearningAdjustmentPercentage = c.PriorLearningAdjustmentPercentage
+        }).ToList();
+
         return new EarningsProfileModel
         {
             OnProgramTotal = earningsProfile.OnProgramTotal,
             Instalments = instalments,
             AdditionalPayments = additionalPayments,
             CompletionPayment = earningsProfile.CompletionPayment,
-            EarningsProfileId = earningsProfile.EarningsProfileId
+            EarningsProfileId = earningsProfile.EarningsProfileId,
+            MathsAndEnglishCourses = mathAndEnglishCourses
         };
     }
 
-    internal static List<EpisodePriceModel>? MapPricesToModel(IReadOnlyCollection<Price>? prices, decimal fundingBandMaximum, DateTime? newStartDate)
+    internal static List<EpisodePriceModel>? MapPricesToModel(IReadOnlyCollection<Price>? prices, DateTime? newStartDate)
     {
         return prices?.Select(x => new EpisodePriceModel
         {

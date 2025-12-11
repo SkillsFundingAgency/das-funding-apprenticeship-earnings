@@ -11,21 +11,15 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
     private readonly ILogger<SaveLearningSupportCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClockService;
-    private readonly IMessageSession _messageSession;
-    private readonly IApprenticeshipEarningsRecalculatedEventBuilder _earningsRecalculatedEventBuilder;
 
     public SaveLearningSupportCommandHandler(
         ILogger<SaveLearningSupportCommandHandler> logger,
         IApprenticeshipRepository apprenticeshipRepository,
-        ISystemClockService systemClock,
-        IMessageSession messageSession,
-        IApprenticeshipEarningsRecalculatedEventBuilder earningsRecalculatedEventBuilder)
+        ISystemClockService systemClock)
     {
         _logger = logger;
         _apprenticeshipRepository = apprenticeshipRepository;
         _systemClockService = systemClock;
-        _messageSession = messageSession;
-        _earningsRecalculatedEventBuilder = earningsRecalculatedEventBuilder;
     }
 
     public async Task Handle(SaveLearningSupportCommand command, CancellationToken cancellationToken = default)
@@ -42,9 +36,6 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
         apprenticeshipDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
-        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
-        await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel));
 
         _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
