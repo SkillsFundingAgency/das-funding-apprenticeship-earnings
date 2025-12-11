@@ -55,25 +55,28 @@ public class UpdateOnProgrammeStepDefinitions
             switch (item.Key)
             {
                 case nameof(UpdateOnProgrammeModel.PriceStartDate):
-                    model.PriceStartDate = item.ToDateTime();
+                    model.PriceStartDate.SetValue(item.ToDateTime());
                     break;
 
                 case nameof(UpdateOnProgrammeModel.PriceEndDate):
-                    model.PriceEndDate = item.ToDateTime();
+                    model.PriceEndDate.SetValue(item.ToDateTime());
                     break;
 
                 case nameof(UpdateOnProgrammeModel.NewTrainingPrice):
-                    model.NewTrainingPrice = item.ToDecimalValue();
+                    model.NewTrainingPrice.SetValue(item.ToDecimalValue());
                     break;
 
                 case nameof(UpdateOnProgrammeModel.NewAssessmentPrice):
-                    model.NewAssessmentPrice = item.ToDecimalValue();
+                    model.NewAssessmentPrice.SetValue(item.ToDecimalValue());
                     break;
                 
                 case nameof(UpdateOnProgrammeModel.DateOfBirth):
-                    model.DateOfBirth = item.ToDateTime();
+                    model.DateOfBirth.SetValue(item.ToDateTime());
                     break;
 
+                case nameof(UpdateOnProgrammeModel.PauseDate):
+                    model.PauseDate.SetValue(item.ToNullableDateTime());
+                    break;
             }
         }
 

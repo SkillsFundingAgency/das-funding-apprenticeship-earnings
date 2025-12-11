@@ -3,11 +3,14 @@
 public class UpdateOnProgrammeModel
 {
     // Price changes
-    public DateTime? PriceStartDate { get; set; }
-    public DateTime? PriceEndDate{ get; set; }
-    public decimal? NewTrainingPrice { get; set; }
-    public decimal? NewAssessmentPrice { get; set; }
+    public TrackedValue<DateTime> PriceStartDate { get; set; } = new TrackedValue<DateTime>(DateTime.MinValue);
+    public TrackedValue<DateTime> PriceEndDate{ get; set; } = new TrackedValue<DateTime>(DateTime.MinValue);
+    public TrackedValue<decimal> NewTrainingPrice { get; set; } = new TrackedValue<decimal>(0);
+    public TrackedValue<decimal> NewAssessmentPrice { get; set; } = new TrackedValue<decimal>(0);
 
     // Date of birth change
-    public DateTime? DateOfBirth { get; set; }
+    public TrackedValue<DateTime?> DateOfBirth { get; set; } = new TrackedValue<DateTime?>(null);
+
+    // Pausing and Breaks
+    public TrackedValue<DateTime?> PauseDate { get; set; } = new TrackedValue<DateTime?>(null);
 }

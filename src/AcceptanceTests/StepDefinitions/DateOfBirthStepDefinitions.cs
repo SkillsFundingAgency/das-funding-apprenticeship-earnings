@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
 using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;

@@ -2,7 +2,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.BreakInLearningCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Learning.Types;
 using System;
@@ -24,23 +23,6 @@ public class BreakInLearningStepDefinitions
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
-    }
-
-    [When(@"a pause date of (.*) is sent")]
-    [Given(@"a pause date of (.*) is sent")]
-    public async Task WhenAPauseDateOfIsSent(DateTime pauseDate)
-    {
-        var pauseRequest = new PauseRequest
-        {
-            PauseDate = pauseDate
-        };
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/pause", pauseRequest);
-    }
-
-    [When(@"a pause is removed")]
-    public async Task WhenAPauseIsRemoved()
-    {
-        await _testContext.TestInnerApi.Delete($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/pause");
     }
 
     [When(@"SLD informs us that the break in learning was")]

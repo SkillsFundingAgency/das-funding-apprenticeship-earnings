@@ -14,7 +14,7 @@ public class KeyValueModel
 
 public static class KeyValueModelExtensions
 {
-    public static DateTime? ToDateTime(this KeyValueModel model)
+    public static DateTime? ToNullableDateTime(this KeyValueModel model)
     {
         if (DateTime.TryParse(model.Value, out var date))
         {
@@ -23,12 +23,22 @@ public static class KeyValueModelExtensions
         return null;
     }
 
-    public static decimal? ToDecimalValue(this KeyValueModel model)
+    public static DateTime ToDateTime(this KeyValueModel model)
+    {
+        return DateTime.Parse(model.Value);
+    }
+
+    public static decimal? ToNullableDecimalValue(this KeyValueModel model)
     {
         if (decimal.TryParse(model.Value, out var decimalValue))
         {
             return decimalValue;
         }
         return null;
+    }
+
+    public static decimal ToDecimalValue(this KeyValueModel model)
+    {
+        return decimal.Parse(model.Value);
     }
 }

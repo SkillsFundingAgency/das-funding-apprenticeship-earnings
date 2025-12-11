@@ -14,39 +14,25 @@ using System.Threading.Tasks;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
 [TestFixture]
-public class WhenSaveDateOfBirth
+public class WhenSaveDateOfBirth : BaseUpdateCommandHandlerTests
 {
-    private readonly Fixture _fixture = new();
-    private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
-    private Mock<ISystemClockService> _systemClockServiceMock;
-    private UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler _handler;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _apprenticeshipRepositoryMock = new Mock<IApprenticeshipRepository>();
-        _systemClockServiceMock = new Mock<ISystemClockService>();
-        _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
-
-        _handler = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler(
-            _apprenticeshipRepositoryMock.Object,
-            _systemClockServiceMock.Object);
-    }
 
     [Test]
     public async Task Handle_ShouldUpdateApprenticeship_WhenCalled()
     {
         // Arrange
-        var apprenticeship = _fixture.BuildApprenticeship();
-        var command = UpdateCommandHelper.BuildCommand(apprenticeship);
+        var apprenticeship = Fixture.BuildApprenticeship();
+        var command = BuildCommand(apprenticeship);
+        command.Request.DateOfBirth = apprenticeship.DateOfBirth.AddYears(-1);
+        var handler = GetUpdateOnProgrammeCommandHandler();
 
-        _apprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
+        ApprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
 
         // Act
-        await _handler.Handle(command);
+        await handler.Handle(command);
 
         // Assert
-        _apprenticeshipRepositoryMock.Verify(repo => repo.Update(It.Is<Apprenticeship>(a =>
+        ApprenticeshipRepositoryMock.Verify(repo => repo.Update(It.Is<Apprenticeship>(a =>
             a.DateOfBirth == command.Request.DateOfBirth
         )), Times.Once);
     }

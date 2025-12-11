@@ -10,7 +10,9 @@ Scenario: (OnProgramme) Training provider records a break in learning without sp
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	When a pause date of 2021-03-15 is sent
+	When the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-03-15 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -29,7 +31,9 @@ Scenario: (OnProgramme) Training provider records a break in learning (last day 
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	When a pause date of 2021-03-31 is sent
+	When the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-03-31 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -49,8 +53,12 @@ Scenario: (OnProgramme) Training provider corrects a previously recorded break i
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-    When a pause date of 2021-03-15 is sent
-    And a pause date of 2021-05-31 is sent
+	When the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-03-15 |
+	And the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-05-31 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -72,8 +80,12 @@ Scenario: (OnProgramme) Training provider corrects a previously recorded break i
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-    When a pause date of 2021-03-15 is sent
-    And a pause date of 2021-02-15 is sent
+	When the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-03-15 |
+	And the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-02-15 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -91,8 +103,12 @@ Scenario: (OnProgramme) Training provider removes a previously recorded break in
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-    And a pause date of 2021-03-15 is sent
-	When a pause is removed
+	And the following on-programme request is sent
+		| Key       | Value      |
+		| PauseDate | 2021-03-15 |
+	When the following on-programme request is sent
+		| Key       | Value |
+		| PauseDate | null  |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |

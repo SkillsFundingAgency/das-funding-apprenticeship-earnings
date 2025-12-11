@@ -1,4 +1,8 @@
-﻿using SFA.DAS.Learning.Types;
+﻿using AutoFixture;
+using Moq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +11,29 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
-internal static class UpdateCommandHelper
+public abstract class BaseUpdateCommandHandlerTests
 {
+    private readonly Fixture _fixture = new();
+    private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
+    private Mock<ISystemClockService> _systemClockServiceMock;
+
+    protected Fixture Fixture => _fixture;
+    protected Mock<IApprenticeshipRepository> ApprenticeshipRepositoryMock => _apprenticeshipRepositoryMock;
+    protected Mock<ISystemClockService> SystemClockServiceMock => _systemClockServiceMock;
+
+    public UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler GetUpdateOnProgrammeCommandHandler()
+    {
+        _apprenticeshipRepositoryMock = new Mock<IApprenticeshipRepository>();
+        _systemClockServiceMock = new Mock<ISystemClockService>();
+        _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
+
+        var handler = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler(
+            _apprenticeshipRepositoryMock.Object,
+            _systemClockServiceMock.Object);
+
+        return handler;
+    }
+
     internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Domain.Apprenticeship.Apprenticeship apprenticeship, int fundingBand = 0)
     {
         var episode = apprenticeship.ApprenticeshipEpisodes.Single();

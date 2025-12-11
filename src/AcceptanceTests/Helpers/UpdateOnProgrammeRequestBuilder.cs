@@ -18,6 +18,8 @@ public class UpdateOnProgrammeRequestBuilder
 
     private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
 
+    private DateTime? _pauseDate = null;
+
     private TrackedValue<decimal> _newTrainingPrice = new TrackedValue<decimal>(17000);
     private TrackedValue<decimal> _newAssessmentPrice = new TrackedValue<decimal>(3000);
     private bool _hasPriceChanged => _newTrainingPrice.HasChanged || _newAssessmentPrice.HasChanged;
@@ -26,11 +28,12 @@ public class UpdateOnProgrammeRequestBuilder
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
     {
-        if (model.PriceStartDate.HasValue) _priceStartDate.SetValue(model.PriceStartDate.Value);
-        if (model.NewTrainingPrice.HasValue) _newTrainingPrice.SetValue(model.NewTrainingPrice.Value);
-        if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice.SetValue(model.NewAssessmentPrice.Value);
-        if (model.PriceEndDate.HasValue) _priceEndDate = model.PriceEndDate.Value;
-        if (model.DateOfBirth.HasValue) _dateOfBirth = model.DateOfBirth.Value;
+        _priceStartDate.SetFromTrackedValue(model.PriceStartDate);
+        _newTrainingPrice.SetFromTrackedValue(model.NewTrainingPrice);
+        _newAssessmentPrice.SetFromTrackedValue(model.NewAssessmentPrice);
+        if (model.PriceEndDate.HasChanged) _priceEndDate = model.PriceEndDate.Value;
+        if (model.DateOfBirth.HasChanged) _dateOfBirth = model.DateOfBirth.Value.Value;
+        if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
         return this;
     }
 
@@ -77,6 +80,7 @@ public class UpdateOnProgrammeRequestBuilder
         {
             ApprenticeshipEpisodeKey = _episodeKey,
             DateOfBirth = _dateOfBirth,
+            PauseDate = _pauseDate,
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
             IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate
@@ -84,28 +88,3 @@ public class UpdateOnProgrammeRequestBuilder
     }
 }
 
-internal class TrackedValue<T>
-{
-    private T _value;
-    private bool _hasChanged = false;
-
-    internal T Value => _value;
-    internal bool HasChanged => _hasChanged;
-
-    internal void SetValue(T value)
-    {
-        _hasChanged = true;
-        _value = value;
-    }
-
-    internal void ResetValue(T value)
-    {
-        _hasChanged = false;
-        _value = value;
-    }
-
-    public TrackedValue(T initialValue)
-    {
-        _value = initialValue;
-    }
-}

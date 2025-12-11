@@ -21,13 +21,12 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
         apprenticeshipDomainModel.UpdateDateOfBirth(command.Request.DateOfBirth);
+        apprenticeshipDomainModel.Pause(command.Request.PauseDate, _systemClock);
 
         if (command.Request.IncludesFundingBandMaximumUpdate)
         {
-            apprenticeshipDomainModel.UpdatePrices(command.Request.Prices, command.Request.ApprenticeshipEpisodeKey, command.Request.FundingBandMaximum.Value, _systemClock);
+            apprenticeshipDomainModel.UpdatePrices(command.Request.Prices, command.Request.ApprenticeshipEpisodeKey, command.Request.FundingBandMaximum!.Value, _systemClock);
         }
-
-        
 
         apprenticeshipDomainModel.Calculate(_systemClock, command.Request.ApprenticeshipEpisodeKey);
 
