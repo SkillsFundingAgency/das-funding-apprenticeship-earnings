@@ -24,27 +24,6 @@ public class RecalculateEarningsStepDefinitions
         _testContext = testContext;
     }
 
-
-    #region Arrange
-    [Given(@"the (.*) date has been moved (.*) months (.*)")]
-    public void AdjustDate(string field, int months, string action)
-    {
-        var monthChange = action == "earlier" ? -months : months;
-        switch(field)
-        {
-            case "start":
-                _scenarioContext.GetStartDateSavePricesRequestBuilder()
-                    .WithAdjustedStartDateBy(monthChange);
-                break;
-            case "end":
-                _scenarioContext.GetStartDateSavePricesRequestBuilder()
-                    .WithAdjustedEndDateBy(monthChange);
-                break;
-        }
-    }
-
-    #endregion
-
     #region Act
 
     [When("the following withdrawal is sent")]

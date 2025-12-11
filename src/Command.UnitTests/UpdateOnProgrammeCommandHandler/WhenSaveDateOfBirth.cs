@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.SaveDateOfBirthCommandHandler;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
 [TestFixture]
 public class WhenSaveDateOfBirth
@@ -19,7 +19,7 @@ public class WhenSaveDateOfBirth
     private readonly Fixture _fixture = new();
     private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
     private Mock<ISystemClockService> _systemClockServiceMock;
-    private SaveDateOfBirthCommand.SaveDateOfBirthCommandHandler _handler;
+    private UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler _handler;
 
     [SetUp]
     public void SetUp()
@@ -28,7 +28,7 @@ public class WhenSaveDateOfBirth
         _systemClockServiceMock = new Mock<ISystemClockService>();
         _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
 
-        _handler = new SaveDateOfBirthCommand.SaveDateOfBirthCommandHandler(
+        _handler = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler(
             _apprenticeshipRepositoryMock.Object,
             _systemClockServiceMock.Object);
     }
@@ -37,8 +37,9 @@ public class WhenSaveDateOfBirth
     public async Task Handle_ShouldUpdateApprenticeship_WhenCalled()
     {
         // Arrange
-        var command = _fixture.Create<SaveDateOfBirthCommand.SaveDateOfBirthCommand>();
         var apprenticeship = _fixture.BuildApprenticeship();
+        var command = UpdateCommandHelper.BuildCommand(apprenticeship);
+
         _apprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
 
         // Act
@@ -46,7 +47,7 @@ public class WhenSaveDateOfBirth
 
         // Assert
         _apprenticeshipRepositoryMock.Verify(repo => repo.Update(It.Is<Apprenticeship>(a =>
-            a.DateOfBirth == command.DateOfBirth
+            a.DateOfBirth == command.Request.DateOfBirth
         )), Times.Once);
     }
 }

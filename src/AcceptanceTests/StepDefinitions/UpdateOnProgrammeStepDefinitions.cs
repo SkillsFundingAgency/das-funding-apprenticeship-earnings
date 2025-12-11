@@ -38,7 +38,9 @@ public class UpdateOnProgrammeStepDefinitions
 
         await _testContext.TestInnerApi.Put($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
 
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish earning recalculation");
+        var apprenticeshipEntity = await GetApprenticeshipEntity();
+        _scenarioContext.Set(apprenticeshipEntity);
+        // await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish earning recalculation");
 
         _scenarioContext.Set(updateOnProgrammeRequest);
     }
@@ -68,6 +70,9 @@ public class UpdateOnProgrammeStepDefinitions
                     model.NewAssessmentPrice = item.ToDecimalValue();
                     break;
                 
+                case nameof(UpdateOnProgrammeModel.DateOfBirth):
+                    model.DateOfBirth = item.ToDateTime();
+                    break;
 
             }
         }

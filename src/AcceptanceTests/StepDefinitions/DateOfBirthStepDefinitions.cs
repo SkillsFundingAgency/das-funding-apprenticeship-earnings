@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.PauseCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveDateOfBirthCommand;
 using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
@@ -20,16 +19,6 @@ public class DateOfBirthStepDefinitions
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
-    }
-
-    [When(@"a new date of birth (.*) is sent")]
-    public async Task WhenANewDateOfBirthIsSent(DateTime dateOfBirth)
-    {
-        var dobRequest = new SaveDateOfBirthRequest
-        {
-            DateOfBirth = dateOfBirth
-        };
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/dateOfBirth", dobRequest);
     }
 
     [Then(@"date of birth is updated to (.*)")]

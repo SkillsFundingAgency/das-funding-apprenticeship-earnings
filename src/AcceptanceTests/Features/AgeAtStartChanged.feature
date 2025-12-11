@@ -13,7 +13,9 @@ Scenario: (change of dob) 90th and 365th day count must be recalculated (always 
 		| EmployerIncentive | 500    | 2020-10-29 | false                |
 		| ProviderIncentive | 500    | 2021-07-31 | false                |
 		| EmployerIncentive | 500    | 2021-07-31 | false                |
-	When a new date of birth 2003-02-01 is sent
+	When the following on-programme request is sent
+		| Key         | Value      |
+		| DateOfBirth | 2003-02-01 |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
 		| ProviderIncentive | 500    | 2020-10-29 | false                |
@@ -21,6 +23,7 @@ Scenario: (change of dob) 90th and 365th day count must be recalculated (always 
 		| ProviderIncentive | 500    | 2021-07-31 | false                |
 		| EmployerIncentive | 500    | 2021-07-31 | false                |
 	And date of birth is updated to 2003-02-01
+	#And there are 0 history records created	DO NOT APPROVE PR if this is still commented out
 
 Scenario: (change of dob) 90th and 365th day count must be recalculated (was eligible, now ineligible)
 	Given an apprenticeship has been created with the following information
@@ -33,7 +36,9 @@ Scenario: (change of dob) 90th and 365th day count must be recalculated (was eli
 		| EmployerIncentive | 500    | 2020-10-29 | false                |
 		| ProviderIncentive | 500    | 2021-07-31 | false                |
 		| EmployerIncentive | 500    | 2021-07-31 | false                |
-	When a new date of birth 2000-02-01 is sent
+	When the following on-programme request is sent
+		| Key         | Value      |
+		| DateOfBirth | 2000-02-01 |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
 	And date of birth is updated to 2000-02-01
@@ -45,7 +50,9 @@ Scenario: (change of dob) 90th and 365th day count must be recalculated (was ine
 	And the apprenticeship commitment is approved
 	And Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
-	When a new date of birth 2003-02-01 is sent
+	When the following on-programme request is sent
+		| Key         | Value      |
+		| DateOfBirth | 2003-02-01 |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
 		| ProviderIncentive | 500    | 2020-10-29 | false                |
@@ -61,7 +68,9 @@ Scenario: (change of dob) No incentives generated (always ineligible)
 	And the apprenticeship commitment is approved
 	And Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
-	When a new date of birth 1997-02-01 is sent
+	When the following on-programme request is sent
+		| Key         | Value      |
+		| DateOfBirth | 1997-02-01 |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
 	And date of birth is updated to 1997-02-01

@@ -51,7 +51,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
     public IReadOnlyCollection<EpisodeBreakInLearning> BreaksInLearning => new ReadOnlyCollection<EpisodeBreakInLearning>(_breaksInLearning);
-    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _ageAtStartOfApprenticeship < 22;
+    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
@@ -60,7 +60,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
 
     public string FundingLineType =>
-        _ageAtStartOfApprenticeship < 19
+        AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
@@ -249,10 +249,8 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model.FundingBandMaximum = fundingBandMaximum;
     }
 
-    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
+    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)
     {
-        _ageAtStartOfApprenticeship = ageAtStartOfLearning;
-
         foreach (var existingPrice in _prices.ToList())
         {
             var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
@@ -337,7 +335,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
-            _ageAtStartOfApprenticeship,
+            AgeAtStartOfApprenticeship,
             _prices.Min(p => p.StartDate),
             _prices.Max(p => p.EndDate),
             apprenticeship.HasEHCP,

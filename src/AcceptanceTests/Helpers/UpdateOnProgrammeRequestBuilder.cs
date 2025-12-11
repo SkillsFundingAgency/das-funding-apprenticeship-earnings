@@ -11,21 +11,26 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
 public class UpdateOnProgrammeRequestBuilder
 {
-    private DateTime _priceStartDate = new DateTime(2020, 02, 01);
+    private TrackedValue<DateTime> _priceStartDate = new TrackedValue<DateTime>(new DateTime(2020, 02, 01));
     private DateTime _priceEndDate = new DateTime(2022, 1, 1);
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceChangePriceKey = Guid.NewGuid();
+
+    private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
+
     private TrackedValue<decimal> _newTrainingPrice = new TrackedValue<decimal>(17000);
     private TrackedValue<decimal> _newAssessmentPrice = new TrackedValue<decimal>(3000);
     private bool _hasPriceChanged => _newTrainingPrice.HasChanged || _newAssessmentPrice.HasChanged;
     private List<LearningEpisodePrice>? _existingPrices;
 
+
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
     {
-        if (model.PriceStartDate.HasValue) _priceStartDate = model.PriceStartDate.Value;
+        if (model.PriceStartDate.HasValue) _priceStartDate.SetValue(model.PriceStartDate.Value);
         if (model.NewTrainingPrice.HasValue) _newTrainingPrice.SetValue(model.NewTrainingPrice.Value);
         if (model.NewAssessmentPrice.HasValue) _newAssessmentPrice.SetValue(model.NewAssessmentPrice.Value);
         if (model.PriceEndDate.HasValue) _priceEndDate = model.PriceEndDate.Value;
+        if (model.DateOfBirth.HasValue) _dateOfBirth = model.DateOfBirth.Value;
         return this;
     }
 
@@ -33,7 +38,7 @@ public class UpdateOnProgrammeRequestBuilder
     {
         _episodeKey = apprenticeship.Episode.Key;
 
-        _priceStartDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).First().StartDate;
+        _priceStartDate.ResetValue(apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).First().StartDate);
 
         var lastEpisodePrice = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last();
         _priceEndDate = lastEpisodePrice.EndDate;
@@ -41,6 +46,7 @@ public class UpdateOnProgrammeRequestBuilder
         _newAssessmentPrice.ResetValue(lastEpisodePrice.EndPointAssessmentPrice.Value);
 
         _existingPrices = apprenticeship.Episode.Prices;
+        _dateOfBirth = apprenticeship.DateOfBirth;
 
         return this;
     }
@@ -51,7 +57,7 @@ public class UpdateOnProgrammeRequestBuilder
 
         if (_existingPrices != null && _existingPrices.Any() && _hasPriceChanged)
         {
-            _existingPrices.OrderBy(x => x.StartDate).Last().EndDate = _priceStartDate.AddDays(-1);
+            _existingPrices.OrderBy(x => x.StartDate).Last().EndDate = _priceStartDate.Value.AddDays(-1);
             prices.AddRange(_existingPrices);
         }
 
@@ -60,17 +66,20 @@ public class UpdateOnProgrammeRequestBuilder
             Key = _priceChangePriceKey,
             TrainingPrice = _newTrainingPrice.Value,
             EndPointAssessmentPrice = _newAssessmentPrice.Value,
-            StartDate = _priceStartDate,
+            StartDate = _priceStartDate.Value,
             EndDate = _priceEndDate,
             TotalPrice = _newTrainingPrice.Value + _newAssessmentPrice.Value
         });
 
+        var requiresFundingBandMaximumUpdate = _hasPriceChanged || _priceStartDate.HasChanged;
+
         return new UpdateOnProgrammeRequest()
         {
             ApprenticeshipEpisodeKey = _episodeKey,
-            FundingBandMaximum = fundingBandMaximum,
+            DateOfBirth = _dateOfBirth,
+            FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
-            IncludesFundingBandMaximumUpdate = true
+            IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate
         };
     }
 }

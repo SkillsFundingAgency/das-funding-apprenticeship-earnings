@@ -8,7 +8,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprentices
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCompletionCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveDateOfBirthCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -257,27 +256,6 @@ public class ApprenticeshipController: ControllerBase
         }
 
         _logger.LogInformation("Successfully updated breaks in learning for learner {apprenticeshipKey}", apprenticeshipKey);
-        return Ok();
-    }
-
-    [Route("{apprenticeshipKey}/dateOfBirth")]
-    [HttpPatch]
-    public async Task<IActionResult> DateOfBirth(Guid apprenticeshipKey, SaveDateOfBirthRequest request)
-    {
-        _logger.LogInformation("Received request to update date of birth for learner {apprenticeshipKey}", apprenticeshipKey);
-
-        try
-        {
-            var command = new SaveDateOfBirthCommand(apprenticeshipKey, request.DateOfBirth);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating date of birth for learner {apprenticeshipKey}", apprenticeshipKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully updated date of birth for learner {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 
