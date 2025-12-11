@@ -94,21 +94,6 @@ public class LearningCreatedEventPublishingStepDefinitions
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(learningCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
     }
 
-    [Given("An apprenticeship has been created as part of the approvals journey with a funding band maximum lower than the agreed price")]
-    public async Task PublishApprenticeshipLearnerEventFundingBandCapScenario()
-    {
-        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithTotalPrice(35000)
-            .Build();
-
-        _testContext.FundingBandMaximumService.SetFundingBandMaximum(30000);
-
-        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
-        _scenarioContext.Set(learningCreatedEvent);
-
-        _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = 1000;
-    }
-
     [Given(@"an apprenticeship has been created with the following information")]
     public void GivenAnApprenticeshipHasBeenCreatedWithTheFollowingInformation(Table table)
     {

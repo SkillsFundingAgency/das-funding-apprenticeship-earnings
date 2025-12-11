@@ -45,6 +45,10 @@ public static class KeyValueModelExtensions
     public static List<T> ToList<T>(this KeyValueModel model) where T : new()
     {
         var list = new List<T>();
+
+        if(string.IsNullOrWhiteSpace(model.Value))
+            return list;
+
         list.Add(Parse<T>(model.Value));
         return list;
     }

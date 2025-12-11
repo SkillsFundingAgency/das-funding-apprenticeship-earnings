@@ -69,9 +69,9 @@ Scenario: Price change following Completion
 		| StartDate  | EndDate    | Price |
 		| 2024-08-01 | 2026-07-31 | 12000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2025-04-01     |
+	And the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2025-04-01     |
 	When the following on-programme request is sent
 		| Key                | Value      |
 		| PriceStartDate     | 2024-08-01 |

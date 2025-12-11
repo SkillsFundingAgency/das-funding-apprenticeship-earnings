@@ -25,6 +25,7 @@ public class UpdateOnProgrammeRequestBuilder
     private bool _hasPriceChanged => _newTrainingPrice.HasChanged || _newAssessmentPrice.HasChanged;
     private List<LearningEpisodePrice>? _existingPrices;
     private List<BreakInLearningItem> _breaksInLearning = new List<BreakInLearningItem>();
+    private DateTime? _completionDate = null;
 
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
@@ -36,6 +37,7 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.DateOfBirth.HasChanged) _dateOfBirth = model.DateOfBirth.Value.Value;
         if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
         if (model.BreaksInLearning.HasChanged) _breaksInLearning = model.BreaksInLearning.Value;
+        if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
         return this;
     }
 
@@ -83,6 +85,7 @@ public class UpdateOnProgrammeRequestBuilder
             ApprenticeshipEpisodeKey = _episodeKey,
             DateOfBirth = _dateOfBirth,
             PauseDate = _pauseDate,
+            CompletionDate = _completionDate,
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
             IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate,

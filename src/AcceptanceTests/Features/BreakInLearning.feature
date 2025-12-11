@@ -163,9 +163,9 @@ Scenario: (OnProgramme - Break Completed) Training provider records a break in l
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
-		| 2020-10-15 | 2021-01-15 | 2021-10-01                 |
+	When the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-01-15, PriorPeriodExpectedEndDate: 2021-10-01 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -188,12 +188,12 @@ Scenario: (OnProgramme - Break Completed) Training provider corrects a previousl
 	And the following learning support payment information is provided
 		| StartDate | EndDate   | 
 		| 2020-8-1  | 2021-10-1 |
-	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
-		| 2020-10-15 | 2021-05-15 | 2021-10-01                 |
-	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
-		| 2020-10-15 | 2021-01-15 | 2021-10-01                 |
+	And the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-05-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+	When the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-01-15, PriorPeriodExpectedEndDate: 2021-10-01 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -216,11 +216,12 @@ Scenario: (OnProgramme - Break Completed) Training provider removes a previously
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
-	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
-		| 2021-03-15 | 2021-06-15 | 2021-10-01                 |
-	And SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
+	And the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-06-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+	When the following on-programme request is sent
+		| Key              | Value |
+		| BreaksInLearning |       |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -375,41 +376,42 @@ Scenario: (OnProgramme – Break Completed) End date is pushed back to account f
         | 1000   | 2425         | 3              |
         | 1000   | 2425         | 4              |
         | 1000   | 2425         | 5              |
+
 Scenario: Incentive Payments 16-18 are pushed back due to Break in Learning
-Given an apprenticeship has been created with the following information
-	| Age |
-	| 18  |
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
 	And the following Price Episodes
-	| StartDate  | EndDate    | Price |
-	| 2020-08-01 | 2024-07-31 | 15000 |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
-	And SLD informs us that the break in learning was
-	| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
-	| 2020-09-01 | 2020-09-07 | 2024-07-31                 |
+	And the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-09-01, EndDate:2020-09-07, PriorPeriodExpectedEndDate: 2024-07-31 |
 	Then Additional Payments are persisted as follows
-	| Type              | Amount | DueDate    |
-	| ProviderIncentive | 500    | 2020-11-05 |
-	| EmployerIncentive | 500    | 2020-11-05 |
-	| ProviderIncentive | 500    | 2021-08-07 |
-	| EmployerIncentive | 500    | 2021-08-07 |
+		| Type              | Amount | DueDate    |
+		| ProviderIncentive | 500    | 2020-11-05 |
+		| EmployerIncentive | 500    | 2020-11-05 |
+		| ProviderIncentive | 500    | 2021-08-07 |
+		| EmployerIncentive | 500    | 2021-08-07 |
 
 Scenario: Incentive Payments 19-24 are pushed back due to Break in Learning
-Given an apprenticeship has been created with the following information
-	| Age |
-	| 20  |
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 20  |
 	And the following Price Episodes
-	| StartDate  | EndDate    | Price |
-	| 2020-08-01 | 2024-07-31 | 15000 |
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
 	And care details are saved with
-	| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
-	| true                           | true         | true    |
-	And SLD informs us that the break in learning was
-	| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
-	| 2020-09-01 | 2020-09-07 | 2024-07-31                 |
+		| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
+		| true                           | true         | true    |
+	And the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-09-01, EndDate:2020-09-07, PriorPeriodExpectedEndDate: 2024-07-31 |
 	Then Additional Payments are persisted as follows
-	| Type              | Amount | DueDate    |
-	| ProviderIncentive | 500    | 2020-11-05 |
-	| EmployerIncentive | 500    | 2020-11-05 |
-	| ProviderIncentive | 500    | 2021-08-07 |
-	| EmployerIncentive | 500    | 2021-08-07 |
+		| Type              | Amount | DueDate    |
+		| ProviderIncentive | 500    | 2020-11-05 |
+		| EmployerIncentive | 500    | 2020-11-05 |
+		| ProviderIncentive | 500    | 2021-08-07 |
+		| EmployerIncentive | 500    | 2021-08-07 |

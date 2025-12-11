@@ -9,9 +9,9 @@ Scenario: Early Completion
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-02-15     |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-02-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -33,9 +33,9 @@ Scenario: Late Completion
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-09-15     |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-09-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -62,9 +62,9 @@ Scenario: On Time Completion
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-07-31     |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-07-31 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -91,12 +91,12 @@ Scenario: Existing Completion is updated to be later
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-02-15     |
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-03-15     |
+	And the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-02-15 |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-03-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -119,12 +119,12 @@ Scenario: Existing Completion is updated to be earlier
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-02-15     |
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-01-15     |
+	And the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-02-15 |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-01-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -145,12 +145,12 @@ Scenario: Existing Completion is removed
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-02-15     |
-	When the following completion is sent
-		| CompletionDate |
-		|                |
+	And the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-02-15 |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | null |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -176,9 +176,9 @@ Scenario: Early Completion within last month
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following completion is sent
-		| CompletionDate |
-		| 2021-07-30     |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| CompletionDate | 2021-07-30 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |

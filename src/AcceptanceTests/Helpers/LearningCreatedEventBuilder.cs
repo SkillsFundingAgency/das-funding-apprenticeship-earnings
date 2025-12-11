@@ -16,6 +16,8 @@ public class LearningCreatedEventBuilder
     private int _ageAtStart = 21;
     private Learning.Enums.FundingPlatform _fundingPlatform = Learning.Enums.FundingPlatform.DAS;
     private decimal _totalPrice = 15000m;
+    private decimal _trainingPrice = 12000m;
+    private decimal _epaPrice = 3000m;
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
@@ -48,12 +50,6 @@ public class LearningCreatedEventBuilder
     public LearningCreatedEventBuilder WithPrices(List<LearningEpisodePrice> prices)
     {
         _prices = prices;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithTotalPrice(decimal totalPrice)
-    {
-        _totalPrice = totalPrice;
         return this;
     }
 
@@ -95,35 +91,6 @@ public class LearningCreatedEventBuilder
 
         return this;
     }
-    public LearningCreatedEventBuilder WithLearningKey(Guid key)
-    {
-        _learningKey = key;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithEmployerAccountId(long employerAccountId)
-    {
-        _employerAccountId = employerAccountId;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithEpisodeKey(Guid episodeKey)
-    {
-        _episodeKey = episodeKey;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithPriceKey(Guid priceKey)
-    {
-        _priceKey = priceKey;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithDuration(int months)
-    {
-        _endDate = _startDate.AddMonths(months);
-        return this;
-    }
 
     public LearningCreatedEvent Build()
     {
@@ -144,6 +111,8 @@ public class LearningCreatedEventBuilder
                         TotalPrice = _totalPrice,
                         StartDate = _startDate,
                         EndDate = _endDate,
+                        TrainingPrice = _trainingPrice,
+                        EndPointAssessmentPrice = _epaPrice
                     }
                 },
                 EmployerAccountId = _employerAccountId,

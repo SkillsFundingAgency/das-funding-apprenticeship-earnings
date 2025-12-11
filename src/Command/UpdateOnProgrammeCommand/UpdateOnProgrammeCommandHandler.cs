@@ -1,9 +1,7 @@
-﻿using Azure.Core;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
@@ -34,6 +32,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         ExecuteAndLog(() => apprenticeship.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
         ExecuteAndLog(() => apprenticeship.Pause(request.PauseDate, _systemClock), "update Pause");
         ExecuteAndLog(() => episode.UpdateBreaksInLearning(request.ToEpisodeBreaksInLearning()), "update Breaks in learning");
+        ExecuteAndLog(() => apprenticeship.UpdateCompletion(request.CompletionDate, _systemClock), "update Completion");
 
         if (request.IncludesFundingBandMaximumUpdate)
         {
