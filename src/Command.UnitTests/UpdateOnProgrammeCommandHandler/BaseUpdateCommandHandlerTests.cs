@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -14,6 +15,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgr
 public abstract class BaseUpdateCommandHandlerTests
 {
     private readonly Fixture _fixture = new();
+    private Mock<ILogger<UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler>> _loggerMock;
     private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
     private Mock<ISystemClockService> _systemClockServiceMock;
 
@@ -23,11 +25,13 @@ public abstract class BaseUpdateCommandHandlerTests
 
     public UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler GetUpdateOnProgrammeCommandHandler()
     {
+        _loggerMock = new Mock<ILogger<UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler>>();
         _apprenticeshipRepositoryMock = new Mock<IApprenticeshipRepository>();
         _systemClockServiceMock = new Mock<ISystemClockService>();
         _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
 
         var handler = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler(
+            _loggerMock.Object,
             _apprenticeshipRepositoryMock.Object,
             _systemClockServiceMock.Object);
 

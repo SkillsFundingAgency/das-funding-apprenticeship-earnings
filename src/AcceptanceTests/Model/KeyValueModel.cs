@@ -41,4 +41,49 @@ public static class KeyValueModelExtensions
     {
         return decimal.Parse(model.Value);
     }
+
+    public static List<T> ToList<T>(this KeyValueModel model) where T : new()
+    {
+        var list = new List<T>();
+        list.Add(Parse<T>(model.Value));
+        return list;
+    }
+
+
+    public static T Parse<T>(string input) where T : new()
+    {
+        var result = new T();
+        var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in parts)
+        {
+            var kv = part.Split(':', 2, StringSplitOptions.TrimEntries);
+            if (kv.Length != 2)
+                continue;
+
+            var propertyName = kv[0];
+            var rawValue = kv[1];
+
+            var prop = typeof(T).GetProperty(propertyName);
+            if (prop == null || !prop.CanWrite)
+                continue;
+
+            var typedValue = ConvertTo(rawValue, prop.PropertyType);
+            prop.SetValue(result, typedValue);
+        }
+
+        return result;
+    }
+
+    private static object ConvertTo(string value, Type targetType)
+    {
+        if (targetType == typeof(DateTime))
+            return DateTime.Parse(value);
+
+        if (targetType.IsEnum)
+            return Enum.Parse(targetType, value);
+
+        return Convert.ChangeType(value, targetType);
+    }
 }
+

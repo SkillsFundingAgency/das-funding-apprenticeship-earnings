@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Learning.Types;
@@ -76,6 +77,10 @@ public class UpdateOnProgrammeStepDefinitions
 
                 case nameof(UpdateOnProgrammeModel.PauseDate):
                     model.PauseDate.SetValue(item.ToNullableDateTime());
+                    break;
+
+                case nameof(UpdateOnProgrammeModel.BreaksInLearning):
+                    model.BreaksInLearning.SetValue(item.ToList<BreakInLearningItem>());
                     break;
             }
         }

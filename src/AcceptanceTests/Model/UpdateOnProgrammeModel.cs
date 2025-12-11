@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
 public class UpdateOnProgrammeModel
 {
@@ -13,4 +15,5 @@ public class UpdateOnProgrammeModel
 
     // Pausing and Breaks
     public TrackedValue<DateTime?> PauseDate { get; set; } = new TrackedValue<DateTime?>(null);
+    public TrackedValue<List<BreakInLearningItem>> BreaksInLearning { get; set; } = new TrackedValue<List<BreakInLearningItem>>(new List<BreakInLearningItem>());
 }

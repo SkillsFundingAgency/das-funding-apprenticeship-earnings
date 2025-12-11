@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.BreakInLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal;
@@ -193,26 +192,4 @@ public class ApprenticeshipController: ControllerBase
         _logger.LogInformation("Successfully withdrew maths and english course {course} for {apprenticeshipKey}", withdrawRequest.Course, apprenticeshipKey);
         return Ok();
     }
-
-    [Route("{apprenticeshipKey}/breaksInLearning")]
-    [HttpPatch]
-    public async Task<IActionResult> BreaksInLearning(Guid apprenticeshipKey, BreaksInLearningRequest breakInLearningRequest)
-    {
-        _logger.LogInformation("Received request to record breaks in learning for learner {apprenticeshipKey}", apprenticeshipKey);
-
-        try
-        {
-            var command = new BreaksInLearningCommand(apprenticeshipKey, breakInLearningRequest);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating breaks in learning for learner {apprenticeshipKey}", apprenticeshipKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully updated breaks in learning for learner {apprenticeshipKey}", apprenticeshipKey);
-        return Ok();
-    }
-
 }

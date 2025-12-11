@@ -134,7 +134,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70));
+            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate);
             
             // Act
             var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(17, startDate, endDate, [breakInLearning]);
@@ -164,8 +164,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
 
             TestContext.WriteLine($"Start Date: {startDate}");
 
-            var break1 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70)); // duration 41
-            var break2 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(120), startDate.AddDays(150)); // duration 31
+            var break1 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate); // duration 41
+            var break2 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(120), startDate.AddDays(150), endDate); // duration 31
 
             var breaks = new List<EpisodeBreakInLearning> { break1, break2 };
 
@@ -203,7 +203,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
 
             // Break runs from day 40 to day 90 (duration 51 days)
             // This pushes the 90-day incentive to day 140, which is after endDate (day 100).
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(40), startDate.AddDays(90));
+            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(40), startDate.AddDays(90), endDate);
 
             // Act
             var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(
@@ -220,7 +220,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70));
+            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate);
 
             // Act
             var result = IncentivePaymentsCalculator.Generate19To24IncentivePayments(
@@ -250,8 +250,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var break1 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70)); // duration 41
-            var break2 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(120), startDate.AddDays(150)); // duration 31
+            var break1 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate); // duration 41
+            var break2 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(120), startDate.AddDays(150), endDate); // duration 31
 
             var breaks = new List<EpisodeBreakInLearning> { break1, break2 };
 
@@ -282,7 +282,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddDays(100);
 
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(40), startDate.AddDays(90));
+            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(40), startDate.AddDays(90), endDate);
 
             // Act
             var result = IncentivePaymentsCalculator.Generate19To24IncentivePayments(

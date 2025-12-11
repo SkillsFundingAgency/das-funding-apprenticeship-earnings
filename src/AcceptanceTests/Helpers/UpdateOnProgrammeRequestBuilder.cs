@@ -24,6 +24,7 @@ public class UpdateOnProgrammeRequestBuilder
     private TrackedValue<decimal> _newAssessmentPrice = new TrackedValue<decimal>(3000);
     private bool _hasPriceChanged => _newTrainingPrice.HasChanged || _newAssessmentPrice.HasChanged;
     private List<LearningEpisodePrice>? _existingPrices;
+    private List<BreakInLearningItem> _breaksInLearning = new List<BreakInLearningItem>();
 
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
@@ -34,6 +35,7 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.PriceEndDate.HasChanged) _priceEndDate = model.PriceEndDate.Value;
         if (model.DateOfBirth.HasChanged) _dateOfBirth = model.DateOfBirth.Value.Value;
         if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
+        if (model.BreaksInLearning.HasChanged) _breaksInLearning = model.BreaksInLearning.Value;
         return this;
     }
 
@@ -83,7 +85,8 @@ public class UpdateOnProgrammeRequestBuilder
             PauseDate = _pauseDate,
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
-            IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate
+            IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate,
+            BreaksInLearning = _breaksInLearning
         };
     }
 }
