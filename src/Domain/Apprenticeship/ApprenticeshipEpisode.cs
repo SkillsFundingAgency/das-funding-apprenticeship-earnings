@@ -334,13 +334,16 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
+        var effectiveEndDate = LastDayOfLearning ?? _prices.Max(p => p.EndDate);
+
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
             AgeAtStartOfApprenticeship,
             _prices.Min(p => p.StartDate),
-            _prices.Max(p => p.EndDate),
+            effectiveEndDate,
             apprenticeship.HasEHCP,
             apprenticeship.IsCareLeaver,
-            apprenticeship.CareLeaverEmployerConsentGiven);
+            apprenticeship.CareLeaverEmployerConsentGiven,
+            _breaksInLearning);
 
         var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
 

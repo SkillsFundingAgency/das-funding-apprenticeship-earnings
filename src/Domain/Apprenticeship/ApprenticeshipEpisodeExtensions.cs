@@ -84,13 +84,9 @@ public static class LearningEpisodeExtensions
         var plausibleLastDaysOfLearning = new List<DateTime?>()
         {
             episode.CompletionDate,
-            episode.WithdrawalDate
+            episode.WithdrawalDate,
+            episode.PauseDate
         };
-
-        if (IsPauseDateOutsideBreaks(episode))
-        {
-            plausibleLastDaysOfLearning.Add(episode.PauseDate);
-        }
 
         return plausibleLastDaysOfLearning
             .Where(d => d.HasValue)
