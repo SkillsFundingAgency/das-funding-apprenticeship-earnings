@@ -12,20 +12,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.ApprenticeshipController;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.LearningController;
 
 public class WhenSaveCareDetails
 {
-    private Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>> _loggerMock;
+    private Mock<ILogger<InnerApi.Controllers.LearningController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
-    private InnerApi.Controllers.ApprenticeshipController _controller;
+    private InnerApi.Controllers.LearningController _controller;
 
     [SetUp]
     public void Setup()
     {
-        _loggerMock = new Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>>();
+        _loggerMock = new Mock<ILogger<InnerApi.Controllers.LearningController>>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
-        _controller = new InnerApi.Controllers.ApprenticeshipController(_loggerMock.Object, _commandDispatcherMock.Object);
+        _controller = new InnerApi.Controllers.LearningController(_loggerMock.Object, _commandDispatcherMock.Object);
     }
 
     [Test]

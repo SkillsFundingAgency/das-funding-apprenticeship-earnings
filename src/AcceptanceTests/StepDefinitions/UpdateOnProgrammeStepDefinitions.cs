@@ -37,7 +37,7 @@ public class UpdateOnProgrammeStepDefinitions
             .WithDataFromSetupModel(data)
             .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
-        await _testContext.TestInnerApi.Put($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
 
         var apprenticeshipEntity = await GetApprenticeshipEntity();
         _scenarioContext.Set(apprenticeshipEntity);

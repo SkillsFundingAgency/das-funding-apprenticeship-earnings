@@ -41,7 +41,7 @@ public class TestInnerApi : IDisposable
             .ConfigureServices(services =>
             {
                 services.AddControllers()
-                    .AddApplicationPart(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers.ApprenticeshipController).Assembly);
+                    .AddApplicationPart(typeof(SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers.LearningController).Assembly);
                 
                 services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
                 services.AddSingleton<IMessageSession>(_testContext.MessageSession);
@@ -80,7 +80,6 @@ public class TestInnerApi : IDisposable
             return new Lazy<ApprenticeshipEarningsDataContext>(dataContext);
         });
     }
-
 
     public async Task Patch<T>(string route, T body)
     {

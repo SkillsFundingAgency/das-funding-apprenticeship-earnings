@@ -30,7 +30,7 @@ public class RecalculateEarningsStepDefinitions
     {
         var data = table.CreateSet<MathsAndEnglishWithdrawalModel>().ToList().Single();
         var withdrawRequest = new MathsAndEnglishWithdrawRequest() { WithdrawalDate = data.LastDayOfLearning, Course  = data.Course };
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish/withdraw", withdrawRequest);
+        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish/withdraw", withdrawRequest);
 
         _scenarioContext.Set(withdrawRequest);
 

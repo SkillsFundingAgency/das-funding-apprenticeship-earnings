@@ -26,6 +26,6 @@ public class RemoveLearnerStepDefinitions
     [When("the learner is removed")]
     public async Task SendWithdrawalRequest()
     {
-        await _testContext.TestInnerApi.Delete($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}");
+        await _testContext.TestInnerApi.Delete($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}");
     }
 }

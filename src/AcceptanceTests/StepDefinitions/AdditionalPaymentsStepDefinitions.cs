@@ -28,7 +28,7 @@ public class AdditionalPaymentsStepDefinitions
     public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<LearningSupportPaymentDetail>().ToList();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learningSupport", expected);
+        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learningSupport", expected);
     }
 
     [When(@"care details are saved with")]
@@ -36,7 +36,7 @@ public class AdditionalPaymentsStepDefinitions
     public async Task SaveCareDetails(Table table)
     {
         var request = table.CreateSet<SaveCareDetailsRequest>().Single();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/careDetails", request);
+        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/careDetails", request);
     }
 
     [Given(@"the following maths and english course information is provided")]
@@ -46,7 +46,7 @@ public class AdditionalPaymentsStepDefinitions
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var expected = table.CreateSet<MathsAndEnglishDetail>().ToList();
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish", expected);
+        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish", expected);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]

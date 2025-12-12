@@ -5,25 +5,25 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using System;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.ApprenticeshipController;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.LearningController;
 
-public class WhenRemoveLearner
+public class WhenSavePrices
 {
-    private Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>> _loggerMock;
+    private Mock<ILogger<InnerApi.Controllers.LearningController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
-    private InnerApi.Controllers.ApprenticeshipController _controller;
+    private InnerApi.Controllers.LearningController _controller;
     private Fixture _fixture;
 
     [SetUp]
     public void Setup()
     {
-        _loggerMock = new Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>>();
+        _loggerMock = new Mock<ILogger<InnerApi.Controllers.LearningController>>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
-        _controller = new InnerApi.Controllers.ApprenticeshipController(_loggerMock.Object, _commandDispatcherMock.Object);
+        _controller = new InnerApi.Controllers.LearningController(_loggerMock.Object, _commandDispatcherMock.Object);
         _fixture = new Fixture();
     }
 
@@ -32,12 +32,13 @@ public class WhenRemoveLearner
     {
         // Arrange
         var learningKey = Guid.NewGuid();
+        var request = _fixture.Create<UpdateOnProgrammeRequest>();
 
         // Act
-        var result = await _controller.RemoveLearner(learningKey);
+        var result = await _controller.UpdateOnProgramme(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<RemoveLearnerCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateOnProgrammeCommand>(), default), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
@@ -46,13 +47,14 @@ public class WhenRemoveLearner
     {
         // Arrange
         var learningKey = Guid.NewGuid();
+        var request = _fixture.Create<UpdateOnProgrammeRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<RemoveLearnerCommand>(), default))
+            .Setup(x => x.Send(It.IsAny<UpdateOnProgrammeCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.RemoveLearner(learningKey);
+        var result = await _controller.UpdateOnProgramme(learningKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();
