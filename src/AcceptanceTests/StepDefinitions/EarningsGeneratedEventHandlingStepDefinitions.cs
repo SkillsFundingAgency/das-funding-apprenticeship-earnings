@@ -54,7 +54,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
-        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).OrderBy(x=>x.AcademicYear).ThenBy(x=>x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
 

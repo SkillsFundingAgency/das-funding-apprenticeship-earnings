@@ -9,21 +9,15 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
 {
     private readonly ILogger<SaveMathsAndEnglishCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
-    private readonly IMessageSession _messageSession;
-    private readonly IApprenticeshipEarningsRecalculatedEventBuilder _earningsRecalculatedEventBuilder;
     private readonly ISystemClockService _systemClock;
 
     public SaveMathsAndEnglishCommandHandler(
         ILogger<SaveMathsAndEnglishCommandHandler> logger,
         IApprenticeshipRepository apprenticeshipRepository,
-        IMessageSession messageSession,
-        IApprenticeshipEarningsRecalculatedEventBuilder earningsRecalculatedEventBuilder,
         ISystemClockService systemClock)
     {
         _logger = logger;
         _apprenticeshipRepository = apprenticeshipRepository;
-        _messageSession = messageSession;
-        _earningsRecalculatedEventBuilder = earningsRecalculatedEventBuilder;
         _systemClock = systemClock;
     }
 
@@ -39,9 +33,6 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
         apprenticeshipDomainModel.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, _systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
-
-        _logger.LogInformation("Publishing EarningsRecalculatedEvent for apprenticeship {LearningKey}", command.ApprenticeshipKey);
-        await _messageSession.Publish(_earningsRecalculatedEventBuilder.Build(apprenticeshipDomainModel), cancellationToken: cancellationToken);
 
         _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
