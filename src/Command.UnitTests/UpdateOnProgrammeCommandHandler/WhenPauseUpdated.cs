@@ -75,7 +75,8 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
         command.Request.PauseDate = null;
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        apprenticeship.Pause(GetValidPauseDate(apprenticeship), SystemClockServiceMock.Object);
+        var episode = apprenticeship.ApprenticeshipEpisodes.First();
+        episode.UpdatePause(GetValidPauseDate(apprenticeship));
 
         ApprenticeshipRepositoryMock
             .Setup(r => r.Get(apprenticeship.ApprenticeshipKey))

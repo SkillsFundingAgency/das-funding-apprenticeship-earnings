@@ -1,5 +1,4 @@
-﻿using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -7,7 +6,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -210,9 +208,14 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// <summary>
     /// Updates the completion date and earnings profile accordingly with the completion instalment and balanced instalments if necessary.
     /// </summary>
-    public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
+    public void UpdateCompletion(DateTime? completionDate)
     {
         _model.CompletionDate = completionDate;
+    }
+
+    public void UpdateFundingBandMaximum(int fundingBandMaximum)
+    {
+        _model.FundingBandMaximum = fundingBandMaximum;
     }
 
     private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)
@@ -239,13 +242,11 @@ public class ApprenticeshipEpisode : AggregateComponent
         return instalments;
     }
 
-    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
+    public void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)
     {
-        _model.FundingBandMaximum = fundingBandMaximum;
-    }
+        if (this.PricesAreIdentical(updatedPrices))
+            return;
 
-    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)
-    {
         foreach (var existingPrice in _prices.ToList())
         {
             var updatedPrice = updatedPrices.SingleOrDefault(x => x.Key == existingPrice.PriceKey);
@@ -268,24 +269,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         _prices.AddRange(newPrices);
     }
 
-    internal bool PricesAreIdentical(List<LearningEpisodePrice> prices)
-    {
-        if (prices.Count != _prices.Count)
-            return false;
-
-        foreach (var price in prices)
-        {
-            var matchingPrice = _prices.SingleOrDefault(x => x.PriceKey == price.Key);
-            if (matchingPrice == null)
-                return false;
-            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice)
-                return false;
-        }
-
-        return true;
-    }
-
-    internal void UpdatePause(DateTime? pauseDate)
+    public void UpdatePause(DateTime? pauseDate)
     {
         _model.PauseDate = pauseDate;
     }

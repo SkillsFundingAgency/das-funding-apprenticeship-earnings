@@ -22,7 +22,6 @@ public class WhenRecalculatingEarningsForStartDateChange
     private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
     private Guid _episodeKey;
     private List<LearningEpisodePrice> _prices;
-    private int _fundingBandMaximum;
     private const int _ageAtStartOfLearning = 20;
 
     [SetUp]
@@ -67,15 +66,13 @@ public class WhenRecalculatingEarningsForStartDateChange
                 EndDate = new DateTime(2024, 1, 1)
             }
         };
-
-        _fundingBandMaximum = (int)learningEpisode.FundingBandMaximum;
     }
 
     [Test]
     public void ThenTheStartDateAndEndDateAreUpdated()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
@@ -89,7 +86,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheAgeAtStartOfLearningIsUpdated()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
@@ -100,7 +97,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheDeletedPricesAreRemoved()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
@@ -111,7 +108,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenAnEarningsRecalculatedEventIsAdded()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert

@@ -88,37 +88,7 @@ public class Apprenticeship : AggregateRoot
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
     }
-
-    /// <summary>
-    /// Updates completion date for the apprenticeship.
-    /// Completion payment will be generated.
-    /// Balancing payments will be generated if necessary.
-    /// </summary>
-    public void UpdateCompletion(DateTime? completionDate, ISystemClockService systemClock)
-    {
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateCompletion(this, completionDate, systemClock);
-    }
-
-    public void UpdatePrices(List<LearningEpisodePrice> prices, Guid apprenticeshipEpisodeKey, int fundingBandMaximum, ISystemClockService systemClock)
-    {
-        var episode = this.GetEpisode(apprenticeshipEpisodeKey);
-
-        if (episode.PricesAreIdentical(prices))
-        {
-            return;
-        }
-
-        episode.UpdateFundingBandMaximum(fundingBandMaximum);
-        episode.UpdatePrices(prices);
-    }
-
-    public void Pause(DateTime? pauseDate, ISystemClockService systemClock)
-    {
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdatePause(pauseDate);
-    }
-    
+   
     public void WithdrawMathsAndEnglishCourse(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         var episode = this.GetCurrentEpisode(systemClock);

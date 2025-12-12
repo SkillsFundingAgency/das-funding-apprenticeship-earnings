@@ -30,14 +30,15 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         var request = command.Request;
 
         ExecuteAndLog(() => apprenticeship.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
-        ExecuteAndLog(() => apprenticeship.Pause(request.PauseDate, _systemClock), "update Pause");
+        ExecuteAndLog(() => episode.UpdatePause(request.PauseDate), "update Pause");
         ExecuteAndLog(() => episode.UpdateBreaksInLearning(request.ToEpisodeBreaksInLearning()), "update Breaks in learning");
-        ExecuteAndLog(() => apprenticeship.UpdateCompletion(request.CompletionDate, _systemClock), "update Completion");
+        ExecuteAndLog(() => episode.UpdateCompletion(request.CompletionDate), "update Completion");
         ExecuteAndLog(() => episode.UpdateWithdrawalDate(request.WithdrawalDate, _systemClock), "update Withdrawal");
 
         if (request.IncludesFundingBandMaximumUpdate)
         {
-            ExecuteAndLog(() => apprenticeship.UpdatePrices(request.Prices, request.ApprenticeshipEpisodeKey, request.FundingBandMaximum!.Value, _systemClock), "update Prices");
+            ExecuteAndLog(() => episode.UpdateFundingBandMaximum(request.FundingBandMaximum!.Value), "update FundingBandMaximum");
+            ExecuteAndLog(() => episode.UpdatePrices(request.Prices), "update Prices");
         }
 
         ExecuteAndLog(() => apprenticeship.Calculate(_systemClock, request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
