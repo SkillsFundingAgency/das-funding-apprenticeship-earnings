@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.LearningController;
 
-public class WhenSaveMathsAndEnglish
+public class WhenUpdatingEnglishAndMaths
 {
     private Mock<ILogger<InnerApi.Controllers.LearningController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
@@ -32,13 +32,13 @@ public class WhenSaveMathsAndEnglish
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<SaveMathsAndEnglishRequest>();
+        var request = _fixture.Create<UpdateEnglishAndMathsRequest>();
 
         // Act
         var result = await _controller.SaveMathsAndEnglish(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveMathsAndEnglishCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateEnglishAndMathsCommand>(), default), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
@@ -47,10 +47,10 @@ public class WhenSaveMathsAndEnglish
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<SaveMathsAndEnglishRequest>();
+        var request = _fixture.Create<UpdateEnglishAndMathsRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<SaveMathsAndEnglishCommand>(), default))
+            .Setup(x => x.Send(It.IsAny<UpdateEnglishAndMathsCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act

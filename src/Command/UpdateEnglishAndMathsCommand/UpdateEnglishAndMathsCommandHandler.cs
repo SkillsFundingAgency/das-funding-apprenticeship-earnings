@@ -3,16 +3,16 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
-public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEnglishCommand>
+public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglishAndMathsCommand>
 {
-    private readonly ILogger<SaveMathsAndEnglishCommandHandler> _logger;
+    private readonly ILogger<UpdateEnglishAndMathsCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClock;
 
-    public SaveMathsAndEnglishCommandHandler(
-        ILogger<SaveMathsAndEnglishCommandHandler> logger,
+    public UpdateEnglishAndMathsCommandHandler(
+        ILogger<UpdateEnglishAndMathsCommandHandler> logger,
         IApprenticeshipRepository apprenticeshipRepository,
         ISystemClockService systemClock)
     {
@@ -21,11 +21,11 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
         _systemClock = systemClock;
     }
 
-    public async Task Handle(SaveMathsAndEnglishCommand command, CancellationToken cancellationToken = default)
+    public async Task Handle(UpdateEnglishAndMathsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveMathsAndEnglishCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
-        var mathsAndEnglishCourses = command.MathsAndEnglishDetails.Select(x =>
+        var mathsAndEnglishCourses = command.EnglishAndMathsDetails.Select(x =>
             MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(x.ToGenerateMathsAndEnglishPaymentsCommand())).ToList();
 
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
@@ -34,6 +34,6 @@ public class SaveMathsAndEnglishCommandHandler : ICommandHandler<SaveMathsAndEng
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 }

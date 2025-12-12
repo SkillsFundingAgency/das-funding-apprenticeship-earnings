@@ -4,7 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEngl
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
@@ -64,24 +64,24 @@ public class LearningController: ControllerBase
         return Ok();
     }
 
-    [Route("{learningKey}/mathsAndEnglish")]
-    [HttpPatch]
-    public async Task<IActionResult> SaveMathsAndEnglish(Guid learningKey, SaveMathsAndEnglishRequest saveMathsAndEnglishRequest)
+    [Route("{learningKey}/english-and-maths")]
+    [HttpPut]
+    public async Task<IActionResult> SaveMathsAndEnglish(Guid learningKey, UpdateEnglishAndMathsRequest saveMathsAndEnglishRequest)
     {
-        _logger.LogInformation("Received request to save maths and english for apprenticeship {learningKey}", learningKey);
+        _logger.LogInformation("Received request to update english and maths for apprenticeship {learningKey}", learningKey);
 
         try
         {
-            var command = new SaveMathsAndEnglishCommand(learningKey, saveMathsAndEnglishRequest);
+            var command = new UpdateEnglishAndMathsCommand(learningKey, saveMathsAndEnglishRequest);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving maths and english for apprenticeship {learningKey}", learningKey);
+            _logger.LogError(ex, "Error updating english and maths for apprenticeship {learningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved maths and english for apprenticeship {learningKey}", learningKey);
+        _logger.LogInformation("Successfully updated english and maths for apprenticeship {learningKey}", learningKey);
         return Ok();
     }
 

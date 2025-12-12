@@ -1,10 +1,10 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
-public static class SaveMathsAndEnglishCommandExtensions
+public static class UpdateEnglishAndMathsCommandExtensions
 {
-    public static GenerateMathsAndEnglishPaymentsCommand ToGenerateMathsAndEnglishPaymentsCommand(this MathsAndEnglishDetail mathsAndEnglishDetails)
+    public static GenerateMathsAndEnglishPaymentsCommand ToGenerateMathsAndEnglishPaymentsCommand(this EnglishAndMathsItem mathsAndEnglishDetails)
     {
         return new GenerateMathsAndEnglishPaymentsCommand(
             mathsAndEnglishDetails.StartDate,
