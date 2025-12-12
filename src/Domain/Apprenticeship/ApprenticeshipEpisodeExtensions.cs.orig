@@ -93,6 +93,8 @@ public static class LearningEpisodeExtensions
             .OrderBy(d => d.Value)
             .FirstOrDefault();
     }
+<<<<<<< HEAD
+=======
 
     internal static List<PeriodInLearning> GetPeriodsInLearning(this ApprenticeshipEpisode episode)
     {
@@ -162,4 +164,5 @@ public static class LearningEpisodeExtensions
 
         return !insideBreak;
     }
+>>>>>>> main
 }

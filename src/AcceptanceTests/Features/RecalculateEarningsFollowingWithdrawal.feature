@@ -22,8 +22,6 @@ Scenario: Withdrawal made partway through apprenticeship; recalc earnings
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
 		| ProviderIncentive | 500    | 2020-10-29 | false                |
 		| EmployerIncentive | 500    | 2020-10-29 | false                |
-		| ProviderIncentive | 500    | 2021-07-31 | true                 |
-		| EmployerIncentive | 500    | 2021-07-31 | true                 |
 
 Scenario: Withdrawal made back to start of apprenticeship; remove all incentive payments
 	Given an apprenticeship has been created with the following information
@@ -57,12 +55,7 @@ Scenario: Withdrawal date falls before 90 day incentive date
 		| 1000   | 2021         | 1              |
 		| 1000   | 2021         | 2              |
 	And the earnings history is maintained
-	And Additional Payments are persisted as follows
-		| Type              | Amount | DueDate    | IsAfterLearningEnded |
-		| ProviderIncentive | 500    | 2020-10-29 | true                 |
-		| EmployerIncentive | 500    | 2020-10-29 | true                 |
-		| ProviderIncentive | 500    | 2021-07-31 | true                 |
-		| EmployerIncentive | 500    | 2021-07-31 | true                 |
+	And no Additional Payments are persisted
 
 Scenario: Withdrawal date falls after 90 day incentive date, but before census date (incentives still due)
 	Given an apprenticeship has been created with the following information
@@ -85,5 +78,3 @@ Scenario: Withdrawal date falls after 90 day incentive date, but before census d
 		| Type              | Amount | DueDate    | IsAfterLearningEnded |
 		| ProviderIncentive | 500    | 2020-10-29 | false                |
 		| EmployerIncentive | 500    | 2020-10-29 | false                |
-		| ProviderIncentive | 500    | 2021-07-31 | true                 |
-		| EmployerIncentive | 500    | 2021-07-31 | true                 |
