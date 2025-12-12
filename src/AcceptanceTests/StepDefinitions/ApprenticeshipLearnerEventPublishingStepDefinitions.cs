@@ -99,8 +99,9 @@ public class LearningCreatedEventPublishingStepDefinitions
     {
         var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
             .WithTotalPrice(35000)
-            .WithFundingBandMaximum(30000)
             .Build();
+
+        _testContext.FundingBandMaximumService.SetFundingBandMaximum(30000);
 
         await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
         _scenarioContext.Set(learningCreatedEvent);
@@ -118,8 +119,7 @@ public class LearningCreatedEventPublishingStepDefinitions
     [Given(@"a funding band maximum of (.*)")]
     public void GivenTheFollowingPriceEpisodes(int fundingBandMaximum)
     {
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithFundingBandMaximum(fundingBandMaximum);
+        _testContext.FundingBandMaximumService.SetFundingBandMaximum(fundingBandMaximum);
     }
 
     [Given(@"the following Price Episodes")]

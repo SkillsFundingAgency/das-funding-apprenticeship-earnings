@@ -61,7 +61,7 @@ public class Startup
                 .AddJsonFile("local.settings.json", true);
 
         var configuration = configurationBuilder.Build();
-        if (NotAcceptanceTests(configuration))// May not need this check, Fail PR if this comment is still here
+        if (configuration.NotAcceptanceTests())
         {
             configurationBuilder.AddAzureTableStorage(options =>
             {
@@ -97,16 +97,15 @@ public class Startup
 
         services.AddSingleton<ISystemClockService, SystemClockService>();
         services.AddFunctionHealthChecks(ApplicationSettings);
+
+        if (Configuration.NotAcceptanceTests())
+            services.AddEarningsOuterApiClient(ApplicationSettings.EarningOuterApiConfiguration);
+
     }
 
     private static void EnsureConfig(ApplicationSettings applicationSettings)
     {
         if (string.IsNullOrWhiteSpace(applicationSettings.NServiceBusConnectionString))
             throw new Exception("NServiceBusConnectionString in ApplicationSettings should not be null.");
-    }
-
-    private static bool NotAcceptanceTests(IConfiguration configuration)
-    {
-        return !configuration!["EnvironmentName"].Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
     }
 }

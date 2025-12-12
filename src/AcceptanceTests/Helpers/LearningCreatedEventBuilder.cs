@@ -16,7 +16,6 @@ public class LearningCreatedEventBuilder
     private int _ageAtStart = 21;
     private Learning.Enums.FundingPlatform _fundingPlatform = Learning.Enums.FundingPlatform.DAS;
     private decimal _totalPrice = 15000m;
-    private int _fundingBandMaximum = EventBuilderSharedDefaults.FundingBandMaximum;
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
@@ -55,11 +54,6 @@ public class LearningCreatedEventBuilder
     public LearningCreatedEventBuilder WithTotalPrice(decimal totalPrice)
     {
         _totalPrice = totalPrice;
-        return this;
-    }
-    public LearningCreatedEventBuilder WithFundingBandMaximum(int fundingBandMaximum)
-    {
-        _fundingBandMaximum = fundingBandMaximum;
         return this;
     }
 
@@ -140,7 +134,6 @@ public class LearningCreatedEventBuilder
             Episode = new LearningEpisode
             {
                 Key = _episodeKey,
-                FundingBandMaximum = _fundingBandMaximum,
                 Prices = _prices.Any() ? _prices : new List<LearningEpisodePrice>
                 {
                     new LearningEpisodePrice

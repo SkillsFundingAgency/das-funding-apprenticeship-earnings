@@ -25,7 +25,7 @@ public class WhenCreatingANewApprenticeship
     {
         var learningCreatedEvent = _fixture.CreateLearningCreatedEvent();
 
-        var apprenticeship = _factory.CreateNew(learningCreatedEvent);
+        var apprenticeship = _factory.CreateNew(learningCreatedEvent, _fixture.Create<int>());
 
         learningCreatedEvent.LearningKey.Should().Be(apprenticeship.ApprenticeshipKey);
         learningCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
