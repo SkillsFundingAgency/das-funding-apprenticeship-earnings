@@ -23,10 +23,10 @@ public class EnglishAndMathsStepDefinitions
         _testContext = testContext;
     }
 
-    [Given(@"the following maths and english course information is provided")]
-    [When(@"the following maths and english completion change request is sent")]
-    [When(@"the following maths and english course information is provided")]
-    [When(@"the following maths and english withdrawal change request is sent")]
+    [Given(@"the following english and maths course information is provided")]
+    [When(@"the following english and maths completion change request is sent")]
+    [When(@"the following english and maths course information is provided")]
+    [When(@"the following english and maths withdrawal change request is sent")]
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var items = table.CreateSet<EnglishAndMathsItem>().ToList();
@@ -37,7 +37,7 @@ public class EnglishAndMathsStepDefinitions
         await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/english-and-maths", request);
     }
 
-    [Then(@"Maths and english instalments are persisted as follows")]
+    [Then(@"english and maths instalments are persisted as follows")]
     public async Task ThenMathsAndEnglishInstalmentsArePersistedAsFollows(Table table)
     {
         var data = table.CreateSet<MathsAndEnglishInstalmentDbExpectationModel>().ToList();
@@ -73,7 +73,7 @@ public class EnglishAndMathsStepDefinitions
         }
     }
 
-    [Then(@"no Maths and English earnings are persisted")]
+    [Then(@"no english and maths earnings are persisted")]
     public async Task ThenNoMathsAndEnglishInstalmentsArePersisted()
     {
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
@@ -85,7 +85,7 @@ public class EnglishAndMathsStepDefinitions
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
     }
 
-    [Then(@"all Maths and English earnings are soft deleted")]
+    [Then(@"all english and maths earnings are soft deleted")]
     public async Task ThenAllMathsAndEnglishInstalmentsAreSoftDeleted()
     {
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
@@ -95,7 +95,7 @@ public class EnglishAndMathsStepDefinitions
         var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses.SelectMany(x => x.Instalments);
 
         mathsAndEnglishInstalmentsInDb.Should().OnlyContain(x => x.IsAfterLearningEnded,
-            "Expected all maths and english instalments to be soft deleted");
+            "Expected all english and maths instalments to be soft deleted");
     }
 
 }

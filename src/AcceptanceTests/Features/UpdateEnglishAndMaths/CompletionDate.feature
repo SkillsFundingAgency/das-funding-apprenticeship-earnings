@@ -1,17 +1,17 @@
-﻿Feature: ChangeOfMathsAndEnglishCompletionDate
+﻿Feature: EnglishAndMathsCompletionDate
 
-Validates maths and english payments are correctly calculated when the completion date changes
+Validates English and Maths payments are correctly calculated when the completion date changes
 
-Scenario: Maths and English completion moved later
+Scenario: English and Maths completion moved later
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
-	When the following maths and english completion change request is sent
+	When the following english and maths completion change request is sent
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-12-01    |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |
 		| Maths1 | 100    | 2021         | 2              | Regular   |
@@ -20,32 +20,32 @@ Scenario: Maths and English completion moved later
 		| Maths1 | 1100   | 2021         | 5              | Balancing |
 	And the earnings history is maintained
 
-Scenario: Maths and English completion moved earlier
+Scenario: English and Maths completion moved earlier
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
-	When the following maths and english completion change request is sent
+	When the following english and maths completion change request is sent
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-10-01    |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type       |
 		| Maths1 | 100    | 2021         | 1              | Regular    |
 		| Maths1 | 100    | 2021         | 2              | Regular    |
 		| Maths1 | 1300   | 2021         | 3              | Balancing |
 	And the earnings history is maintained
 
-Scenario: Maths and English completion removed
+Scenario: English and Maths completion removed
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
-	When the following maths and english completion change request is sent
+	When the following english and maths completion change request is sent
 		| StartDate | EndDate   | Course | Amount |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| Maths1 | 100    | 2021         | 1              | Regular |
 		| Maths1 | 100    | 2021         | 2              | Regular |
@@ -64,16 +64,16 @@ Scenario: Maths and English completion removed
 		| Maths1 | 100    | 2122         | 3              | Regular |
 	And the earnings history is maintained
 
-Scenario: Maths and English early completion within last month
+Scenario: English and Maths early completion within last month
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course | Amount |
 		| 2020-8-1  | 2021-10-31 | Maths1 | 1500   |
-	When the following maths and english completion change request is sent
+	When the following english and maths completion change request is sent
 		| StartDate | EndDate    | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-10-31 | Maths1 | 1500   | 2021-10-01    |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |
 		| Maths1 | 100    | 2021         | 2              | Regular   |
