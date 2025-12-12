@@ -14,7 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 public class ApprenticeshipEpisode : AggregateComponent
 {
 
-    private ApprenticeshipEpisode(EpisodeModel model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
+    private ApprenticeshipEpisode(EpisodeModel model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         _model = model;
 
@@ -24,11 +24,13 @@ public class ApprenticeshipEpisode : AggregateComponent
         {
             _earningsProfile = this.GetEarningsProfileFromModel(_model.EarningsProfile);
         }
+
+        UpdateAgeAtStart(dateOfBirth);
     }
 
     internal static ApprenticeshipEpisode Get(Apprenticeship apprenticeship, EpisodeModel entity)
     {
-        var episode = new ApprenticeshipEpisode(entity, apprenticeship.AddChildToRoot);
+        var episode = new ApprenticeshipEpisode(entity, apprenticeship.DateOfBirth, apprenticeship.AddChildToRoot);
         return episode;
     }
 
@@ -36,11 +38,12 @@ public class ApprenticeshipEpisode : AggregateComponent
     private List<Price> _prices;
     private List<EpisodeBreakInLearning> _breaksInLearning;
     private EarningsProfile? _earningsProfile;
+    private int _ageAtStartOfApprenticeship;
 
     public Guid ApprenticeshipEpisodeKey => _model.Key;
     public long UKPRN => _model.Ukprn;
     public long EmployerAccountId => _model.EmployerAccountId;
-    public int AgeAtStartOfApprenticeship => _model.AgeAtStartOfApprenticeship;
+    public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;
     public string TrainingCode => _model.TrainingCode;
     public FundingType FundingType => _model.FundingType;
     public string LegalEntityName => _model.LegalEntityName;
@@ -48,7 +51,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
     public IReadOnlyCollection<EpisodeBreakInLearning> BreaksInLearning => new ReadOnlyCollection<EpisodeBreakInLearning>(_breaksInLearning);
-    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _model.AgeAtStartOfApprenticeship < 22;
+    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _ageAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
@@ -57,7 +60,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
 
     public string FundingLineType =>
-        AgeAtStartOfApprenticeship < 19
+        _ageAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
@@ -248,7 +251,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
     {
-        _model.AgeAtStartOfApprenticeship = ageAtStartOfLearning;
+        _ageAtStartOfApprenticeship = ageAtStartOfLearning;
 
         foreach (var existingPrice in _prices.ToList())
         {
@@ -334,7 +337,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
-            AgeAtStartOfApprenticeship,
+            _ageAtStartOfApprenticeship,
             _prices.Min(p => p.StartDate),
             _prices.Max(p => p.EndDate),
             apprenticeship.HasEHCP,
@@ -346,4 +349,8 @@ public class ApprenticeshipEpisode : AggregateComponent
         return (instalments, additionalPayments, onProgramTotal, completionPayment);
     }
 
+    internal void UpdateAgeAtStart(DateTime dateOfBirth)
+    {
+        _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(_prices.Min(x => x.StartDate));
+    }
 }

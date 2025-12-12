@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
-using System.Data;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using System.Data;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
@@ -28,7 +29,6 @@ public class SqlDatabase : IDisposable
 
     public async Task<ApprenticeshipModel?> GetApprenticeship(Guid learningKey)
     {
-
         ClearCachedEntities();
 
         var apprenticeship = await DbContext.Apprenticeships
