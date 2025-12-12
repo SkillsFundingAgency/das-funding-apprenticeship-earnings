@@ -1,4 +1,4 @@
-﻿Feature: Recalculate earnings following completion
+﻿Feature: Completion
 
 Scenario: Early Completion
 	Given an apprenticeship has been created with the following information

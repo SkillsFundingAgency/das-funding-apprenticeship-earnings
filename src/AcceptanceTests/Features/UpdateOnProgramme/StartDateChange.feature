@@ -1,4 +1,4 @@
-﻿Feature: Recalculate earnings following start date change
+﻿Feature: Start date changes
 
 Scenario: New start date earlier than current date and in the same current academic year
 	Given an apprenticeship has been created with the following information

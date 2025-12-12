@@ -64,30 +64,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Features\RecalculateEarningsFollowingWithdrawalBeforeEndOfQualifyingPeriod.feature.cs">
-      <Visible>true</Visible>
-      <DependentUpon>RecalculateEarningsFollowingWithdrawalBeforeEndOfQualifyingPeriod.feature</DependentUpon>
-      <DesignTime>true</DesignTime>
-      <AutoGen>true</AutoGen>
-    </Compile>
-    <Compile Update="Features\RecalculateEarningsFollowingWithdrawal.feature.cs">
-      <DependentUpon>RecalculateEarningsFollowingWithdrawal.feature</DependentUpon>
-    </Compile>
-    <Compile Update="Features\RecalculateEarningsFollowingStartDateChange.feature.cs">
-      <DependentUpon>RecalculateEarningsFollowingStartDateChange.feature</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingWithdrawalBeforeEndOfQualifyingPeriod.feature">
+    <SpecFlowFeatureFiles Update="Features\UpdateOnProgramme\Withdrawal.feature">
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
       <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
     </SpecFlowFeatureFiles>
-    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingWithdrawal.feature">
-      <Visible>$(UsingMicrosoftNETSdk)</Visible>
-      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
-    </SpecFlowFeatureFiles>
-    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingStartDateChange.feature">
+    <SpecFlowFeatureFiles Update="Features\UpdateOnProgramme\StartDateChange.feature">
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
       <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
     </SpecFlowFeatureFiles>

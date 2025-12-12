@@ -1,6 +1,8 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
+﻿using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
+[assembly: Parallelizable(ParallelScope.Fixtures)]
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
 public class TestContext : IDisposable

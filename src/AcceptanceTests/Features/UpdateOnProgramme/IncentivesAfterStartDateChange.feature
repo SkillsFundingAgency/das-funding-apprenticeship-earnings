@@ -1,4 +1,6 @@
-﻿Feature: Recalculate incentive earnings following date or duration change
+﻿Feature: Start date changes and incentive payments
+
+Tests the effects of startdate changes on incentive payments
 
 Scenario: Apprenticeship start date change results in less than 365 days
 	Given an apprenticeship has been created with the following information

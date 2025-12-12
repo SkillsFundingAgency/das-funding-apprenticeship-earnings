@@ -1,4 +1,4 @@
-﻿Feature: Recalculate earnings following price change
+﻿Feature: Price change
 
 Scenario: Price change approved in the year it was requested, below or at funding band max; recalc earnings (by request)
 	Given an apprenticeship has been created with the following information
