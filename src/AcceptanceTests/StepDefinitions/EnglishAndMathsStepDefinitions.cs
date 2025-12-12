@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
@@ -98,4 +100,13 @@ public class EnglishAndMathsStepDefinitions
             "Expected all english and maths instalments to be soft deleted");
     }
 
+    [When("the following english and maths withdrawal is sent")]
+    public async Task SendMathsAndEnglishWithdrawalRequest(Table table)
+    {
+        var data = table.CreateSet<MathsAndEnglishWithdrawalModel>().ToList().Single();
+        var withdrawRequest = new MathsAndEnglishWithdrawRequest() { WithdrawalDate = data.LastDayOfLearning, Course = data.Course };
+        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish/withdraw", withdrawRequest);
+
+        _scenarioContext.Set(withdrawRequest);
+    }
 }

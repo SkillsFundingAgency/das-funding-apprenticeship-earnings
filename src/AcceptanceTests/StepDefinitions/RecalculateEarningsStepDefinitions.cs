@@ -22,22 +22,6 @@ public class RecalculateEarningsStepDefinitions
         _testContext = testContext;
     }
 
-    #region Act
-
-    [When("the following maths and english withdrawal is sent")]
-    public async Task SendMathsAndEnglishWithdrawalRequest(Table table)
-    {
-        var data = table.CreateSet<MathsAndEnglishWithdrawalModel>().ToList().Single();
-        var withdrawRequest = new MathsAndEnglishWithdrawRequest() { WithdrawalDate = data.LastDayOfLearning, Course  = data.Course };
-        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish/withdraw", withdrawRequest);
-
-        _scenarioContext.Set(withdrawRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
-    }
-
-    #endregion
-
     #region Assert
 
     [Then("the earnings history is maintained")]

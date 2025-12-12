@@ -1,14 +1,14 @@
 ﻿Feature: MathsAndEnglishPayments
 
-Validates maths and english payments are correctly calculated
+Validates english and maths payments are correctly calculated
 
-Scenario: Maths and English earnings for a brand new course
+Scenario: english and maths earnings for a brand new course
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | Amount |
 		| 2020-8-1  | 2021-11-1  | Maths1      | 1500   |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| Maths1 | 100    | 2021         | 1              | Regular |
 		| Maths1 | 100    | 2021         | 2              | Regular |
@@ -27,13 +27,13 @@ Scenario: Maths and English earnings for a brand new course
 		| Maths1 | 100    | 2122         | 3              | Regular |
 	And the earnings history is maintained
 
-Scenario: Maths and English earnings past the end of the apprenticeship
+Scenario: english and maths earnings past the end of the apprenticeship
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | Amount |
 		| 2021-1-1  | 2021-12-31 | LateEnglish | 1200   |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course      | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| LateEnglish | 100    | 2021         | 6              | Regular |
 		| LateEnglish | 100    | 2021         | 7              | Regular |
@@ -49,13 +49,13 @@ Scenario: Maths and English earnings past the end of the apprenticeship
 		| LateEnglish | 100    | 2122         | 5              | Regular |
 	And the earnings history is maintained
 	
-Scenario: Maths and English before the start of the apprenticeship
+Scenario: english and maths before the start of the apprenticeship
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course     | Amount |
 		| 2020-1-1  | 2021-1-15 | EarlyMaths | 600    |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course     | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| EarlyMaths | 50     | 1920         | 6              | Regular |
 		| EarlyMaths | 50     | 1920         | 7              | Regular |
@@ -71,27 +71,27 @@ Scenario: Maths and English before the start of the apprenticeship
 		| EarlyMaths | 50     | 2021         | 5              | Regular |
 	And the earnings history is maintained
 
-Scenario: Maths and English earnings for a course which does not span a census date
+Scenario: english and maths earnings for a course which does not span a census date
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate  | EndDate    | Course | Amount |
 		| 2021-02-01 | 2021-02-26 | Maths1 | 900   |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| Maths1 | 900    | 2021         | 7              | Regular |
 	And the earnings history is maintained
 		
-Scenario: Maths and English completion earnings
+Scenario: english and maths completion earnings
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | Amount |
 		| 2020-8-1  | 2021-11-1  | Maths1      | 1500   |
-	When the following maths and english completion change request is sent
+	When the following english and maths completion change request is sent
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |
 		| Maths1 | 100    | 2021         | 2              | Regular   |
@@ -99,13 +99,13 @@ Scenario: Maths and English completion earnings
 		| Maths1 | 1200   | 2021         | 4              | Balancing |
 	And the earnings history is maintained
 
-Scenario: Maths and English earnings for a course with prior learning
+Scenario: english and maths earnings for a course with prior learning
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
 	And the apprenticeship commitment is approved
-	And the following maths and english course information is provided
+	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | PriorLearningAdjustmentPercentage |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 63                                |
-	Then Maths and english instalments are persisted as follows
+	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| Maths1 | 63     | 2021         | 1              | Regular |
 		| Maths1 | 63     | 2021         | 2              | Regular |
