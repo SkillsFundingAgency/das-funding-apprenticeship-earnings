@@ -26,6 +26,7 @@ public class UpdateOnProgrammeRequestBuilder
     private List<LearningEpisodePrice>? _existingPrices;
     private List<BreakInLearningItem> _breaksInLearning = new List<BreakInLearningItem>();
     private DateTime? _completionDate = null;
+    private DateTime? _withdrawalDate = null;
 
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
@@ -38,6 +39,7 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
         if (model.BreaksInLearning.HasChanged) _breaksInLearning = model.BreaksInLearning.Value;
         if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
+        if (model.WithdrawalDate.HasChanged) _withdrawalDate = model.WithdrawalDate.Value;
         return this;
     }
 
@@ -86,6 +88,7 @@ public class UpdateOnProgrammeRequestBuilder
             DateOfBirth = _dateOfBirth,
             PauseDate = _pauseDate,
             CompletionDate = _completionDate,
+            WithdrawalDate = _withdrawalDate,
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
             IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate,

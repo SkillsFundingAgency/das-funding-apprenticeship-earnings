@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReverseWithdrawal;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
@@ -107,45 +106,24 @@ public class ApprenticeshipController: ControllerBase
         return Ok();
     }
 
-    [Route("{apprenticeshipKey}/reverse-withdrawal")]
-    [HttpPatch]
-    public async Task<IActionResult> ReverseWithdrawal(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
+    [Route("{apprenticeshipKey}")]
+    [HttpDelete]
+    public async Task<IActionResult> RemoveLearner(Guid apprenticeshipKey)
     {
-        _logger.LogInformation("Received request to reverse withdrawal of learner {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Received request to remove learner {apprenticeshipKey}", apprenticeshipKey);
 
         try
         {
-            var command = new ReverseWithdrawalCommand(apprenticeshipKey);
+            var command = new RemoveLearnerCommand(apprenticeshipKey);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error reversing withdrawal of learner {apprenticeshipKey}", apprenticeshipKey);
+            _logger.LogError(ex, "Error removing learner {apprenticeshipKey}", apprenticeshipKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully reversed withdrawal of learner {apprenticeshipKey}", apprenticeshipKey);
-        return Ok();
-    }
-
-    [Route("{apprenticeshipKey}/withdraw")]
-    [HttpPatch]
-    public async Task<IActionResult> WithdrawLearner(Guid apprenticeshipKey, WithdrawRequest withdrawRequest)
-    {
-        _logger.LogInformation("Received request to withdraw learner {apprenticeshipKey}", apprenticeshipKey);
-
-        try
-        {
-            var command = new ProcessWithdrawnApprenticeshipCommand(apprenticeshipKey, withdrawRequest);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error withdrawing for learner {apprenticeshipKey}", apprenticeshipKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully withdrew learner {apprenticeshipKey}", apprenticeshipKey);
+        _logger.LogInformation("Successfully removed learner {apprenticeshipKey}", apprenticeshipKey);
         return Ok();
     }
 

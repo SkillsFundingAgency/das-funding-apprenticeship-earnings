@@ -2,7 +2,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -25,18 +24,6 @@ public class RecalculateEarningsStepDefinitions
     }
 
     #region Act
-
-    [When("the following withdrawal is sent")]
-    public async Task SendWithdrawalRequest(Table table)
-    {
-        var data = table.CreateSet<WithdrawalModel>().ToList().Single();
-        var withdrawRequest = new WithdrawRequest { WithdrawalDate = data.LastDayOfLearning };
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/withdraw", withdrawRequest);
-
-        _scenarioContext.Set(withdrawRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
-    }
 
     [When("the following maths and english withdrawal is sent")]
     public async Task SendMathsAndEnglishWithdrawalRequest(Table table)

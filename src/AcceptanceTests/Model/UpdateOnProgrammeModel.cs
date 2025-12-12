@@ -19,4 +19,7 @@ public class UpdateOnProgrammeModel
 
     // Completion
     public TrackedValue<DateTime?> CompletionDate { get; set; } = new TrackedValue<DateTime?>(null);
+
+    // Withdrawal
+    public TrackedValue<DateTime?> WithdrawalDate { get; set; } = new TrackedValue<DateTime?>(null);
 }

@@ -33,6 +33,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         ExecuteAndLog(() => apprenticeship.Pause(request.PauseDate, _systemClock), "update Pause");
         ExecuteAndLog(() => episode.UpdateBreaksInLearning(request.ToEpisodeBreaksInLearning()), "update Breaks in learning");
         ExecuteAndLog(() => apprenticeship.UpdateCompletion(request.CompletionDate, _systemClock), "update Completion");
+        ExecuteAndLog(() => episode.UpdateWithdrawalDate(request.WithdrawalDate, _systemClock), "update Withdrawal");
 
         if (request.IncludesFundingBandMaximumUpdate)
         {

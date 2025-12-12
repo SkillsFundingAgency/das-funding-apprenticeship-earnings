@@ -5,13 +5,13 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.ApprenticeshipController;
 
-public class WhenWithdrawLearner
+public class WhenRemoveLearner
 {
     private Mock<ILogger<InnerApi.Controllers.ApprenticeshipController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
@@ -32,13 +32,12 @@ public class WhenWithdrawLearner
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<WithdrawRequest>();
 
         // Act
-        var result = await _controller.WithdrawLearner(learningKey, request);
+        var result = await _controller.RemoveLearner(learningKey);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<ProcessWithdrawnApprenticeshipCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<RemoveLearnerCommand>(), default), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
@@ -47,14 +46,13 @@ public class WhenWithdrawLearner
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<WithdrawRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<ProcessWithdrawnApprenticeshipCommand>(), default))
+            .Setup(x => x.Send(It.IsAny<RemoveLearnerCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.WithdrawLearner(learningKey, request);
+        var result = await _controller.RemoveLearner(learningKey);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();

@@ -52,18 +52,6 @@ public class Apprenticeship : AggregateRoot
         episode.CalculateOnProgram(this, systemClock);
     }
 
-    public void Withdraw(DateTime withdrawalDate, ISystemClockService systemClock)
-    {
-        var episode = this.GetCurrentEpisode(systemClock);
-        episode.Withdraw(withdrawalDate, systemClock);
-    }
-
-    public void ReverseWithdrawal(ISystemClockService systemClock)
-    {
-        var episode = this.GetCurrentEpisode(systemClock);
-        episode.ReverseWithdrawal(systemClock);
-    }
-
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
     {
         if(HasEHCP == hasEHCP && IsCareLeaver == isCareLeaver && CareLeaverEmployerConsentGiven == careLeaverEmployerConsentGiven)

@@ -14,7 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCompletion
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _sut;
+    private Apprenticeship.Apprenticeship _apprenticeship;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -33,13 +33,13 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
     {
         // Arrange
         var lastDayOfLearning = new DateTime(2024, 1, 31);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 
         // Act
-        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(0);
     }
 
@@ -60,12 +60,13 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         SetupApprenticeship(actualStartDate, plannedEndDate, 12000m);
 
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+
         // Act
-        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
 
         if(expectedToQualify)
             currentEpisode.EarningsProfile.Instalments.Should().NotBeEmpty();
@@ -84,12 +85,13 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         var lastDayOfLearning = new DateTime(2024, 8, 11); //withdrawn beginning of 24/25 ay on last day of qualifying period
 
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+
         // Act
-        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(1);
         currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x => x.AcademicYear == 2324);
     }
@@ -99,13 +101,13 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
     {
         // Arrange
         var lastDayOfLearning = new DateTime(2024, 1, 31);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
 
         // Act
-        _sut.Withdraw(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 
@@ -117,9 +119,9 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
     private void SetupApprenticeship(DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice)
     {
-        _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
-        var episode = _sut.ApprenticeshipEpisodes.First();
+        _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        var episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        episode.CalculateOnProgram(_sut, _mockSystemClock.Object);
+        episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object);
     }
 }

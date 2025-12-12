@@ -9,9 +9,9 @@ Scenario: Withdrawal made partway through apprenticeship; recalc earnings
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following withdrawal is sent
-		| LastDayOfLearning |
-		| 2020-11-15        |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2020-11-15 |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 1              |
@@ -32,9 +32,9 @@ Scenario: Withdrawal made back to start of apprenticeship; remove all incentive 
 		| StartDate  | EndDate    | Price |
 		| 2020-08-15 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following withdrawal is sent
-		| LastDayOfLearning |
-		| 2020-08-15        |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2020-08-15 |
 	Then no Additional Payments are persisted
 	And the earnings history is maintained
 
@@ -47,9 +47,9 @@ Scenario: Withdrawal date falls before 90 day incentive date
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following withdrawal is sent
-		| LastDayOfLearning |
-		| 2020-10-15        |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2020-10-15 |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 1              |
@@ -66,9 +66,9 @@ Scenario: Withdrawal date falls after 90 day incentive date, but before census d
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-07-31 | 15000 |
 	And earnings are calculated
-	When the following withdrawal is sent
-		| LastDayOfLearning |
-		| 2020-10-30        |
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2020-10-30 |
 	Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 1000   | 2021         | 1              |

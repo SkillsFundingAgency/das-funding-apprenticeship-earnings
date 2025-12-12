@@ -103,14 +103,9 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
     }
 
-    public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
+    public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _model.WithdrawalDate = withdrawalDate;
-    }
-
-    public void ReverseWithdrawal(ISystemClockService systemClockService)
-    {
-        _model.WithdrawalDate = null;
     }
 
     public void WithdrawMathsAndEnglish(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)

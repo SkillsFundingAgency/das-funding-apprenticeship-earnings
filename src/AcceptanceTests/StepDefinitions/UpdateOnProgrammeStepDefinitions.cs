@@ -86,6 +86,10 @@ public class UpdateOnProgrammeStepDefinitions
                 case nameof(UpdateOnProgrammeModel.CompletionDate):
                     model.CompletionDate.SetValue(item.ToNullableDateTime());
                     break;
+
+                case nameof(UpdateOnProgrammeModel.WithdrawalDate):
+                    model.WithdrawalDate.SetValue(item.ToNullableDateTime());
+                    break;
             }
         }
 
