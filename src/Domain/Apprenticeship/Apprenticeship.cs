@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -86,7 +85,7 @@ public class Apprenticeship : AggregateRoot
     public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, systemClock);
+        currentEpisode.UpdateEnglishAndMaths(mathsAndEnglishCourses, systemClock);
     }
    
     public void WithdrawMathsAndEnglishCourse(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)

@@ -199,7 +199,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// Updates earnings for Maths and English courses to an apprenticeship.
     /// Overwrites any existing Maths and English courses' earnings.
     /// </summary>
-    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    public void UpdateEnglishAndMaths(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, mathsAndEnglishCourses.Select(x => x.GetModel()).ToList());
         _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: updatedCourses);

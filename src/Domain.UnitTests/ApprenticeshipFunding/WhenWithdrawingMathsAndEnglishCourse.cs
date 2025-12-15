@@ -50,7 +50,7 @@ public class WhenWithdrawingMathsAndEnglishCourse
             new MathsAndEnglishInstalment(2425, 5, 100m, MathsAndEnglishInstalmentType.Regular, false)
         }, null, null, null, null);
 
-        episode.UpdateMathsAndEnglishCourses(new() { mathsAndEnglishCourse }, _mockSystemClock.Object);
+        episode.UpdateEnglishAndMaths(new() { mathsAndEnglishCourse }, _mockSystemClock.Object);
     }
 
     [Test]
