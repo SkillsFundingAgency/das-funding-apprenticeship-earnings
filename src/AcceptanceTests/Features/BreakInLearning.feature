@@ -229,8 +229,8 @@ Given an apprenticeship has been created with the following information
 	| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
 	And SLD informs us that the break in learning was
-	| StartDate  | EndDate    |
-	| 2020-09-01 | 2020-09-07 |
+	| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
+	| 2020-09-01 | 2020-09-07 | 2024-07-31                 |
 	Then Additional Payments are persisted as follows
 	| Type              | Amount | DueDate    |
 	| ProviderIncentive | 500    | 2020-11-05 |
@@ -250,8 +250,8 @@ Given an apprenticeship has been created with the following information
 	| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
 	| true                           | true         | true    |
 	And SLD informs us that the break in learning was
-	| StartDate  | EndDate    |
-	| 2020-09-01 | 2020-09-07 |
+	| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
+	| 2020-09-01 | 2020-09-07 | 2024-07-31                 |
 	Then Additional Payments are persisted as follows
 	| Type              | Amount | DueDate    |
 	| ProviderIncentive | 500    | 2020-11-05 |
