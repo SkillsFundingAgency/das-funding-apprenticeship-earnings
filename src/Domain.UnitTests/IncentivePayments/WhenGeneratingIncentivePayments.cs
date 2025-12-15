@@ -175,8 +175,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             // Assert
 
             // Expected: 90-day incentive pushed by break1 (41 days) - day 130,
-            // but that lands 10 days into break2, so it should be pushed to day 160 (day 150 being end of break 2)
-            var expected90DayIncentiveDate = startDate.AddDays(160);
+            // but that lands 11 days into break2, so it should be pushed to day 161 (day 150 being end of break 2)
+            var expected90DayIncentiveDate = startDate.AddDays(161);
 
             // Expected: 365-day incentive pushed by both breaks (41 + 31 = 72 days) - day 436,
             var expected365DayIncentiveDate = startDate.AddDays(436);
@@ -260,7 +260,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
                 20, startDate, endDate, hasEHCP: true, isCareLeaver: false, careLeaverEmployerConsentGiven: false, breaks);
 
             // Assert
-            var expected90DayIncentiveDate = startDate.AddDays(160); // pushed into break2, then carried forward
+            var expected90DayIncentiveDate = startDate.AddDays(161); // pushed into break2, then carried forward
             var expected365DayIncentiveDate = startDate.AddDays(436); // 364 + 41 + 31
 
             var expectedPayments = new[]

@@ -116,14 +116,13 @@ public static class IncentivePayments
                 continue;
             }
 
-            // Case 2: incentive date falls inside the break - carry over the overrun
+            // Case 2: incentive date falls inside the break - extend by full break duration
             if (incentiveDate >= b.StartDate && incentiveDate <= b.EndDate)
             {
-                var overrunDays = (incentiveDate - b.StartDate).Days; // how deep we are into the break
-                incentiveDate = b.EndDate.AddDays(overrunDays);
+                incentiveDate = incentiveDate.AddDays(b.Duration);
             }
 
-            // Case 3: break starts after the current incentive date - no effect, ignore
+            // Case 3: break starts after the current incentive date - no effect
         }
 
         return incentiveDate;
