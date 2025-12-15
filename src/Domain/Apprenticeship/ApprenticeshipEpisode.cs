@@ -106,16 +106,6 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model.WithdrawalDate = withdrawalDate;
     }
 
-    public void WithdrawMathsAndEnglish(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
-    {
-        var courseToWithdraw = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
-        if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", nameof(courseName));
-
-        courseToWithdraw.WithdrawalDate = withdrawalDate;
-        var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, _model.EarningsProfile.MathsAndEnglishCourses, courseName);
-        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
-    }
-
     public List<MathsAndEnglish> ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(ISystemClockService systemClock, List<MathsAndEnglishModel> courses, string? courseName = null)
     {
         MathsAndEnglishModel? course;
@@ -157,8 +147,8 @@ public class ApprenticeshipEpisode : AggregateComponent
                     mathsAndEnglishModel.Course,
                     mathsAndEnglishModel.Amount,
                     mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), !earningsToKeep.Any(e => 
-                            e.AcademicYear == x.AcademicYear && 
+                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), !earningsToKeep.Any(e =>
+                            e.AcademicYear == x.AcademicYear &&
                             e.DeliveryPeriod == x.DeliveryPeriod &&
                             e.Amount == x.Amount &&
                             e.Type == x.Type))).ToList(),

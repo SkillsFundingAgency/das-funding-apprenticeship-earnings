@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
@@ -124,27 +123,6 @@ public class LearningController: ControllerBase
         }
 
         _logger.LogInformation("Successfully removed learner {learningKey}", learningKey);
-        return Ok();
-    }
-
-    [Route("{learningKey}/mathsAndEnglish/withdraw")]
-    [HttpPatch]
-    public async Task<IActionResult> WithdrawMathsAndEnglish(Guid learningKey, MathsAndEnglishWithdrawRequest withdrawRequest)
-    {
-        _logger.LogInformation("Received request to withdraw maths and english course {course} for {learningKey}", withdrawRequest.Course, learningKey);
-
-        try
-        {
-            var command = new ProcessWithdrawnMathsAndEnglishCommand(learningKey, withdrawRequest);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error withdrawing for maths and english course {course} for {learningKey}", withdrawRequest.Course, learningKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully withdrew maths and english course {course} for {learningKey}", withdrawRequest.Course, learningKey);
         return Ok();
     }
 }

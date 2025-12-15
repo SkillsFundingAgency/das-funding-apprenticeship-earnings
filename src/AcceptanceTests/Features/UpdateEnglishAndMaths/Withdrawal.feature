@@ -1,4 +1,4 @@
-﻿Feature: Recalculate english and maths earnings following withdrawal
+﻿Feature: English and maths Withdrawal
 
 Scenario: Withdrawal made before end of qualifying period; no earnings generated
 	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
@@ -20,3 +20,14 @@ Scenario: Withdrawal made after end of qualifying period; only earnings before w
 		| Maths1 | 100    | 2021         | 1              | Regular |
 	And the earnings history is maintained
 	
+Scenario: english and maths withdrawal back to start
+	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	And the apprenticeship commitment is approved
+	And the following english and maths course information is provided
+		| StartDate | EndDate   | Course | Amount |
+		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   |
+	And the following english and maths course information is provided
+		| StartDate | EndDate   | Course | Amount | WithdrawalDate |
+		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-8-1       |
+	Then all english and maths earnings are soft deleted
+	And the earnings history is maintained

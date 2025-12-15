@@ -1,4 +1,4 @@
-﻿Feature: MathsAndEnglishPayments
+﻿Feature: EnglishAndMathsPayments
 
 Validates english and maths payments are correctly calculated
 

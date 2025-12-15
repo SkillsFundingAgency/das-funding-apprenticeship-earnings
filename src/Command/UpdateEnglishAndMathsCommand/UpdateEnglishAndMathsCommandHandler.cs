@@ -25,12 +25,12 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
     {
         _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
-        var mathsAndEnglishCourses = command.EnglishAndMathsDetails.Select(x =>
-            MathsAndEnglishPayments.GenerateMathsAndEnglishPayments(x.ToGenerateMathsAndEnglishPaymentsCommand())).ToList();
+        var englishAndMathsCourses = command.EnglishAndMathsDetails.Select(x =>
+            EnglishAndMathsPayments.GenerateEnglishAndMathsPayments(x.ToGenerateMathsAndEnglishPaymentsCommand())).ToList();
 
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.UpdateMathsAndEnglishCourses(mathsAndEnglishCourses, _systemClock);
+        apprenticeshipDomainModel.UpdateMathsAndEnglishCourses(englishAndMathsCourses, _systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 

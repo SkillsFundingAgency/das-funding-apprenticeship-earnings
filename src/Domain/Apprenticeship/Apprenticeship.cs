@@ -82,16 +82,10 @@ public class Apprenticeship : AggregateRoot
     /// Maths and English course earnings are generated separately using this endpoint.
     /// Note, any existing earnings for maths and english courses will be removed.
     /// </summary>
-    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> englishAndMathsCourses, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
-        currentEpisode.UpdateEnglishAndMaths(mathsAndEnglishCourses, systemClock);
-    }
-   
-    public void WithdrawMathsAndEnglishCourse(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
-    {
-        var episode = this.GetCurrentEpisode(systemClock);
-        episode.WithdrawMathsAndEnglish(courseName, withdrawalDate, systemClock);
+        currentEpisode.UpdateEnglishAndMaths(englishAndMathsCourses, systemClock);
     }
 
     public void UpdateDateOfBirth(DateTime dateOfBirth)

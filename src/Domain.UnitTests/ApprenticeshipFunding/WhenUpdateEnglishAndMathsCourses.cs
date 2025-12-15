@@ -12,7 +12,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
 [TestFixture]
-public class WhenUpdateMathsAndEnglishCourses
+public class WhenUpdateEnglishAndMathsCourses
 {
     private Fixture _fixture;
     private Mock<ISystemClockService> _mockSystemClockService;
@@ -20,7 +20,7 @@ public class WhenUpdateMathsAndEnglishCourses
     private DateTime _actualStartDate;
     private DateTime _plannedEndDate;
 
-    public WhenUpdateMathsAndEnglishCourses()
+    public WhenUpdateEnglishAndMathsCourses()
     {
         _fixture = new Fixture();
     }

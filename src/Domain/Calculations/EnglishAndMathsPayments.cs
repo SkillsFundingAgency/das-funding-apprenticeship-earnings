@@ -28,9 +28,9 @@ public class GenerateMathsAndEnglishPaymentsCommand
     }
 }
 
-public static class MathsAndEnglishPayments
+public static class EnglishAndMathsPayments
 {
-    public static MathsAndEnglish GenerateMathsAndEnglishPayments(GenerateMathsAndEnglishPaymentsCommand command)
+    public static MathsAndEnglish GenerateEnglishAndMathsPayments(GenerateMathsAndEnglishPaymentsCommand command)
     {
         var instalments = new List<MathsAndEnglishInstalment>();
 
