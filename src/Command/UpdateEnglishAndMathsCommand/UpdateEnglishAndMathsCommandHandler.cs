@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -25,8 +26,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
     {
         _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
-        var englishAndMathsCourses = command.EnglishAndMathsDetails.Select(x =>
-            EnglishAndMathsPayments.GenerateEnglishAndMathsPayments(x.ToGenerateMathsAndEnglishPaymentsCommand())).ToList();
+        var englishAndMathsCourses = MapToEnglishAndMathsDomainModels(command);
 
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
@@ -35,5 +35,20 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+    }
+
+    private List<MathsAndEnglish> MapToEnglishAndMathsDomainModels(UpdateEnglishAndMathsCommand command)
+    {
+        _logger.LogInformation("Mapping English and Maths details to domain models for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        
+        var courses = new List<MathsAndEnglish>();
+        foreach (var detail in command.EnglishAndMathsDetails)
+        {
+            var course = new MathsAndEnglish(detail.StartDate, detail.EndDate, detail.Course, detail.Amount, detail.WithdrawalDate, detail.ActualEndDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage);
+            courses.Add(course);
+        }
+
+        _logger.LogInformation("Mapped {CourseCount} English and Maths courses for apprenticeship {LearningKey}", courses.Count, command.ApprenticeshipKey);
+        return courses;
     }
 }

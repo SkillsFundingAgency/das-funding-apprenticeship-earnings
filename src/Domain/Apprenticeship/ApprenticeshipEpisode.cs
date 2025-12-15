@@ -106,63 +106,6 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model.WithdrawalDate = withdrawalDate;
     }
 
-    public List<MathsAndEnglish> ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(ISystemClockService systemClock, List<MathsAndEnglishModel> courses, string? courseName = null)
-    {
-        MathsAndEnglishModel? course;
-
-        if (courseName != null)
-        {
-            course = courses.SingleOrDefault(x => x.Course == courseName);
-            if (course == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", courseName);
-        }
-
-        var updatedCourses = new List<MathsAndEnglish>();
-
-        foreach (var mathsAndEnglishModel in courses)
-        {
-            var skipReevaluation = courseName != null && mathsAndEnglishModel.Course != courseName;
-            if (skipReevaluation)
-            {
-                updatedCourses.Add(new MathsAndEnglish(
-                    mathsAndEnglishModel.StartDate,
-                    mathsAndEnglishModel.EndDate,
-                    mathsAndEnglishModel.Course,
-                    mathsAndEnglishModel.Amount,
-                    mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), x.IsAfterLearningEnded)).ToList(),
-                    mathsAndEnglishModel.WithdrawalDate,
-                    mathsAndEnglishModel.ActualEndDate,
-                    mathsAndEnglishModel.PauseDate,
-                    mathsAndEnglishModel.PriorLearningAdjustmentPercentage
-                ));
-            }
-            else
-            {
-                var lastDayOfLearning = new[] { mathsAndEnglishModel.WithdrawalDate, mathsAndEnglishModel.PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
-                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, lastDayOfLearning);
-
-                updatedCourses.Add(new MathsAndEnglish(
-                    mathsAndEnglishModel.StartDate,
-                    mathsAndEnglishModel.EndDate,
-                    mathsAndEnglishModel.Course,
-                    mathsAndEnglishModel.Amount,
-                    mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), !earningsToKeep.Any(e =>
-                            e.AcademicYear == x.AcademicYear &&
-                            e.DeliveryPeriod == x.DeliveryPeriod &&
-                            e.Amount == x.Amount &&
-                            e.Type == x.Type))).ToList(),
-                    mathsAndEnglishModel.WithdrawalDate,
-                    mathsAndEnglishModel.ActualEndDate,
-                    mathsAndEnglishModel.PauseDate,
-                    mathsAndEnglishModel.PriorLearningAdjustmentPercentage
-                ));
-            }
-        }
-
-        return updatedCourses;
-    }
-
     /// <summary>
     /// Adds additional earnings to an apprenticeship that are not included in the standard earnings calculation process.
     /// Some earnings are generated separately using this endpoint, while others are handled as part of the normal process.
@@ -191,8 +134,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// </summary>
     public void UpdateEnglishAndMaths(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
-        var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, mathsAndEnglishCourses.Select(x => x.GetModel()).ToList());
-        _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
+        _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
     }
 
     /// <summary>
@@ -206,30 +148,6 @@ public class ApprenticeshipEpisode : AggregateComponent
     public void UpdateFundingBandMaximum(int fundingBandMaximum)
     {
         _model.FundingBandMaximum = fundingBandMaximum;
-    }
-
-    private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return course.Instalments.ToList();
-        }
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-
-        var instalments = course.Instalments
-            .Where(x =>
-                x.AcademicYear < academicYear //keep earnings from previous academic years
-                || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod 
-                                                  && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod 
-                                                  && course.StartDate.ToAcademicYear() == academicYear && course.StartDate.ToDeliveryPeriod() == deliveryPeriod 
-                                                  && lastDayOfLearning.Value > course.StartDate) // special case if the withdrawal date is on/after the start date but before a census date we should keep the instalment for the first month of learning
-            .ToList(); 
-
-        return instalments;
     }
 
     public void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)

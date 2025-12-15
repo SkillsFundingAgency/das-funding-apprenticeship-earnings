@@ -30,9 +30,9 @@ Scenario: English and Maths completion moved earlier
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-10-01    |
 	Then english and maths instalments are persisted as follows
-		| Course | Amount | AcademicYear | DeliveryPeriod | Type       |
-		| Maths1 | 100    | 2021         | 1              | Regular    |
-		| Maths1 | 100    | 2021         | 2              | Regular    |
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
+		| Maths1 | 100    | 2021         | 1              | Regular   |
+		| Maths1 | 100    | 2021         | 2              | Regular   |
 		| Maths1 | 1300   | 2021         | 3              | Balancing |
 	And the earnings history is maintained
 

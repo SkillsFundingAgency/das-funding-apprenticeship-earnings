@@ -6,7 +6,7 @@ Scenario: Withdrawal made before end of qualifying period; no earnings generated
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | WithdrawalDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-09-10     |
-	Then no english and maths earnings are persisted
+	Then all english and maths earnings are soft deleted
 	And the earnings history is maintained
 
 Scenario: Withdrawal made after end of qualifying period; only earnings before withdrawal date generated

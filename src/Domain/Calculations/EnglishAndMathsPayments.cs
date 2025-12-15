@@ -1,91 +1,49 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using System.Diagnostics.Metrics;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
-
-public class GenerateMathsAndEnglishPaymentsCommand
-{
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public string Course { get; set; }
-    public decimal Amount { get; set; }
-    public DateTime? WithdrawalDate { get; set; }
-    public DateTime? ActualEndDate { get; set; }
-    public DateTime? PauseDate { get; set; }
-    public int? PriorLearningAdjustmentPercentage { get; set; }
-
-    public GenerateMathsAndEnglishPaymentsCommand(DateTime startDate, DateTime endDate, string course, decimal amount,  DateTime? withdrawalDate = null, DateTime? actualEndDate = null, DateTime? pauseDate = null, int? priorLearningAdjustmentPercentage = null)
-    {
-        StartDate = startDate;
-        EndDate = endDate;
-        Course = course;
-        Amount = amount;
-        WithdrawalDate = withdrawalDate;
-        ActualEndDate = actualEndDate;
-        PauseDate = pauseDate;
-        PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
-    }
-}
-
 public static class EnglishAndMathsPayments
 {
-    public static MathsAndEnglish GenerateEnglishAndMathsPayments(GenerateMathsAndEnglishPaymentsCommand command)
+    public static List<MathsAndEnglishInstalmentModel> GenerateInstalments(MathsAndEnglish mathsAndEnglish)
     {
-        var instalments = new List<MathsAndEnglishInstalment>();
+        var instalments = new List<MathsAndEnglishInstalmentModel>();
 
         // This is invalid, it should never happen but should not result in any payments
-        if (command.StartDate > command.EndDate) return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
+        if (mathsAndEnglish.StartDate > mathsAndEnglish.EndDate) return instalments;
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
-        if (command.StartDate.Month == command.EndDate.Month && command.StartDate.Year == command.EndDate.Year)
-            return new MathsAndEnglish(command.StartDate,
-                command.EndDate,
-                command.Course,
-                command.Amount,
-                [
-                    new(command.EndDate.ToAcademicYear(),
-                        command.EndDate.ToDeliveryPeriod(),
-                        command.Amount,
-                        MathsAndEnglishInstalmentType.Regular,
-                        false)
-                ],
-                command.WithdrawalDate,
-                command.ActualEndDate,
-                command.PauseDate,
-                command.PriorLearningAdjustmentPercentage);
+        if (mathsAndEnglish.StartDate.Month == mathsAndEnglish.EndDate.Month && mathsAndEnglish.StartDate.Year == mathsAndEnglish.EndDate.Year)
+            return [ CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.EndDate,mathsAndEnglish.Amount) ];
 
-        var lastCensusDate = command.EndDate.LastCensusDate();
-        var paymentDate = command.StartDate.LastDayOfMonth();
+        var lastCensusDate = mathsAndEnglish.EndDate.LastCensusDate();
+        var paymentDate = mathsAndEnglish.StartDate.LastDayOfMonth();
 
         // Adjust for prior learning if applicable
-        var adjustedAmount = command.PriorLearningAdjustmentPercentage.HasValue && command.PriorLearningAdjustmentPercentage != 0
-            ? command.Amount * command.PriorLearningAdjustmentPercentage.Value / 100m
-            : command.Amount;
+        var adjustedAmount = mathsAndEnglish.PriorLearningAdjustmentPercentage.HasValue && mathsAndEnglish.PriorLearningAdjustmentPercentage != 0
+            ? mathsAndEnglish.Amount * mathsAndEnglish.PriorLearningAdjustmentPercentage.Value / 100m
+            : mathsAndEnglish.Amount;
 
         var numberOfInstalments = ((lastCensusDate.Year - paymentDate.Year) * 12 + lastCensusDate.Month - paymentDate.Month) + 1;
         var monthlyAmount = adjustedAmount / numberOfInstalments;
 
         while (paymentDate <= lastCensusDate)
         {
-            instalments.Add(new MathsAndEnglishInstalment(
-                paymentDate.ToAcademicYear(),
-                paymentDate.ToDeliveryPeriod(),
-                monthlyAmount,
-                MathsAndEnglishInstalmentType.Regular,
-                false
-            ));
+            instalments.Add(CreateInstalment(mathsAndEnglish.Key, paymentDate, monthlyAmount));
 
             paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
         }
 
         // If an actual end date has been set and is before the planned end date then the learner has completed early and adjustments need to be made
-        if (command.ActualEndDate.HasValue && command.ActualEndDate < command.EndDate)
+        if (mathsAndEnglish.ActualEndDate.HasValue && mathsAndEnglish.ActualEndDate < mathsAndEnglish.EndDate)
         {
-            var paymentDateToAdjust = command.ActualEndDate.Value.LastDayOfMonth();
+            var paymentDateToAdjust = mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth();
             var balancingCount = 0;
 
-            while (paymentDateToAdjust <= command.EndDate.LastCensusDate())
+            while (paymentDateToAdjust <= mathsAndEnglish.EndDate.LastCensusDate())
             {
                 instalments.RemoveAll(x =>
                     x.AcademicYear == paymentDateToAdjust.ToAcademicYear() &&
@@ -97,28 +55,34 @@ public static class EnglishAndMathsPayments
 
             var balancingAmount = balancingCount * monthlyAmount;
 
-            instalments.Add(new MathsAndEnglishInstalment(command.ActualEndDate.Value.LastDayOfMonth().ToAcademicYear(),
-                command.ActualEndDate.Value.LastDayOfMonth().ToDeliveryPeriod(),
-                balancingAmount,
-                MathsAndEnglishInstalmentType.Balancing,
-                false));
+            instalments.Add(
+                CreateInstalment(
+                    mathsAndEnglish.Key, 
+                    mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth(), 
+                    balancingAmount,
+                    MathsAndEnglishInstalmentType.Balancing,
+                    false));
+        }
+
+        // Remove all instalments if the withdrawal date is before the end of the qualifying period
+        if (mathsAndEnglish.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(mathsAndEnglish.StartDate, mathsAndEnglish.EndDate, mathsAndEnglish.WithdrawalDate.Value))
+        {
+            foreach (var instalment in instalments)
+            {
+                instalment.IsAfterLearningEnded = true;
+            }
         }
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
-        if (command.WithdrawalDate.HasValue && command.WithdrawalDate.Value >= command.StartDate && command.WithdrawalDate.Value < command.StartDate.LastDayOfMonth())
-            instalments.Add(new MathsAndEnglishInstalment(command.StartDate.ToAcademicYear(), command.StartDate.ToDeliveryPeriod(), monthlyAmount, MathsAndEnglishInstalmentType.Regular, false));
-        
+        if (mathsAndEnglish.WithdrawalDate.HasValue && mathsAndEnglish.WithdrawalDate.Value >= mathsAndEnglish.StartDate && mathsAndEnglish.WithdrawalDate.Value < mathsAndEnglish.StartDate.LastDayOfMonth())
+            instalments.Add(CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.StartDate, monthlyAmount));
 
-        // Remove all instalments if the withdrawal date is before the end of the qualifying period //todo soft delete these too?
-        if (command.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(command.StartDate, command.EndDate, command.WithdrawalDate.Value))
-            return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, new List<MathsAndEnglishInstalment>(), command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
-
-        if (command.PauseDate.HasValue)
+        if (mathsAndEnglish.LastDayOfCourse.HasValue)
         {
-            SoftDeleteAfterDate(instalments, command.PauseDate.Value);
+            SoftDeleteAfterDate(instalments, mathsAndEnglish.LastDayOfCourse.Value, mathsAndEnglish.StartDate);
         }
 
-        return new MathsAndEnglish(command.StartDate, command.EndDate, command.Course, command.Amount, instalments, command.WithdrawalDate, command.ActualEndDate, command.PauseDate, command.PriorLearningAdjustmentPercentage);
+        return instalments;
     }
 
     private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
@@ -135,29 +99,59 @@ public static class EnglishAndMathsPayments
     }
 
     private static void SoftDeleteAfterDate(
-        List<MathsAndEnglishInstalment> instalments,
-        DateTime cutoff)
+        List<MathsAndEnglishInstalmentModel> instalments,
+        DateTime cutoff,
+        DateTime startDate)
     {
-        // Copy instalments to be soft deleted
-        var itemsToReplace = instalments
-            .Where(i => i.DeliveryPeriod.GetCensusDate(i.AcademicYear) > cutoff)
-            .ToList();
+        var instalmentsToKeep = GetEnglishAndMathsEarningsToKeep(instalments, startDate, cutoff);
 
-        foreach (var oldInst in itemsToReplace)
+        foreach (var instalment in instalments)
         {
-            // Create a new instance with the same values but flagged
-            var newInst = new MathsAndEnglishInstalment(
-                academicYear: oldInst.AcademicYear,
-                deliveryPeriod: oldInst.DeliveryPeriod,
-                amount: oldInst.Amount,
-                type: oldInst.Type,
-                isAfterLearningEnded: true
-            );
+            if(!instalmentsToKeep.Any(x=>x.Key == instalment.Key))
+            {
+                instalment.IsAfterLearningEnded = true;
+            }
 
-            // Replace in the original list
-            var index = instalments.IndexOf(oldInst);
-            instalments[index] = newInst;
         }
     }
 
+    private static List<MathsAndEnglishInstalmentModel> GetEnglishAndMathsEarningsToKeep(List<MathsAndEnglishInstalmentModel> instalments, DateTime startDate, DateTime? lastDayOfLearning)
+    {
+        if (!lastDayOfLearning.HasValue)
+        {
+            return instalments;
+        }
+
+        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
+        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
+        var startAcademicYear = startDate.ToAcademicYear();
+        var startDeliveryPeriod = startDate.ToDeliveryPeriod();
+
+        return instalments
+            .Where(x =>
+                x.Type != MathsAndEnglishInstalmentType.Regular.ToString() //keep non-regular instalments
+                ||
+                (
+                    x.AcademicYear < academicYear //keep earnings from previous academic years
+                    || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
+                    || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
+                        && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
+                    || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
+                        && startAcademicYear == academicYear && startDeliveryPeriod == deliveryPeriod
+                        && lastDayOfLearning.Value > startDate) // special case if the withdrawal date is on/after the start date but before a census date we should keep the instalment for the first month of learning
+            )
+            .ToList();
+
+    }
+
+    private static MathsAndEnglishInstalmentModel CreateInstalment(Guid key, DateTime dateTime, decimal amount, MathsAndEnglishInstalmentType instalmentType = MathsAndEnglishInstalmentType.Regular, bool isAfterLearningEnded = false)
+    {
+        return new MathsAndEnglishInstalmentModel(
+             key,
+             dateTime.ToAcademicYear(),
+             dateTime.ToDeliveryPeriod(),
+             amount,
+             instalmentType.ToString(),
+             isAfterLearningEnded);
+    }
 }

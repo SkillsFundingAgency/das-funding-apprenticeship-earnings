@@ -139,22 +139,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
 
     private List<MathsAndEnglish> CreateTestEnglishAndMathsCourses(DateTime? withdrawalDate = null)
     {
-        var mathsAndEnglishCourse = new MathsAndEnglish(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), _courseName, 1200m, new List<MathsAndEnglishInstalment>
-        {
-            new MathsAndEnglishInstalment(2324, 6, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2324, 7, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2324, 8, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2324, 9, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2324, 10, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2324, 11, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2324, 12, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2425, 1, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2425, 2, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2425, 3, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2425, 4, 100m, MathsAndEnglishInstalmentType.Regular, false),
-            new MathsAndEnglishInstalment(2425, 5, 100m, MathsAndEnglishInstalmentType.Regular, false)
-        }, withdrawalDate, null, null, null);
-
+        var mathsAndEnglishCourse = new MathsAndEnglish(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), _courseName, 1200m, withdrawalDate, null, null, null);
         return new List<MathsAndEnglish> { mathsAndEnglishCourse };
     }
 }
