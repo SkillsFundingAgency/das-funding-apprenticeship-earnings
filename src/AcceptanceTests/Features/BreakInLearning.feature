@@ -89,8 +89,8 @@ Scenario: (OnProgramme) Training provider removes a previously recorded break in
 		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following learning support payment information is provided
-		| StartDate | EndDate   |
-		| 2020-8-1  | 2021-10-1 |
+		| StartDate | EndDate   | PriorPeriodExpectedEndDate |
+		| 2020-8-1  | 2021-10-1 | 2021-10-01                 |
     And a pause date of 2021-03-15 is sent
 	When a pause is removed
     Then On programme earnings are persisted as follows
@@ -120,8 +120,8 @@ Scenario: (OnProgramme - Break Completed) Training provider records a Break in L
 		| 2020-8-1  | 2021-10-1 |
 	And a pause date of 2020-10-15 is sent
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-01-15 |
+		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                 |
 	And a pause is removed
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
@@ -146,8 +146,8 @@ Scenario: (OnProgramme - Break Completed) Training provider records a break in l
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-01-15 |
+		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -174,8 +174,8 @@ Scenario: (OnProgramme - Break Completed) Training provider corrects a previousl
 		| StartDate  | EndDate    |
 		| 2020-10-15 | 2021-05-15 |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2020-10-15 | 2021-01-15 |
+		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
+		| 2020-10-15 | 2021-01-15 | 2021-10-01                 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -199,8 +199,8 @@ Scenario: (OnProgramme - Break Completed) Training provider removes a previously
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
 	When SLD informs us that the break in learning was
-		| StartDate  | EndDate    |
-		| 2021-03-15 | 2021-06-15 |
+		| StartDate  | EndDate    | PriorPeriodExpectedEndDate |
+		| 2021-03-15 | 2021-06-15 | 2021-10-01                 |
 	And SLD informs us that the break in learning was
 		| StartDate  | EndDate    |
     Then On programme earnings are persisted as follows
