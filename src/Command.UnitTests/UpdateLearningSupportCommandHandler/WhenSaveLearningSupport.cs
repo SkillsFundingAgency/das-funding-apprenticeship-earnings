@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -14,10 +14,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CommandHandler = SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand.SaveLearningSupportCommandHandler;
-using SaveCommand = SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand.SaveLearningSupportCommand;
+using CommandHandler = SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand.UpdateLearningSupportCommandHandler;
+using SaveCommand = SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand.UpdateLearningSupportCommand;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.SaveLearningSupportCommandHandler;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateLearningSupportCommandHandler;
 
 [TestFixture]
 public class WhenSaveLearningSupport
@@ -47,7 +47,7 @@ public class WhenSaveLearningSupport
         // Arrange
         var command = new SaveCommand(
             _fixture.Create<Guid>(),
-            new SaveLearningSupportRequest { new LearningSupportPaymentDetail { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} }
+            new UpdateLearningSupportRequest { LearningSupport =[ new LearningSupportItem { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} ]}
             );
 
         var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();

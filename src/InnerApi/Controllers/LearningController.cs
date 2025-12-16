@@ -2,8 +2,8 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
@@ -42,24 +42,24 @@ public class LearningController: ControllerBase
         return Ok();
     }
 
-    [Route("{learningKey}/learningSupport")]
-    [HttpPatch]
-    public async Task<IActionResult> SaveLearningSupport(Guid learningKey, SaveLearningSupportRequest saveLearningSupportRequest)
+    [Route("{learningKey}/learning-support")]
+    [HttpPut]
+    public async Task<IActionResult> UpdateLearningSupport(Guid learningKey, UpdateLearningSupportRequest request)
     {
-        _logger.LogInformation("Received request to save learning support for apprenticeship {learningKey}", learningKey);
+        _logger.LogInformation("Received request to update learning support for apprenticeship {learningKey}", learningKey);
 
         try
         {
-            var command = new SaveLearningSupportCommand(learningKey, saveLearningSupportRequest);
+            var command = new UpdateLearningSupportCommand(learningKey, request);
             await _commandDispatcher.Send(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving learning support for apprenticeship {learningKey}", learningKey);
+            _logger.LogError(ex, "Error updating learning support for apprenticeship {learningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully saved learning support for apprenticeship {learningKey}", learningKey);
+        _logger.LogInformation("Successfully updated learning support for apprenticeship {learningKey}", learningKey);
         return Ok();
     }
 

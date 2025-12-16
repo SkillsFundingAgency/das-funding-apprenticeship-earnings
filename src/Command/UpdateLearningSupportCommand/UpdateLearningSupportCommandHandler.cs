@@ -4,16 +4,16 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 
-public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSupportCommand>
+public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearningSupportCommand>
 {
-    private readonly ILogger<SaveLearningSupportCommandHandler> _logger;
+    private readonly ILogger<UpdateLearningSupportCommandHandler> _logger;
     private readonly IApprenticeshipRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClockService;
 
-    public SaveLearningSupportCommandHandler(
-        ILogger<SaveLearningSupportCommandHandler> logger,
+    public UpdateLearningSupportCommandHandler(
+        ILogger<UpdateLearningSupportCommandHandler> logger,
         IApprenticeshipRepository apprenticeshipRepository,
         ISystemClockService systemClock)
     {
@@ -22,9 +22,9 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
         _systemClockService = systemClock;
     }
 
-    public async Task Handle(SaveLearningSupportCommand command, CancellationToken cancellationToken = default)
+    public async Task Handle(UpdateLearningSupportCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
         var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
             LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
@@ -37,7 +37,7 @@ public class SaveLearningSupportCommandHandler : ICommandHandler<SaveLearningSup
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
 
-        _logger.LogInformation("Successfully handled SaveLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Successfully handled UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 
     private async Task<Domain.Apprenticeship.Apprenticeship> GetDomainApprenticeship(Guid LearningKey)

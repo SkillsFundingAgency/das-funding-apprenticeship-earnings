@@ -6,7 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 using System;
 using System.Collections.Generic;
@@ -37,13 +37,13 @@ public class WhenSaveLearningSupportPayments
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<SaveLearningSupportRequest>();
+        var request = _fixture.Create<UpdateLearningSupportRequest>();
 
         // Act
-        var result = await _controller.SaveLearningSupport(learningKey, request);
+        var result = await _controller.UpdateLearningSupport(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<SaveLearningSupportCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateLearningSupportCommand>(), default), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
@@ -52,13 +52,13 @@ public class WhenSaveLearningSupportPayments
     {
         // Arrange
         var learningKey = Guid.NewGuid();
-        var request = _fixture.Create<SaveLearningSupportRequest>();
+        var request = _fixture.Create<UpdateLearningSupportRequest>();
 
-        _commandDispatcherMock.Setup(x => x.Send(It.IsAny<SaveLearningSupportCommand>(), default))
+        _commandDispatcherMock.Setup(x => x.Send(It.IsAny<UpdateLearningSupportCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.SaveLearningSupport(learningKey, request);
+        var result = await _controller.UpdateLearningSupport(learningKey, request);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();

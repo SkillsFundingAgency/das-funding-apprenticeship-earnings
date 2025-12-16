@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveLearningSupportCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -27,8 +27,12 @@ public class AdditionalPaymentsStepDefinitions
     [Given(@"the following learning support payment information is provided")]
     public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
     {
-        var expected = table.CreateSet<LearningSupportPaymentDetail>().ToList();
-        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learningSupport", expected);
+        var learningSupportItems = table.CreateSet<LearningSupportItem>().ToList();
+        var request = new UpdateLearningSupportRequest
+        {
+            LearningSupport = learningSupportItems
+        };
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learning-support", request);
     }
 
     [When(@"care details are saved with")]
