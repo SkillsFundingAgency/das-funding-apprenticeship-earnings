@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.EarningsOuterApiClient.Models;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -11,20 +13,13 @@ public interface IEarningsOuterApiClient
 }
 
 [ExcludeFromCodeCoverage]
-public class EarningsOuterApiClient : IEarningsOuterApiClient
+public class EarningsOuterApiClient(HttpClient httpClient) : IEarningsOuterApiClient
 {
-    private readonly HttpClient _httpClient;
-
     private const string GetStandardUrl = "TrainingCourses/standards";
-
-    public EarningsOuterApiClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
 
     public async Task<GetStandardResponse> GetStandard(string courseCode)
     {
-        var response = await _httpClient.GetAsync($"{GetStandardUrl}/{courseCode}").ConfigureAwait(false);
+        var response = await httpClient.GetAsync($"{GetStandardUrl}/{courseCode}").ConfigureAwait(false);
 
         if (response.StatusCode.Equals(HttpStatusCode.NotFound))
             throw new Exception("Standard not found.");

@@ -50,19 +50,17 @@ public static class ServiceCollectionExtensions
 
         var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
         services.AddSingleton<IMessageSession>(endpointInstance);
-
     }
 
     public static IServiceCollection AddEarningsOuterApiClient(this IServiceCollection serviceCollection, EarningOuterApiConfiguration outerConfig)
     {
         outerConfig.BaseUrl = EnsureBaseAddressFormat(outerConfig.BaseUrl);
-        serviceCollection.AddScoped<IEarningsOuterApiClient, EarningsOuterApiClient.EarningsOuterApiClient>(x =>
+
+        serviceCollection.AddHttpClient<IEarningsOuterApiClient, EarningsOuterApiClient.EarningsOuterApiClient>(client =>
         {
-            var httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(outerConfig.BaseUrl);
-            httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", outerConfig.Key);
-            httpClient.DefaultRequestHeaders.Add("X-Version", "1");
-            return new EarningsOuterApiClient.EarningsOuterApiClient(httpClient);
+            client.BaseAddress = new Uri(outerConfig.BaseUrl);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", outerConfig.Key);
+            client.DefaultRequestHeaders.Add("X-Version", "1");
         });
 
         return serviceCollection;
