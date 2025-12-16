@@ -65,6 +65,13 @@ public class EnglishAndMathsStepDefinitions
             var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == expectedInstalment.Course);
             courseInDb.Should().NotBeNull();
 
+            var hasInstalment = courseInDb.Instalments.Any(x => x.Amount == expectedInstalment.Amount
+                                                      && x.AcademicYear == expectedInstalment.AcademicYear
+                                                      && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
+                                                      && x.Type == expectedInstalment.Type
+                                                      && (!expectedInstalment.IsAfterLearningEnded.HasValue || x.IsAfterLearningEnded == expectedInstalment.IsAfterLearningEnded.Value));
+
+            hasInstalment.Should().BeTrue($"Expected to find instalment for course {expectedInstalment.Course} with Amount {expectedInstalment.Amount}, AcademicYear {expectedInstalment.AcademicYear}, DeliveryPeriod {expectedInstalment.DeliveryPeriod}, Type {expectedInstalment.Type} and IsAfterLearningEnded {expectedInstalment.IsAfterLearningEnded}");
             courseInDb.Instalments.Should()
                 .Contain(x => x.Amount == expectedInstalment.Amount
                               && x.AcademicYear == expectedInstalment.AcademicYear

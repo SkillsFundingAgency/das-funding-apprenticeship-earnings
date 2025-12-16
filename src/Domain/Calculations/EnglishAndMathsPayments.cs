@@ -1,8 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System.Diagnostics.Metrics;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
@@ -60,17 +58,13 @@ public static class EnglishAndMathsPayments
                     mathsAndEnglish.Key, 
                     mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth(), 
                     balancingAmount,
-                    MathsAndEnglishInstalmentType.Balancing,
-                    false));
+                    MathsAndEnglishInstalmentType.Balancing));
         }
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
         if (mathsAndEnglish.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(mathsAndEnglish.StartDate, mathsAndEnglish.EndDate, mathsAndEnglish.WithdrawalDate.Value))
         {
-            foreach (var instalment in instalments)
-            {
-                instalment.IsAfterLearningEnded = true;
-            }
+            return new List<MathsAndEnglishInstalmentModel>();
         }
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
@@ -79,7 +73,7 @@ public static class EnglishAndMathsPayments
 
         if (mathsAndEnglish.LastDayOfCourse.HasValue)
         {
-            SoftDeleteAfterDate(instalments, mathsAndEnglish.LastDayOfCourse.Value, mathsAndEnglish.StartDate);
+            DeleteAfterDate(instalments, mathsAndEnglish.LastDayOfCourse.Value, mathsAndEnglish.StartDate);
         }
 
         return instalments;
@@ -98,21 +92,15 @@ public static class EnglishAndMathsPayments
         return actualLength >= 1;
     }
 
-    private static void SoftDeleteAfterDate(
+    private static void DeleteAfterDate(
         List<MathsAndEnglishInstalmentModel> instalments,
         DateTime cutoff,
         DateTime startDate)
     {
         var instalmentsToKeep = GetEnglishAndMathsEarningsToKeep(instalments, startDate, cutoff);
 
-        foreach (var instalment in instalments)
-        {
-            if(!instalmentsToKeep.Any(x=>x.Key == instalment.Key))
-            {
-                instalment.IsAfterLearningEnded = true;
-            }
+        instalments.RemoveAll(x => !instalmentsToKeep.Any(y => y.Key == x.Key));
 
-        }
     }
 
     private static List<MathsAndEnglishInstalmentModel> GetEnglishAndMathsEarningsToKeep(List<MathsAndEnglishInstalmentModel> instalments, DateTime startDate, DateTime? lastDayOfLearning)
@@ -144,7 +132,7 @@ public static class EnglishAndMathsPayments
 
     }
 
-    private static MathsAndEnglishInstalmentModel CreateInstalment(Guid key, DateTime dateTime, decimal amount, MathsAndEnglishInstalmentType instalmentType = MathsAndEnglishInstalmentType.Regular, bool isAfterLearningEnded = false)
+    private static MathsAndEnglishInstalmentModel CreateInstalment(Guid key, DateTime dateTime, decimal amount, MathsAndEnglishInstalmentType instalmentType = MathsAndEnglishInstalmentType.Regular)
     {
         return new MathsAndEnglishInstalmentModel(
              key,
@@ -152,6 +140,6 @@ public static class EnglishAndMathsPayments
              dateTime.ToDeliveryPeriod(),
              amount,
              instalmentType.ToString(),
-             isAfterLearningEnded);
+             false);
     }
 }

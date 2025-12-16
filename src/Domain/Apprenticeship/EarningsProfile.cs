@@ -82,7 +82,7 @@ public class EarningsProfile : AggregateComponent
 
         if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Model.MathsAndEnglishCourses))
         {
-            Model.MathsAndEnglishCourses = mathsAndEnglishCourses!.ToModels<MathsAndEnglish, MathsAndEnglishModel>();
+            UpdateEnglishAndMathsCourses(mathsAndEnglishCourses);
             versionChanged = true;
         }
 
@@ -138,5 +138,55 @@ public class EarningsProfile : AggregateComponent
     {
         var profile =  new EarningsProfile(model, episode.AddChildToRoot);
         return profile;
+    }
+
+    private void UpdateEnglishAndMathsCourses(List<MathsAndEnglish> updatedCourses)
+    {
+        Model.MathsAndEnglishCourses ??= new List<MathsAndEnglishModel>();
+
+        foreach (var updatedCourse in updatedCourses)
+        {
+            var existingCourse = Model.MathsAndEnglishCourses
+                .FirstOrDefault(c => c.Course == updatedCourse.Course);
+
+            if (existingCourse == null)
+            {
+                // brand new course – safe to add whole graph
+                Model.MathsAndEnglishCourses.Add(updatedCourse.GetModel());
+                continue;
+            }
+
+            // ---- INSTALMENTS ----
+            foreach (var updatedInstalment in updatedCourse.Instalments)
+            {
+                var existingInstalment = existingCourse.Instalments.FirstOrDefault(i =>
+                    i.AcademicYear == updatedInstalment.AcademicYear &&
+                    i.DeliveryPeriod == updatedInstalment.DeliveryPeriod &&
+                    i.Amount == updatedInstalment.Amount &&
+                    i.IsAfterLearningEnded == updatedInstalment.IsAfterLearningEnded &&
+                    i.Type == updatedInstalment.Type.ToString());
+
+                if (existingInstalment == null)
+                {
+                    // genuinely new instalment
+                    existingCourse.Instalments.Add(updatedInstalment.GetModel());
+                }
+            }
+
+            // ---- SOFT DELETE ----
+            foreach (var existingInstalment in existingCourse.Instalments)
+            {
+                var stillExists = updatedCourse.Instalments.Any(i =>
+                    i.AcademicYear == existingInstalment.AcademicYear &&
+                    i.DeliveryPeriod == existingInstalment.DeliveryPeriod &&
+                    i.Amount == existingInstalment.Amount &&
+                    i.Type.ToString() == existingInstalment.Type);
+
+                if (!stillExists)
+                {
+                    existingInstalment.IsAfterLearningEnded = true;
+                }
+            }
+        }
     }
 }
