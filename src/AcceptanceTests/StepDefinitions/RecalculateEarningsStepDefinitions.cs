@@ -30,7 +30,7 @@ public class RecalculateEarningsStepDefinitions
 
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
-        
+
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
 
         if (history.Count == 0)
@@ -67,7 +67,7 @@ public class RecalculateEarningsStepDefinitions
 
         var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count;
 
-        if(matchingInstalments != expectedNumberOfEarnings)
+        if (matchingInstalments != expectedNumberOfEarnings)
         {
             Assert.Fail($"Expected to find {expectedNumberOfEarnings} instalments but found {matchingInstalments}");
         }

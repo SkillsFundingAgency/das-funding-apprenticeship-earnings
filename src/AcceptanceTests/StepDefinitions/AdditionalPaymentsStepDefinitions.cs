@@ -83,37 +83,6 @@ public class AdditionalPaymentsStepDefinitions
         }
     }
 
-    [Then(@"an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods")]
-    public async Task ThenAdditionalPaymentsAreGeneratedWithTheFollowingIncentivesAsDeliveryPeriods(Table table)
-    {
-        await WaitHelper.WaitForIt(() =>
-                _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(),
-            "Failed to find any EarningsGeneratedEvent"
-        );
-
-        var expected = table.CreateSet<AdditionalPaymentExpectationModel>()
-            .Select(e => new
-            {
-                e.Type,
-                e.Amount,
-                e.CalendarMonth,
-                e.CalendarYear
-            }).ToList();
-
-        var allActualIncentives = _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>()
-            .SelectMany(e => e.DeliveryPeriods)
-            .Where(x => x.InstalmentType is "ProviderIncentive" or "EmployerIncentive")
-            .Select(dp => new
-            {
-                Type = dp.InstalmentType,
-                Amount = dp.LearningAmount,
-                dp.CalendarMonth,
-                CalendarYear = dp.CalenderYear
-            }).ToList();
-
-        allActualIncentives.Should().BeEquivalentTo(expected, options => options.IncludingFields());
-    }
-
     [Then(@"no Additional Payments are persisted")]
     public async Task ThenNoAdditionalPaymentsArePersisted()
     {
@@ -122,22 +91,6 @@ public class AdditionalPaymentsStepDefinitions
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
         updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().BeEmpty();
-    }
-
-    [Then(@"an EarningsGeneratedEvent is raised with no incentives as Delivery Periods")]
-    public async Task ThenAnEarningsGeneratedEventIsRaisedWithNoIncentivesAsDeliveryPeriods()
-    {
-        await WaitHelper.WaitForIt(() =>
-                _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(),
-            "Failed to find any EarningsGeneratedEvent"
-        );
-
-        var allActualIncentives = _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>()
-            .SelectMany(e => e.DeliveryPeriods)
-            .Where(x => x.InstalmentType is "ProviderIncentive" or "EmployerIncentive")
-            .ToList();
-
-        allActualIncentives.Should().BeEmpty();
     }
 
     [Then("a first incentive payment is generated")]

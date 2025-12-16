@@ -21,36 +21,6 @@ public class LearningCreatedEventPublishingStepDefinitions
         _testContext = testContext;
     }
 
-    [Given(@"the apprenticeship learner is 16-18 at the start of the apprenticeship")]
-    public void GivenTheApprenticeshipIsUnder19()
-    {
-        TestSystemClock.SetDateTime(new DateTime(2020, 09, 01));
-
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithStartDate(new DateTime(2020, 8, 1))
-            .WithAgeAtStart(18)
-            .WithAgeAtStart(18);
-    }
-
-    [Given(@"the apprenticeship learner is 19 plus at the start of the apprenticeship")]
-    public void GivenTheApprenticeshipIsOver19()
-    {
-        TestSystemClock.SetDateTime(new DateTime(2020, 09, 01));
-
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithStartDate(new DateTime(2020, 8, 1))
-            .WithAgeAtStart(20);
-    }
-
-    [Given(@"An apprenticeship starts on (.*) and ends on (.*)")]
-    public void GivenTheApprenticeshipStartsOnAndEndsOn(DateTime startDate, DateTime endDate)
-    {
-        TestSystemClock.SetDateTime(startDate.AddMonths(1));
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithStartDate(startDate)
-            .WithEndDate(endDate);
-    }
-
     [Given(@"an apprenticeship has been created as part of the approvals journey")]
     [Given(@"an apprenticeship has been created")]
     [Given(@"the apprenticeship commitment is approved")]
@@ -91,7 +61,7 @@ public class LearningCreatedEventPublishingStepDefinitions
         var entity = await GetApprenticeshipEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(learningCreatedEvent.Episode.Prices.First().TotalPrice* .2m);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(learningCreatedEvent.Episode.Prices.First().TotalPrice * .2m);
     }
 
     [Given(@"an apprenticeship has been created with the following information")]
@@ -120,7 +90,7 @@ public class LearningCreatedEventPublishingStepDefinitions
     public async Task EarningsAreCalculated()
     {
         var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
-        
+
         await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
         _scenarioContext.Set(learningCreatedEvent);
     }

@@ -3,7 +3,9 @@
 Validates English and Maths payments are correctly calculated when the completion date changes
 
 Scenario: English and Maths completion moved later
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
@@ -21,7 +23,9 @@ Scenario: English and Maths completion moved later
 	And the earnings history is maintained
 
 Scenario: English and Maths completion moved earlier
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
@@ -37,7 +41,9 @@ Scenario: English and Maths completion moved earlier
 	And the earnings history is maintained
 
 Scenario: English and Maths completion removed
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | ActualEndDate |
@@ -65,7 +71,9 @@ Scenario: English and Maths completion removed
 	And the earnings history is maintained
 
 Scenario: English and Maths early completion within last month
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course | Amount |

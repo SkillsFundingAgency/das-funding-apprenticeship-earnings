@@ -3,7 +3,9 @@
 Validates english and maths payments are correctly calculated
 
 Scenario: english and maths earnings for a brand new course
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | Amount |
@@ -28,7 +30,9 @@ Scenario: english and maths earnings for a brand new course
 	And the earnings history is maintained
 
 Scenario: english and maths earnings past the end of the apprenticeship
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | Amount |
@@ -50,7 +54,9 @@ Scenario: english and maths earnings past the end of the apprenticeship
 	And the earnings history is maintained
 	
 Scenario: english and maths before the start of the apprenticeship
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course     | Amount |
@@ -72,7 +78,9 @@ Scenario: english and maths before the start of the apprenticeship
 	And the earnings history is maintained
 
 Scenario: english and maths earnings for a course which does not span a census date
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate  | EndDate    | Course | Amount |
@@ -83,7 +91,9 @@ Scenario: english and maths earnings for a course which does not span a census d
 	And the earnings history is maintained
 		
 Scenario: english and maths completion earnings
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | Amount |
@@ -100,7 +110,9 @@ Scenario: english and maths completion earnings
 	And the earnings history is maintained
 
 Scenario: english and maths earnings for a course with prior learning
-	Given An apprenticeship starts on 2020-08-01 and ends on 2021-10-01
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | PriorLearningAdjustmentPercentage |

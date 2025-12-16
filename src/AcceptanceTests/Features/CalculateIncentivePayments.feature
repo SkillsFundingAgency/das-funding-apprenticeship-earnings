@@ -82,11 +82,8 @@ Examples:
 
 Scenario: 19-24 Incentive Payments Generation - Only provider payments
 	Given an apprenticeship has been created with the following information
-	| Age |
-	| 20  |
-	And the following Price Episodes
-	| StartDate  | EndDate    | Price |
-	| 2020-08-01 | 2024-07-31 | 15000 |
+	| StartDate  | EndDate    | Price | Age |
+	| 2020-08-01 | 2024-07-31 | 15000 | 20  |
 	When earnings are calculated
 	And care details are saved with
 	| CareLeaverEmployerConsentGiven       | IsCareLeaver     | HasEHCP    |
