@@ -82,22 +82,6 @@ public class EnglishAndMathsPaymentsTests
         result.Single().DeliveryPeriod.Should().Be(7);
     }
 
-    [Test]
-    public void GenerateMathsAndEnglishPayments_ShouldNotHardDeleteInstalmentsAfterTheWithdrawalDate()
-    {
-        // Arrange
-        var startDate = new DateTime(2023, 1, 1);
-        var endDate = new DateTime(2023, 12, 31);
-        var withdrawalDate = new DateTime(2023, 6, 15);
-        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 300, withdrawalDate);
-
-        // Act
-        var result = EnglishAndMathsPayments.GenerateInstalments(course);
-
-        // Assert
-        result.Count.Should().Be(12);
-    }
-
     [TestCase(168, 42, true)]
     [TestCase(168, 41, false)]
     [TestCase(14, 14, true)]

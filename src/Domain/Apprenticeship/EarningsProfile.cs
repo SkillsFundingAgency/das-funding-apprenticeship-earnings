@@ -156,6 +156,15 @@ public class EarningsProfile : AggregateComponent
                 continue;
             }
 
+            existingCourse.StartDate = updatedCourse.StartDate;
+            existingCourse.EndDate = updatedCourse.EndDate;
+            existingCourse.Amount = updatedCourse.Amount;
+            existingCourse.WithdrawalDate = updatedCourse.WithdrawalDate;
+            existingCourse.ActualEndDate = updatedCourse.ActualEndDate;
+            existingCourse.PauseDate = updatedCourse.PauseDate;
+            existingCourse.PriorLearningAdjustmentPercentage = updatedCourse.PriorLearningAdjustmentPercentage;
+
+
             // ---- INSTALMENTS ----
             foreach (var updatedInstalment in updatedCourse.Instalments)
             {

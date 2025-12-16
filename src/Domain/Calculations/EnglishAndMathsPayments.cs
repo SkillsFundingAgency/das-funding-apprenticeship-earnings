@@ -63,9 +63,7 @@ public static class EnglishAndMathsPayments
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
         if (mathsAndEnglish.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(mathsAndEnglish.StartDate, mathsAndEnglish.EndDate, mathsAndEnglish.WithdrawalDate.Value))
-        {
-            return new List<MathsAndEnglishInstalmentModel>();
-        }
+            instalments.Clear();
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
         if (mathsAndEnglish.WithdrawalDate.HasValue && mathsAndEnglish.WithdrawalDate.Value >= mathsAndEnglish.StartDate && mathsAndEnglish.WithdrawalDate.Value < mathsAndEnglish.StartDate.LastDayOfMonth())
