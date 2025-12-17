@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Learning.Types;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
