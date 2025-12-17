@@ -79,16 +79,6 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<LearningCreatedEvent>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
     }
 
-    private async Task<bool> EnsureApprenticeshipEntityCreated()
-    {
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
-        if (apprenticeshipEntity == null)
-        {
-            return false;
-        }
-        return true;
-    }
-
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
     {
         return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
