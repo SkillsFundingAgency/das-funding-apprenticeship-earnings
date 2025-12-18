@@ -128,7 +128,7 @@ public static class LearningEpisodeExtensions
 
         if (pricesInLastPeriod.Any())
         {
-            var endDate = pricesInLastPeriod.Max(p => p.EndDate);
+            var endDate = episode.GetLastDayOfLearning() ?? pricesInLastPeriod.Max(p => p.EndDate);
             var expectedEndDate = episode.Prices.Max(p => p.EndDate);
             periods.Add(pricesInLastPeriod.CreatePeriodFromPrices(startDate, endDate, expectedEndDate));
         }

@@ -252,3 +252,48 @@ Scenario: End date is pushed back to account for BIL with no price change
         | 1000   | 2425         | 3              |
         | 1000   | 2425         | 4              |
         | 1000   | 2425         | 5              |
+
+Scenario: Training provider records a Break in Learning and does not qualify for the first PiL Earnings
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-09-30 | 15000 |
+	And the apprenticeship commitment is approved
+	When the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-09-01, EndDate:2020-09-30, PriorPeriodExpectedEndDate: 2021-09-30 |
+    Then On programme earnings are persisted as follows
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 1000   | 2021         | 3              |
+		| 1000   | 2021         | 4              |
+		| 1000   | 2021         | 5              |
+		| 1000   | 2021         | 6              |
+		| 1000   | 2021         | 7              |
+		| 1000   | 2021         | 8              |
+		| 1000   | 2021         | 9              |
+		| 1000   | 2021         | 10             |
+		| 1000   | 2021         | 11             |
+		| 1000   | 2021         | 12             |
+		| 1000   | 2122         | 1              |
+		| 1000   | 2122         | 2              |
+
+Scenario: Training provider records a Break in Learning and does not qualify for the first PiL Earnings, then goes on another break without return
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2020-08-01 | 2021-09-30 | 15000 |
+	And the apprenticeship commitment is approved
+	When the following on-programme request is sent
+		| Key              | Value                                                                            |
+		| BreaksInLearning | StartDate:2020-09-01, EndDate:2020-09-30, PriorPeriodExpectedEndDate: 2021-09-30 |
+		| PauseDate        | 2021-08-01                                                                       |
+    Then On programme earnings are persisted as follows
+		| Amount | AcademicYear | DeliveryPeriod |
+		| 1000   | 2021         | 3              |
+		| 1000   | 2021         | 4              |
+		| 1000   | 2021         | 5              |
+		| 1000   | 2021         | 6              |
+		| 1000   | 2021         | 7              |
+		| 1000   | 2021         | 8              |
+		| 1000   | 2021         | 9              |
+		| 1000   | 2021         | 10             |
+		| 1000   | 2021         | 11             |
+		| 1000   | 2021         | 12             |

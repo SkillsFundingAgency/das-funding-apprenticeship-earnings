@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
@@ -8,6 +9,10 @@ public class PeriodInLearning
     public DateTime EndDate { get; set; }
     public DateTime OriginalExpectedEndDate => Prices.Max(p => p.OriginalExpectedEndDate);
     public List<PriceInPeriod> Prices { get; set; }
+    public bool HasReachedQualificationPeriod => EndDate >= QualifyingDate;
+    public int QualifyingPeriodDays => QualifyingPeriod.GetQualifyingPeriodDays(StartDate, OriginalExpectedEndDate);
+    public DateTime QualifyingDate => StartDate.AddDays(QualifyingPeriodDays-1);
+
 }
 
 public class PriceInPeriod

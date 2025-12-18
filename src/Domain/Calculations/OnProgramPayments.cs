@@ -15,11 +15,18 @@ public static class OnProgramPayments
 
         foreach (var periodInLearning in periodsInLearning.OrderBy(x => x.StartDate))
         {
-            var paymentsForPeriod = GenerateForLearningPeriod(periodInLearning, runningTotal, fundingBandMaximum, out var periodOnProgramTotal, out var periodCompletionPayment);
-            runningTotal += paymentsForPeriod.Sum(x=>x.Amount);
-            completionPayment = periodCompletionPayment;
-            onProgramTotal = periodOnProgramTotal;
-            onProgramPayments.AddRange(paymentsForPeriod);
+            if (periodInLearning.HasReachedQualificationPeriod)
+            {
+                //todo: also work last day of learning into this, so that we don't get instalments when withdrawn
+
+                var paymentsForPeriod = GenerateForLearningPeriod(periodInLearning, runningTotal, fundingBandMaximum,
+                    out var periodOnProgramTotal, out var periodCompletionPayment);
+
+                runningTotal += paymentsForPeriod.Sum(x => x.Amount);
+                completionPayment = periodCompletionPayment;
+                onProgramTotal = periodOnProgramTotal;
+                onProgramPayments.AddRange(paymentsForPeriod);
+            }
         }
 
         return onProgramPayments;

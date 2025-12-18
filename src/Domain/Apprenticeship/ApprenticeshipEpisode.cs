@@ -74,11 +74,11 @@ public class ApprenticeshipEpisode : AggregateComponent
             instalments = instalments.Append(completionInstalment).ToList();
         }
 
-        if(LastDayOfLearning.HasValue)
-        {
-            instalments = OnProgramPayments.SoftDeleteAfterLastDayOfLearning(instalments, _prices, LastDayOfLearning.Value);
-            additionalPayments = AdditionalPayments.SoftDeleteAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
-        }
+        //if(LastDayOfLearning.HasValue)
+        //{
+            //instalments = OnProgramPayments.SoftDeleteAfterLastDayOfLearning(instalments, _prices, LastDayOfLearning.Value);
+            //additionalPayments = AdditionalPayments.SoftDeleteAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
+        //}
 
         if (_earningsProfile == null)
         {
