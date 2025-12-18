@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
+/// <summary>
+/// Wraps a value and tracks whether it has been explicitly changed since initialisation or the last reset.
+/// 
+/// Useful for scenarios where updates should only be applied or propagated when a value
+/// has been modified (e.g. partial updates, patch operations, or change tracking).
+/// </summary>
 public class TrackedValue<T>
 {
     private T _value;
@@ -18,12 +24,6 @@ public class TrackedValue<T>
     {
         _hasChanged = true;
         _value = value;
-    }
-
-    public void SetFromTrackedValue(TrackedValue<T> trackedValue)
-    {
-        if (trackedValue.HasChanged)
-            SetValue(trackedValue.Value);
     }
 
     public void ResetValue(T value)

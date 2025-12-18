@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -15,6 +15,12 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<NoWarn>8601,8602,8604,8618</NoWarn>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="EventHandlers\**" />
+	  <EmbeddedResource Remove="EventHandlers\**" />
+	  <None Remove="EventHandlers\**" />
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.1" />
@@ -37,10 +43,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MessageHandlers\SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.csproj" />
     <ProjectReference Include="..\TestHelpers\SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="EventHandlers\" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
     {
         _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
 
-        var englishAndMathsCourses = MapToEnglishAndMathsDomainModels(command);
+        var englishAndMathsCourses = BuildMathsAndEnglishCoursesWithInstalments(command);
 
         var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
@@ -36,7 +36,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 
-    private List<MathsAndEnglish> MapToEnglishAndMathsDomainModels(UpdateEnglishAndMathsCommand command)
+    private List<MathsAndEnglish> BuildMathsAndEnglishCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
     {
         _logger.LogInformation("Mapping English and Maths details to domain models for apprenticeship {LearningKey}", command.ApprenticeshipKey);
         
