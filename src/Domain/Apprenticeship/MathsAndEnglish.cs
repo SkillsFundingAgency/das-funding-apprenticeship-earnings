@@ -81,7 +81,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
 
         return plausibleLastDaysOfLearning
             .Where(d => d.HasValue)
-            .OrderBy(d => d.Value)
+            .OrderBy(d => d!.Value)
             .FirstOrDefault();
     }
 

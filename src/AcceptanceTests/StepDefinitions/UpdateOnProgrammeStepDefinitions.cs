@@ -40,9 +40,8 @@ public class UpdateOnProgrammeStepDefinitions
         await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
 
         var apprenticeshipEntity = await GetApprenticeshipEntity();
+        
         _scenarioContext.Set(apprenticeshipEntity);
-        // await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish earning recalculation");
-
         _scenarioContext.Set(updateOnProgrammeRequest);
     }
 
@@ -101,26 +100,4 @@ public class UpdateOnProgrammeStepDefinitions
         return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }
 
-    private async Task<bool> EnsureRecalculationHasHappened()
-    {
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
-        var currentEpisode = apprenticeshipEntity!.GetCurrentEpisode(TestSystemClock.Instance());
-
-        var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
-
-        if (!history.Any())
-        {
-            return false;
-        }
-
-        //History always contains 1 record for the initial creation
-        //Therefore, we must disregard this when looking for recalculation
-        if (history.Count == 1)
-        {
-            return false;
-        }
-
-        _scenarioContext.Set(apprenticeshipEntity);
-        return true;
-    }
 }

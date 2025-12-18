@@ -1,5 +1,4 @@
-﻿
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
 public class UpdateOnProgrammeCommand : ICommand
 {
