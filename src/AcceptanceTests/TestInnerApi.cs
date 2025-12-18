@@ -14,6 +14,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries;
 using SFA.DAS.Testing.AzureStorageEmulator;
@@ -35,7 +36,7 @@ public class TestInnerApi : IDisposable
         _testContext = testContext;
 
         var builder = new WebHostBuilder()
-            .UseEnvironment("SystemAcceptanceTests")
+            .UseEnvironment("LOCAL_ACCEPTANCE_TESTS")
             .ConfigureServices(services =>
             {
                 services.AddControllers()
@@ -43,6 +44,7 @@ public class TestInnerApi : IDisposable
                 
                 services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
                 services.AddSingleton<IMessageSession>(_testContext.MessageSession);
+                services.AddSingleton<IFundingBandMaximumService>(_testContext.FundingBandMaximumService);
 
                 AddEntityFrameworkForApprenticeships(services, testContext.SqlDatabase?.DatabaseInfo.ConnectionString!);
             })

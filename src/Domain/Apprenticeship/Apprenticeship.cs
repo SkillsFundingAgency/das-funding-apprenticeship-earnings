@@ -7,19 +7,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    public Apprenticeship(LearningCreatedEvent learningCreatedEvent)
-    {
-        _model = new ApprenticeshipModel
-        {
-            ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
-            Key = learningCreatedEvent.LearningKey,
-            Uln = learningCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode) },
-            DateOfBirth = learningCreatedEvent.DateOfBirth
-        };
-        _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
-    }
-
     private Apprenticeship(ApprenticeshipModel model)
     {
         _model = model;

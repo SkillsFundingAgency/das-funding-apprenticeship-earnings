@@ -2,6 +2,7 @@
 using Azure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Learning.Enums;
 using SFA.DAS.Learning.Types;
 using System;
@@ -13,6 +14,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
 internal static class FixtureExtensions
 {
+    private static ApprenticeshipFactory _apprenticeshipFactory = new ApprenticeshipFactory();
+
     internal static Apprenticeship.Apprenticeship CreateApprenticeship(
         this Fixture fixture,
         FundingType? fundingType = null,
@@ -38,7 +41,7 @@ internal static class FixtureExtensions
 
         learningCreatedEvent.Episode.FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value;
 
-        return new Apprenticeship.Apprenticeship(learningCreatedEvent);
+        return _apprenticeshipFactory.CreateNew(learningCreatedEvent, int.MaxValue);
     }
 
 

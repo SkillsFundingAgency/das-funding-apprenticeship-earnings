@@ -34,10 +34,15 @@ builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
 builder.Services.AddApplicationHealthChecks(applicationSettings);
+if(builder.Configuration.NotAcceptanceTests())
+{
+    builder.Services.AddEarningsOuterApiClient(applicationSettings.EarningOuterApiConfiguration);
+}
+
 
 
 //Add MI authentication
-if (NotLocal(builder.Configuration))
+if (builder.Configuration.NotLocal())
 {
     var azureAdConfiguration = builder.Configuration
         .GetSection("AzureAd")
@@ -53,7 +58,7 @@ if (NotLocal(builder.Configuration))
 
 builder.Services.AddMvc(o =>
 {
-    if (NotLocal(builder.Configuration))
+    if (builder.Configuration.NotLocal())
     {
         o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>()));
     }
@@ -78,8 +83,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-static bool NotLocal(IConfiguration configuration)
-{
-    return !configuration!["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
-}

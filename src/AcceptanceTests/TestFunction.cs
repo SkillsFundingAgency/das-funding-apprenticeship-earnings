@@ -30,8 +30,9 @@ public class TestFunction : IDisposable
         _testContext = testContext;
         _testContext.MessageSession.RegisterSubscriber<object>(PublishEvent);
 
+
         _testServer = new TestServer(new WebHostBuilder()
-            .UseEnvironment(Environments.Development)
+            .UseEnvironment("LOCAL_ACCEPTANCE_TESTS")
             .UseStartup<TestStartup>((_) => new TestStartup(testContext, _queueTriggeredFunctions, _testContext.MessageSession)));
 
     }
