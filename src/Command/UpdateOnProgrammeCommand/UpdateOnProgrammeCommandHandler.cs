@@ -41,6 +41,8 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
             ExecuteAndLog(() => episode.UpdatePrices(request.Prices), "update Prices");
         }
 
+        ExecuteAndLog(() => apprenticeship.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
+
         ExecuteAndLog(() => apprenticeship.Calculate(_systemClock, request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
 
         _logger.LogInformation("Updating ApprenticeshipKey: {ApprenticeshipKey} in repository", command.ApprenticeshipKey);
