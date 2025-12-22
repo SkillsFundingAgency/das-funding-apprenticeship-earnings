@@ -36,12 +36,12 @@ public class PriceInPeriod
 public static class PeriodInLearningExtensions
 {
 
-    public static PeriodInLearning CreatePeriodFromPrice(this IEnumerable<Price> prices)
+    public static PeriodInLearning CreatePeriodFromPrice(this IEnumerable<Price> prices, DateTime? lastDayOfLearning)
     {
         var startDate = prices.Min(p => p.StartDate);
-        var endDate = prices.Max(p => p.EndDate);
+        var endDate = lastDayOfLearning ?? prices.Max(p => p.EndDate);
 
-        return CreatePeriodFromPrices(prices, startDate, endDate, endDate);
+        return CreatePeriodFromPrices(prices, startDate, endDate, prices.Max(p => p.EndDate));
     }
 
     public static PeriodInLearning CreatePeriodFromPrices(this IEnumerable<Price> prices, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)

@@ -7,9 +7,9 @@ Scenario: Training provider records a break in learning without specifying a ret
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
-	And the following learning support payment information is provided
-		| StartDate | EndDate   |
-		| 2020-8-1  | 2021-10-1 |
+	#And the following learning support payment information is provided
+	#	| StartDate | EndDate   |
+	#	| 2020-8-1  | 2021-10-1 |
 	When the following on-programme request is sent
 		| Key       | Value      |
 		| PauseDate | 2021-03-15 |

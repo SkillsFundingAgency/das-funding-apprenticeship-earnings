@@ -56,6 +56,11 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
+        foreach (var actual in earningsInDb)
+        {
+            Console.WriteLine($"{actual.Type} earning DP {actual.DeliveryPeriod} amount {actual.Amount}");
+        }
+
         earningsInDb.Should().HaveCount(data.Count);
 
         foreach (var expectedEarning in data)

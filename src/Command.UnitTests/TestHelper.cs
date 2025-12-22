@@ -33,6 +33,7 @@ internal static class TestHelper
                 .With(x => x.AdditionalPayments, new List<AdditionalPaymentModel>())
                 .With(x => x.MathsAndEnglishCourses, new List<MathsAndEnglishModel>())
                 .Create())
+            .With(x => x.CompletionDate, default(DateTime?))
             .Create();
         var apprenticeshipEntityModel = fixture
             .Build<ApprenticeshipModel>()

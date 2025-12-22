@@ -55,7 +55,29 @@ public class ApprenticeshipEpisode : AggregateComponent
     public DateTime? PauseDate => _model.PauseDate;
     public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
-    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
+
+    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning
+    {
+        get
+        {
+            var result = new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
+
+            foreach (var period in result)
+            {
+                Console.WriteLine("*** Periods in Learning ***");
+                Console.WriteLine($"{period.StartDate} - {period.EndDate}");
+
+                foreach (var priceInPeriod in period.Prices)
+                {
+                    Console.WriteLine($"   £{priceInPeriod.AgreedPrice} from {priceInPeriod.StartDate} - {priceInPeriod.EndDate} (original end = {priceInPeriod.OriginalExpectedEndDate})");
+                }
+            }
+
+            Console.WriteLine();
+
+            return result;
+        }
+    } 
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -217,7 +239,11 @@ public class ApprenticeshipEpisode : AggregateComponent
     // any external factors (e.g. a break in learning, these will be applied later)
     private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+        Console.WriteLine("GenerateBasicEarnings...");
+
+        var periodsInLearning = PeriodsInLearning;
+        
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
 
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 

@@ -100,10 +100,11 @@ public static class LearningEpisodeExtensions
         // If no breaks, return single period from min start to max end
         if (episode.BreaksInLearning == null || !episode.BreaksInLearning.Any())
         {
-            return new List<PeriodInLearning>
+            var result =  new List<PeriodInLearning>
             {
-                episode.Prices.CreatePeriodFromPrice()
+                episode.Prices.CreatePeriodFromPrice(episode.LastDayOfLearning)
             };
+            return result;
         }
 
         var periods = new List<PeriodInLearning>();
