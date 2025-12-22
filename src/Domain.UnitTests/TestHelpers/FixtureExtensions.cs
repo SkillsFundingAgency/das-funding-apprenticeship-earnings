@@ -138,7 +138,6 @@ internal static class FixtureExtensions
             Instalments = c.Instalments.Select(i => new MathsAndEnglishInstalmentModel
             {
                 AcademicYear = i.AcademicYear,
-                IsAfterLearningEnded = i.IsAfterLearningEnded,
                 DeliveryPeriod = i.DeliveryPeriod,
                 Amount = i.Amount,
                 Type = i.Type.ToString()

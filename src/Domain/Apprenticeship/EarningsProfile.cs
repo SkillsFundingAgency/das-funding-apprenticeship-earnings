@@ -144,6 +144,14 @@ public class EarningsProfile : AggregateComponent
     {
         Model.MathsAndEnglishCourses ??= new List<MathsAndEnglishModel>();
 
+        // --- 1. If no courses remain, delete everything ---
+        if (updatedCourses.Count == 0)
+        {
+            Model.MathsAndEnglishCourses.Clear();
+            return;
+        }
+
+        // --- 2. Process each updated course ---
         foreach (var updatedCourse in updatedCourses)
         {
             var existingCourse = Model.MathsAndEnglishCourses
@@ -151,11 +159,12 @@ public class EarningsProfile : AggregateComponent
 
             if (existingCourse == null)
             {
-                // brand new course – safe to add whole graph
+                // Entirely new course – add whole graph
                 Model.MathsAndEnglishCourses.Add(updatedCourse.GetModel());
                 continue;
             }
 
+            // Update course-level fields
             existingCourse.StartDate = updatedCourse.StartDate;
             existingCourse.EndDate = updatedCourse.EndDate;
             existingCourse.Amount = updatedCourse.Amount;
@@ -164,43 +173,38 @@ public class EarningsProfile : AggregateComponent
             existingCourse.PauseDate = updatedCourse.PauseDate;
             existingCourse.PriorLearningAdjustmentPercentage = updatedCourse.PriorLearningAdjustmentPercentage;
 
+            // --- 3. Sync instalments (hard delete) ---
 
-            // ---- INSTALMENTS ----
+            // Identity = stable fields only
+            bool Matches(MathsAndEnglishInstalmentModel existing, MathsAndEnglishInstalment updated) =>
+                existing.AcademicYear == updated.AcademicYear &&
+                existing.DeliveryPeriod == updated.DeliveryPeriod &&
+                existing.Type == updated.Type.ToString();
+
+            // 3a. Remove instalments that no longer exist
+            existingCourse.Instalments.RemoveAll(existing =>
+                !updatedCourse.Instalments.Any(updated => Matches(existing, updated)));
+
+            // 3b. Add or update instalments
             foreach (var updatedInstalment in updatedCourse.Instalments)
             {
-                var existingInstalment = existingCourse.Instalments.FirstOrDefault(i =>
-                    i.AcademicYear == updatedInstalment.AcademicYear &&
-                    i.DeliveryPeriod == updatedInstalment.DeliveryPeriod &&
-                    i.Amount == updatedInstalment.Amount &&
-                    i.Type == updatedInstalment.Type.ToString());
+                var existingInstalment = existingCourse.Instalments
+                    .FirstOrDefault(e => Matches(e, updatedInstalment));
 
                 if (existingInstalment == null)
                 {
-                    // genuinely new instalment
+                    // New instalment
                     existingCourse.Instalments.Add(updatedInstalment.GetModel());
                 }
                 else
                 {
-                    existingInstalment.IsAfterLearningEnded = false;
-                }
-            }
-
-            // ---- SOFT DELETE ----
-            foreach (var existingInstalment in existingCourse.Instalments)
-            {
-                var stillExists = updatedCourse.Instalments.Any(i =>
-                    i.AcademicYear == existingInstalment.AcademicYear &&
-                    i.DeliveryPeriod == existingInstalment.DeliveryPeriod &&
-                    i.Amount == existingInstalment.Amount &&
-                    i.Type.ToString() == existingInstalment.Type);
-
-                if (!stillExists)
-                {
-                    existingInstalment.IsAfterLearningEnded = true;
+                    // Update mutable fields
+                    existingInstalment.Amount = updatedInstalment.Amount;
                 }
             }
         }
 
+        // --- 4. Remove courses that no longer exist ---
         var updatedCourseKeys = updatedCourses
             .Select(c => c.Course)
             .ToHashSet();

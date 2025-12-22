@@ -35,5 +35,5 @@ Scenario: english and maths withdrawal back to start
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | Amount | WithdrawalDate |
 		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-8-1       |
-	Then all english and maths earnings are soft deleted
+	Then no english and maths earnings are persisted
 	And the earnings history is maintained
