@@ -172,13 +172,16 @@ public class EarningsProfile : AggregateComponent
                     i.AcademicYear == updatedInstalment.AcademicYear &&
                     i.DeliveryPeriod == updatedInstalment.DeliveryPeriod &&
                     i.Amount == updatedInstalment.Amount &&
-                    i.IsAfterLearningEnded == updatedInstalment.IsAfterLearningEnded &&
                     i.Type == updatedInstalment.Type.ToString());
 
                 if (existingInstalment == null)
                 {
                     // genuinely new instalment
                     existingCourse.Instalments.Add(updatedInstalment.GetModel());
+                }
+                else
+                {
+                    existingInstalment.IsAfterLearningEnded = false;
                 }
             }
 
