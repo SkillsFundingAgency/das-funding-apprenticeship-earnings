@@ -197,5 +197,11 @@ public class EarningsProfile : AggregateComponent
                 }
             }
         }
+
+        var updatedCourseKeys = updatedCourses
+            .Select(c => c.Course)
+            .ToHashSet();
+
+        Model.MathsAndEnglishCourses.RemoveAll(c => !updatedCourseKeys.Contains(c.Course));
     }
 }
