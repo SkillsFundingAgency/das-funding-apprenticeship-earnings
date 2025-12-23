@@ -82,7 +82,7 @@ public class EarningsProfile : AggregateComponent
 
         if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Model.MathsAndEnglishCourses))
         {
-            Model.MathsAndEnglishCourses = mathsAndEnglishCourses!.ToModels<MathsAndEnglish, MathsAndEnglishModel>();
+            UpdateEnglishAndMathsCourses(mathsAndEnglishCourses);
             versionChanged = true;
         }
 
@@ -138,5 +138,77 @@ public class EarningsProfile : AggregateComponent
     {
         var profile =  new EarningsProfile(model, episode.AddChildToRoot);
         return profile;
+    }
+
+    private void UpdateEnglishAndMathsCourses(List<MathsAndEnglish> updatedCourses)
+    {
+        Model.MathsAndEnglishCourses ??= new List<MathsAndEnglishModel>();
+
+        // --- 1. If no courses remain, delete everything ---
+        if (updatedCourses.Count == 0)
+        {
+            Model.MathsAndEnglishCourses.Clear();
+            return;
+        }
+
+        // --- 2. Process each updated course ---
+        foreach (var updatedCourse in updatedCourses)
+        {
+            var existingCourse = Model.MathsAndEnglishCourses
+                .FirstOrDefault(c => c.Course == updatedCourse.Course);
+
+            if (existingCourse == null)
+            {
+                // Entirely new course – add whole graph
+                Model.MathsAndEnglishCourses.Add(updatedCourse.GetModel());
+                continue;
+            }
+
+            // Update course-level fields
+            existingCourse.StartDate = updatedCourse.StartDate;
+            existingCourse.EndDate = updatedCourse.EndDate;
+            existingCourse.Amount = updatedCourse.Amount;
+            existingCourse.WithdrawalDate = updatedCourse.WithdrawalDate;
+            existingCourse.ActualEndDate = updatedCourse.ActualEndDate;
+            existingCourse.PauseDate = updatedCourse.PauseDate;
+            existingCourse.PriorLearningAdjustmentPercentage = updatedCourse.PriorLearningAdjustmentPercentage;
+
+            // --- 3. Sync instalments (hard delete) ---
+
+            // Identity = stable fields only
+            bool Matches(MathsAndEnglishInstalmentModel existing, MathsAndEnglishInstalment updated) =>
+                existing.AcademicYear == updated.AcademicYear &&
+                existing.DeliveryPeriod == updated.DeliveryPeriod &&
+                existing.Type == updated.Type.ToString();
+
+            // 3a. Remove instalments that no longer exist
+            existingCourse.Instalments.RemoveAll(existing =>
+                !updatedCourse.Instalments.Any(updated => Matches(existing, updated)));
+
+            // 3b. Add or update instalments
+            foreach (var updatedInstalment in updatedCourse.Instalments)
+            {
+                var existingInstalment = existingCourse.Instalments
+                    .FirstOrDefault(e => Matches(e, updatedInstalment));
+
+                if (existingInstalment == null)
+                {
+                    // New instalment
+                    existingCourse.Instalments.Add(updatedInstalment.GetModel());
+                }
+                else
+                {
+                    // Update mutable fields
+                    existingInstalment.Amount = updatedInstalment.Amount;
+                }
+            }
+        }
+
+        // --- 4. Remove courses that no longer exist ---
+        var updatedCourseKeys = updatedCourses
+            .Select(c => c.Course)
+            .ToHashSet();
+
+        Model.MathsAndEnglishCourses.RemoveAll(c => !updatedCourseKeys.Contains(c.Course));
     }
 }

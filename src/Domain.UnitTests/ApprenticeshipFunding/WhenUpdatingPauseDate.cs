@@ -14,7 +14,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 internal class WhenUpdatingPauseDate
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _sut;
+    private Apprenticeship.Apprenticeship _apprenticeship;
+    private Apprenticeship.ApprenticeshipEpisode _episode;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -27,10 +28,10 @@ internal class WhenUpdatingPauseDate
         var plannedEndDate = new DateTime(2024, 12, 31);
         var agreedPrice = 12000m;
 
-        _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
-        var episode = _sut.ApprenticeshipEpisodes.First();
+        _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        episode.CalculateOnProgram(_sut, _mockSystemClock.Object);
+        _episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object);
     }
 
     [Test]
@@ -40,11 +41,11 @@ internal class WhenUpdatingPauseDate
         var withdrawalDate = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.Pause(withdrawalDate, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(withdrawalDate);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
     }
 
@@ -55,11 +56,11 @@ internal class WhenUpdatingPauseDate
         var withdrawalDate = new DateTime(2024, 6, 15);
 
         // Act
-        _sut.Pause(withdrawalDate, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(withdrawalDate);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
     }
 
@@ -70,11 +71,11 @@ internal class WhenUpdatingPauseDate
         var lastDayOfLearning = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.Pause(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(lastDayOfLearning);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
@@ -87,11 +88,11 @@ internal class WhenUpdatingPauseDate
         var withdrawalDate = new DateTime(2024, 3, 15);
 
         // Act
-        _sut.Pause(withdrawalDate, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(withdrawalDate);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
@@ -105,11 +106,11 @@ internal class WhenUpdatingPauseDate
         var withdrawalDate = new DateTime(2024, 3, 31);
 
         // Act
-        _sut.Pause(withdrawalDate, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(withdrawalDate);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Should().Contain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod == 8);
     }
@@ -121,11 +122,11 @@ internal class WhenUpdatingPauseDate
         var withdrawalDate = new DateTime(2024, 3, 31);
 
         // Act
-        _sut.Pause(withdrawalDate, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(withdrawalDate);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod == 8);
     }
@@ -134,18 +135,17 @@ internal class WhenUpdatingPauseDate
     public void AndSettingItBackToNullThenAllPaymentsAreRestored()
     {
         // Arrange
-        var numberOfInstalments = _sut.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.Instalments.Count(x=> !x.IsAfterLearningEnded);
-        var numberOfAdditionalPayments = _sut.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded);
+        var numberOfInstalments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.Instalments.Count(x=> !x.IsAfterLearningEnded);
+        var numberOfAdditionalPayments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded);
         var lastDayOfLearning = new DateTime(2024, 3, 15);
-        _sut.Pause(lastDayOfLearning, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(lastDayOfLearning);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
-        // Act
-        _sut.Pause(null, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(null);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(numberOfInstalments);
         currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded).Should().Be(numberOfAdditionalPayments);
     }
@@ -157,11 +157,11 @@ internal class WhenUpdatingPauseDate
         var withdrawalDate = new DateTime(2024, 6, 30);
 
         // Act
-        _sut.Pause(withdrawalDate, _mockSystemClock.Object);
-        _sut.Calculate(_mockSystemClock.Object);
+        _episode.UpdatePause(withdrawalDate);
+        _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
 

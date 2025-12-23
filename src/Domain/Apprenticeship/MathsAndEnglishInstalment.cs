@@ -16,14 +16,13 @@ public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalment
     public byte DeliveryPeriod => _model.DeliveryPeriod;
     public decimal Amount => _model.Amount;
     public MathsAndEnglishInstalmentType Type => Enum.Parse<MathsAndEnglishInstalmentType>(_model.Type);
-    public bool IsAfterLearningEnded => _model.IsAfterLearningEnded;
 
     internal MathsAndEnglishInstalment(MathsAndEnglishInstalmentModel model)
     {
         _model = model;
     }
 
-    public MathsAndEnglishInstalment(short academicYear, byte deliveryPeriod, decimal amount, MathsAndEnglishInstalmentType type, bool isAfterLearningEnded)
+    public MathsAndEnglishInstalment(short academicYear, byte deliveryPeriod, decimal amount, MathsAndEnglishInstalmentType type)
     {
         _model = new MathsAndEnglishInstalmentModel
         {
@@ -31,8 +30,7 @@ public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalment
             AcademicYear = academicYear,
             DeliveryPeriod = deliveryPeriod,
             Amount = amount,
-            Type = type.ToString(),
-            IsAfterLearningEnded = isAfterLearningEnded
+            Type = type.ToString()
         };
     }
 
@@ -52,7 +50,6 @@ public class MathsAndEnglishInstalment : IDomainEntity<MathsAndEnglishInstalment
             return false;
         return AcademicYear == compare.AcademicYear &&
                DeliveryPeriod == compare.DeliveryPeriod &&
-               Amount == compare.Amount &&
-               IsAfterLearningEnded == compare.IsAfterLearningEnded;
+               Amount == compare.Amount;
     }
 }

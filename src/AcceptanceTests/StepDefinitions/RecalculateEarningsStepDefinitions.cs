@@ -1,10 +1,6 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawMathsAndEnglishCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessWithdrawnApprenticeshipCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveMathsAndEnglishCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SavePricesCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -25,108 +21,6 @@ public class RecalculateEarningsStepDefinitions
         _testContext = testContext;
     }
 
-
-    #region Arrange
-    [Given(@"there are (.*) earnings")]
-    public void SetDuration(int months)
-    {
-        _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithDuration(months);
-
-        _scenarioContext.GetStartDateSavePricesRequestBuilder()
-            .WithDuration(months);
-    }
-
-    [Given(@"the (.*) date has been moved (.*) months (.*)")]
-    public void AdjustDate(string field, int months, string action)
-    {
-        var monthChange = action == "earlier" ? -months : months;
-        switch(field)
-        {
-            case "start":
-                _scenarioContext.GetStartDateSavePricesRequestBuilder()
-                    .WithAdjustedStartDateBy(monthChange);
-                break;
-            case "end":
-                _scenarioContext.GetStartDateSavePricesRequestBuilder()
-                    .WithAdjustedEndDateBy(monthChange);
-                break;
-        }
-    }
-
-    #endregion
-
-    #region Act
-    [When("the following price change request is sent")]
-    public async Task SendPriceChangeRequest(Table table)
-    {
-        var data = table.CreateSet<PriceChangeModel>().ToList().Single();
-        var learningPriceChangedRequest = _scenarioContext.GetPriceChangeSavePricesRequestBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
-            .WithDataFromSetupModel(data)
-            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
-
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", learningPriceChangedRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
-    }
-
-    [When("the following start date change request is sent")]
-    public async Task SendSavePricesRequestWithUpdatedDates(Table table)
-    {
-        var data = table.CreateSet<StartDateChangeModel>().ToList().Single();
-        var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
-            .WithDataFromSetupModel(data)
-            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
-
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", savePricesRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
-
-        _scenarioContext.Set(savePricesRequest);
-    }
-
-    [When("the following withdrawal is sent")]
-    public async Task SendWithdrawalRequest(Table table)
-    {
-        var data = table.CreateSet<WithdrawalModel>().ToList().Single();
-        var withdrawRequest = new WithdrawRequest { WithdrawalDate = data.LastDayOfLearning };
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/withdraw", withdrawRequest);
-
-        _scenarioContext.Set(withdrawRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
-    }
-
-    [When("the updated prices with new dates request is sent")]
-    public async Task SendUpdatedPriceChangeRequest()
-    {
-        var savePricesRequest = _scenarioContext.GetStartDateSavePricesRequestBuilder()
-                    .WithLearningKey(_scenarioContext.Get<LearningCreatedEvent>().LearningKey)
-                    .WithEpisodeKey(_scenarioContext.Get<LearningCreatedEvent>().Episode.Key)
-                    .WithAgeAtStart(_scenarioContext.Get<LearningCreatedEvent>().Episode.AgeAtStartOfLearning)
-                    .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
-
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/prices", savePricesRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish priceChange");
-    }
-
-    [When("the following maths and english withdrawal is sent")]
-    public async Task SendMathsAndEnglishWithdrawalRequest(Table table)
-    {
-        var data = table.CreateSet<MathsAndEnglishWithdrawalModel>().ToList().Single();
-        var withdrawRequest = new MathsAndEnglishWithdrawRequest() { WithdrawalDate = data.LastDayOfLearning, Course  = data.Course };
-        await _testContext.TestInnerApi.Patch($"/apprenticeship/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/mathsAndEnglish/withdraw", withdrawRequest);
-
-        _scenarioContext.Set(withdrawRequest);
-
-        await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to publish withdrawal");
-    }
-
-    #endregion
-
     #region Assert
 
     [Then("the earnings history is maintained")]
@@ -136,7 +30,7 @@ public class RecalculateEarningsStepDefinitions
 
         var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
-        
+
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
 
         if (history.Count == 0)
@@ -173,7 +67,7 @@ public class RecalculateEarningsStepDefinitions
 
         var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count;
 
-        if(matchingInstalments != expectedNumberOfEarnings)
+        if (matchingInstalments != expectedNumberOfEarnings)
         {
             Assert.Fail($"Expected to find {expectedNumberOfEarnings} instalments but found {matchingInstalments}");
         }
@@ -183,16 +77,6 @@ public class RecalculateEarningsStepDefinitions
     public async Task AssertNoEarningsGeneratedEvent()
     {
         await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<LearningCreatedEvent>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
-    }
-
-    private async Task<bool> EnsureApprenticeshipEntityCreated()
-    {
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
-        if (apprenticeshipEntity == null)
-        {
-            return false;
-        }
-        return true;
     }
 
     private async Task<ApprenticeshipModel> GetApprenticeshipEntity()

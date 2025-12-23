@@ -14,12 +14,6 @@ Scenario: 16-18 Incentive Payments Generation
 	| EmployerIncentive | 500    | 2020-10-29 |
 	| ProviderIncentive | 500    | 2021-07-31 |
 	| EmployerIncentive | 500    | 2021-07-31 |
-	#And an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods
-	#| Type              | Amount | CalendarMonth | CalendarYear |
-	#| EmployerIncentive | 500    | 10            | 2020         |
-	#| ProviderIncentive | 500    | 10            | 2020         |
-	#| EmployerIncentive | 500    | 7             | 2021         |
-	#| ProviderIncentive | 500    | 7             | 2021         |
 
 Scenario: 16-18 Incentive Payments Generation - 90 day apprenticeship
 	Given an apprenticeship has been created with the following information
@@ -33,10 +27,6 @@ Scenario: 16-18 Incentive Payments Generation - 90 day apprenticeship
 	| Type              | Amount | DueDate    |
 	| ProviderIncentive | 500    | 2020-10-29 |
 	| EmployerIncentive | 500    | 2020-10-29 |
-	#And an EarningsGeneratedEvent is raised with the following incentives as Delivery Periods
-	#| Type              | Amount | CalendarMonth | CalendarYear |
-	#| EmployerIncentive | 500    | 10            | 2020         |
-	#| ProviderIncentive | 500    | 10            | 2020         |
 
 	
 Scenario: 16-18 Incentive Payments Generation - learner outside of age range
@@ -48,7 +38,6 @@ Scenario: 16-18 Incentive Payments Generation - learner outside of age range
 	| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
 	Then no Additional Payments are persisted
-	#And an EarningsGeneratedEvent is raised with no incentives as Delivery Periods
 
 Scenario: 19-24 Incentive Payments Generation - Provider and employer payments
 	Given an apprenticeship has been created with the following information
@@ -82,11 +71,8 @@ Examples:
 
 Scenario: 19-24 Incentive Payments Generation - Only provider payments
 	Given an apprenticeship has been created with the following information
-	| Age |
-	| 20  |
-	And the following Price Episodes
-	| StartDate  | EndDate    | Price |
-	| 2020-08-01 | 2024-07-31 | 15000 |
+	| StartDate  | EndDate    | Price | Age |
+	| 2020-08-01 | 2024-07-31 | 15000 | 20  |
 	When earnings are calculated
 	And care details are saved with
 	| CareLeaverEmployerConsentGiven       | IsCareLeaver     | HasEHCP    |

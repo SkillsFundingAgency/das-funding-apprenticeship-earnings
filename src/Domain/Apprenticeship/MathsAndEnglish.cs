@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using System.Collections.ObjectModel;
 
@@ -9,6 +10,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     private MathsAndEnglishModel _model;
     private List<MathsAndEnglishInstalment> _instalments;
 
+    public Guid Key => _model.Key;
     public DateTime StartDate => _model.StartDate;
     public DateTime EndDate => _model.EndDate;
     public string Course => _model.Course;
@@ -17,6 +19,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public DateTime? ActualEndDate => _model.ActualEndDate;
     public DateTime? PauseDate => _model.PauseDate;
     public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
+    public DateTime? LastDayOfCourse => GetLastDayOfCourse();
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
 
     private MathsAndEnglish(MathsAndEnglishModel model)
@@ -25,9 +28,8 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, List<MathsAndEnglishInstalment> instalments, DateTime? withdrawalDate, DateTime? actualEndDate, DateTime? pauseDate, int? priorLearningAdjustmentPercentage)
+    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, DateTime? pauseDate, int? priorLearningAdjustmentPercentage)
     {
-        _instalments = instalments;
         _model = new MathsAndEnglishModel();
         _model.Key = Guid.NewGuid();
         _model.StartDate = startDate;
@@ -37,8 +39,10 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.WithdrawalDate = withdrawalDate;
         _model.ActualEndDate = actualEndDate;
         _model.PauseDate = pauseDate;
-        _model.Instalments = instalments.ToModels<MathsAndEnglishInstalment, MathsAndEnglishInstalmentModel>(model => model.MathsAndEnglishKey = _model.Key);
         _model.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
+        _model.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
+
+        _instalments = _model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
     public MathsAndEnglishModel GetModel()
@@ -65,4 +69,20 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
                PriorLearningAdjustmentPercentage == compare.PriorLearningAdjustmentPercentage &&
                Instalments.AreSame(compare.Instalments);
     }
+
+    private DateTime? GetLastDayOfCourse()
+    {
+        var plausibleLastDaysOfLearning = new List<DateTime?>()
+        {
+            ActualEndDate,
+            WithdrawalDate,
+            PauseDate
+        };
+
+        return plausibleLastDaysOfLearning
+            .Where(d => d.HasValue)
+            .OrderBy(d => d!.Value)
+            .FirstOrDefault();
+    }
+
 }

@@ -1,0 +1,110 @@
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Learning.Types;
+using System;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+
+public class UpdateOnProgrammeRequestBuilder
+{
+    private DateTime _priceStartDate = new DateTime(2020, 02, 01);
+    private DateTime _priceEndDate = new DateTime(2022, 1, 1);
+    private Guid _episodeKey = Guid.NewGuid();
+    private Guid _priceChangePriceKey = Guid.NewGuid();
+
+    private DateTime _dateOfBirth = new DateTime(2000, 1, 1);
+
+    private DateTime? _pauseDate = null;
+
+    private decimal _newTrainingPrice = 17000;
+    private decimal _newAssessmentPrice = 3000;
+    private bool _hasPriceChanged = false;
+    private bool _hasStartDateChanged = false;
+    private List<LearningEpisodePrice>? _existingPrices;
+    private List<BreakInLearningItem> _breaksInLearning = new List<BreakInLearningItem>();
+    private DateTime? _completionDate = null;
+    private DateTime? _withdrawalDate = null;
+
+
+    public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
+    {
+        if (model.PriceStartDate.HasChanged)
+        {
+            _hasStartDateChanged = true;
+            _priceStartDate = model.PriceStartDate.Value;
+        }
+
+        if (model.NewAssessmentPrice.HasChanged)
+        {
+            _hasPriceChanged = true;
+            _newAssessmentPrice = model.NewAssessmentPrice.Value;
+        }
+        if (model.NewTrainingPrice.HasChanged)
+        {
+            _hasPriceChanged = true;
+            _newTrainingPrice = model.NewTrainingPrice.Value;
+        }
+
+        if (model.PriceEndDate.HasChanged) _priceEndDate = model.PriceEndDate.Value;
+        if (model.DateOfBirth.HasChanged) _dateOfBirth = model.DateOfBirth.Value.Value;
+        if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
+        if (model.BreaksInLearning.HasChanged) _breaksInLearning = model.BreaksInLearning.Value;
+        if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
+        if (model.WithdrawalDate.HasChanged) _withdrawalDate = model.WithdrawalDate.Value;
+        return this;
+    }
+
+    public UpdateOnProgrammeRequestBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
+    {
+        _episodeKey = apprenticeship.Episode.Key;
+
+        _priceStartDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).First().StartDate;
+
+        var lastEpisodePrice = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last();
+        _priceEndDate = lastEpisodePrice.EndDate;
+        _newTrainingPrice = lastEpisodePrice.TrainingPrice.Value;
+        _newAssessmentPrice = lastEpisodePrice.EndPointAssessmentPrice.Value;
+
+        _existingPrices = apprenticeship.Episode.Prices;
+        _dateOfBirth = apprenticeship.DateOfBirth;
+
+        return this;
+    }
+
+    public UpdateOnProgrammeRequest Build(int fundingBandMaximum)
+    {
+        var prices = new List<LearningEpisodePrice>();
+
+        if (_existingPrices != null && _existingPrices.Any() && _hasPriceChanged)
+        {
+            _existingPrices.OrderBy(x => x.StartDate).Last().EndDate = _priceStartDate.AddDays(-1);
+            prices.AddRange(_existingPrices);
+        }
+
+        prices.Add(new()
+        {
+            Key = _priceChangePriceKey,
+            TrainingPrice = _newTrainingPrice,
+            EndPointAssessmentPrice = _newAssessmentPrice,
+            StartDate = _priceStartDate,
+            EndDate = _priceEndDate,
+            TotalPrice = _newTrainingPrice + _newAssessmentPrice
+        });
+
+        var requiresFundingBandMaximumUpdate = _hasPriceChanged || _hasStartDateChanged;
+
+        return new UpdateOnProgrammeRequest()
+        {
+            ApprenticeshipEpisodeKey = _episodeKey,
+            DateOfBirth = _dateOfBirth,
+            PauseDate = _pauseDate,
+            CompletionDate = _completionDate,
+            WithdrawalDate = _withdrawalDate,
+            FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
+            Prices = prices,
+            IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate,
+            BreaksInLearning = _breaksInLearning
+        };
+    }
+}
+

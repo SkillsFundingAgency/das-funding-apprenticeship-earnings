@@ -3,6 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -148,18 +149,21 @@ public static class LearningEpisodeExtensions
         };
     }
 
-    private static bool IsPauseDateOutsideBreaks(ApprenticeshipEpisode episode)
+    internal static bool PricesAreIdentical(this ApprenticeshipEpisode episode, List<LearningEpisodePrice> prices)
     {
-        if (!episode.PauseDate.HasValue || episode.BreaksInLearning == null)
-            return true;
+        var existingPrices = episode.Prices;
+        if (prices.Count != existingPrices.Count)
+            return false;
 
-        var pauseDate = episode.PauseDate.Value;
+        foreach (var price in prices)
+        {
+            var matchingPrice = existingPrices.SingleOrDefault(x => x.PriceKey == price.Key);
+            if (matchingPrice == null)
+                return false;
+            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice)
+                return false;
+        }
 
-        // Pause is inside a break if it is >= Start and <= End
-        bool insideBreak = episode.BreaksInLearning.Any(b =>
-            pauseDate >= b.StartDate &&
-            pauseDate <= b.EndDate);
-
-        return !insideBreak;
+        return true;
     }
 }

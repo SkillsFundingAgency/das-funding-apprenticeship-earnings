@@ -26,6 +26,7 @@ public static class HealthChecks
     }
 }
 
+#pragma warning disable CS8632
 // Because the lifecycle of Azure Functions will generate singletons multiple times
 // we need to store a static reference to the health check classes
 // this will allow the health checks to cache their results
@@ -70,3 +71,4 @@ public class FunctionHealthChecker
         return true;
     }
 }
+#pragma warning restore CS8632

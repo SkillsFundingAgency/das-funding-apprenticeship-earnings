@@ -1,0 +1,128 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
+
+[ApiController]
+[Route("learning")]
+public class LearningController: ControllerBase
+{
+    private readonly ILogger<LearningController> _logger;
+    private readonly ICommandDispatcher _commandDispatcher;
+
+    public LearningController(ILogger<LearningController> logger, ICommandDispatcher commandDispatcher)
+    {
+        _logger = logger;
+        _commandDispatcher = commandDispatcher;
+    }
+
+    [Route("{learningKey}/careDetails")]
+    [HttpPatch]
+    public async Task<IActionResult> SaveCareDetails(Guid learningKey, SaveCareDetailsRequest saveCareDetailsRequest)
+    {
+        _logger.LogInformation("Received request to save care details for apprenticeship {learningKey}", learningKey);
+
+        try
+        {
+            var command = new SaveCareDetailsCommand(learningKey, saveCareDetailsRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Error saving care details for apprenticeship {learningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully saved care details for apprenticeship {learningKey}", learningKey);
+        return Ok();
+    }
+
+    [Route("{learningKey}/learning-support")]
+    [HttpPut]
+    public async Task<IActionResult> UpdateLearningSupport(Guid learningKey, UpdateLearningSupportRequest request)
+    {
+        _logger.LogInformation("Received request to update learning support for apprenticeship {learningKey}", learningKey);
+
+        try
+        {
+            var command = new UpdateLearningSupportCommand(learningKey, request);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating learning support for apprenticeship {learningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully updated learning support for apprenticeship {learningKey}", learningKey);
+        return Ok();
+    }
+
+    [Route("{learningKey}/english-and-maths")]
+    [HttpPut]
+    public async Task<IActionResult> SaveMathsAndEnglish(Guid learningKey, UpdateEnglishAndMathsRequest saveMathsAndEnglishRequest)
+    {
+        _logger.LogInformation("Received request to update english and maths for apprenticeship {learningKey}", learningKey);
+
+        try
+        {
+            var command = new UpdateEnglishAndMathsCommand(learningKey, saveMathsAndEnglishRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating english and maths for apprenticeship {learningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully updated english and maths for apprenticeship {learningKey}", learningKey);
+        return Ok();
+    }
+
+    [Route("{learningKey}/on-programme")]
+    [HttpPut]
+    public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateOnProgrammeRequest updateOnProgrammeRequest)
+    {
+        _logger.LogInformation("Received request to update on-programme for apprenticeship {learningKey}", learningKey);
+
+        try
+        {
+            var command = new UpdateOnProgrammeCommand(learningKey, updateOnProgrammeRequest);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating on-programme for apprenticeship {learningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully updated on-programme for apprenticeship {learningKey}", learningKey);
+        return Ok();
+    }
+
+    [Route("{learningKey}")]
+    [HttpDelete]
+    public async Task<IActionResult> RemoveLearner(Guid learningKey)
+    {
+        _logger.LogInformation("Received request to remove learner {learningKey}", learningKey);
+
+        try
+        {
+            var command = new RemoveLearnerCommand(learningKey);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error removing learner {learningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully removed learner {learningKey}", learningKey);
+        return Ok();
+    }
+}

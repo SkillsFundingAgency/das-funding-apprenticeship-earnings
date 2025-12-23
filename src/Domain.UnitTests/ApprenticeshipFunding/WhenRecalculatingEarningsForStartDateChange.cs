@@ -22,12 +22,12 @@ public class WhenRecalculatingEarningsForStartDateChange
     private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
     private Guid _episodeKey;
     private List<LearningEpisodePrice> _prices;
-    private int _ageAtStartOfLearning;
-    private int _fundingBandMaximum;
+    private const int _ageAtStartOfLearning = 20;
 
     [SetUp]
     public void Setup()
     {
+        var startDate = new DateTime(2023, 2, 1);
         _fixture = new Fixture();
         _mockSystemClockService = new Mock<ISystemClockService>();
         _mockSystemClockService.Setup(x => x.UtcNow).Returns(new DateTimeOffset(new DateTime(2023, 11, 1)));
@@ -49,6 +49,7 @@ public class WhenRecalculatingEarningsForStartDateChange
 
         var apprenticeshipEntityModel = _fixture
             .Build<ApprenticeshipModel>()
+            .With(x => x.DateOfBirth, startDate.AddYears(-_ageAtStartOfLearning))
             .With(x => x.Episodes, new List<EpisodeModel> { learningEpisode })
             .Create();
 
@@ -65,15 +66,13 @@ public class WhenRecalculatingEarningsForStartDateChange
                 EndDate = new DateTime(2024, 1, 1)
             }
         };
-        _ageAtStartOfLearning = 20;
-        _fundingBandMaximum = (int)learningEpisode.FundingBandMaximum;
     }
 
     [Test]
     public void ThenTheStartDateAndEndDateAreUpdated()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
@@ -87,7 +86,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheAgeAtStartOfLearningIsUpdated()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
@@ -98,7 +97,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenTheDeletedPricesAreRemoved()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert
@@ -109,7 +108,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     public void ThenAnEarningsRecalculatedEventIsAdded()
     {
         // Act
-        _apprenticeship.UpdatePrices(_prices, _episodeKey, _fundingBandMaximum, _ageAtStartOfLearning, _mockSystemClockService.Object);
+        _currentEpisode.UpdatePrices(_prices);
         _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
 
         // Assert

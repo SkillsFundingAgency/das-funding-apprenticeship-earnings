@@ -49,12 +49,16 @@ Scenario: Funding Band Maximum Cap
 		| 500   | 2021         | 6              |
 
 Scenario: As a Finance Officer I want to know the funding line type for earnings So that I can estimate the correct forecasted funding (under 19)
-	Given the apprenticeship learner is 16-18 at the start of the apprenticeship 
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 17  |
 	When the apprenticeship commitment is approved 
 	Then the funding line type 16-18 must be used in the calculation 
 
 Scenario: As a Finance Officer I want to know the funding line type for earnings So that I can estimate the correct forecasted funding (19+)
-	Given the apprenticeship learner is 19 plus at the start of the apprenticeship
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 20  |
 	When the apprenticeship commitment is approved 
 	Then the funding line type 19 plus must be used in the calculation 
 

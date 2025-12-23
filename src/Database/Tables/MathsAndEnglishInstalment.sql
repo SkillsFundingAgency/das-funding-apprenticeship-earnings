@@ -5,6 +5,5 @@
     [AcademicYear] SMALLINT NOT NULL,
     [DeliveryPeriod] TINYINT NOT NULL,
     [Amount] DECIMAL(15,5) NOT NULL,
-    [Type] NVARCHAR(50) NOT NULL DEFAULT 'Regular',
-    [IsAfterLearningEnded] BIT NOT NULL DEFAULT 0
+    [Type] NVARCHAR(50) NOT NULL DEFAULT 'Regular'
 )

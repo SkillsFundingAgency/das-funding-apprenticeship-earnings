@@ -24,14 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SpecFlowObsoleteCodeBehindFiles Remove="Features\RecalculateEarningsFollowingPriceChange - Copy.feature.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Features\RecalculateEarningsFollowingPriceChange.feature" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -63,34 +55,5 @@
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Features\RecalculateEarningsFollowingWithdrawalBeforeEndOfQualifyingPeriod.feature.cs">
-      <Visible>true</Visible>
-      <DependentUpon>RecalculateEarningsFollowingWithdrawalBeforeEndOfQualifyingPeriod.feature</DependentUpon>
-      <DesignTime>true</DesignTime>
-      <AutoGen>true</AutoGen>
-    </Compile>
-    <Compile Update="Features\RecalculateEarningsFollowingWithdrawal.feature.cs">
-      <DependentUpon>RecalculateEarningsFollowingWithdrawal.feature</DependentUpon>
-    </Compile>
-    <Compile Update="Features\RecalculateEarningsFollowingStartDateChange.feature.cs">
-      <DependentUpon>RecalculateEarningsFollowingStartDateChange.feature</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingWithdrawalBeforeEndOfQualifyingPeriod.feature">
-      <Visible>$(UsingMicrosoftNETSdk)</Visible>
-      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
-    </SpecFlowFeatureFiles>
-    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingWithdrawal.feature">
-      <Visible>$(UsingMicrosoftNETSdk)</Visible>
-      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
-    </SpecFlowFeatureFiles>
-    <SpecFlowFeatureFiles Update="Features\RecalculateEarningsFollowingStartDateChange.feature">
-      <Visible>$(UsingMicrosoftNETSdk)</Visible>
-      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
-    </SpecFlowFeatureFiles>
-  </ItemGroup>
 
 </Project>

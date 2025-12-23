@@ -1,5 +1,4 @@
-﻿using NServiceBus;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -7,7 +6,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -51,7 +49,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
     public IReadOnlyCollection<EpisodeBreakInLearning> BreaksInLearning => new ReadOnlyCollection<EpisodeBreakInLearning>(_breaksInLearning);
-    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && _ageAtStartOfApprenticeship < 22;
+    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
@@ -60,7 +58,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
 
     public string FundingLineType =>
-        _ageAtStartOfApprenticeship < 19
+        AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
@@ -103,81 +101,9 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
     }
 
-    public void Withdraw(DateTime? withdrawalDate, ISystemClockService systemClock)
+    public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _model.WithdrawalDate = withdrawalDate;
-    }
-
-    public void ReverseWithdrawal(ISystemClockService systemClockService)
-    {
-        _model.WithdrawalDate = null;
-    }
-
-    public void WithdrawMathsAndEnglish(string courseName, DateTime? withdrawalDate, ISystemClockService systemClock)
-    {
-        var courseToWithdraw = _model.EarningsProfile.MathsAndEnglishCourses.SingleOrDefault(x => x.Course == courseName);
-        if (courseToWithdraw == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", nameof(courseName));
-
-        courseToWithdraw.WithdrawalDate = withdrawalDate;
-        var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, _model.EarningsProfile.MathsAndEnglishCourses, courseName);
-        _earningsProfile.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
-    }
-
-    public List<MathsAndEnglish> ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(ISystemClockService systemClock, List<MathsAndEnglishModel> courses, string? courseName = null)
-    {
-        MathsAndEnglishModel? course;
-
-        if (courseName != null)
-        {
-            course = courses.SingleOrDefault(x => x.Course == courseName);
-            if (course == null) throw new ArgumentException($"No english and maths course found for course name {courseName}", courseName);
-        }
-
-        var updatedCourses = new List<MathsAndEnglish>();
-
-        foreach (var mathsAndEnglishModel in courses)
-        {
-            var skipReevaluation = courseName != null && mathsAndEnglishModel.Course != courseName;
-            if (skipReevaluation)
-            {
-                updatedCourses.Add(new MathsAndEnglish(
-                    mathsAndEnglishModel.StartDate,
-                    mathsAndEnglishModel.EndDate,
-                    mathsAndEnglishModel.Course,
-                    mathsAndEnglishModel.Amount,
-                    mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), x.IsAfterLearningEnded)).ToList(),
-                    mathsAndEnglishModel.WithdrawalDate,
-                    mathsAndEnglishModel.ActualEndDate,
-                    mathsAndEnglishModel.PauseDate,
-                    mathsAndEnglishModel.PriorLearningAdjustmentPercentage
-                ));
-            }
-            else
-            {
-                var lastDayOfLearning = new[] { mathsAndEnglishModel.WithdrawalDate, mathsAndEnglishModel.PauseDate }.Where(d => d.HasValue).OrderBy(d => d.Value).FirstOrDefault();
-                var earningsToKeep = GetMathsAndEnglishEarningsToKeep(mathsAndEnglishModel, lastDayOfLearning);
-
-                updatedCourses.Add(new MathsAndEnglish(
-                    mathsAndEnglishModel.StartDate,
-                    mathsAndEnglishModel.EndDate,
-                    mathsAndEnglishModel.Course,
-                    mathsAndEnglishModel.Amount,
-                    mathsAndEnglishModel.Instalments.Select(x => new MathsAndEnglishInstalment(x.AcademicYear,
-                        x.DeliveryPeriod, x.Amount, Enum.Parse<MathsAndEnglishInstalmentType>(x.Type), !earningsToKeep.Any(e => 
-                            e.AcademicYear == x.AcademicYear && 
-                            e.DeliveryPeriod == x.DeliveryPeriod &&
-                            e.Amount == x.Amount &&
-                            e.Type == x.Type))).ToList(),
-                    mathsAndEnglishModel.WithdrawalDate,
-                    mathsAndEnglishModel.ActualEndDate,
-                    mathsAndEnglishModel.PauseDate,
-                    mathsAndEnglishModel.PriorLearningAdjustmentPercentage
-                ));
-            }
-        }
-
-        return updatedCourses;
     }
 
     /// <summary>
@@ -206,52 +132,28 @@ public class ApprenticeshipEpisode : AggregateComponent
     /// Updates earnings for Maths and English courses to an apprenticeship.
     /// Overwrites any existing Maths and English courses' earnings.
     /// </summary>
-    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    public void UpdateEnglishAndMaths(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
-        var updatedCourses = ReEvaluateMathsAndEnglishEarningsAfterEndOfCourse(systemClock, mathsAndEnglishCourses.Select(x => x.GetModel()).ToList());
-        _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: updatedCourses);
+        _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
     }
 
     /// <summary>
     /// Updates the completion date and earnings profile accordingly with the completion instalment and balanced instalments if necessary.
     /// </summary>
-    public void UpdateCompletion(Apprenticeship apprenticeship, DateTime? completionDate, ISystemClockService systemClock)
+    public void UpdateCompletion(DateTime? completionDate)
     {
         _model.CompletionDate = completionDate;
     }
 
-    private List<MathsAndEnglishInstalmentModel> GetMathsAndEnglishEarningsToKeep(MathsAndEnglishModel course, DateTime? lastDayOfLearning)
-    {
-        if (!lastDayOfLearning.HasValue)
-        {
-            return course.Instalments.ToList();
-        }
-
-        var academicYear = lastDayOfLearning.Value.ToAcademicYear();
-        var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-
-        var instalments = course.Instalments
-            .Where(x =>
-                x.AcademicYear < academicYear //keep earnings from previous academic years
-                || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod 
-                                                  && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-                || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod 
-                                                  && course.StartDate.ToAcademicYear() == academicYear && course.StartDate.ToDeliveryPeriod() == deliveryPeriod 
-                                                  && lastDayOfLearning.Value > course.StartDate) // special case if the withdrawal date is on/after the start date but before a census date we should keep the instalment for the first month of learning
-            .ToList(); 
-
-        return instalments;
-    }
-
-    internal void UpdateFundingBandMaximum(int fundingBandMaximum)
+    public void UpdateFundingBandMaximum(int fundingBandMaximum)
     {
         _model.FundingBandMaximum = fundingBandMaximum;
     }
 
-    internal void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices, int ageAtStartOfLearning)
+    public void UpdatePrices(List<Learning.Types.LearningEpisodePrice> updatedPrices)
     {
-        _ageAtStartOfApprenticeship = ageAtStartOfLearning;
+        if (this.PricesAreIdentical(updatedPrices))
+            return;
 
         foreach (var existingPrice in _prices.ToList())
         {
@@ -275,24 +177,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         _prices.AddRange(newPrices);
     }
 
-    internal bool PricesAreIdentical(List<LearningEpisodePrice> prices)
-    {
-        if (prices.Count != _prices.Count)
-            return false;
-
-        foreach (var price in prices)
-        {
-            var matchingPrice = _prices.SingleOrDefault(x => x.PriceKey == price.Key);
-            if (matchingPrice == null)
-                return false;
-            if (matchingPrice.StartDate != price.StartDate || matchingPrice.EndDate != price.EndDate || matchingPrice.AgreedPrice != price.TotalPrice)
-                return false;
-        }
-
-        return true;
-    }
-
-    internal void UpdatePause(DateTime? pauseDate)
+    public void UpdatePause(DateTime? pauseDate)
     {
         _model.PauseDate = pauseDate;
     }
@@ -339,7 +224,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         var effectiveEndDate = LastDayOfLearning ?? _prices.Max(p => p.EndDate);
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
-            _ageAtStartOfApprenticeship,
+            AgeAtStartOfApprenticeship,
             _prices.Min(p => p.StartDate),
             effectiveEndDate,
             apprenticeship.HasEHCP,
