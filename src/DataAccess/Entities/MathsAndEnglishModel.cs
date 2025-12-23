@@ -8,11 +8,12 @@ public class MathsAndEnglishModel
 {
     public MathsAndEnglishModel() { }
 
-    public MathsAndEnglishModel(Guid earningsProfileId, string course, DateTime startDate, DateTime endDate, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, int? priorLearningAdjustmentPercentage)
+    public MathsAndEnglishModel(Guid earningsProfileId, string course, string learnAimRef, DateTime startDate, DateTime endDate, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, int? priorLearningAdjustmentPercentage)
     {
         Key = Guid.NewGuid();
         EarningsProfileId = earningsProfileId;
         Course = course;
+        LearnAimRef = learnAimRef;
         StartDate = startDate;
         EndDate = endDate;
         Amount = amount;
@@ -32,6 +33,7 @@ public class MathsAndEnglishModel
     public DateTime EndDate { get; set; }
 
     public string Course { get; set; } = null!;
+    public string LearnAimRef { get; set; } = null!;
 
     public decimal Amount { get; set; }
 

@@ -167,6 +167,7 @@ public class EnglishAndMathsPaymentsTests
         var model = new MathsAndEnglishModel(
             Guid.NewGuid(),
             courseCode,
+            learnAimRef: courseCode,
             startDate,
             endDate,
             amount,

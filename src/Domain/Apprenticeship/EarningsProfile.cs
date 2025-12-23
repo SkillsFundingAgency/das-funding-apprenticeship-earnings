@@ -155,7 +155,7 @@ public class EarningsProfile : AggregateComponent
         foreach (var updatedCourse in updatedCourses)
         {
             var existingCourse = Model.MathsAndEnglishCourses
-                .FirstOrDefault(c => c.Course == updatedCourse.Course);
+                .FirstOrDefault(c => c.LearnAimRef == updatedCourse.LearnAimRef);
 
             if (existingCourse == null)
             {

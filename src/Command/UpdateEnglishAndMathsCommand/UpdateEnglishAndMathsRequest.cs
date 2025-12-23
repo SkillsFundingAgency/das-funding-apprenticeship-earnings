@@ -10,6 +10,7 @@ public class EnglishAndMathsItem
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public string Course { get; set; } = null!;
+    public string LearnAimRef { get; set; } = null!;
     public decimal Amount { get; set; }
     public DateTime? WithdrawalDate { get; set; }
     public int? PriorLearningAdjustmentPercentage { get; set; }

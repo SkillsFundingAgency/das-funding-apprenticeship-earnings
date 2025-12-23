@@ -9,6 +9,7 @@
     [WithdrawalDate] DATETIME NULL,
     [ActualEndDate] DATETIME NULL,
     [PriorLearningAdjustmentPercentage] INT NULL, 
-    [PauseDate] DATETIME NULL
+    [PauseDate] DATETIME NULL, 
+    [LearnAimRef] VARCHAR(8) NOT NULL DEFAULT ''
 )
 GO
