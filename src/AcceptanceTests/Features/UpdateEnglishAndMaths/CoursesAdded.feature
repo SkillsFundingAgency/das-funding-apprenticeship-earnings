@@ -36,7 +36,7 @@ Scenario: english and maths earnings past the end of the apprenticeship
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate    | Course      | LearnAimRef | Amount |
-		| 2021-1-1  | 2021-12-31 | LateEnglish | LateEnglish | 1200   |
+		| 2021-1-1  | 2021-12-31 | LateEnglish | 12345678    | 1200   |
 	Then english and maths instalments are persisted as follows
 		| Course      | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| LateEnglish | 100    | 2021         | 6              | Regular |
@@ -60,7 +60,7 @@ Scenario: english and maths before the start of the apprenticeship
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course     | LearnAimRef | Amount |
-		| 2020-1-1  | 2021-1-15 | EarlyMaths | EarlyMaths  | 600    |
+		| 2020-1-1  | 2021-1-15 | EarlyMaths | 12345678    | 600    |
 	Then english and maths instalments are persisted as follows
 		| Course     | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| EarlyMaths | 50     | 1920         | 6              | Regular |
