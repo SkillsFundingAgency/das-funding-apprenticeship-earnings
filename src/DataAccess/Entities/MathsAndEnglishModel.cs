@@ -6,8 +6,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 [Table("MathsAndEnglish", Schema = "Domain")]
 public class MathsAndEnglishModel
 {
-    public MathsAndEnglishModel() { }
-
     [Dapper.Contrib.Extensions.Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Key { get; set; }
