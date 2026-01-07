@@ -51,13 +51,13 @@ public class WhenWithdrawingEnglishAndMathsCourse
         // Assert
         var course = _sut.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+        course.Instalments.Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 8)); // up to April
     }
 
     [Test]
-    public void Then_Instalments_After_WithdrawalDate_Are_SoftDeleted()
+    public void Then_Instalments_After_WithdrawalDate_Are_Deleted()
     {
         // Arrange
         var withdrawalDate = new DateTime(2024, 4, 15);
@@ -68,9 +68,8 @@ public class WhenWithdrawingEnglishAndMathsCourse
         // Assert
         var course = _sut.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Where(x => !x.IsAfterLearningEnded).Should().NotContain(x =>
+        course.Instalments.Should().NotContain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod > 8);
-        course.Instalments.Count.Should().Be(12); //total count including soft deleted records should still be 12
     }
 
     [Test]
@@ -85,10 +84,9 @@ public class WhenWithdrawingEnglishAndMathsCourse
         // Assert
         var course = _sut.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+        course.Instalments.Should().OnlyContain(x =>
             x.AcademicYear == 2324 && x.DeliveryPeriod == 6);
-        course.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(1);
-        course.Instalments.Count.Should().Be(12); //total count including soft deleted records should still be 12
+        course.Instalments.Count.Should().Be(1);
     }
 
     [Test]
@@ -103,8 +101,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
         // Assert
         var course = _sut.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(0);
-        course.Instalments.Count.Should().Be(12); //total count including soft deleted records should still be 12
+        course.Instalments.Count.Should().Be(0);
     }
 
     [Test]

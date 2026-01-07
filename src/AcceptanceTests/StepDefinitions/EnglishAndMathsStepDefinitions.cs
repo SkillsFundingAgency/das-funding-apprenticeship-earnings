@@ -1,13 +1,6 @@
-﻿using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Learning.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -53,10 +46,10 @@ public class EnglishAndMathsStepDefinitions
         var expectedCourses = data.Select(d => d.Course).Distinct().ToList();
         foreach (var course in expectedCourses)
         {
-            var expectedInstalmentCount = data.Count(d => d.Course == course && d.IsAfterLearningEnded != true);
+            var expectedInstalmentCount = data.Count(d => d.Course == course);
             var courseInDb = mathsAndEnglishCoursesInDb.SingleOrDefault(x => x.Course.TrimEnd() == course);
             courseInDb.Should().NotBeNull();
-            courseInDb.Instalments.Where(x => !x.IsAfterLearningEnded).Should().HaveCount(expectedInstalmentCount);
+            courseInDb.Instalments.Should().HaveCount(expectedInstalmentCount);
         }
 
         // Check individual instalments
@@ -68,16 +61,14 @@ public class EnglishAndMathsStepDefinitions
             var hasInstalment = courseInDb.Instalments.Any(x => x.Amount == expectedInstalment.Amount
                                                       && x.AcademicYear == expectedInstalment.AcademicYear
                                                       && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
-                                                      && x.Type == expectedInstalment.Type
-                                                      && (!expectedInstalment.IsAfterLearningEnded.HasValue || x.IsAfterLearningEnded == expectedInstalment.IsAfterLearningEnded.Value));
+                                                      && x.Type == expectedInstalment.Type);
 
-            hasInstalment.Should().BeTrue($"Expected to find instalment for course {expectedInstalment.Course} with Amount {expectedInstalment.Amount}, AcademicYear {expectedInstalment.AcademicYear}, DeliveryPeriod {expectedInstalment.DeliveryPeriod}, Type {expectedInstalment.Type} and IsAfterLearningEnded {expectedInstalment.IsAfterLearningEnded}");
+            hasInstalment.Should().BeTrue($"Expected to find instalment for course {expectedInstalment.Course} with Amount {expectedInstalment.Amount}, AcademicYear {expectedInstalment.AcademicYear}, DeliveryPeriod {expectedInstalment.DeliveryPeriod}, Type {expectedInstalment.Type}");
             courseInDb.Instalments.Should()
                 .Contain(x => x.Amount == expectedInstalment.Amount
                               && x.AcademicYear == expectedInstalment.AcademicYear
                               && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
-                              && x.Type == expectedInstalment.Type
-                              && (!expectedInstalment.IsAfterLearningEnded.HasValue || x.IsAfterLearningEnded == expectedInstalment.IsAfterLearningEnded.Value));
+                              && x.Type == expectedInstalment.Type);
         }
     }
 
@@ -91,18 +82,5 @@ public class EnglishAndMathsStepDefinitions
         var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses.SelectMany(x => x.Instalments);
 
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
-    }
-
-    [Then(@"all english and maths earnings are soft deleted")]
-    public async Task ThenAllMathsAndEnglishInstalmentsAreSoftDeleted()
-    {
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
-
-        var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses.SelectMany(x => x.Instalments);
-
-        mathsAndEnglishInstalmentsInDb.Should().OnlyContain(x => x.IsAfterLearningEnded,
-            "Expected all english and maths instalments to be soft deleted");
     }
 }
