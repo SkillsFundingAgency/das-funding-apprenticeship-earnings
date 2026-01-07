@@ -4,11 +4,6 @@ using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
@@ -49,7 +44,6 @@ public abstract class BaseUpdateCommandHandlerTests
             WithdrawalDate = episode.WithdrawalDate,
             PauseDate = episode.PauseDate,
             DateOfBirth = apprenticeship.DateOfBirth,
-            //BreaksInLearning = do later
             Prices = GetPrices(episode)
         };
 

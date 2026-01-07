@@ -1,28 +1,22 @@
 ﻿using AutoFixture;
 using Moq;
 using NServiceBus;
-using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ProcessWithdrawnApprenticeshipsCommandHandler;
 
 [TestFixture]
-public class WhenRemovingLearnerHandled
+public class WhenRemovingLearner
 {
     private readonly Fixture _fixture = new();
     private readonly Mock<ISystemClockService> _mockSystemClock = new();
     private readonly Mock<IApprenticeshipRepository> _mockRepository = new();
-
-    private void SetupMocks()
-    {
-        _mockRepository.Reset();
-        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
-    }
 
     [Test]
     public async Task ThenTheApprenticeshipIsWithdrawnToStart()

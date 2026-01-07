@@ -137,7 +137,6 @@ public static class EnglishAndMathsPayments
              dateTime.ToAcademicYear(),
              dateTime.ToDeliveryPeriod(),
              amount,
-             instalmentType.ToString(),
-             false);
+             instalmentType.ToString());
     }
 }

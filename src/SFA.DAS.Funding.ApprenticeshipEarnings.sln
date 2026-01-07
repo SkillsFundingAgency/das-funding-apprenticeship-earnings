@@ -39,8 +39,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.Apprentices
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests", "Command.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.csproj", "{A4317C7D-7A70-488B-9625-9C22850B207B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.UnitTests", "SFA.DAS.ApprenticeshipEarnings.MessageHandlers.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.UnitTests.csproj", "{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.UnitTests", "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.UnitTests.csproj", "{B251A1EB-9919-4A15-9B67-CE749ABB2131}"
 EndProject
 Global
@@ -119,10 +117,6 @@ Global
 		{A4317C7D-7A70-488B-9625-9C22850B207B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4317C7D-7A70-488B-9625-9C22850B207B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4317C7D-7A70-488B-9625-9C22850B207B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -139,7 +133,6 @@ Global
 		{CFA5FCF1-6C6F-4566-9CAD-8EA554FD844C} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{A9ACFCA1-FBD3-40DA-9AC0-116341E72F02} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{A4317C7D-7A70-488B-9625-9C22850B207B} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
-		{DAB9E870-D2B8-4C5E-9E64-8F2004AF1354} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131} = {694AAE59-8442-4592-8FA1-C7A8E7FD9A32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

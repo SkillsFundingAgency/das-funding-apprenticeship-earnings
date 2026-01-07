@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Azure.Amqp.Framing;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
