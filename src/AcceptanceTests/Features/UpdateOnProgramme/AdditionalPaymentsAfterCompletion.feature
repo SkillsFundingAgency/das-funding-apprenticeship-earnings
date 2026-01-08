@@ -21,6 +21,6 @@ Scenario: No 365 days 16-18 (19-24) incentive payments if completed before quali
 		| Key            | Value      |
 		| CompletionDate | 2021-06-01 |
 	Then Additional Payments are persisted as follows
-		| Type              | Amount | DueDate    | IsAfterLearningEnded |
-		| ProviderIncentive | 500    | 2020-10-29 | false                |
-		| EmployerIncentive | 500    | 2020-10-29 | false                |
+		| Type              | Amount | DueDate    |
+		| ProviderIncentive | 500    | 2020-10-29 |
+		| EmployerIncentive | 500    | 2020-10-29 |
