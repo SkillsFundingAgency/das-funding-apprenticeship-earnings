@@ -13,7 +13,7 @@ public class Instalment : IDomainEntity<InstalmentModel>
 {
     private InstalmentModel _model;
 
-    public Instalment(short academicYear, byte deliveryPeriod, decimal amount, Guid priceKey, InstalmentType instalmentType = InstalmentType.Regular, bool isAfterLearningEnded = false)
+    public Instalment(short academicYear, byte deliveryPeriod, decimal amount, Guid priceKey, InstalmentType instalmentType = InstalmentType.Regular)
     {
         _model = new InstalmentModel
         {
@@ -22,8 +22,7 @@ public class Instalment : IDomainEntity<InstalmentModel>
             DeliveryPeriod = deliveryPeriod,
             Amount = amount,
             EpisodePriceKey = priceKey,
-            Type = instalmentType.ToString(),
-            IsAfterLearningEnded = isAfterLearningEnded
+            Type = instalmentType.ToString()
         };
     }
 
@@ -37,7 +36,6 @@ public class Instalment : IDomainEntity<InstalmentModel>
     public decimal Amount => _model.Amount;
     public Guid EpisodePriceKey => _model.EpisodePriceKey;
     public InstalmentType Type => Enum.Parse<InstalmentType>(_model.Type);
-    public bool IsAfterLearningEnded => _model.IsAfterLearningEnded;
 
     public InstalmentModel GetModel()
     {
@@ -49,11 +47,6 @@ public class Instalment : IDomainEntity<InstalmentModel>
         return new Instalment(model);
     }
 
-    internal void SoftDelete()
-    {
-        _model.IsAfterLearningEnded = true;
-    }
-
     public bool AreSame(InstalmentModel? compare)
     {
         if (compare == null)
@@ -62,7 +55,6 @@ public class Instalment : IDomainEntity<InstalmentModel>
         return AcademicYear == compare.AcademicYear &&
                DeliveryPeriod == compare.DeliveryPeriod &&
                Amount == compare.Amount &&
-               EpisodePriceKey == compare.EpisodePriceKey &&
-               IsAfterLearningEnded == compare.IsAfterLearningEnded;
+               EpisodePriceKey == compare.EpisodePriceKey;
     }
 }

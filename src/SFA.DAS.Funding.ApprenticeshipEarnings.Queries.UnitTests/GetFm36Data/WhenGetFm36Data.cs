@@ -90,10 +90,10 @@ public class WhenGetFm36Data
             episodeResult.Key.Should().Be(currentEpisode.ApprenticeshipEpisodeKey);
             episodeResult.CompletionPayment.Should().Be(currentEpisode.EarningsProfile.CompletionPayment);
             episodeResult.OnProgramTotal.Should().Be(currentEpisode.EarningsProfile.OnProgramTotal);
-            episodeResult.Instalments.Should().HaveCount(currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded));
-            episodeResult.AdditionalPayments.Should().HaveCount(currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded));
+            episodeResult.Instalments.Should().HaveCount(currentEpisode.EarningsProfile.Instalments.Count);
+            episodeResult.AdditionalPayments.Should().HaveCount(currentEpisode.EarningsProfile.AdditionalPayments.Count);
 
-            foreach (var expectedInstalment in currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded))
+            foreach (var expectedInstalment in currentEpisode.EarningsProfile.Instalments)
             {
                 var domainInstalment = episodeResult.Instalments.Single(x =>
                     x.AcademicYear == expectedInstalment.AcademicYear &&
@@ -101,7 +101,7 @@ public class WhenGetFm36Data
                     x.Amount == expectedInstalment.Amount);
             }
 
-            foreach (var expectedAdditionalPayment in currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded))
+            foreach (var expectedAdditionalPayment in currentEpisode.EarningsProfile.AdditionalPayments)
             {
                 var additionalPayment = episodeResult.AdditionalPayments.Single(x =>
                     x.AcademicYear == expectedAdditionalPayment.AcademicYear &&
