@@ -207,9 +207,10 @@ public class EarningsProfile : AggregateComponent
 
         // --- 4. Remove courses that no longer exist ---
         var updatedCourseKeys = updatedCourses
-            .Select(c => c.Course)
+            .Select(c => (c.LearnAimRef, c.StartDate))
             .ToHashSet();
 
-        Model.MathsAndEnglishCourses.RemoveAll(c => !updatedCourseKeys.Contains(c.Course));
+        Model.MathsAndEnglishCourses.RemoveAll(c =>
+            !updatedCourseKeys.Contains((c.LearnAimRef, c.StartDate)));
     }
 }
