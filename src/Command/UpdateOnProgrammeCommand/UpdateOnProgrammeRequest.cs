@@ -13,15 +13,24 @@ public class UpdateOnProgrammeRequest
     public int? FundingBandMaximum { get; set; }
     public bool IncludesFundingBandMaximumUpdate { get; set; }
     public List<LearningEpisodePrice> Prices { get; set; } = [];
-    public List<BreakInLearningItem> BreaksInLearning { get; set; } = [];
+
+    //public List<BreakInLearningItem> BreaksInLearning { get; set; } = []; // removed
+    public List<PeriodInLearningItem> PeriodsInLearning { get; set; } = []; // new
     public Care Care { get; set; }
 }
 
-public class BreakInLearningItem
+//public class BreakInLearningItem // removed
+//{
+//    public DateTime StartDate { get; set; }
+//    public DateTime EndDate { get; set; }
+//    public DateTime PriorPeriodExpectedEndDate { get; set; }
+//}
+
+public class PeriodInLearningItem // new
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public DateTime PriorPeriodExpectedEndDate { get; set; }
+    public DateTime OriginalExpectedEndDate { get; set; }
 }
 
 public class Care
