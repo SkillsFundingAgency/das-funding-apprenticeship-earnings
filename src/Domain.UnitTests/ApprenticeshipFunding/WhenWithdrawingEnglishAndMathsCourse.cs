@@ -136,7 +136,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
 
     private List<MathsAndEnglish> CreateTestEnglishAndMathsCourses(DateTime? withdrawalDate = null)
     {
-        var mathsAndEnglishCourse = new MathsAndEnglish(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), _courseName, 1200m, withdrawalDate, null, null, null);
+        var mathsAndEnglishCourse = new MathsAndEnglish(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), _courseName, _courseName, 1200m, withdrawalDate, null, null, null);
         return new List<MathsAndEnglish> { mathsAndEnglishCourse };
     }
 }

@@ -89,6 +89,18 @@ public class UpdateOnProgrammeStepDefinitions
                 case nameof(UpdateOnProgrammeModel.WithdrawalDate):
                     model.WithdrawalDate.SetValue(item.ToNullableDateTime());
                     break;
+
+                case nameof(UpdateOnProgrammeModel.HasEHCP):
+                    model.HasEHCP.SetValue(item.ToBool());
+                    break;
+
+                case nameof(UpdateOnProgrammeModel.IsCareLeaver):
+                    model.IsCareLeaver.SetValue(item.ToBool());
+                    break;
+
+                case nameof(UpdateOnProgrammeModel.CareLeaverEmployerConsentGiven):
+                    model.CareLeaverEmployerConsentGiven.SetValue(item.ToBool());
+                    break;
             }
         }
 

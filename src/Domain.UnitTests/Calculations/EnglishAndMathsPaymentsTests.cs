@@ -164,15 +164,18 @@ public class EnglishAndMathsPaymentsTests
 
     private MathsAndEnglish CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? actualEndDate = null)
     {
-        var model = new MathsAndEnglishModel(
-            Guid.NewGuid(),
-            courseCode,
-            startDate,
-            endDate,
-            amount,
-            withdrawalDate,
-            actualEndDate,
-            priorLearningAdjustmentPercentage);
+        var model = new MathsAndEnglishModel
+        {
+            Key = Guid.NewGuid(),
+            Course = courseCode,
+            LearnAimRef = courseCode,
+            StartDate = startDate,
+            EndDate = endDate,
+            Amount = amount,
+            WithdrawalDate = withdrawalDate,
+            ActualEndDate = actualEndDate,
+            PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage
+        };
 
         return MathsAndEnglish.Get(model);
     }

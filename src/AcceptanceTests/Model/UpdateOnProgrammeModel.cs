@@ -22,4 +22,9 @@ public class UpdateOnProgrammeModel
 
     // Withdrawal
     public TrackedValue<DateTime?> WithdrawalDate { get; set; } = new TrackedValue<DateTime?>(null);
+
+    // Care Details
+    public TrackedValue<bool> HasEHCP { get; set; } = new TrackedValue<bool>(false);
+    public TrackedValue<bool> IsCareLeaver { get; set; } = new TrackedValue<bool>(false);
+    public TrackedValue<bool> CareLeaverEmployerConsentGiven { get; set; } = new TrackedValue<bool>(false);
 }

@@ -47,9 +47,11 @@ Scenario: 19-24 Incentive Payments Generation - Provider and employer payments
 	| StartDate  | EndDate    | Price |
 	| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
-	And care details are saved with
-	| CareLeaverEmployerConsentGiven       | IsCareLeaver     | HasEHCP    |
-	| <care_leaver_employer_consent_given> | <is_care_leaver> | <has_ehcp> |
+	And the following on-programme request is sent
+	| Key                            | Value                                |
+	| CareLeaverEmployerConsentGiven | <care_leaver_employer_consent_given> |
+	| IsCareLeaver                   | <is_care_leaver>                     |
+	| HasEHCP                        | <has_ehcp>                           |
 	Then Additional Payments are persisted as follows
 	| Type              | Amount | DueDate    |
 	| ProviderIncentive | 500    | 2020-10-29 |
@@ -74,9 +76,11 @@ Scenario: 19-24 Incentive Payments Generation - Only provider payments
 	| StartDate  | EndDate    | Price | Age |
 	| 2020-08-01 | 2024-07-31 | 15000 | 20  |
 	When earnings are calculated
-	And care details are saved with
-	| CareLeaverEmployerConsentGiven       | IsCareLeaver     | HasEHCP    |
-	| <care_leaver_employer_consent_given> | <is_care_leaver> | <has_ehcp> |
+	And the following on-programme request is sent
+	| Key                            | Value                                |
+	| CareLeaverEmployerConsentGiven | <care_leaver_employer_consent_given> |
+	| IsCareLeaver                   | <is_care_leaver>                     |
+	| HasEHCP                        | <has_ehcp>                           |
 	Then Additional Payments are persisted as follows
 	| Type              | Amount | DueDate    |
 	| ProviderIncentive | 500    | 2020-10-29 |
@@ -98,9 +102,11 @@ Scenario: 19-24 Incentive Payments Generation - Is not eligible for incentive
 	| StartDate  | EndDate    | Price |
 	| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
-	And care details are saved with
-	| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
-	| false                          | false        | false   |
+	And the following on-programme request is sent
+	| Key                            | Value |
+	| CareLeaverEmployerConsentGiven | false |
+	| IsCareLeaver                   | false |
+	| HasEHCP                        | false |
 	Then no Additional Payments are persisted
 	And Earnings are not recalculated for that apprenticeship
 
@@ -112,10 +118,14 @@ Scenario: Incentives are recalculated twice and history is created without keys 
 	| StartDate  | EndDate    | Price |
 	| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
-	And care details are saved with
-	| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
-	| false                          | true         | false   |
-	And care details are saved with
-	| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
-	| false                          | false        | false   |
+	And the following on-programme request is sent
+	| Key                            | Value |
+	| CareLeaverEmployerConsentGiven | false |
+	| IsCareLeaver                   | true  |
+	| HasEHCP                        | false |
+	And the following on-programme request is sent
+	| Key                            | Value |
+	| CareLeaverEmployerConsentGiven | false |
+	| IsCareLeaver                   | false |
+	| HasEHCP                        | false |
 	Then there are 3 records in earning profile history

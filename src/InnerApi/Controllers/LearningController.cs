@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -19,27 +18,6 @@ public class LearningController: ControllerBase
     {
         _logger = logger;
         _commandDispatcher = commandDispatcher;
-    }
-
-    [Route("{learningKey}/careDetails")]
-    [HttpPatch]
-    public async Task<IActionResult> SaveCareDetails(Guid learningKey, SaveCareDetailsRequest saveCareDetailsRequest)
-    {
-        _logger.LogInformation("Received request to save care details for apprenticeship {learningKey}", learningKey);
-
-        try
-        {
-            var command = new SaveCareDetailsCommand(learningKey, saveCareDetailsRequest);
-            await _commandDispatcher.Send(command);
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Error saving care details for apprenticeship {learningKey}", learningKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully saved care details for apprenticeship {learningKey}", learningKey);
-        return Ok();
     }
 
     [Route("{learningKey}/learning-support")]

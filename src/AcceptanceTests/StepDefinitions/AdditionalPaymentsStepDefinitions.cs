@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -33,14 +32,6 @@ public class AdditionalPaymentsStepDefinitions
             LearningSupport = learningSupportItems
         };
         await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learning-support", request);
-    }
-
-    [When(@"care details are saved with")]
-    [Given(@"care details are saved with")]
-    public async Task SaveCareDetails(Table table)
-    {
-        var request = table.CreateSet<SaveCareDetailsRequest>().Single();
-        await _testContext.TestInnerApi.Patch($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/careDetails", request);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]

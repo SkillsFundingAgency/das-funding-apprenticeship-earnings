@@ -47,6 +47,11 @@ public static class KeyValueModelExtensions
         return list;
     }
 
+    public static bool ToBool(this KeyValueModel model)
+    {
+        return bool.Parse(model.Value);
+    }
+
 
     public static T Parse<T>(string input) where T : new()
     {
