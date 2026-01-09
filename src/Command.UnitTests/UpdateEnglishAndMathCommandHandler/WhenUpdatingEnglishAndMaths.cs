@@ -74,7 +74,8 @@ public class WhenUpdatingEnglishAndMaths
                 new()
                 {
                     Amount = 1500m,
-                    Course = "Maths Level 2",
+                    Course = "Standard Code",
+                    LearnAimRef = "Maths Level 2",
                     StartDate = new DateTime(2024, 01, 01),
                     EndDate = new DateTime(2024, 12, 31)
                 }
