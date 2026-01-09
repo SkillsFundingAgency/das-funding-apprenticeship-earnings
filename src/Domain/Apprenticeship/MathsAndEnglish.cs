@@ -14,6 +14,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public DateTime StartDate => _model.StartDate;
     public DateTime EndDate => _model.EndDate;
     public string Course => _model.Course;
+    public string LearnAimRef => _model.LearnAimRef;
     public decimal Amount => _model.Amount;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? ActualEndDate => _model.ActualEndDate;
@@ -28,13 +29,14 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, DateTime? pauseDate, int? priorLearningAdjustmentPercentage)
+    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, string learnAimRef, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, DateTime? pauseDate, int? priorLearningAdjustmentPercentage)
     {
         _model = new MathsAndEnglishModel();
         _model.Key = Guid.NewGuid();
         _model.StartDate = startDate;
         _model.EndDate = endDate;
         _model.Course = course;
+        _model.LearnAimRef = learnAimRef;
         _model.Amount = amount;
         _model.WithdrawalDate = withdrawalDate;
         _model.ActualEndDate = actualEndDate;
@@ -63,6 +65,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         return StartDate == compare.StartDate &&
                EndDate == compare.EndDate &&
                Course == compare.Course &&
+               LearnAimRef == compare.LearnAimRef &&
                Amount == compare.Amount &&
                WithdrawalDate == compare.WithdrawalDate &&
                ActualEndDate == compare.ActualEndDate &&

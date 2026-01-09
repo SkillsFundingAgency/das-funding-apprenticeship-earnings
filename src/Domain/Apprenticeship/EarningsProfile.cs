@@ -155,7 +155,8 @@ public class EarningsProfile : AggregateComponent
         foreach (var updatedCourse in updatedCourses)
         {
             var existingCourse = Model.MathsAndEnglishCourses
-                .FirstOrDefault(c => c.Course == updatedCourse.Course);
+                .FirstOrDefault(c => c.StartDate == updatedCourse.StartDate
+                                      && c.LearnAimRef == updatedCourse.LearnAimRef);
 
             if (existingCourse == null)
             {
@@ -206,9 +207,10 @@ public class EarningsProfile : AggregateComponent
 
         // --- 4. Remove courses that no longer exist ---
         var updatedCourseKeys = updatedCourses
-            .Select(c => c.Course)
+            .Select(c => (c.LearnAimRef, c.StartDate))
             .ToHashSet();
 
-        Model.MathsAndEnglishCourses.RemoveAll(c => !updatedCourseKeys.Contains(c.Course));
+        Model.MathsAndEnglishCourses.RemoveAll(c =>
+            !updatedCourseKeys.Contains((c.LearnAimRef, c.StartDate)));
     }
 }
