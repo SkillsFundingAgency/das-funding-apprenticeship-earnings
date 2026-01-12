@@ -21,6 +21,7 @@ public class RemoveLearnerCommandHandler : ICommandHandler<RemoveLearnerCommand>
         var episode = apprenticeshipDomainModel.GetCurrentEpisode(_systemClock);
         var startDate = episode.Prices.Min(x => x.StartDate);
         episode.UpdateWithdrawalDate(startDate, _systemClock);
+        episode.UpdateEnglishAndMaths([], _systemClock);
         apprenticeshipDomainModel.Calculate(_systemClock);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
