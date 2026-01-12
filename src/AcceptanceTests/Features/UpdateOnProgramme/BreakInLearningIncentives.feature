@@ -28,12 +28,12 @@ Scenario: Incentive Payments 19-24 are pushed back due to Break in Learning
 		| StartDate  | EndDate    | Price |
 		| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
-	And care details are saved with
-		| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
-		| true                           | true         | true    |
 	And the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| BreaksInLearning | StartDate:2020-09-01, EndDate:2020-09-07, PriorPeriodExpectedEndDate: 2024-07-31 |
+		| Key                            | Value                                                                            |
+		| BreaksInLearning               | StartDate:2020-09-01, EndDate:2020-09-07, PriorPeriodExpectedEndDate: 2024-07-31 |
+		| CareLeaverEmployerConsentGiven | true                                                                             |
+		| IsCareLeaver                   | true                                                                             |
+		| HasEHCP                        | true                                                                             |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    |
 		| ProviderIncentive | 500    | 2020-11-05 |

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SaveCareDetailsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;

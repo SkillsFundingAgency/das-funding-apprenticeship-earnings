@@ -27,9 +27,11 @@ Scenario: Learning support payments are not lost on a recalculation
 	And the following learning support payment information is provided
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2020-10-31 |
-	And care details are saved with
-		| CareLeaverEmployerConsentGiven | IsCareLeaver | HasEHCP |
-		| true                           | true         | true    |
+	And the following on-programme request is sent
+		| Key                               | Value |
+		| CareLeaverEmployerConsentGiven    | true  |
+		| IsCareLeaver                      | true  |
+		| HasEHCP                           | true  |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    |
 		| LearningSupport   | 150    | 2020-8-31  |

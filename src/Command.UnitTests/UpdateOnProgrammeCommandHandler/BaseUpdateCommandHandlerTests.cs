@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
@@ -44,7 +45,13 @@ public abstract class BaseUpdateCommandHandlerTests
             WithdrawalDate = episode.WithdrawalDate,
             PauseDate = episode.PauseDate,
             DateOfBirth = apprenticeship.DateOfBirth,
-            Prices = GetPrices(episode)
+            Prices = GetPrices(episode),
+            Care = new Care
+            {
+                CareLeaverEmployerConsentGiven = apprenticeship.CareLeaverEmployerConsentGiven,
+                HasEHCP = apprenticeship.HasEHCP,
+                IsCareLeaver = apprenticeship.IsCareLeaver
+            }
         };
 
         if (fundingBand > 0)

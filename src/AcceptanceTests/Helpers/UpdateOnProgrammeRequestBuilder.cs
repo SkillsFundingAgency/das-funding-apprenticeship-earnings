@@ -1,7 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Learning.Types;
-using System;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
@@ -24,6 +23,9 @@ public class UpdateOnProgrammeRequestBuilder
     private List<BreakInLearningItem> _breaksInLearning = new List<BreakInLearningItem>();
     private DateTime? _completionDate = null;
     private DateTime? _withdrawalDate = null;
+    private bool _hasEHCP = false;
+    private bool _isCareLeaver = false;
+    private bool _careLeaverEmployerConsentGiven = false;
 
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
@@ -51,6 +53,9 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.BreaksInLearning.HasChanged) _breaksInLearning = model.BreaksInLearning.Value;
         if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
         if (model.WithdrawalDate.HasChanged) _withdrawalDate = model.WithdrawalDate.Value;
+        if (model.HasEHCP.HasChanged) _hasEHCP = model.HasEHCP.Value;
+        if (model.IsCareLeaver.HasChanged) _isCareLeaver = model.IsCareLeaver.Value;
+        if (model.CareLeaverEmployerConsentGiven.HasChanged) _careLeaverEmployerConsentGiven = model.CareLeaverEmployerConsentGiven.Value;
         return this;
     }
 
@@ -103,7 +108,13 @@ public class UpdateOnProgrammeRequestBuilder
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
             IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate,
-            BreaksInLearning = _breaksInLearning
+            BreaksInLearning = _breaksInLearning,
+            Care = new Care
+            {
+                CareLeaverEmployerConsentGiven = _careLeaverEmployerConsentGiven,
+                HasEHCP = _hasEHCP,
+                IsCareLeaver = _isCareLeaver
+            }
         };
     }
 }
