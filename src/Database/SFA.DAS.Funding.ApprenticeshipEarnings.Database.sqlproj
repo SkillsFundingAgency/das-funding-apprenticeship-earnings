@@ -75,6 +75,7 @@
     <Build Include="Schemas\History.sql" />
     <Build Include="Tables\MathsAndEnglishInstalment.sql" />
     <Build Include="Tables\EpisodeBreakInLearning.sql" />
+    <Build Include="Tables\EpisodePeriodInLearning.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.refactorlog" />

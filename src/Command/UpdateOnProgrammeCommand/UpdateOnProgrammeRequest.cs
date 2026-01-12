@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -42,10 +43,10 @@ public class Care
 
 public static class UpdateOnProgrammeRequestExtensions
 {
-    public static List<EpisodeBreakInLearning> ToEpisodeBreaksInLearning(this UpdateOnProgrammeRequest request)
+    public static List<EpisodePeriodInLearning> ToEpisodePeriodsInLearning(this UpdateOnProgrammeRequest request)
     {
-        return request.BreaksInLearning
-            .Select(b => new EpisodeBreakInLearning(request.ApprenticeshipEpisodeKey, b.StartDate, b.EndDate, b.PriorPeriodExpectedEndDate))
-            .ToList(); 
+        return request.PeriodsInLearning
+            .Select(b => new EpisodePeriodInLearning(request.ApprenticeshipEpisodeKey, b.StartDate, b.EndDate, b.OriginalExpectedEndDate))
+            .ToList();
     }
 }

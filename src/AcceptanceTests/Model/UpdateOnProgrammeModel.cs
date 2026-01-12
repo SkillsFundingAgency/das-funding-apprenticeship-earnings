@@ -15,7 +15,7 @@ public class UpdateOnProgrammeModel
 
     // Pausing and Breaks
     public TrackedValue<DateTime?> PauseDate { get; set; } = new TrackedValue<DateTime?>(null);
-    public TrackedValue<List<BreakInLearningItem>> BreaksInLearning { get; set; } = new TrackedValue<List<BreakInLearningItem>>(new List<BreakInLearningItem>());
+    public TrackedValue<List<PeriodInLearningItem>> PeriodsInLearning { get; set; } = new TrackedValue<List<PeriodInLearningItem>>(new List<PeriodInLearningItem>());
 
     // Completion
     public TrackedValue<DateTime?> CompletionDate { get; set; } = new TrackedValue<DateTime?>(null);

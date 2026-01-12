@@ -6,8 +6,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class IncentivePayments
 {
-    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, List<EpisodeBreakInLearning> breaksInLearning)
+    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, List<EpisodePeriodInLearning> periodsInLearning)
     {
+        //todo this class needs to handle PIL instead of BIL
         var incentivePayments = new List<IncentivePayment>();
         incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, breaksInLearning));
         incentivePayments.AddRange(Generate19To24IncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, hasEHCP, isCareLeaver, careLeaverEmployerConsentGiven, breaksInLearning));

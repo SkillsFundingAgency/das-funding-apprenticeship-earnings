@@ -78,8 +78,8 @@ public class UpdateOnProgrammeStepDefinitions
                     model.PauseDate.SetValue(item.ToNullableDateTime());
                     break;
 
-                case nameof(UpdateOnProgrammeModel.BreaksInLearning):
-                    model.BreaksInLearning.SetValue(item.ToList<BreakInLearningItem>());
+                case nameof(UpdateOnProgrammeModel.PeriodsInLearning):
+                    model.PeriodsInLearning.SetValue(item.ToList<PeriodInLearningItem>());
                     break;
 
                 case nameof(UpdateOnProgrammeModel.CompletionDate):

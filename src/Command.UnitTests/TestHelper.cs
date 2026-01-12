@@ -1,11 +1,6 @@
 ﻿using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests;
 
@@ -21,7 +16,7 @@ internal static class TestHelper
     {
         var episodeModel = fixture
             .Build<EpisodeModel>()
-            .With(x => x.BreaksInLearning, new List<EpisodeBreakInLearningModel>())
+            .With(x => x.PeriodsInLearning, new List<EpisodePeriodInLearningModel>())
             .With(x=> x.FundingBandMaximum, int.MaxValue)
             .With(x => x.Prices, new List<EpisodePriceModel>{ fixture.Build<EpisodePriceModel>()
                 .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-10))

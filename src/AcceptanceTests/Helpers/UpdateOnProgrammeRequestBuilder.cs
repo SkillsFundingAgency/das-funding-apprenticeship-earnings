@@ -20,7 +20,7 @@ public class UpdateOnProgrammeRequestBuilder
     private bool _hasPriceChanged = false;
     private bool _hasStartDateChanged = false;
     private List<LearningEpisodePrice>? _existingPrices;
-    private List<BreakInLearningItem> _breaksInLearning = new List<BreakInLearningItem>();
+    private List<PeriodInLearningItem> _periodsInLearning = new List<PeriodInLearningItem>();
     private DateTime? _completionDate = null;
     private DateTime? _withdrawalDate = null;
     private bool _hasEHCP = false;
@@ -50,7 +50,7 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.PriceEndDate.HasChanged) _priceEndDate = model.PriceEndDate.Value;
         if (model.DateOfBirth.HasChanged) _dateOfBirth = model.DateOfBirth.Value.Value;
         if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
-        if (model.BreaksInLearning.HasChanged) _breaksInLearning = model.BreaksInLearning.Value;
+        if (model.PeriodsInLearning.HasChanged) _periodsInLearning = model.PeriodsInLearning.Value;
         if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
         if (model.WithdrawalDate.HasChanged) _withdrawalDate = model.WithdrawalDate.Value;
         if (model.HasEHCP.HasChanged) _hasEHCP = model.HasEHCP.Value;
@@ -108,7 +108,7 @@ public class UpdateOnProgrammeRequestBuilder
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,
             IncludesFundingBandMaximumUpdate = requiresFundingBandMaximumUpdate,
-            BreaksInLearning = _breaksInLearning,
+            PeriodsInLearning = _periodsInLearning,
             Care = new Care
             {
                 CareLeaverEmployerConsentGiven = _careLeaverEmployerConsentGiven,
