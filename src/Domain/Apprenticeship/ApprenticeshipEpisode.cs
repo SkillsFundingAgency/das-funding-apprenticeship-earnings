@@ -55,7 +55,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     public DateTime? PauseDate => _model.PauseDate;
     public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
-    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning()); //todo don't need this but some of the linked code (extensions) will be useful
+    public List<(EpisodePeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => this.GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -218,7 +218,7 @@ public class ApprenticeshipEpisode : AggregateComponent
     // any external factors (e.g. a break in between periods of learning, these will be applied later)
     private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearningWithMatchedPrices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
 
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
@@ -236,6 +236,31 @@ public class ApprenticeshipEpisode : AggregateComponent
         var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
 
         return (instalments, additionalPayments, onProgramTotal, completionPayment);
+    }
+
+    private (EpisodePeriodInLearning, List<PriceInPeriod>) GetPricesForPeriod(EpisodePeriodInLearning periodInLearning, List<Price> allPrices)
+    {
+        // Select prices that overlap with this period
+        var pricesInPeriod = allPrices
+            .Where(p => p.StartDate <= periodInLearning.EndDate && p.EndDate >= periodInLearning.StartDate);
+
+        // Clip prices to the boundaries of the period
+        var pricePeriods = pricesInPeriod
+            .Select(price =>
+            {
+                var startDate = price.StartDate < periodInLearning.StartDate
+                    ? periodInLearning.StartDate
+                    : price.StartDate;
+
+                var endDate = price.EndDate > periodInLearning.EndDate
+                    ? periodInLearning.EndDate
+                    : price.EndDate;
+
+                return new PriceInPeriod(price, startDate, endDate, periodInLearning.OriginalExpectedEndDate);
+            })
+            .ToList();
+
+        return (periodInLearning, pricePeriods);
     }
 
     internal void UpdateAgeAtStart(DateTime dateOfBirth)

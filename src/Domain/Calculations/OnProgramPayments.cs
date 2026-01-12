@@ -6,16 +6,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class OnProgramPayments
 {
-    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(IEnumerable<PeriodInLearning> periodsInLearning, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
+    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(List<(EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices)> periodsInLearningWithPrices, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
     {
         var onProgramPayments = new List<OnProgramPayment>();
         var runningTotal = 0m;
         completionPayment = 0;
         onProgramTotal = 0;
 
-        foreach (var periodInLearning in periodsInLearning.OrderBy(x => x.StartDate))
+        foreach (var periodInLearningWithPrices in periodsInLearningWithPrices.OrderBy(x => x.periodInLearning.StartDate))
         {
-            var paymentsForPeriod = GenerateForLearningPeriod(periodInLearning, runningTotal, fundingBandMaximum, out var periodOnProgramTotal, out var periodCompletionPayment);
+            var paymentsForPeriod = GenerateForLearningPeriod(periodInLearningWithPrices, runningTotal, fundingBandMaximum, out var periodOnProgramTotal, out var periodCompletionPayment);
             runningTotal += paymentsForPeriod.Sum(x=>x.Amount);
             completionPayment = periodCompletionPayment;
             onProgramTotal = periodOnProgramTotal;
@@ -55,14 +55,14 @@ public static class OnProgramPayments
         return instalments;
     }
 
-    private static List<OnProgramPayment> GenerateForLearningPeriod(PeriodInLearning periodInLearning, decimal paidInPreviousPeriods, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
+    private static List<OnProgramPayment> GenerateForLearningPeriod((EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices) periodInLearningWithPrices, decimal paidInPreviousPeriods, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
     {
         var onProgramPayments = new List<OnProgramPayment>();
         onProgramTotal = 0;
         completionPayment = 0;
 
-        var orderedPrices = periodInLearning.Prices.OrderBy(x => x.StartDate).ToList();
-        var apprenticeshipEndDate = periodInLearning.OriginalExpectedEndDate;
+        var orderedPrices = periodInLearningWithPrices.prices.OrderBy(x => x.StartDate).ToList();
+        var apprenticeshipEndDate = periodInLearningWithPrices.periodInLearning.OriginalExpectedEndDate;
         var runningTotal = paidInPreviousPeriods;
 
         foreach (var price in orderedPrices)

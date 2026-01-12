@@ -2,63 +2,46 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
-public class PeriodInLearning
-{
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public DateTime OriginalExpectedEndDate => Prices.Max(p => p.OriginalExpectedEndDate);
-    public List<PriceInPeriod> Prices { get; set; }
-}
+//todo this class superceeded by the new entity version of PeriodInLearning, PriceInPeriod kept in its own file as we use that when matching prices to a period
+//public class PeriodInLearning
+//{
+//    public DateTime StartDate { get; set; }
+//    public DateTime EndDate { get; set; }
+//    public DateTime OriginalExpectedEndDate => Prices.Max(p => p.OriginalExpectedEndDate);
+//    public List<PriceInPeriod> Prices { get; set; }
+//}
 
-public class PriceInPeriod
-{
-    public DateTime StartDate { get; private set; }
-    public DateTime EndDate { get; private set; }
-    public decimal AgreedPrice { get; private set; }
-    public Guid PriceKey { get; private set; }
-    public DateTime OriginalExpectedEndDate { get; set; }
+//public static class PeriodInLearningExtensions
+//{
 
-    public PriceInPeriod(Price price, DateTime periodStartDate, DateTime periodEndDate, DateTime originalExpectedEndDate)
-    {
-        StartDate = price.StartDate > periodStartDate ? price.StartDate : periodStartDate;
-        EndDate = price.EndDate < periodEndDate ? price.EndDate : periodEndDate;
-        AgreedPrice = price.AgreedPrice;
-        PriceKey = price.PriceKey;
-        OriginalExpectedEndDate = originalExpectedEndDate;
-    }
-}
+//    public static PeriodInLearning CreatePeriodFromPrice(this IEnumerable<Price> prices)
+//    {
+//        var startDate = prices.Min(p => p.StartDate);
+//        var endDate = prices.Max(p => p.EndDate);
 
-public static class PeriodInLearningExtensions
-{
+//        return CreatePeriodFromPrices(prices, startDate, endDate, endDate);
+//    }
 
-    public static PeriodInLearning CreatePeriodFromPrice(this IEnumerable<Price> prices)
-    {
-        var startDate = prices.Min(p => p.StartDate);
-        var endDate = prices.Max(p => p.EndDate);
+//    public static PeriodInLearning CreatePeriodFromPrices(this IEnumerable<Price> prices, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
+//    {
+//        if (prices == null || !prices.Any())
+//        {
+//            throw new ArgumentException("Prices list cannot be null or empty", nameof(prices));
+//        }
 
-        return CreatePeriodFromPrices(prices, startDate, endDate, endDate);
-    }
+//        var pricesInPeriod = prices
+//            .Select(p => new PriceInPeriod(p, startDate, endDate, p.EndDate))
+//            .OrderBy(p => p.StartDate)
+//            .ToList();
 
-    public static PeriodInLearning CreatePeriodFromPrices(this IEnumerable<Price> prices, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
-    {
-        if (prices == null || !prices.Any())
-        {
-            throw new ArgumentException("Prices list cannot be null or empty", nameof(prices));
-        }
+//        pricesInPeriod.Last().OriginalExpectedEndDate = originalExpectedEndDate;
 
-        var pricesInPeriod = prices
-            .Select(p => new PriceInPeriod(p, startDate, endDate, p.EndDate))
-            .OrderBy(p => p.StartDate)
-            .ToList();
+//        return new PeriodInLearning
+//        {
+//            StartDate = startDate,
+//            EndDate = endDate,
+//            Prices = pricesInPeriod
+//        };
 
-        pricesInPeriod.Last().OriginalExpectedEndDate = originalExpectedEndDate;
-
-        return new PeriodInLearning
-        {
-            StartDate = startDate,
-            EndDate = endDate,
-            Prices = pricesInPeriod
-        };
-
-    }
-}
+//    }
+//}
