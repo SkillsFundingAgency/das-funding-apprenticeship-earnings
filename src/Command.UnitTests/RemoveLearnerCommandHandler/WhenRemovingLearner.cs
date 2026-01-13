@@ -30,7 +30,7 @@ public class WhenRemovingLearner
 
         // Assert
         _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.Is<Apprenticeship>(a => a.ApprenticeshipKey == apprenticeship.ApprenticeshipKey)), Times.Once);
     }
 
 
