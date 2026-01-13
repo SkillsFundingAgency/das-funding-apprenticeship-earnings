@@ -38,7 +38,6 @@ public class AdditionalPayment
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
-    public bool IsAfterLearningEnded { get; set; }
 }
 
 public class Instalment
@@ -49,5 +48,4 @@ public class Instalment
     public short AcademicYear { get; set; }
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
-    public bool IsAfterLearningEnded { get; set; }
 }

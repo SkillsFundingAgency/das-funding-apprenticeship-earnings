@@ -15,7 +15,6 @@ public abstract class InstalmentModelBase
     [Precision(15, 5)]
     public decimal Amount { get; set; }
     public string Type { get; set; }
-    public bool IsAfterLearningEnded { get; set; }
 
     public InstalmentModelBase(InstalmentModelBase original, Guid earningsProfileId)
     {
@@ -25,7 +24,6 @@ public abstract class InstalmentModelBase
         DeliveryPeriod = original.DeliveryPeriod;
         AcademicYear = original.AcademicYear;
         Type = original.Type;
-        IsAfterLearningEnded = original.IsAfterLearningEnded;
     }
 
     public InstalmentModelBase() { }

@@ -47,7 +47,7 @@ public static class LearningEpisodeExtensions
 
         if (currentEpisode.EarningsProfile != null)
         {
-            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Select(instalment => new DeliveryPeriod
+            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.Instalments.Select(instalment => new DeliveryPeriod
             (
                 instalment.DeliveryPeriod.ToCalendarMonth(),
                 instalment.AcademicYear.ToCalendarYear(instalment.DeliveryPeriod),
@@ -58,7 +58,7 @@ public static class LearningEpisodeExtensions
                 InstalmentTypes.OnProgramme
             )));
 
-            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Select(additionalPayment => new DeliveryPeriod(
+            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.AdditionalPayments.Select(additionalPayment => new DeliveryPeriod(
                 additionalPayment.DeliveryPeriod.ToCalendarMonth(),
                 additionalPayment.AcademicYear.ToCalendarYear(additionalPayment.DeliveryPeriod),
                 additionalPayment.DeliveryPeriod,

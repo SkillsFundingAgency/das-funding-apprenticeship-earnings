@@ -69,8 +69,7 @@ public class AdditionalPaymentsStepDefinitions
             additionalPaymentsInDb.Should()
                 .Contain(x => x.Amount == expectedAdditionalPayment.Amount
                 && x.DueDate == expectedAdditionalPayment.DueDate
-                && x.AdditionalPaymentType == expectedAdditionalPayment.Type
-                && x.IsAfterLearningEnded == expectedAdditionalPayment.IsAfterLearningEnded);
+                && x.AdditionalPaymentType == expectedAdditionalPayment.Type);
         }
     }
 
@@ -81,7 +80,7 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
 
-        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().BeEmpty();
+        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
     }
 
     [Then("a first incentive payment is generated")]

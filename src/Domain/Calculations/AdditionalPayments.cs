@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 internal static class AdditionalPayments
 {
-    internal static List<AdditionalPayment> SoftDeleteAfterLastDayOfLearning(List<AdditionalPayment> additionalPayments, DateTime lastDayOfLearning)
+    internal static List<AdditionalPayment> RemoveAfterLastDayOfLearning(List<AdditionalPayment> additionalPayments, DateTime lastDayOfLearning)
     {
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
@@ -21,13 +21,7 @@ internal static class AdditionalPayments
             )
             .ToList();
 
-        foreach (var additionalPayment in additionalPayments)
-        {
-            if (!additionalPaymentsToKeep.Contains(additionalPayment))
-            {
-                additionalPayment.SoftDelete();
-            }
-        }
+        additionalPayments.RemoveAll(ap => !additionalPaymentsToKeep.Contains(ap));
 
         return additionalPayments;
     }
