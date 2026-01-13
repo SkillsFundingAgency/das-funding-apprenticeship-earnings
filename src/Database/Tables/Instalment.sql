@@ -6,8 +6,7 @@
     [DeliveryPeriod] TINYINT NOT NULL,
     [Amount] DECIMAL(15,5) NOT NULL, 
     [EpisodePriceKey] UNIQUEIDENTIFIER NULL, 
-    [Type] NVARCHAR(50) NULL,
-    [IsAfterLearningEnded] BIT NOT NULL DEFAULT 0
+    [Type] NVARCHAR(50) NULL
 )
 GO
 ALTER TABLE Domain.[Instalment]
