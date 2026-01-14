@@ -10,12 +10,12 @@ public static class IncentivePayments
     {
         //todo this class needs to handle PIL instead of BIL
         var incentivePayments = new List<IncentivePayment>();
-        incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, breaksInLearning));
-        incentivePayments.AddRange(Generate19To24IncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, hasEHCP, isCareLeaver, careLeaverEmployerConsentGiven, breaksInLearning));
+        incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, periodsInLearning));
+        incentivePayments.AddRange(Generate19To24IncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, hasEHCP, isCareLeaver, careLeaverEmployerConsentGiven, periodsInLearning));
         return incentivePayments;
     }
 
-    public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, List<EpisodeBreakInLearning> breaksInLearning)
+    public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, List<EpisodePeriodInLearning> periodsInLearning)
     {
         var incentivePayments = new List<IncentivePayment>();
 
@@ -24,16 +24,16 @@ public static class IncentivePayments
             return incentivePayments;
         }
 
-        if(IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 89, breaksInLearning))
+        if(IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 89, periodsInLearning))
         {
-            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 89, breaksInLearning);
+            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 89, periodsInLearning);
             incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
             incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.EmployerIncentive);
         }
 
-        if(IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 364, breaksInLearning))
+        if(IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 364, periodsInLearning))
         {
-            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 364, breaksInLearning);
+            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 364, periodsInLearning);
             incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
             incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.EmployerIncentive);
         }
@@ -47,7 +47,7 @@ public static class IncentivePayments
         bool hasEHCP,
         bool isCareLeaver,
         bool careLeaverEmployerConsentGiven,
-        List<EpisodeBreakInLearning> breaksInLearning)
+        List<EpisodePeriodInLearning> periodsInLearning)
     {
         var incentivePayments = new List<IncentivePayment>();
 
@@ -59,9 +59,9 @@ public static class IncentivePayments
         if (!hasEHCP && !isCareLeaver)
             return incentivePayments;
 
-        if (IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 89, breaksInLearning))
+        if (IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 89, periodsInLearning))
         {
-            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 89, breaksInLearning);
+            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 89, periodsInLearning);
             incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
 
             if ((careLeaverEmployerConsentGiven && isCareLeaver) || hasEHCP)
@@ -70,9 +70,9 @@ public static class IncentivePayments
             }
         }
 
-        if (IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 364, breaksInLearning))
+        if (IsEligibleForIncentive(apprenticeshipStartDate, apprenticeshipEndDate, 364, periodsInLearning))
         {
-            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 364, breaksInLearning);
+            var incentiveDate = AdjustForBreaks(apprenticeshipStartDate, 364, periodsInLearning);
             incentivePayments.AddIncentivePayment(incentiveDate, AdditionalPaymentAmounts.Incentive, InstalmentTypes.ProviderIncentive);
 
             if ((careLeaverEmployerConsentGiven && isCareLeaver) || hasEHCP)
@@ -84,9 +84,9 @@ public static class IncentivePayments
         return incentivePayments;
     }
 
-    private static bool IsEligibleForIncentive(DateTime startDate, DateTime endDate, int milestoneDays, List<EpisodeBreakInLearning> breaks)
+    private static bool IsEligibleForIncentive(DateTime startDate, DateTime endDate, int milestoneDays, List<EpisodePeriodInLearning> periodsInLearning)
     {
-        var adjustedDate = AdjustForBreaks(startDate, milestoneDays, breaks);
+        var adjustedDate = AdjustForBreaks(startDate, milestoneDays, periodsInLearning);
         return adjustedDate <= endDate;
     }
 
@@ -102,26 +102,25 @@ public static class IncentivePayments
         });
     }
 
-    private static DateTime AdjustForBreaks(DateTime startDate, int milestoneDays, List<EpisodeBreakInLearning> breaksInLearning)
+    private static DateTime AdjustForBreaks(DateTime startDate, int milestoneDays, List<EpisodePeriodInLearning> periodsInLearning)
     {
         var incentiveDate = startDate.AddDays(milestoneDays);
-        if (breaksInLearning == null || breaksInLearning.Count == 0)
-            return incentiveDate;
 
-        foreach (var b in breaksInLearning.OrderBy(x => x.StartDate))
+        var orderedPeriods = periodsInLearning
+            .OrderBy(x => x.StartDate)
+            .ToList();
+
+        for (var i = 0; i < orderedPeriods.Count; i++)
         {
-            // Case 1: break ended before incentive date - extend by its duration
-            if (b.EndDate < incentiveDate)
-            {
-                incentiveDate = incentiveDate.AddDays(b.Duration);
-                continue;
-            }
+            var periodInLearning = orderedPeriods[i];
 
-            // Case 2: incentive date falls inside the break - extend by full break duration
-            if (incentiveDate >= b.StartDate && incentiveDate <= b.EndDate)
-            {
-                incentiveDate = incentiveDate.AddDays(b.Duration);
-            }
+            // Case 1: break started before incentive date, with a return recorded
+            if (periodInLearning.EndDate < incentiveDate && i + 1 < orderedPeriods.Count)
+                incentiveDate = incentiveDate.AddDays(periodInLearning.GetBreakDurationUntilNextPeriod(orderedPeriods[i + 1]));
+
+            // Case 2: break started before incentive date, with no return recorded
+            if (periodInLearning.EndDate < incentiveDate && i + 1 >= orderedPeriods.Count)
+                incentiveDate = incentiveDate.AddDays((periodInLearning.OriginalExpectedEndDate - periodInLearning.EndDate).Days - 1);
 
             // Case 3: break starts after the current incentive date - no effect
         }

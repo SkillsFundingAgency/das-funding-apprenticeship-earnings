@@ -134,14 +134,23 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate);
-            
+            //var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate);
+
+            var periodsInLearning = new List<EpisodePeriodInLearning>
+            {
+                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                // Break from day 30 to day 70 of duration 41 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
+            };
+
+            var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1;
+
             // Act
-            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(17, startDate, endDate, [breakInLearning]);
+            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(17, startDate, endDate, periodsInLearning);
 
             // Assert
-            var expected90DayIncentiveDate = startDate.AddDays(89 + breakInLearning.Duration);
-            var expected365DayIncentiveDate = startDate.AddDays(364 + breakInLearning.Duration);
+            var expected90DayIncentiveDate = startDate.AddDays(89 + breakDuration);
+            var expected365DayIncentiveDate = startDate.AddDays(364 + breakDuration);
 
             var expectedPayments = new[]
             {
@@ -164,13 +173,21 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
 
             TestContext.WriteLine($"Start Date: {startDate}");
 
-            var break1 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate); // duration 41
-            var break2 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(120), startDate.AddDays(150), endDate); // duration 31
-
-            var breaks = new List<EpisodeBreakInLearning> { break1, break2 };
+            var periodsInLearning = new List<EpisodePeriodInLearning>
+            {
+                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                // Break from day 30 to day 70 of duration 41 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), startDate.AddDays(119), endDate),
+                // Break from day 120 to day 150 of duration 31 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
+            };
 
             // Act
-            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(17, startDate, endDate, breaks);
+            var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(
+                17,
+                startDate,
+                endDate,
+                periodsInLearning);
 
             // Assert
 
@@ -201,16 +218,20 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddDays(100); // long enough for 90-day incentive normally
 
-            // Break runs from day 40 to day 90 (duration 51 days)
-            // This pushes the 90-day incentive to day 140, which is after endDate (day 100).
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(40), startDate.AddDays(90), endDate);
+            var periodsInLearning = new List<EpisodePeriodInLearning>
+            {
+                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(39), endDate),
+                // Break from day 40 to day 90 of duration 51 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(91), endDate, endDate)
+            };
 
             // Act
             var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(
-                ageAtStartOfLearning, startDate, endDate, new List<EpisodeBreakInLearning> { breakInLearning });
+                ageAtStartOfLearning, startDate, endDate, periodsInLearning);
 
             // Assert
-            result.Should().BeEmpty("because the break in learning pushes the 90-day incentive date beyond the apprenticeship end date");
+            result.Should().BeEmpty(
+                "because the break in learning pushes the 90-day incentive date beyond the apprenticeship end date");
         }
 
         [Test]
@@ -220,16 +241,28 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate);
+            var periodsInLearning = new List<EpisodePeriodInLearning>
+            {
+                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                // Break from day 30 to day 70 of duration 41 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
+            };
+
+            var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1;
 
             // Act
             var result = IncentivePaymentsCalculator.Generate19To24IncentivePayments(
-                20, startDate, endDate, hasEHCP: true, isCareLeaver: false, careLeaverEmployerConsentGiven: false,
-                new List<EpisodeBreakInLearning> { breakInLearning });
+                20,
+                startDate,
+                endDate,
+                hasEHCP: true,
+                isCareLeaver: false,
+                careLeaverEmployerConsentGiven: false,
+                periodsInLearning);
 
             // Assert
-            var expected90DayIncentiveDate = startDate.AddDays(89 + breakInLearning.Duration);
-            var expected365DayIncentiveDate = startDate.AddDays(364 + breakInLearning.Duration);
+            var expected90DayIncentiveDate = startDate.AddDays(89 + breakDuration);
+            var expected365DayIncentiveDate = startDate.AddDays(364 + breakDuration);
 
             var expectedPayments = new[]
             {
@@ -243,6 +276,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             result.Should().BeEquivalentTo(expectedPayments, opts => opts.Excluding(p => p.Amount));
         }
 
+
         [Test]
         public void Should_Adjust_Incentives_Dates_To_Account_For_Multiple_Breaks_In_Learning_For_19To24()
         {
@@ -250,18 +284,32 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var break1 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate); // duration 41
-            var break2 = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(120), startDate.AddDays(150), endDate); // duration 31
+            var periodsInLearning = new List<EpisodePeriodInLearning>
+            {
+                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                // Break from day 30 to day 70 of duration 41 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), startDate.AddDays(119), endDate),
+                // Break from day 120 to day 150 of duration 31 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
+            };
 
-            var breaks = new List<EpisodeBreakInLearning> { break1, break2 };
+            var break1Duration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1; // 41
+            var break2Duration = (periodsInLearning[2].StartDate - periodsInLearning[1].EndDate).Days - 1; // 31
+            var totalBreakDuration = break1Duration + break2Duration;
 
             // Act
             var result = IncentivePaymentsCalculator.Generate19To24IncentivePayments(
-                20, startDate, endDate, hasEHCP: true, isCareLeaver: false, careLeaverEmployerConsentGiven: false, breaks);
+                20,
+                startDate,
+                endDate,
+                hasEHCP: true,
+                isCareLeaver: false,
+                careLeaverEmployerConsentGiven: false,
+                periodsInLearning);
 
             // Assert
             var expected90DayIncentiveDate = startDate.AddDays(161); // pushed into break2, then carried forward
-            var expected365DayIncentiveDate = startDate.AddDays(436); // 364 + 41 + 31
+            var expected365DayIncentiveDate = startDate.AddDays(364 + totalBreakDuration); // 364 + 41 + 31
 
             var expectedPayments = new[]
             {
@@ -282,12 +330,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddDays(100);
 
-            var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(40), startDate.AddDays(90), endDate);
+            var periodsInLearning = new List<EpisodePeriodInLearning>
+            {
+                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(39), endDate),
+                // Break from day 40 to day 90 of duration 51 days
+                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(91), endDate, endDate)
+            };
 
             // Act
             var result = IncentivePaymentsCalculator.Generate19To24IncentivePayments(
-                20, startDate, endDate, hasEHCP: true, isCareLeaver: false, careLeaverEmployerConsentGiven: false,
-                new List<EpisodeBreakInLearning> { breakInLearning });
+                20,
+                startDate,
+                endDate,
+                hasEHCP: true,
+                isCareLeaver: false,
+                careLeaverEmployerConsentGiven: false,
+                periodsInLearning);
 
             // Assert
             result.Should().BeEmpty("because the break pushes the 90-day incentive beyond the apprenticeship end date");
