@@ -128,6 +128,11 @@ public class ApprenticeshipEpisode : AggregateComponent
             additionalPayments: existingAdditionalPayments);
     }
 
+    public void RemoveAdditionalEarnings(ISystemClockService systemClock)
+    {
+        _earningsProfile.Update(systemClock, additionalPayments: new List<AdditionalPayment>());
+    }
+
     /// <summary>
     /// Updates earnings for Maths and English courses to an apprenticeship.
     /// Overwrites any existing Maths and English courses' earnings.
