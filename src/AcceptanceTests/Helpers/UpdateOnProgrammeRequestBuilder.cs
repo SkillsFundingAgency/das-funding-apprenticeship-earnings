@@ -72,6 +72,11 @@ public class UpdateOnProgrammeRequestBuilder
 
         _existingPrices = apprenticeship.Episode.Prices;
         _dateOfBirth = apprenticeship.DateOfBirth;
+        _periodsInLearning =
+        [
+            new PeriodInLearningItem
+                { StartDate = _priceStartDate, EndDate = _priceEndDate, OriginalExpectedEndDate = _priceEndDate }
+        ];
 
         return this;
     }
