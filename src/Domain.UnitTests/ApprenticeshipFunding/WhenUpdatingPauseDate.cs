@@ -46,7 +46,7 @@ internal class WhenUpdatingPauseDate
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
+        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(2);
     }
 
     [Test]
@@ -61,7 +61,7 @@ internal class WhenUpdatingPauseDate
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
+        currentEpisode.EarningsProfile.AdditionalPayments.Count.Should().Be(2);
     }
 
     [Test]
@@ -76,7 +76,7 @@ internal class WhenUpdatingPauseDate
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+        currentEpisode.EarningsProfile.Instalments.Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
     }
@@ -93,7 +93,7 @@ internal class WhenUpdatingPauseDate
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+        currentEpisode.EarningsProfile.AdditionalPayments.Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
     }
@@ -135,8 +135,8 @@ internal class WhenUpdatingPauseDate
     public void AndSettingItBackToNullThenAllPaymentsAreRestored()
     {
         // Arrange
-        var numberOfInstalments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.Instalments.Count(x=> !x.IsAfterLearningEnded);
-        var numberOfAdditionalPayments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded);
+        var numberOfInstalments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.Instalments.Count;
+        var numberOfAdditionalPayments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.AdditionalPayments.Count;
         var lastDayOfLearning = new DateTime(2024, 3, 15);
         _episode.UpdatePause(lastDayOfLearning);
         _apprenticeship.Calculate(_mockSystemClock.Object);
@@ -146,8 +146,8 @@ internal class WhenUpdatingPauseDate
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(numberOfInstalments);
-        currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded).Should().Be(numberOfAdditionalPayments);
+        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(numberOfInstalments);
+        currentEpisode.EarningsProfile.AdditionalPayments.Count.Should().Be(numberOfAdditionalPayments);
     }
 
     [Test]

@@ -45,7 +45,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        currentEpisode.EarningsProfile.Instalments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
+        currentEpisode.EarningsProfile.Instalments.Count.Should().Be(2);
     }
 
     [Test]
@@ -60,7 +60,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        currentEpisode.EarningsProfile.AdditionalPayments.Count(x => !x.IsAfterLearningEnded).Should().Be(2);
+        currentEpisode.EarningsProfile.AdditionalPayments.Count.Should().Be(2);
     }
 
     [Test]
@@ -75,7 +75,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        currentEpisode.EarningsProfile.Instalments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+        currentEpisode.EarningsProfile.Instalments.Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
     }
@@ -92,7 +92,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         _apprenticeship.Calculate(_mockSystemClock.Object);
 
         // Assert
-        currentEpisode.EarningsProfile.AdditionalPayments.Where(x => !x.IsAfterLearningEnded).Should().OnlyContain(x =>
+        currentEpisode.EarningsProfile.AdditionalPayments.Should().OnlyContain(x =>
             x.AcademicYear < 2324 ||
             (x.AcademicYear == 2324 && x.DeliveryPeriod <= 7));
     }

@@ -11,14 +11,13 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
     public decimal Amount => _model.Amount;
     public string AdditionalPaymentType => _model.AdditionalPaymentType;
     public DateTime DueDate => _model.DueDate;
-    public bool IsAfterLearningEnded => _model.IsAfterLearningEnded;
 
     private AdditionalPayment(AdditionalPaymentModel model)
     {
         _model = model;
     }
 
-    public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType, bool isAfterLearningEnded = false)
+    public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType)
     {
         _model = new AdditionalPaymentModel
         {
@@ -27,8 +26,7 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
             Amount = amount,
             DeliveryPeriod = deliveryPeriod,
             DueDate = dueDate,
-            AdditionalPaymentType = incentiveType,
-            IsAfterLearningEnded = isAfterLearningEnded
+            AdditionalPaymentType = incentiveType
         };
     }
 
@@ -42,11 +40,6 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
         return new AdditionalPayment(model);
     }
 
-    internal void SoftDelete()
-    {
-        _model.IsAfterLearningEnded = true;
-    }
-
     public bool AreSame(AdditionalPaymentModel? compare)
     {
         if (compare == null)
@@ -56,7 +49,6 @@ public class AdditionalPayment : IDomainEntity<AdditionalPaymentModel>
                DeliveryPeriod == compare.DeliveryPeriod &&
                Amount == compare.Amount &&
                AdditionalPaymentType == compare.AdditionalPaymentType &&
-               DueDate == compare.DueDate &&
-               IsAfterLearningEnded == compare.IsAfterLearningEnded;
+               DueDate == compare.DueDate;
     }
 }

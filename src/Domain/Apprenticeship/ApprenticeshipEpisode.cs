@@ -76,8 +76,8 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         if(LastDayOfLearning.HasValue)
         {
-            instalments = OnProgramPayments.SoftDeleteAfterLastDayOfLearning(instalments, _prices, LastDayOfLearning.Value);
-            additionalPayments = AdditionalPayments.SoftDeleteAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
+            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, _prices, LastDayOfLearning.Value);
+            additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
         }
 
         if (_earningsProfile == null)

@@ -25,7 +25,7 @@ public static class OnProgramPayments
         return onProgramPayments;
     }
 
-    public static List<Instalment> SoftDeleteAfterLastDayOfLearning(List<Instalment> instalments, List<Price> prices, DateTime lastDayOfLearning)
+    public static List<Instalment> RemoveAfterLastDayOfLearning(List<Instalment> instalments, List<Price> prices, DateTime lastDayOfLearning)
     {
         List<Instalment> result;
 
@@ -51,14 +51,7 @@ public static class OnProgramPayments
                 .ToList();
         }
 
-        instalments.ForEach(i =>
-        {
-            if (!result.Contains(i))
-            {
-                i.SoftDelete();
-            }
-        });
-
+        instalments.RemoveAll(i => !result.Contains(i));
         return instalments;
     }
 
