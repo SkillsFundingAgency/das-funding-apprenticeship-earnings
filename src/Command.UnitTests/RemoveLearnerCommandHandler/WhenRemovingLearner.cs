@@ -60,4 +60,34 @@ public class WhenRemovingLearner
         _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
         updated.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.MathsAndEnglishCourses.Should().BeEmpty();
     }
+
+    [Test]
+    public async Task ThenAdditionalEarningsAreRemoved()
+    {
+        // Arrange
+        var additionalPayment = new AdditionalPayment(2425, 1, 1000, DateTime.UtcNow, "LearningSupport", false);
+
+        var apprenticeship = _fixture.BuildApprenticeship();
+        apprenticeship.AddAdditionalEarnings([additionalPayment], "LearningSupport", _mockSystemClock.Object);
+
+        var command = new RemoveLearnerCommand.RemoveLearnerCommand(apprenticeship.ApprenticeshipKey);
+        var handler = new RemoveLearnerCommand.RemoveLearnerCommandHandler(_mockRepository.Object, _mockSystemClock.Object);
+
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
+        _mockRepository.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
+
+        Apprenticeship updated = null!;
+
+        _mockRepository
+            .Setup(x => x.Update(It.IsAny<Apprenticeship>()))
+            .Callback<Apprenticeship>(a => updated = a);
+
+        // Act
+        await handler.Handle(command);
+
+        // Assert
+        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        updated.GetCurrentEpisode(_mockSystemClock.Object)
+            .EarningsProfile.AdditionalPayments.Should().BeEmpty();
+    }
 }
