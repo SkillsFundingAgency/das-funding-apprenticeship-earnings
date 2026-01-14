@@ -22,7 +22,11 @@ public class EpisodeModel
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;
         FundingBandMaximum = fundingBandMaximum;
-        Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
+
+        var episodePrice = new EpisodePriceModel(Key, learningEpisode.Prices.First());
+
+        Prices.Add(episodePrice);
+        PeriodsInLearning.Add(episodePrice.ToSinglePeriodInLearning());
     }
 
     [Dapper.Contrib.Extensions.Key]
