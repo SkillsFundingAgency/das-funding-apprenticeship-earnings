@@ -50,6 +50,12 @@ public class UpdateOnProgrammeStepDefinitions
         var data = table.CreateSet<KeyValueModel>().ToList();
         var model = new UpdateOnProgrammeModel();
 
+        var periodsInLearningData = data.Where(x => x.Key == nameof(UpdateOnProgrammeModel.PeriodsInLearning));
+        if (periodsInLearningData.Any())
+        {
+            model.PeriodsInLearning.SetValue(periodsInLearningData.Select(x => x.ToObject<PeriodInLearningItem>()).ToList());
+        }
+
         foreach (var item in data)
         {
             switch (item.Key)
@@ -76,10 +82,6 @@ public class UpdateOnProgrammeStepDefinitions
 
                 case nameof(UpdateOnProgrammeModel.PauseDate):
                     model.PauseDate.SetValue(item.ToNullableDateTime());
-                    break;
-
-                case nameof(UpdateOnProgrammeModel.PeriodsInLearning):
-                    model.PeriodsInLearning.SetValue(item.ToList<PeriodInLearningItem>());
                     break;
 
                 case nameof(UpdateOnProgrammeModel.CompletionDate):
