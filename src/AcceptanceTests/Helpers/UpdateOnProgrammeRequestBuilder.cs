@@ -50,7 +50,21 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.PriceEndDate.HasChanged) _priceEndDate = model.PriceEndDate.Value;
         if (model.DateOfBirth.HasChanged) _dateOfBirth = model.DateOfBirth.Value.Value;
         if (model.PauseDate.HasChanged) _pauseDate = model.PauseDate.Value;
-        if (model.PeriodsInLearning.HasChanged) _periodsInLearning = model.PeriodsInLearning.Value;
+
+        if (model.PeriodsInLearning.HasChanged)
+        {
+            _periodsInLearning = model.PeriodsInLearning.Value;
+        }
+        else
+        {
+            //if the period in learning isn't explicitly provided, create a default single period to span the current prices
+            _periodsInLearning =
+            [
+                new PeriodInLearningItem
+                    { StartDate = _priceStartDate, EndDate = _priceEndDate, OriginalExpectedEndDate = _priceEndDate }
+            ];
+        }
+
         if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
         if (model.WithdrawalDate.HasChanged) _withdrawalDate = model.WithdrawalDate.Value;
         if (model.HasEHCP.HasChanged) _hasEHCP = model.HasEHCP.Value;
