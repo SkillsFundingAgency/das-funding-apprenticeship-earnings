@@ -95,48 +95,6 @@ public static class LearningEpisodeExtensions
             .FirstOrDefault();
     }
 
-    //todo this has now been replaced by GetPricesForPeriod (on the episode atm, consider moving to extensions)
-    //internal static List<PeriodInLearning> GetPeriodsInLearning(this ApprenticeshipEpisode episode)
-    //{
-    //    // If no breaks, return single period from min start to max end
-    //    if (episode.BreaksInLearning == null || !episode.BreaksInLearning.Any())
-    //    {
-    //        return new List<PeriodInLearning>
-    //        {
-    //            episode.Prices.CreatePeriodFromPrice()
-    //        };
-    //    }
-
-    //    var periods = new List<PeriodInLearning>();
-    //    var sortedBreaks = episode.BreaksInLearning.OrderBy(b => b.StartDate);
-    //    var startDate = episode.Prices.Min(p => p.StartDate);
-
-    //    foreach (var bil in sortedBreaks)
-    //    {
-    //        // Period ends the day before the break starts
-    //        var endDate = bil.StartDate.AddDays(-1);
-
-    //        var pricesInPeriod = episode.Prices.Where(p => p.StartDate <= endDate && p.EndDate >= startDate);
-
-    //        periods.Add(pricesInPeriod.CreatePeriodFromPrices(startDate, endDate, bil.PriorPeriodExpectedEndDate));
-
-    //        // Next period starts the day after the break ends
-    //        startDate = bil.EndDate.AddDays(1);
-    //    }
-
-    //    // Add the final period after the last break
-    //    var pricesInLastPeriod = episode.Prices.Where(p => p.EndDate >= startDate);
-
-    //    if (pricesInLastPeriod.Any())
-    //    {
-    //        var endDate = pricesInLastPeriod.Max(p => p.EndDate);
-    //        var expectedEndDate = episode.Prices.Max(p => p.EndDate);
-    //        periods.Add(pricesInLastPeriod.CreatePeriodFromPrices(startDate, endDate, expectedEndDate));
-    //    }
-
-    //    return periods;
-    //}
-
     internal static ApprenticeshipEarningsRecalculatedEvent CreateApprenticeshipEarningsRecalculatedEvent(this ApprenticeshipEpisode episode, Apprenticeship apprenticeship)
     {
         return new ApprenticeshipEarningsRecalculatedEvent

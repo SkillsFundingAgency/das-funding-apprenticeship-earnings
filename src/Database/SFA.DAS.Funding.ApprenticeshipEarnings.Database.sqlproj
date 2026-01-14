@@ -74,7 +74,6 @@
     <Build Include="Tables\EarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
     <Build Include="Tables\MathsAndEnglishInstalment.sql" />
-    <Build Include="Tables\EpisodeBreakInLearning.sql" />
     <Build Include="Tables\EpisodePeriodInLearning.sql" />
   </ItemGroup>
   <ItemGroup>

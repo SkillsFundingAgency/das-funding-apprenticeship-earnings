@@ -134,8 +134,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            //var breakInLearning = new EpisodeBreakInLearning(Guid.Empty, startDate.AddDays(30), startDate.AddDays(70), endDate);
-
             var periodsInLearning = new List<EpisodePeriodInLearning>
             {
                 new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
