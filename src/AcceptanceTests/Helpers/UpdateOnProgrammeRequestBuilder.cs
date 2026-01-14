@@ -57,11 +57,12 @@ public class UpdateOnProgrammeRequestBuilder
         }
         else
         {
-            //if the period in learning isn't explicitly provided, create a default single period to span the current prices
+            // if the period in learning isn't explicitly provided, create a default single period to span the current prices
+            // NB: if this isn't sufficient for your test, please explicitly provide the periods in learning in the update step
             _periodsInLearning =
             [
                 new PeriodInLearningItem
-                    { StartDate = _priceStartDate, EndDate = _priceEndDate, OriginalExpectedEndDate = _priceEndDate }
+                    { StartDate = new []{ _priceStartDate, _existingPrices.Min(x => x.StartDate) }.Min(), EndDate = new []{ _priceEndDate, _existingPrices.Max(x => x.EndDate) }.Max(), OriginalExpectedEndDate = _priceEndDate }
             ];
         }
 

@@ -172,8 +172,8 @@ Scenario: Apprenticeship duration is increased after BIL with no price change
 		| NewTrainingPrice   |                                                                        14500 |
 		| NewAssessmentPrice |                                                                          500 |
 		| PauseDate          | null                                                                         |
-		| PeriodsInLearning  | StartDate:2024-01-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
-		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2024-09-30, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2023-10-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2025-03-31, OriginalExpectedEndDate:2025-03-31 |
     Then On programme earnings are persisted as follows
         | Amount        | AcademicYear | DeliveryPeriod |
         | 1000          | 2324         | 3              |
@@ -207,8 +207,8 @@ Scenario: Apprenticeship duration is increased after BIL with a price increase
 		| NewTrainingPrice   |                                                                        17500 |
 		| NewAssessmentPrice |                                                                          500 |
 		| PauseDate          | null                                                                         |
-		| PeriodsInLearning  | StartDate:2024-01-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
-		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2024-09-30, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2023-10-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2025-03-31, OriginalExpectedEndDate:2025-03-31 |
     Then On programme earnings are persisted as follows
         | Amount        | AcademicYear | DeliveryPeriod |
         | 1000          | 2324         | 3              |
@@ -238,6 +238,7 @@ Scenario: End date is pushed back to account for BIL with no price change
     And the following on-programme request is sent
 		| Key       | Value      |
 		| PauseDate | 2024-02-01 |
+	# we are not changing the price here but because we want to provide a new price end date we provide the original price total again
     When the following on-programme request is sent
 		| Key                | Value                                                                        |
 		| PriceStartDate     | 2024-05-01                                                                   |
@@ -246,7 +247,7 @@ Scenario: End date is pushed back to account for BIL with no price change
 		| NewAssessmentPrice |                                                                            0 |
 		| PauseDate          | null                                                                         |
 		| PeriodsInLearning  | StartDate:2023-10-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
-		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2024-12-31, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2024-12-31, OriginalExpectedEndDate:2024-12-31 |
     Then On programme earnings are persisted as follows
         | Amount | AcademicYear | DeliveryPeriod |
         | 1000   | 2324         | 3              |

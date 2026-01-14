@@ -14,13 +14,23 @@ internal static class TestHelper
 
     internal static ApprenticeshipModel BuildApprenticeshipModel(this Fixture fixture)
     {
+        var priceStartDate = DateTime.UtcNow.AddMonths(-10);
+        var priceEndDate = DateTime.UtcNow.AddMonths(10);
+
         var episodeModel = fixture
             .Build<EpisodeModel>()
-            .With(x => x.PeriodsInLearning, new List<EpisodePeriodInLearningModel>())
+            .With(x => x.PeriodsInLearning, new List<EpisodePeriodInLearningModel>
+            {
+                fixture.Build<EpisodePeriodInLearningModel>()
+                    .With(x => x.StartDate, priceStartDate)
+                    .With(x => x.EndDate, priceEndDate)
+                    .With(x => x.OriginalExpectedEndDate, priceEndDate)
+                    .Create()
+            })
             .With(x=> x.FundingBandMaximum, int.MaxValue)
             .With(x => x.Prices, new List<EpisodePriceModel>{ fixture.Build<EpisodePriceModel>()
-                .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-10))
-                .With(x => x.EndDate, DateTime.UtcNow.AddMonths(10))
+                .With(x => x.StartDate, priceStartDate)
+                .With(x => x.EndDate, priceEndDate)
                 .Create() })
             .With(x => x.EarningsProfile, fixture
                 .Build<EarningsProfileModel>()
