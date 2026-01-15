@@ -6,6 +6,7 @@ public static class EpisodePriceModelExtensions
     {
         return new EpisodePeriodInLearningModel
         {
+            Key = Guid.NewGuid(),
             StartDate = episodePrice.StartDate,
             EndDate = episodePrice.EndDate,
             OriginalExpectedEndDate = episodePrice.EndDate,
