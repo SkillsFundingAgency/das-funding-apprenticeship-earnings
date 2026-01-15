@@ -99,13 +99,13 @@ public class WhenRemovingLearner
     }
 
     [Test]
-    public async Task ThenBreaksInLearningAreRemoved()
+    public async Task ThenPeriodsInLearningAreRemoved()
     {
         // Arrange
         var apprenticeship = _fixture.BuildApprenticeship();
 
-        var breakInLearning = _fixture.Create<EpisodeBreakInLearning>();
-        apprenticeship.ApprenticeshipEpisodes.First().UpdateBreaksInLearning([breakInLearning]);
+        var periodInLearning = _fixture.Create<EpisodePeriodInLearning>();
+        apprenticeship.ApprenticeshipEpisodes.First().UpdatePeriodsInLearning([periodInLearning]);
 
         var command = new RemoveLearnerCommand.RemoveLearnerCommand(apprenticeship.ApprenticeshipKey);
         var handler = new RemoveLearnerCommand.RemoveLearnerCommandHandler(_mockRepository.Object, _mockSystemClock.Object);
@@ -125,6 +125,6 @@ public class WhenRemovingLearner
         // Assert
         _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
 
-        updated.GetCurrentEpisode(_mockSystemClock.Object).BreaksInLearning.Should().BeEmpty();
+        updated.GetCurrentEpisode(_mockSystemClock.Object).EpisodePeriodsInLearning.Should().BeEmpty();
     }
 }
