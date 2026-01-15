@@ -104,9 +104,6 @@ public class WhenRemovingLearner
         // Arrange
         var apprenticeship = _fixture.BuildApprenticeship();
 
-        var periodInLearning = _fixture.Create<EpisodePeriodInLearning>();
-        apprenticeship.ApprenticeshipEpisodes.First().UpdatePeriodsInLearning([periodInLearning]);
-
         var command = new RemoveLearnerCommand.RemoveLearnerCommand(apprenticeship.ApprenticeshipKey);
         var handler = new RemoveLearnerCommand.RemoveLearnerCommandHandler(_mockRepository.Object, _mockSystemClock.Object);
 
