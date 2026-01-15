@@ -1,5 +1,7 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 
@@ -28,6 +30,20 @@ public class EnglishAndMathsStepDefinitions
         {
             EnglishAndMaths = items
         };
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/english-and-maths", request);
+    }
+
+    [Given(@"the following English and maths request is sent")]
+    [When(@"the following English and maths request is sent")]
+    public async Task SendEnglishAndMathsRequest(Table table)
+    {
+        var data = GetEnglishAndMathsUpdateModel(table);
+
+        var request = _scenarioContext
+            .GetUpdateEnglishAndMathsRequestBuilder()
+            .WithDataFromSetupModel(data)
+            .Build();
+
         await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/english-and-maths", request);
     }
 
@@ -83,4 +99,82 @@ public class EnglishAndMathsStepDefinitions
 
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
     }
+
+    //private List<UpdateEnglishAndMathsModel> GetEnglishAndMathsUpdateModels(Table table)
+    //{
+    //    var indexedData = table.CreateSet<IndexedKeyValueModel>().ToList();
+
+    //    var groupedData = indexedData.GroupBy(x => x.Index);
+
+    //    var models = new List<UpdateEnglishAndMathsModel>();
+
+    //    foreach (var group in groupedData)
+    //    {
+    //        var keyValueList = group
+    //            .Select(x => new KeyValueModel { Key = x.Key, Value = x.Value })
+    //            .ToList();
+
+    //        var model = GetEnglishAndMathsUpdateModel(keyValueList);
+    //        models.Add(model);
+    //    }
+
+    //    return models;
+    //}
+
+
+    private UpdateEnglishAndMathsModel GetEnglishAndMathsUpdateModel(Table table)
+    {
+        var data = table.CreateSet<KeyValueModel>().ToList();
+        var model = new UpdateEnglishAndMathsModel();
+
+        var periodsInLearningData = data.Where(x => x.Key == nameof(UpdateEnglishAndMathsModel.PeriodsInLearning));
+
+        if (periodsInLearningData.Any())
+            model.PeriodsInLearning.SetValue(periodsInLearningData.Select(x => x.ToObject<PeriodInLearningItem>()).ToList());
+
+        foreach (var item in data)
+        {
+            switch (item.Key)
+            {
+                case nameof(UpdateEnglishAndMathsModel.StartDate):
+                    model.StartDate.SetValue(item.ToDateTime());
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.EndDate):
+                    model.EndDate.SetValue(item.ToDateTime());
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.Course):
+                    model.Course.SetValue(item.Value);
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.LearnAimRef):
+                    model.LearnAimRef.SetValue(item.Value);
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.Amount):
+                    model.Amount.SetValue(item.ToDecimalValue());
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.WithdrawalDate):
+                    model.WithdrawalDate.SetValue(item.ToNullableDateTime());
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.PriorLearningAdjustmentPercentage):
+                    model.PriorLearningAdjustmentPercentage.SetValue(item.ToNullableInt());
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.ActualEndDate):
+                    model.ActualEndDate.SetValue(item.ToNullableDateTime());
+                    break;
+
+                case nameof(UpdateEnglishAndMathsModel.PauseDate):
+                    model.PauseDate.SetValue(item.ToNullableDateTime());
+                    break;
+            }
+        }
+
+        return model;
+    }
+
 }

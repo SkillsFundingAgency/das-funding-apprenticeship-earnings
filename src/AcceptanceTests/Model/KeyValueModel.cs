@@ -5,6 +5,10 @@ public class KeyValueModel
     public string Key { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
 }
+//public class IndexedKeyValueModel : KeyValueModel
+//{
+//    public int Index { get; set; }
+//}
 
 public static class KeyValueModelExtensions
 {
@@ -55,6 +59,15 @@ public static class KeyValueModelExtensions
     public static T ToObject<T>(this KeyValueModel model) where T : new()
     {
         return Parse<T>(model.Value);
+    }
+
+    public static int? ToNullableInt(this KeyValueModel model)
+    {
+        if (int.TryParse(model.Value, out var integer))
+        {
+            return integer;
+        }
+        return null;
     }
 
 

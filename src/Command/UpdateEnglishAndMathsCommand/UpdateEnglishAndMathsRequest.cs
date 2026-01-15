@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
 public class UpdateEnglishAndMathsRequest
 {
@@ -16,4 +18,5 @@ public class EnglishAndMathsItem
     public int? PriorLearningAdjustmentPercentage { get; set; }
     public DateTime? ActualEndDate { get; set; }
     public DateTime? PauseDate { get; set; }
+    public List<PeriodInLearningItem> PeriodsInLearning { get; set; } = [];
 }

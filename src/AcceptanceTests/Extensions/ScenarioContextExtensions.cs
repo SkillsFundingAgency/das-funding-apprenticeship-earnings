@@ -31,4 +31,15 @@ public static class ScenarioContextExtensions
         context.Set(builder);
         return builder;
     }
+
+    public static UpdateEnglishAndMathsRequestBuilder GetUpdateEnglishAndMathsRequestBuilder(this ScenarioContext context)
+    {
+        if (context.TryGetValue(out UpdateEnglishAndMathsRequestBuilder builder)) return builder;
+
+        builder = new UpdateEnglishAndMathsRequestBuilder();
+        context.Set(builder);
+
+        return builder;
+    }
+
 }
