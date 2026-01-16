@@ -262,3 +262,26 @@ Scenario: End date is pushed back to account for BIL with no price change
         | 1000   | 2425         | 3              |
         | 1000   | 2425         | 4              |
         | 1000   | 2425         | 5              |
+
+Scenario: Early Completion with BIL
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And a funding band maximum of 25000
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price |
+		| 2020-08-15 | 2021-07-31 | 15000 |
+	And earnings are calculated
+	When the following on-programme request is sent
+		| Key               | Value                                                                        |
+		| CompletionDate    | 2021-02-15                                                                   |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-07-31 |
+		| PeriodsInLearning | StartDate:2020-12-16, EndDate:2021-07-31, OriginalExpectedEndDate:2021-07-31 |
+	Then the instalments are balanced as follows
+		| Amount | AcademicYear | DeliveryPeriod | Type       |
+		| 1000   | 2021         | 1              | Regular    |
+		| 1000   | 2021         | 2              | Regular    |
+		| 1250   | 2021         | 5              | Regular    |
+		| 1250   | 2021         | 6              | Regular    |
+		| 7500   | 2021         | 7              | Balancing  |
+		| 3000   | 2021         | 7              | Completion |
