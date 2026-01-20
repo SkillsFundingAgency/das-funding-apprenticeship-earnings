@@ -26,6 +26,11 @@ public class EnglishAndMathsStepDefinitions
     public async Task GivenTheFollowingMathsAndEnglishCourseInformationIsProvided(Table table)
     {
         var items = table.CreateSet<EnglishAndMathsItem>().ToList();
+        foreach (var item in items)
+        {
+            item.PeriodsInLearning = [new PeriodInLearningItem { StartDate = item.StartDate, EndDate = item.EndDate, OriginalExpectedEndDate = item.EndDate }];
+        }
+
         var request = new UpdateEnglishAndMathsRequest
         {
             EnglishAndMaths = items

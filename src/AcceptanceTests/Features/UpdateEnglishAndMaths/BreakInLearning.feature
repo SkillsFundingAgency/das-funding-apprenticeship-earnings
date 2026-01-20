@@ -162,6 +162,7 @@ Scenario: Training provider records a break in learning followed by a return
 		| PauseDate     | 2021-03-15 |
 	And the following English and maths request is sent
 		| Key               | Value                                                                        |
+		| PauseDate         | null                                                                         |
 		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2021-03-15, OriginalExpectedEndDate:2021-10-01 |
 		| PeriodsInLearning | StartDate:2021-06-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
 	Then english and maths instalments are persisted as follows

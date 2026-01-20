@@ -174,7 +174,13 @@ public class EnglishAndMathsPaymentsTests
             Amount = amount,
             WithdrawalDate = withdrawalDate,
             ActualEndDate = actualEndDate,
-            PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage
+            PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage,
+            PeriodsInLearning = [ new MathsAndEnglishPeriodInLearningModel
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                OriginalExpectedEndDate = endDate,
+            } ]
         };
 
         return MathsAndEnglish.Get(model);

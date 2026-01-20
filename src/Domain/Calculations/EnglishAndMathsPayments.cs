@@ -55,18 +55,21 @@ public static class EnglishAndMathsPayments
 
     private static void GenerateMonthlyInstalments(InstalmentCalculationContext context)
     {
-        var paymentDate = context.FirstPaymentDate;
 
-        var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, context.LastCensusDate);
-
-        var monthlyAmount = context.AdjustedCourseAmount / numberOfInstalments;
-
-
-        while (paymentDate <= context.LastCensusDate)
+        foreach (var periodInLearning in context.MathsAndEnglish.PeriodsInLearning)
         {
-            context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
+            var paymentDate = periodInLearning.StartDate.LastDayOfMonth();
+            var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
+            var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, context.LastCensusDate);
 
-            paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
+            var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
+
+            while (paymentDate <= periodInLearning.EndDate)
+            {
+                context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
+
+                paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
+            }
         }
 
     }
