@@ -62,5 +62,4 @@ internal static class ListExtensions
                 })
                 .ToList();
     }
-
 }

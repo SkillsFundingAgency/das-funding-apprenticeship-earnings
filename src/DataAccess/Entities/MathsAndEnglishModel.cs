@@ -27,5 +27,6 @@ public class MathsAndEnglishModel
     public int? PriorLearningAdjustmentPercentage { get; set; }
 
     public List<MathsAndEnglishInstalmentModel> Instalments { get; set; } = [];
+    public List<MathsAndEnglishPeriodInLearningModel> PeriodsInLearning { get; set; } = [];
 
 }

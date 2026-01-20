@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -18,7 +19,7 @@ public class UpdateOnProgrammeRequest
     public Care Care { get; set; }
 }
 
-public class PeriodInLearningItem
+public class PeriodInLearningItem : IPeriodInLearning
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }

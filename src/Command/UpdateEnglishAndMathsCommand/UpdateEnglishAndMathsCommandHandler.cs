@@ -43,7 +43,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         var courses = new List<MathsAndEnglish>();
         foreach (var detail in command.EnglishAndMathsDetails)
         {
-            var course = new MathsAndEnglish(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.ActualEndDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage);
+            var course = new MathsAndEnglish(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.ActualEndDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage, detail.PeriodsInLearning);
             courses.Add(course);
         }
 

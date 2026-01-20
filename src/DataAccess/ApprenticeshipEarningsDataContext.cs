@@ -18,6 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         public virtual DbSet<AdditionalPaymentModel> AdditionalPayments { get; set; }
         public virtual DbSet<EpisodePeriodInLearningModel> EpisodePeriodsInLearnings { get; set; }
         public virtual DbSet<EarningsProfileHistory> EarningsProfileHistories2 { get; set; }
+        public virtual DbSet<MathsAndEnglishPeriodInLearningModel> MathsAndEnglishPeriodsInLearning { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -95,8 +96,17 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .WithOne()
                 .HasForeignKey(fk => fk.MathsAndEnglishKey);
 
+            modelBuilder.Entity<MathsAndEnglishModel>()
+                .HasMany(x => x.PeriodsInLearning)
+                .WithOne()
+                .HasForeignKey(fk => fk.MathsAndEnglishKey);
+
             // MathsAndEnglishInstalment
             modelBuilder.Entity<MathsAndEnglishInstalmentModel>()
+                .HasKey(x => x.Key);
+
+            // MathsAndEnglishPeriodInLearningModel
+            modelBuilder.Entity<MathsAndEnglishPeriodInLearningModel>()
                 .HasKey(x => x.Key);
 
             // EpisodeBreakInLearning

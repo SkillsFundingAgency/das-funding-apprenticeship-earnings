@@ -13,7 +13,7 @@ Scenario: Training provider records a break in learning without specifying a ret
 		| EndDate       | 2021-10-1  |
 		| Course        | Maths1     |
 		| LearnAimRef   | Maths1     |
-		| Amount        |       1400 |
+		| Amount        | 1400       |
 		| ActualEndDate | 2021-10-01 |
 	And the following English and maths request is sent
 		| Key       | Value      |
@@ -157,7 +157,7 @@ Scenario: Training provider records a break in learning followed by a return
 		| EndDate       | 2021-10-1  |
 		| Course        | Maths1     |
 		| LearnAimRef   | Maths1     |
-		| Amount        |       1400 |
+		| Amount        | 1400       |
 		| ActualEndDate | 2021-10-01 |
 		| PauseDate     | 2021-03-15 |
 	And the following English and maths request is sent
