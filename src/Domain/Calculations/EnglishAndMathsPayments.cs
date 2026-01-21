@@ -223,8 +223,4 @@ internal class InstalmentCalculationContext
         _adjustedCourseAmount = adjustedCourseTotal;
     }
 
-    //internal void UpdateRunningTotal(decimal amount)
-    //{
-    //    RunningTotal += amount;
-    //}
 }

@@ -105,28 +105,6 @@ public class EnglishAndMathsStepDefinitions
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
     }
 
-    //private List<UpdateEnglishAndMathsModel> GetEnglishAndMathsUpdateModels(Table table)
-    //{
-    //    var indexedData = table.CreateSet<IndexedKeyValueModel>().ToList();
-
-    //    var groupedData = indexedData.GroupBy(x => x.Index);
-
-    //    var models = new List<UpdateEnglishAndMathsModel>();
-
-    //    foreach (var group in groupedData)
-    //    {
-    //        var keyValueList = group
-    //            .Select(x => new KeyValueModel { Key = x.Key, Value = x.Value })
-    //            .ToList();
-
-    //        var model = GetEnglishAndMathsUpdateModel(keyValueList);
-    //        models.Add(model);
-    //    }
-
-    //    return models;
-    //}
-
-
     private UpdateEnglishAndMathsModel GetEnglishAndMathsUpdateModel(Table table)
     {
         var data = table.CreateSet<KeyValueModel>().ToList();
