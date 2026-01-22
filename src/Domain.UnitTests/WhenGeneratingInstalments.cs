@@ -29,7 +29,7 @@ public class WhenGeneratingInstalments
         var endDate = new DateTime(endYear, endMonth, endDay);
         var periodInLearnings = CreatePeriodsInLearning(new Price(_fixture.Create<Guid>(), startDate, endDate, total));
 
-        var actualInstallments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodInLearnings, total + _fixture.Create<int>(),  out var onProgramTotal, out var completionPayment);
+        var actualInstallments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodInLearnings, total + _fixture.Create<int>(), out var onProgramTotal, out var completionPayment);
 
         actualInstallments.Should().HaveCount(expectedNumberOfInstallments);
         actualInstallments.Should().OnlyContain(x => x.Amount == expectedInstallmentAmount);
@@ -56,9 +56,9 @@ public class WhenGeneratingInstalments
         var actualInstallments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodInLearnings, fundingBandMax, out var onProgramTotal, out var completionPayment);
 
         actualInstallments.Should().HaveCount(36);
-        actualInstallments.Where(x => x.Amount == (decimal) 333.33333).Should().HaveCount(1);
-        actualInstallments.Where(x => x.Amount == (decimal) 401.90476).Should().HaveCount(5);
-        actualInstallments.Where(x => x.Amount == (decimal) 375.23810).Should().HaveCount(30);
+        actualInstallments.Where(x => x.Amount == (decimal)333.33333).Should().HaveCount(1);
+        actualInstallments.Where(x => x.Amount == (decimal)401.90476).Should().HaveCount(5);
+        actualInstallments.Where(x => x.Amount == (decimal)375.23810).Should().HaveCount(30);
         onProgramTotal.Should().Be(13600);
         completionPayment.Should().Be(3400);
     }
@@ -90,16 +90,14 @@ public class WhenGeneratingInstalments
         }
     }
 
-    private static IEnumerable<PeriodInLearning> CreatePeriodsInLearning(params Price[] prices)
+    private static List<(EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices)> CreatePeriodsInLearning(params Price[] prices)
     {
         var startDate = prices.Min(x => x.StartDate);
         var endDate = prices.Max(x => x.EndDate);
 
-         prices.CreatePeriodFromPrices(startDate, endDate, endDate);
-        var periodsInLearning = new List<PeriodInLearning>();
+        var periodInLearning = new EpisodePeriodInLearning(Guid.Empty, startDate, endDate, endDate);
+        var pricePeriods = prices.Select(x => new PriceInPeriod(x, x.StartDate, x.EndDate, x.EndDate));
 
-        periodsInLearning.Add(prices.CreatePeriodFromPrices(startDate, endDate, endDate));
-
-        return periodsInLearning;
+        return new List<(EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices)>{ (periodInLearning, pricePeriods.ToList()) };
     }
 }

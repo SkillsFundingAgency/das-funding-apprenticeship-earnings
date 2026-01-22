@@ -11,8 +11,9 @@ Scenario: Incentive Payments 16-18 are pushed back due to Break in Learning
 		| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
 	And the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| BreaksInLearning | StartDate:2020-09-01, EndDate:2020-09-07, PriorPeriodExpectedEndDate: 2024-07-31 |
+		| Key               | Value                                                                        |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-08-31, OriginalExpectedEndDate:2024-07-31 |
+		| PeriodsInLearning | StartDate:2020-09-08, EndDate:2024-07-31, OriginalExpectedEndDate:2024-07-31 |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    |
 		| ProviderIncentive | 500    | 2020-11-05 |
@@ -29,11 +30,12 @@ Scenario: Incentive Payments 19-24 are pushed back due to Break in Learning
 		| 2020-08-01 | 2024-07-31 | 15000 |
 	When earnings are calculated
 	And the following on-programme request is sent
-		| Key                            | Value                                                                            |
-		| BreaksInLearning               | StartDate:2020-09-01, EndDate:2020-09-07, PriorPeriodExpectedEndDate: 2024-07-31 |
-		| CareLeaverEmployerConsentGiven | true                                                                             |
-		| IsCareLeaver                   | true                                                                             |
-		| HasEHCP                        | true                                                                             |
+		| Key                            | Value                                                                        |
+		| PeriodsInLearning              | StartDate:2020-08-01, EndDate:2020-08-31, OriginalExpectedEndDate:2024-07-31 |
+		| PeriodsInLearning              | StartDate:2020-09-08, EndDate:2024-07-31, OriginalExpectedEndDate:2024-07-31 |
+		| CareLeaverEmployerConsentGiven | true                                                                         |
+		| IsCareLeaver                   | true                                                                         |
+		| HasEHCP                        | true                                                                         |
 	Then Additional Payments are persisted as follows
 		| Type              | Amount | DueDate    |
 		| ProviderIncentive | 500    | 2020-11-05 |

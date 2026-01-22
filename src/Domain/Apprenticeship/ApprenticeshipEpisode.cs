@@ -17,7 +17,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model = model;
 
         _prices = _model.Prices.Select(Price.Get).ToList();
-        _breaksInLearning = _model.BreaksInLearning.Select(EpisodeBreakInLearning.Get).ToList();
+        _periodsInLearning = _model.PeriodsInLearning.Select(EpisodePeriodInLearning.Get).ToList();
         if (_model.EarningsProfile != null)
         {
             _earningsProfile = this.GetEarningsProfileFromModel(_model.EarningsProfile);
@@ -34,7 +34,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
     private readonly EpisodeModel _model;
     private List<Price> _prices;
-    private List<EpisodeBreakInLearning> _breaksInLearning;
+    private List<EpisodePeriodInLearning> _periodsInLearning;
     private EarningsProfile? _earningsProfile;
     private int _ageAtStartOfApprenticeship;
 
@@ -48,14 +48,14 @@ public class ApprenticeshipEpisode : AggregateComponent
     public long? FundingEmployerAccountId => _model.FundingEmployerAccountId;
     public EarningsProfile? EarningsProfile => _earningsProfile;
     public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
-    public IReadOnlyCollection<EpisodeBreakInLearning> BreaksInLearning => new ReadOnlyCollection<EpisodeBreakInLearning>(_breaksInLearning);
+    public IReadOnlyCollection<EpisodePeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<EpisodePeriodInLearning>(_periodsInLearning);
     public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && AgeAtStartOfApprenticeship < 22;
     public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? PauseDate => _model.PauseDate;
     public decimal FundingBandMaximum => _model.FundingBandMaximum;
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
-    public IReadOnlyCollection<PeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<PeriodInLearning>(this.GetPeriodsInLearning());
+    public List<(EpisodePeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => this.GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
 
     public string FundingLineType =>
         AgeAtStartOfApprenticeship < 19
@@ -187,42 +187,43 @@ public class ApprenticeshipEpisode : AggregateComponent
         _model.PauseDate = pauseDate;
     }
 
-    public void UpdateBreaksInLearning(List<EpisodeBreakInLearning> newBreaks)
+    public void UpdatePeriodsInLearning(List<EpisodePeriodInLearning> newPeriodsInLearning)
     {
-        // Remove breaks that are no longer present
-        foreach (var existingBreak in _breaksInLearning.ToList())
+        // Remove periods in learning that are no longer present
+        foreach (var existingPeriodInLearning in _periodsInLearning.ToList())
         {
-            bool stillExists = newBreaks.Any(nb =>
-                nb.StartDate == existingBreak.StartDate &&
-                nb.EndDate == existingBreak.EndDate);
+            bool stillExists = newPeriodsInLearning.Any(nb =>
+                nb.StartDate == existingPeriodInLearning.StartDate &&
+                nb.EndDate == existingPeriodInLearning.EndDate &&
+                nb.OriginalExpectedEndDate == existingPeriodInLearning.OriginalExpectedEndDate);
 
             if (!stillExists)
             {
-                _breaksInLearning.Remove(existingBreak);
-                _model.BreaksInLearning.Remove(existingBreak.GetModel());
+                _periodsInLearning.Remove(existingPeriodInLearning);
+                _model.PeriodsInLearning.Remove(existingPeriodInLearning.GetModel());
             }
         }
 
-        // Add new breaks that do not already exist
-        foreach (var newBreak in newBreaks)
+        // Add new periods in learning that do not already exist
+        foreach (var newPeriodInLearning in newPeriodsInLearning)
         {
-            bool alreadyExists = _breaksInLearning.Any(eb =>
-                eb.StartDate == newBreak.StartDate &&
-                eb.EndDate == newBreak.EndDate);
+            bool alreadyExists = _periodsInLearning.Any(eb =>
+                eb.StartDate == newPeriodInLearning.StartDate &&
+                eb.EndDate == newPeriodInLearning.EndDate);
 
             if (!alreadyExists)
             {
-                _breaksInLearning.Add(newBreak);
-                _model.BreaksInLearning.Add(newBreak.GetModel());
+                _periodsInLearning.Add(newPeriodInLearning);
+                _model.PeriodsInLearning.Add(newPeriodInLearning.GetModel());
             }
         }
     }
 
     // This will generate instalments and additional payments not taking into account
-    // any external factors (e.g. a break in learning, these will be applied later)
+    // any external factors (e.g. a break in between periods of learning, these will be applied later)
     private (List<Instalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Apprenticeship apprenticeship)
     {
-        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearning, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
+        var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearningWithMatchedPrices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
 
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
@@ -235,11 +236,36 @@ public class ApprenticeshipEpisode : AggregateComponent
             apprenticeship.HasEHCP,
             apprenticeship.IsCareLeaver,
             apprenticeship.CareLeaverEmployerConsentGiven,
-            _breaksInLearning);
+            _periodsInLearning);
 
         var additionalPayments = incentivePayments.Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType)).ToList();
 
         return (instalments, additionalPayments, onProgramTotal, completionPayment);
+    }
+
+    private (EpisodePeriodInLearning, List<PriceInPeriod>) GetPricesForPeriod(EpisodePeriodInLearning periodInLearning, List<Price> allPrices)
+    {
+        // Select prices that overlap with this period
+        var pricesInPeriod = allPrices
+            .Where(p => p.StartDate <= periodInLearning.EndDate && p.EndDate >= periodInLearning.StartDate);
+
+        // Clip prices to the boundaries of the period
+        var pricePeriods = pricesInPeriod
+            .Select(price =>
+            {
+                var startDate = price.StartDate < periodInLearning.StartDate
+                    ? periodInLearning.StartDate
+                    : price.StartDate;
+
+                var endDate = price.EndDate > periodInLearning.EndDate
+                    ? periodInLearning.EndDate
+                    : price.EndDate;
+
+                return new PriceInPeriod(price, startDate, endDate, periodInLearning.OriginalExpectedEndDate);
+            })
+            .ToList();
+
+        return (periodInLearning, pricePeriods);
     }
 
     internal void UpdateAgeAtStart(DateTime dateOfBirth)

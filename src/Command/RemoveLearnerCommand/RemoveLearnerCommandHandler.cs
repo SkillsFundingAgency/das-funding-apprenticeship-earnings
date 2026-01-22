@@ -23,8 +23,8 @@ public class RemoveLearnerCommandHandler : ICommandHandler<RemoveLearnerCommand>
         episode.UpdateWithdrawalDate(startDate, _systemClock);
         episode.UpdateEnglishAndMaths([], _systemClock);
         episode.RemoveAdditionalEarnings(_systemClock);
-        episode.UpdateBreaksInLearning([]);
         apprenticeshipDomainModel.Calculate(_systemClock);
+        episode.UpdatePeriodsInLearning([]);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
     }

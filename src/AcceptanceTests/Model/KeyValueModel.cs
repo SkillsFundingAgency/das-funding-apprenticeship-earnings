@@ -52,6 +52,11 @@ public static class KeyValueModelExtensions
         return bool.Parse(model.Value);
     }
 
+    public static T ToObject<T>(this KeyValueModel model) where T : new()
+    {
+        return Parse<T>(model.Value);
+    }
+
 
     public static T Parse<T>(string input) where T : new()
     {
