@@ -46,4 +46,26 @@ internal static class TestHelper
 
         return apprenticeshipEntityModel;
     }
+
+    internal static List<MathsAndEnglish> BuildMathsAndEnglishCourses(this Fixture fixture)
+    {
+        var courses = new List<MathsAndEnglish>
+        {
+            fixture.BuildMathsAndEnglish()
+        };
+
+        return courses;
+    }
+
+    internal static MathsAndEnglish BuildMathsAndEnglish(this Fixture fixture)
+    {
+        var model = fixture.BuildMathsAndEnglishModel();
+        return MathsAndEnglish.Get(model);
+    }
+
+    internal static MathsAndEnglishModel BuildMathsAndEnglishModel(this Fixture fixture)
+    {
+        return fixture.Build<MathsAndEnglishModel>()
+            .Create();
+    }
 }
