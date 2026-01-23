@@ -31,7 +31,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
         ExecuteAndLog(() => apprenticeship.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
         ExecuteAndLog(() => episode.UpdatePause(request.PauseDate), "update Pause");
-        ExecuteAndLog(() => episode.UpdateBreaksInLearning(request.ToEpisodeBreaksInLearning()), "update Breaks in learning");
+        ExecuteAndLog(() => episode.UpdatePeriodsInLearning(request.ToEpisodePeriodsInLearning()), "update Periods in learning");
         ExecuteAndLog(() => episode.UpdateCompletion(request.CompletionDate), "update Completion");
         ExecuteAndLog(() => episode.UpdateWithdrawalDate(request.WithdrawalDate, _systemClock), "update Withdrawal");
 

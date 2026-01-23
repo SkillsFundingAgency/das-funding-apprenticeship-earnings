@@ -14,9 +14,10 @@ Scenario: Training provider records a Break in Learning followed by a return
 		| Key       | Value      |
 		| PauseDate | 2020-10-15 |
 	When the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| PauseDate        | null                                                                             |
-		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-01-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+		| Key               | Value                                                                        |
+		| PauseDate         | null                                                                         |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-10-01 |
+		| PeriodsInLearning | StartDate:2021-01-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -40,8 +41,9 @@ Scenario: Training provider records a break in learning and the return at the sa
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
 	When the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-01-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+		| Key               | Value                                                                        |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-10-01 |
+		| PeriodsInLearning | StartDate:2021-01-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -65,11 +67,13 @@ Scenario: Training provider corrects a previously recorded return from a break i
 		| StartDate | EndDate   | 
 		| 2020-8-1  | 2021-10-1 |
 	And the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-05-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+		| Key               | Value                                                                        |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-10-01 |
+		| PeriodsInLearning | StartDate:2021-05-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
 	When the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-01-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+		| Key               | Value                                                                        |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-10-01 |
+		| PeriodsInLearning | StartDate:2021-01-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
     Then On programme earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod |
 		| 400    | 2021         | 1              |
@@ -93,8 +97,9 @@ Scenario: Training provider removes a previously recorded return from a break in
 		| StartDate | EndDate   |
 		| 2020-8-1  | 2021-10-1 |
 	And the following on-programme request is sent
-		| Key              | Value                                                                            |
-		| BreaksInLearning | StartDate:2020-10-15, EndDate:2021-06-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+		| Key               | Value                                                                        |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-10-01 |
+		| PeriodsInLearning | StartDate:2021-06-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
 	When the following on-programme request is sent
 		| Key              | Value |
 		| BreaksInLearning |       |
@@ -127,13 +132,14 @@ Scenario: Training provider records a return from a break in learning with an up
 		| Key       | Value      |
 		| PauseDate | 2020-10-15 |
 	When the following on-programme request is sent
-		| Key                | Value                                                                            |
-		| PriceStartDate     | 2021-05-01                                                                       |
-		| PriceEndDate       | 2021-10-01                                                                       |
-		| NewTrainingPrice   | 7500                                                                             |
-		| NewAssessmentPrice | 500                                                                              |
-		| PauseDate          | null                                                                             |
-		| BreaksInLearning   | StartDate:2020-10-15, EndDate:2021-01-15, PriorPeriodExpectedEndDate: 2021-10-01 |
+		| Key                | Value                                                                        |
+		| PriceStartDate     | 2021-05-01                                                                   |
+		| PriceEndDate       | 2021-10-01                                                                   |
+		| NewTrainingPrice   |                                                                         7500 |
+		| NewAssessmentPrice |                                                                          500 |
+		| PauseDate          | null                                                                         |
+		| PeriodsInLearning  | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-10-01 |
+		| PeriodsInLearning  | StartDate:2021-01-16, EndDate:2021-10-01, OriginalExpectedEndDate:2021-10-01 |
     Then On programme earnings are persisted as follows
  		| Amount | AcademicYear | DeliveryPeriod |
  		| 400    | 2021         | 1              |
@@ -160,13 +166,14 @@ Scenario: Apprenticeship duration is increased after BIL with no price change
 		| Key       | Value      |
 		| PauseDate | 2024-02-01 |
     When the following on-programme request is sent
-		| Key                | Value                                                                            |
-		| PriceStartDate     | 2024-05-01                                                                       |
-		| PriceEndDate       | 2025-03-31                                                                       |
-		| NewTrainingPrice   | 14500                                                                            |
-		| NewAssessmentPrice | 500                                                                              |
-		| PauseDate          | null                                                                             |
-		| BreaksInLearning   | StartDate:2024-02-01, EndDate:2024-04-30, PriorPeriodExpectedEndDate: 2024-09-30 |
+		| Key                | Value                                                                        |
+		| PriceStartDate     | 2024-05-01                                                                   |
+		| PriceEndDate       | 2025-03-31                                                                   |
+		| NewTrainingPrice   |                                                                        14500 |
+		| NewAssessmentPrice |                                                                          500 |
+		| PauseDate          | null                                                                         |
+		| PeriodsInLearning  | StartDate:2023-10-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2025-03-31, OriginalExpectedEndDate:2025-03-31 |
     Then On programme earnings are persisted as follows
         | Amount        | AcademicYear | DeliveryPeriod |
         | 1000          | 2324         | 3              |
@@ -194,13 +201,14 @@ Scenario: Apprenticeship duration is increased after BIL with a price increase
 		| Key       | Value      |
 		| PauseDate | 2024-02-01 |
     When the following on-programme request is sent
-		| Key                | Value                                                                            |
-		| PriceStartDate     | 2024-03-01                                                                       |
-		| PriceEndDate       | 2025-03-31                                                                       |
-		| NewTrainingPrice   | 17500                                                                            |
-		| NewAssessmentPrice | 500                                                                              |
-		| PauseDate          | null                                                                             |
-		| BreaksInLearning   | StartDate:2024-02-01, EndDate:2024-04-30, PriorPeriodExpectedEndDate: 2024-09-30 |
+		| Key                | Value                                                                        |
+		| PriceStartDate     | 2024-03-01                                                                   |
+		| PriceEndDate       | 2025-03-31                                                                   |
+		| NewTrainingPrice   |                                                                        17500 |
+		| NewAssessmentPrice |                                                                          500 |
+		| PauseDate          | null                                                                         |
+		| PeriodsInLearning  | StartDate:2023-10-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2025-03-31, OriginalExpectedEndDate:2025-03-31 |
     Then On programme earnings are persisted as follows
         | Amount        | AcademicYear | DeliveryPeriod |
         | 1000          | 2324         | 3              |
@@ -230,14 +238,16 @@ Scenario: End date is pushed back to account for BIL with no price change
     And the following on-programme request is sent
 		| Key       | Value      |
 		| PauseDate | 2024-02-01 |
+	# we are not changing the price here but because we want to provide a new price end date we provide the original price total again
     When the following on-programme request is sent
-		| Key                | Value                                                                            |
-		| PriceStartDate     | 2024-05-01                                                                       |
-		| PriceEndDate       | 2024-12-31                                                                       |
-		| NewTrainingPrice   | 15000                                                                            |
-		| NewAssessmentPrice | 0                                                                                |
-		| PauseDate          | null                                                                             |
-		| BreaksInLearning   | StartDate:2024-02-01, EndDate:2024-04-30, PriorPeriodExpectedEndDate: 2024-09-30 |
+		| Key                | Value                                                                        |
+		| PriceStartDate     | 2024-05-01                                                                   |
+		| PriceEndDate       | 2024-12-31                                                                   |
+		| NewTrainingPrice   |                                                                        15000 |
+		| NewAssessmentPrice |                                                                            0 |
+		| PauseDate          | null                                                                         |
+		| PeriodsInLearning  | StartDate:2023-10-01, EndDate:2024-01-31, OriginalExpectedEndDate:2024-09-30 |
+		| PeriodsInLearning  | StartDate:2024-05-01, EndDate:2024-12-31, OriginalExpectedEndDate:2024-12-31 |
     Then On programme earnings are persisted as follows
         | Amount | AcademicYear | DeliveryPeriod |
         | 1000   | 2324         | 3              |
@@ -252,3 +262,26 @@ Scenario: End date is pushed back to account for BIL with no price change
         | 1000   | 2425         | 3              |
         | 1000   | 2425         | 4              |
         | 1000   | 2425         | 5              |
+
+Scenario: Early Completion with BIL
+	Given an apprenticeship has been created with the following information
+		| Age |
+		| 18  |
+	And a funding band maximum of 25000
+	And the following Price Episodes
+		| StartDate  | EndDate    | Price |
+		| 2020-08-15 | 2021-07-31 | 15000 |
+	And earnings are calculated
+	When the following on-programme request is sent
+		| Key               | Value                                                                        |
+		| CompletionDate    | 2021-02-15                                                                   |
+		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-07-31 |
+		| PeriodsInLearning | StartDate:2020-12-16, EndDate:2021-07-31, OriginalExpectedEndDate:2021-07-31 |
+	Then the instalments are balanced as follows
+		| Amount | AcademicYear | DeliveryPeriod | Type       |
+		| 1000   | 2021         | 1              | Regular    |
+		| 1000   | 2021         | 2              | Regular    |
+		| 1250   | 2021         | 5              | Regular    |
+		| 1250   | 2021         | 6              | Regular    |
+		| 7500   | 2021         | 7              | Balancing  |
+		| 3000   | 2021         | 7              | Completion |

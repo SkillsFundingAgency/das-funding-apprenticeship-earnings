@@ -69,7 +69,13 @@ internal static class FixtureExtensions
             FundingEmployerAccountId = x.FundingEmployerAccountId,
             FundingBandMaximum = x.FundingBandMaximum,
             Prices = MapPricesToModel(x.Prices, newStartDate),
-            Key = x.ApprenticeshipEpisodeKey
+            Key = x.ApprenticeshipEpisodeKey,
+            PeriodsInLearning = x.EpisodePeriodsInLearning.Select(p => new EpisodePeriodInLearningModel
+            {
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                OriginalExpectedEndDate = p.OriginalExpectedEndDate
+            }).ToList()
         }).ToList();
 
         return Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);

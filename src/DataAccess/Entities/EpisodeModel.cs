@@ -22,7 +22,11 @@ public class EpisodeModel
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;
         FundingBandMaximum = fundingBandMaximum;
-        Prices.Add(new EpisodePriceModel(Key, learningEpisode.Prices.First()));
+
+        var episodePrice = new EpisodePriceModel(Key, learningEpisode.Prices.First());
+
+        Prices.Add(episodePrice);
+        PeriodsInLearning.Add(episodePrice.ToSinglePeriodInLearning());
     }
 
     [Dapper.Contrib.Extensions.Key]
@@ -40,6 +44,6 @@ public class EpisodeModel
     public DateTime? PauseDate { get; set; }
     public decimal FundingBandMaximum { get; set; }
     public List<EpisodePriceModel> Prices { get; set; } = new ();
-    public List<EpisodeBreakInLearningModel> BreaksInLearning { get; set; } = new ();
+    public List<EpisodePeriodInLearningModel> PeriodsInLearning { get; set; } = new ();
     public EarningsProfileModel EarningsProfile { get; set; } = null!;
 }
