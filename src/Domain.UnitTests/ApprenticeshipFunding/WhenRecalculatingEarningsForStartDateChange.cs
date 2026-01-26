@@ -44,7 +44,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.WithdrawalDate = null;
         learningEpisode.CompletionDate = null;
         learningEpisode.FundingBandMaximum = int.MaxValue;
-        learningEpisode.BreaksInLearning = new List<EpisodeBreakInLearningModel>();
+        learningEpisode.PeriodsInLearning = new List<EpisodePeriodInLearningModel>();
         learningEpisode.EarningsProfile.MathsAndEnglishCourses = new List<MathsAndEnglishModel>();
 
         var apprenticeshipEntityModel = _fixture

@@ -51,7 +51,13 @@ public abstract class BaseUpdateCommandHandlerTests
                 CareLeaverEmployerConsentGiven = apprenticeship.CareLeaverEmployerConsentGiven,
                 HasEHCP = apprenticeship.HasEHCP,
                 IsCareLeaver = apprenticeship.IsCareLeaver
-            }
+            },
+            PeriodsInLearning = apprenticeship.ApprenticeshipEpisodes.SelectMany(e => e.EpisodePeriodsInLearning).Select(p => new PeriodInLearningItem
+            {
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                OriginalExpectedEndDate = p.OriginalExpectedEndDate
+            }).ToList()
         };
 
         if (fundingBand > 0)
