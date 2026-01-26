@@ -99,7 +99,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             modelBuilder.Entity<MathsAndEnglishModel>()
                 .HasMany(x => x.PeriodsInLearning)
                 .WithOne()
-                .HasForeignKey(fk => fk.MathsAndEnglishKey);
+                .HasForeignKey(fk => fk.MathsAndEnglishKey)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // MathsAndEnglishInstalment
             modelBuilder.Entity<MathsAndEnglishInstalmentModel>()
