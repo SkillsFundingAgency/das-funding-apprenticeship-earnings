@@ -10,7 +10,9 @@ GO
 
 ALTER TABLE Domain.MathsAndEnglishPeriodInLearning
 ADD CONSTRAINT FK_MathsAndEnglishPeriodInLearning_MathsAndEnglish
-FOREIGN KEY (MathsAndEnglishKey) REFERENCES Domain.MathsAndEnglish ([Key])
+FOREIGN KEY (MathsAndEnglishKey)
+REFERENCES Domain.MathsAndEnglish ([Key])
+ON DELETE CASCADE;
 GO
 
 CREATE INDEX IX_MathsAndEnglish
