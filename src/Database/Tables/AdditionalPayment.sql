@@ -8,3 +8,7 @@
     [AdditionalPaymentType] NVARCHAR(20) NOT NULL,
     [DueDate] DATETIME NOT NULL
 )
+GO
+
+CREATE INDEX IX_AdditionalPayment_EarningsProfileId
+    ON [Domain].[AdditionalPayment] (EarningsProfileId);

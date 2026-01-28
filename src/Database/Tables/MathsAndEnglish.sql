@@ -13,3 +13,6 @@
     [LearnAimRef] VARCHAR(8) NOT NULL DEFAULT ''
 )
 GO
+
+CREATE INDEX IX_MathsAndEnglish_EarningsProfileId
+    ON [Domain].[MathsAndEnglish] (EarningsProfileId);
