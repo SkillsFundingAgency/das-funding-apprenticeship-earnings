@@ -203,6 +203,27 @@ public class EarningsProfile : AggregateComponent
                     existingInstalment.Amount = updatedInstalment.Amount;
                 }
             }
+
+            //3c. Update Periods in Learning
+            existingCourse.PeriodsInLearning.RemoveAll(existing =>
+                !updatedCourse.PeriodsInLearning.Any(updated => updated.StartDate.Date == existing.StartDate.Date));
+
+            foreach (var updatedPiL in updatedCourse.PeriodsInLearning)
+            {
+                var existingPeriodInLearning =
+                    existingCourse.PeriodsInLearning.FirstOrDefault(p => p.StartDate.Date == updatedPiL.StartDate.Date);
+
+                if (existingPeriodInLearning == null)
+                {
+                    existingCourse.PeriodsInLearning.Add(updatedPiL.GetModel());
+                }
+                else
+                {
+                    //update existing PiL
+                    existingPeriodInLearning.EndDate = updatedPiL.EndDate;
+                    existingPeriodInLearning.OriginalExpectedEndDate = updatedPiL.OriginalExpectedEndDate;
+                }
+            }
         }
 
         // --- 4. Remove courses that no longer exist ---

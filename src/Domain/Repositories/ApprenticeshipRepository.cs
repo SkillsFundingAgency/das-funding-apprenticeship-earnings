@@ -41,6 +41,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
+            .ThenInclude(y => y.PeriodsInLearning)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
