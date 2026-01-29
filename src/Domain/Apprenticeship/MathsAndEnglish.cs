@@ -19,7 +19,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public decimal Amount => _model.Amount;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
     public DateTime? CompletionDate => _model.CompletionDate;
-    public DateTime? ActualEndDate => _model.ActualEndDate;
+    public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
     public DateTime? PauseDate => _model.PauseDate;
     public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
@@ -39,7 +39,6 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         decimal amount, 
         DateTime? withdrawalDate, 
         DateTime? completionDate,
-        DateTime? actualEndDate, 
         DateTime? pauseDate, 
         int? priorLearningAdjustmentPercentage,
         IEnumerable<IPeriodInLearning> periodsInLearning)
@@ -53,7 +52,6 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.Amount = amount;
         _model.CompletionDate = completionDate;
         _model.WithdrawalDate = withdrawalDate;
-        _model.ActualEndDate = actualEndDate;
         _model.PauseDate = pauseDate;
         _model.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
         _model.PeriodsInLearning = periodsInLearning.Select(pil => new MathsAndEnglishPeriodInLearningModel
@@ -91,7 +89,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
                Amount == compare.Amount &&
                CompletionDate == compare.CompletionDate &&
                WithdrawalDate == compare.WithdrawalDate &&
-               ActualEndDate == compare.ActualEndDate &&
+               PauseDate == compare.PauseDate &&
                PriorLearningAdjustmentPercentage == compare.PriorLearningAdjustmentPercentage &&
                Instalments.AreSame(compare.Instalments);
     }

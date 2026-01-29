@@ -101,7 +101,6 @@ public class WhenUpdateEnglishAndMathsCourses
             null,
             null,
             null,
-            null,
             [periodInLearning]);
     }
 }

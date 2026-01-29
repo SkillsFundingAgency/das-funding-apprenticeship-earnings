@@ -22,7 +22,6 @@ public class MathsAndEnglishModel
     public decimal Amount { get; set; }
 
     public DateTime? WithdrawalDate { get; set; }
-    public DateTime? ActualEndDate { get; set; }
     public DateTime? PauseDate { get; set; }
     public DateTime? CompletionDate { get; set; }
     public int? PriorLearningAdjustmentPercentage { get; set; }
