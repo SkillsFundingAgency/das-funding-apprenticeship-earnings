@@ -143,7 +143,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
 
         var periodInLearning = PeriodInLearningHelper.Create(startDate, endDate, endDate);
 
-        var mathsAndEnglishCourse = new MathsAndEnglish(startDate, endDate, _courseName, _courseName, 1200m, withdrawalDate, null, null, null, new List<IPeriodInLearning> { periodInLearning });
+        var mathsAndEnglishCourse = new MathsAndEnglish(startDate, endDate, _courseName, _courseName, 1200m, withdrawalDate, null, null, null, null, new List<IPeriodInLearning> { periodInLearning });
         return new List<MathsAndEnglish> { mathsAndEnglishCourse };
     }
 }

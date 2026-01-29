@@ -147,8 +147,8 @@ public class EnglishAndMathsStepDefinitions
                     model.PriorLearningAdjustmentPercentage.SetValue(item.ToNullableInt());
                     break;
 
-                case nameof(UpdateEnglishAndMathsModel.ActualEndDate):
-                    model.ActualEndDate.SetValue(item.ToNullableDateTime());
+                case nameof(UpdateEnglishAndMathsModel.CompletionDate):
+                    model.CompletionDate.SetValue(item.ToNullableDateTime());
                     break;
 
                 case nameof(UpdateEnglishAndMathsModel.PauseDate):

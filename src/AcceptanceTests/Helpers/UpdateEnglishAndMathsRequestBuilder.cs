@@ -13,7 +13,7 @@ public class UpdateEnglishAndMathsRequestBuilder
     private decimal _amount = 4000;
     private DateTime? _withdrawalDate = null;
     private int? _priorLearningAdjustmentPercentage = null;
-    private DateTime? _actualEndDate = null;
+    private DateTime? _completionDate = null;
     private DateTime? _pauseDate = null;
     private List<PeriodInLearningItem> _periodsInLearning =
         [ new() { StartDate = new DateTime(2020, 02, 01), EndDate = new DateTime(2022, 1, 1), OriginalExpectedEndDate = new DateTime(2022, 1, 1) } ];
@@ -41,8 +41,8 @@ public class UpdateEnglishAndMathsRequestBuilder
         if (model.PriorLearningAdjustmentPercentage.HasChanged)
             _priorLearningAdjustmentPercentage = model.PriorLearningAdjustmentPercentage.Value;
 
-        if (model.ActualEndDate.HasChanged)
-            _actualEndDate = model.ActualEndDate.Value;
+        if (model.CompletionDate.HasChanged)
+            _completionDate = model.CompletionDate.Value;
 
         if (model.PauseDate.HasChanged)
             _pauseDate = model.PauseDate.Value;
@@ -83,7 +83,7 @@ public class UpdateEnglishAndMathsRequestBuilder
                     Amount = _amount,
                     WithdrawalDate = _withdrawalDate,
                     PriorLearningAdjustmentPercentage = _priorLearningAdjustmentPercentage,
-                    ActualEndDate = _actualEndDate,
+                    CompletionDate = _completionDate,
                     PauseDate = _pauseDate,
                     PeriodsInLearning = _periodsInLearning
                 }

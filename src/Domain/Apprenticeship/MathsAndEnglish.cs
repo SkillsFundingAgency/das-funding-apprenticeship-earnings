@@ -18,10 +18,10 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public string LearnAimRef => _model.LearnAimRef;
     public decimal Amount => _model.Amount;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
+    public DateTime? CompletionDate => _model.CompletionDate;
     public DateTime? ActualEndDate => _model.ActualEndDate;
     public DateTime? PauseDate => _model.PauseDate;
     public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
-    public DateTime? LastDayOfCourse => GetLastDayOfCourse();
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
     public IReadOnlyCollection<MathsAndEnglishPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<MathsAndEnglishPeriodInLearning>(_model.PeriodsInLearning.Select(MathsAndEnglishPeriodInLearning.Get).ToList());
 
@@ -38,6 +38,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         string learnAimRef, 
         decimal amount, 
         DateTime? withdrawalDate, 
+        DateTime? completionDate,
         DateTime? actualEndDate, 
         DateTime? pauseDate, 
         int? priorLearningAdjustmentPercentage,
@@ -50,6 +51,7 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.Course = course;
         _model.LearnAimRef = learnAimRef;
         _model.Amount = amount;
+        _model.CompletionDate = completionDate;
         _model.WithdrawalDate = withdrawalDate;
         _model.ActualEndDate = actualEndDate;
         _model.PauseDate = pauseDate;
@@ -87,25 +89,10 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
                Course == compare.Course &&
                LearnAimRef == compare.LearnAimRef &&
                Amount == compare.Amount &&
+               CompletionDate == compare.CompletionDate &&
                WithdrawalDate == compare.WithdrawalDate &&
                ActualEndDate == compare.ActualEndDate &&
                PriorLearningAdjustmentPercentage == compare.PriorLearningAdjustmentPercentage &&
                Instalments.AreSame(compare.Instalments);
     }
-
-    private DateTime? GetLastDayOfCourse()
-    {
-        var plausibleLastDaysOfLearning = new List<DateTime?>()
-        {
-            ActualEndDate,
-            WithdrawalDate,
-            PauseDate
-        };
-
-        return plausibleLastDaysOfLearning
-            .Where(d => d.HasValue)
-            .OrderBy(d => d!.Value)
-            .FirstOrDefault();
-    }
-
 }

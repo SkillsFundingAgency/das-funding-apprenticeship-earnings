@@ -78,11 +78,11 @@ public static class EnglishAndMathsPayments
     {
         var mathsAndEnglish = context.MathsAndEnglish;
 
-        if (!mathsAndEnglish.ActualEndDate.HasValue ||
-            mathsAndEnglish.ActualEndDate >= mathsAndEnglish.EndDate)
+        if (!mathsAndEnglish.CompletionDate.HasValue ||
+            mathsAndEnglish.CompletionDate >= mathsAndEnglish.EndDate)
             return;
 
-        var paymentDateToAdjust = mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth();
+        var paymentDateToAdjust = mathsAndEnglish.CompletionDate.Value.LastDayOfMonth();
 
         while (paymentDateToAdjust <= mathsAndEnglish.EndDate.LastCensusDate())
         {
@@ -96,7 +96,7 @@ public static class EnglishAndMathsPayments
         context.Instalments.Add(
             CreateInstalment(
                 mathsAndEnglish.Key,
-                mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth(),
+                mathsAndEnglish.CompletionDate.Value.LastDayOfMonth(),
                 context.AmountOutStanding,
                 MathsAndEnglishInstalmentType.Balancing));
     }
@@ -105,17 +105,17 @@ public static class EnglishAndMathsPayments
     {
         var startDate = context.MathsAndEnglish.StartDate;
         var endDate = context.MathsAndEnglish.EndDate;
-        var WithdrawalDate = context.MathsAndEnglish.WithdrawalDate;
+        var withdrawalDate = context.MathsAndEnglish.WithdrawalDate;
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
-        if (WithdrawalDate.HasValue && 
-            !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, WithdrawalDate.Value))
+        if (withdrawalDate.HasValue && 
+            !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
             context.Instalments.Clear();
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
-        if (WithdrawalDate.HasValue && 
-            WithdrawalDate.Value >= startDate &&
-            WithdrawalDate.Value < startDate.LastDayOfMonth())
+        if (withdrawalDate.HasValue && 
+            withdrawalDate.Value >= startDate &&
+            withdrawalDate.Value < startDate.LastDayOfMonth())
         {
             var numberOfInstalments = CalculateNumberOfInstalments(context.FirstPaymentDate, context.LastCensusDate);
             var monthlyAmount = context.AdjustedCourseAmount / numberOfInstalments;
@@ -125,9 +125,9 @@ public static class EnglishAndMathsPayments
 
     private static void ApplyLastDayOfCourseRule(InstalmentCalculationContext context)
     {
-        if (context.MathsAndEnglish.LastDayOfCourse.HasValue)
+        if (context.MathsAndEnglish.ActualEndDate.HasValue)
         {
-            DeleteAfterDate(context.Instalments, context.MathsAndEnglish.LastDayOfCourse.Value, context.MathsAndEnglish.StartDate);
+            DeleteAfterDate(context.Instalments, context.MathsAndEnglish.ActualEndDate.Value, context.MathsAndEnglish.StartDate);
         }
     }
 

@@ -170,6 +170,7 @@ public class EarningsProfile : AggregateComponent
             existingCourse.EndDate = updatedCourse.EndDate;
             existingCourse.Amount = updatedCourse.Amount;
             existingCourse.WithdrawalDate = updatedCourse.WithdrawalDate;
+            existingCourse.CompletionDate = updatedCourse.CompletionDate;
             existingCourse.ActualEndDate = updatedCourse.ActualEndDate;
             existingCourse.PauseDate = updatedCourse.PauseDate;
             existingCourse.PriorLearningAdjustmentPercentage = updatedCourse.PriorLearningAdjustmentPercentage;
