@@ -55,12 +55,11 @@ public static class EnglishAndMathsPayments
 
     private static void GenerateMonthlyInstalments(InstalmentCalculationContext context)
     {
-
         foreach (var periodInLearning in context.MathsAndEnglish.PeriodsInLearning)
         {
             var paymentDate = periodInLearning.StartDate.LastDayOfMonth();
             var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
-            var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, context.LastCensusDate);
+            var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, lastCensusDate);
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
