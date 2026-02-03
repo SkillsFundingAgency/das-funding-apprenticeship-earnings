@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
@@ -17,11 +18,12 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
     public string LearnAimRef => _model.LearnAimRef;
     public decimal Amount => _model.Amount;
     public DateTime? WithdrawalDate => _model.WithdrawalDate;
-    public DateTime? ActualEndDate => _model.ActualEndDate;
+    public DateTime? CompletionDate => _model.CompletionDate;
+    public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
     public DateTime? PauseDate => _model.PauseDate;
     public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
-    public DateTime? LastDayOfCourse => GetLastDayOfCourse();
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
+    public IReadOnlyCollection<MathsAndEnglishPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<MathsAndEnglishPeriodInLearning>(_model.PeriodsInLearning.Select(MathsAndEnglishPeriodInLearning.Get).ToList());
 
     private MathsAndEnglish(MathsAndEnglishModel model)
     {
@@ -29,7 +31,17 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(DateTime startDate, DateTime endDate, string course, string learnAimRef, decimal amount, DateTime? withdrawalDate, DateTime? actualEndDate, DateTime? pauseDate, int? priorLearningAdjustmentPercentage)
+    public MathsAndEnglish(
+        DateTime startDate, 
+        DateTime endDate, 
+        string course, 
+        string learnAimRef, 
+        decimal amount, 
+        DateTime? withdrawalDate, 
+        DateTime? completionDate,
+        DateTime? pauseDate, 
+        int? priorLearningAdjustmentPercentage,
+        IEnumerable<IPeriodInLearning> periodsInLearning)
     {
         _model = new MathsAndEnglishModel();
         _model.Key = Guid.NewGuid();
@@ -38,10 +50,18 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         _model.Course = course;
         _model.LearnAimRef = learnAimRef;
         _model.Amount = amount;
+        _model.CompletionDate = completionDate;
         _model.WithdrawalDate = withdrawalDate;
-        _model.ActualEndDate = actualEndDate;
         _model.PauseDate = pauseDate;
         _model.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
+        _model.PeriodsInLearning = periodsInLearning.Select(pil => new MathsAndEnglishPeriodInLearningModel
+        {
+            Key = Guid.NewGuid(),
+            MathsAndEnglishKey = _model.Key,
+            StartDate = pil.StartDate,
+            EndDate = pil.EndDate,
+            OriginalExpectedEndDate = pil.OriginalExpectedEndDate
+        }).ToList();
         _model.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
 
         _instalments = _model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
@@ -67,25 +87,10 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
                Course == compare.Course &&
                LearnAimRef == compare.LearnAimRef &&
                Amount == compare.Amount &&
+               CompletionDate == compare.CompletionDate &&
                WithdrawalDate == compare.WithdrawalDate &&
-               ActualEndDate == compare.ActualEndDate &&
+               PauseDate == compare.PauseDate &&
                PriorLearningAdjustmentPercentage == compare.PriorLearningAdjustmentPercentage &&
                Instalments.AreSame(compare.Instalments);
     }
-
-    private DateTime? GetLastDayOfCourse()
-    {
-        var plausibleLastDaysOfLearning = new List<DateTime?>()
-        {
-            ActualEndDate,
-            WithdrawalDate,
-            PauseDate
-        };
-
-        return plausibleLastDaysOfLearning
-            .Where(d => d.HasValue)
-            .OrderBy(d => d!.Value)
-            .FirstOrDefault();
-    }
-
 }

@@ -147,8 +147,8 @@ public class EnglishAndMathsPaymentsTests
         // Arrange
         var startDate = new DateTime(2023, 10, 1);
         var endDate = new DateTime(2024, 3, 31);
-        var actualEndDate = new DateTime(2023, 12, 31);
-        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 300, null, null, actualEndDate);
+        var completionDate = new DateTime(2023, 12, 31);
+        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 300, null, null, completionDate);
 
         // Act
         var result = EnglishAndMathsPayments.GenerateInstalments(course);
@@ -162,7 +162,7 @@ public class EnglishAndMathsPaymentsTests
 
     }
 
-    private MathsAndEnglish CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? actualEndDate = null)
+    private MathsAndEnglish CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? completionDate = null)
     {
         var model = new MathsAndEnglishModel
         {
@@ -173,8 +173,14 @@ public class EnglishAndMathsPaymentsTests
             EndDate = endDate,
             Amount = amount,
             WithdrawalDate = withdrawalDate,
-            ActualEndDate = actualEndDate,
-            PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage
+            CompletionDate = completionDate,
+            PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage,
+            PeriodsInLearning = [ new MathsAndEnglishPeriodInLearningModel
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                OriginalExpectedEndDate = endDate,
+            } ]
         };
 
         return MathsAndEnglish.Get(model);

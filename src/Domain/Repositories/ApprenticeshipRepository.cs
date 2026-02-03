@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -43,6 +41,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
+            .ThenInclude(y => y.PeriodsInLearning)
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)

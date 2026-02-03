@@ -99,8 +99,8 @@ Scenario: english and maths completion earnings
 		| StartDate | EndDate   | Course | LearnAimRef | Amount |
 		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   |
 	When the following english and maths completion change request is sent
-		| StartDate | EndDate   | Course | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-11-01    |
+		| StartDate | EndDate   | Course | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-11-01     |
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |

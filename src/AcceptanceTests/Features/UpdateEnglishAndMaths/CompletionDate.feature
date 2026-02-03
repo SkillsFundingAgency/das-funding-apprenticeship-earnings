@@ -8,11 +8,11 @@ Scenario: English and Maths completion moved later
 		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
-		| StartDate | EndDate   | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
+		| StartDate | EndDate   | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-11-1 | Maths1      | 1500   | 2020-11-01     |
 	When the following english and maths completion change request is sent
-		| StartDate | EndDate   | Course | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-12-01    |
+		| StartDate | EndDate   | Course | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-12-01     |
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |
@@ -28,11 +28,11 @@ Scenario: English and Maths completion moved earlier
 		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
-		| StartDate | EndDate   | Course | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-11-01    |
+		| StartDate | EndDate   | Course | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-11-01     |
 	When the following english and maths completion change request is sent
-		| StartDate | EndDate   | Course | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-10-01    |
+		| StartDate | EndDate   | Course | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   | 2020-10-01     |
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |
@@ -46,8 +46,8 @@ Scenario: English and Maths completion removed
 		| 2020-08-01 | 2021-10-01 | 7000  |
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
-		| StartDate | EndDate   | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-11-1 | Maths1 | 1500   | 2020-11-01    |
+		| StartDate | EndDate   | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-11-1 | Maths1      | 1500   | 2020-11-01     |
 	When the following english and maths completion change request is sent
 		| StartDate | EndDate   | Course | LearnAimRef | Amount |
 		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      | 1500   |
@@ -79,8 +79,8 @@ Scenario: English and Maths early completion within last month
 		| StartDate | EndDate    | Course | LearnAimRef | Amount |
 		| 2020-8-1  | 2021-10-31 | Maths1 | Maths1      | 1500   |
 	When the following english and maths completion change request is sent
-		| StartDate | EndDate    | Course | LearnAimRef | Amount | ActualEndDate |
-		| 2020-8-1  | 2021-10-31 | Maths1 | Maths1      | 1500   | 2021-10-01    |
+		| StartDate | EndDate    | Course | LearnAimRef | Amount | CompletionDate |
+		| 2020-8-1  | 2021-10-31 | Maths1 | Maths1      | 1500   | 2021-10-01     |
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
 		| Maths1 | 100    | 2021         | 1              | Regular   |

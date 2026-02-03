@@ -1,9 +1,7 @@
 ﻿using AutoFixture;
-using Azure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
-using SFA.DAS.Learning.Enums;
 using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
@@ -149,7 +147,7 @@ internal static class FixtureExtensions
                 Type = i.Type.ToString()
             }).ToList(),
             Amount = c.Amount,
-            ActualEndDate = c.ActualEndDate,
+            CompletionDate = c.CompletionDate,
             EndDate = c.EndDate,
             PauseDate = c.PauseDate,
             PriorLearningAdjustmentPercentage = c.PriorLearningAdjustmentPercentage

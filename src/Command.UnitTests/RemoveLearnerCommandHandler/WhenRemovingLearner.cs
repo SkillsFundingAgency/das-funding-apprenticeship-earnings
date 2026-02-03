@@ -46,7 +46,7 @@ public class WhenRemovingLearner
     {
         // Arrange
         var apprenticeship = _fixture.BuildApprenticeship();
-        apprenticeship.UpdateMathsAndEnglishCourses(_fixture.Create<List<MathsAndEnglish>>(), _mockSystemClock.Object);
+        apprenticeship.UpdateMathsAndEnglishCourses(_fixture.BuildMathsAndEnglishCourses(), _mockSystemClock.Object);
         
         var command = new RemoveLearnerCommand.RemoveLearnerCommand(apprenticeship.ApprenticeshipKey);
         var handler = new RemoveLearnerCommand.RemoveLearnerCommandHandler(_mockRepository.Object, _mockSystemClock.Object);

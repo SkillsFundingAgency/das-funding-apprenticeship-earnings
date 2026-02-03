@@ -8,73 +8,126 @@ public static class EnglishAndMathsPayments
 {
     public static List<MathsAndEnglishInstalmentModel> GenerateInstalments(MathsAndEnglish mathsAndEnglish)
     {
-        var instalments = new List<MathsAndEnglishInstalmentModel>();
-
-        // This is invalid, it should never happen but should not result in any payments
-        if (mathsAndEnglish.StartDate > mathsAndEnglish.EndDate) return instalments;
+        if (IsInvalidCourse(mathsAndEnglish))
+            return [];
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
-        if (mathsAndEnglish.StartDate.Month == mathsAndEnglish.EndDate.Month && mathsAndEnglish.StartDate.Year == mathsAndEnglish.EndDate.Year)
-            return [ CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.EndDate,mathsAndEnglish.Amount) ];
+        if (IsSingleMonthCourse(mathsAndEnglish))
+            return [CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.EndDate, mathsAndEnglish.Amount)];
 
+        var context = BuildCalculationContext(mathsAndEnglish);
+
+        GenerateMonthlyInstalments(context);
+        ApplyEarlyCompletionAdjustment(context);
+        ApplyWithdrawalRules(context);
+        ApplyLastDayOfCourseRule(context);
+
+        return context.Instalments;
+    }
+
+    private static bool IsInvalidCourse(MathsAndEnglish mathsAndEnglish)
+    {
+        return mathsAndEnglish.StartDate > mathsAndEnglish.EndDate;
+    }
+
+    private static bool IsSingleMonthCourse(MathsAndEnglish mathsAndEnglish)
+    {
+        return mathsAndEnglish.StartDate.Month == mathsAndEnglish.EndDate.Month && mathsAndEnglish.StartDate.Year == mathsAndEnglish.EndDate.Year;
+    }
+
+    private static InstalmentCalculationContext BuildCalculationContext(MathsAndEnglish mathsAndEnglish)
+    {
         var lastCensusDate = mathsAndEnglish.EndDate.LastCensusDate();
         var paymentDate = mathsAndEnglish.StartDate.LastDayOfMonth();
 
-        // Adjust for prior learning if applicable
-        var adjustedAmount = mathsAndEnglish.PriorLearningAdjustmentPercentage.HasValue && mathsAndEnglish.PriorLearningAdjustmentPercentage != 0
-            ? mathsAndEnglish.Amount * mathsAndEnglish.PriorLearningAdjustmentPercentage.Value / 100m
-            : mathsAndEnglish.Amount;
+        var adjustedAmount =
+            mathsAndEnglish.PriorLearningAdjustmentPercentage is > 0
+                ? mathsAndEnglish.Amount * mathsAndEnglish.PriorLearningAdjustmentPercentage.Value / 100m
+                : mathsAndEnglish.Amount;
 
-        var numberOfInstalments = ((lastCensusDate.Year - paymentDate.Year) * 12 + lastCensusDate.Month - paymentDate.Month) + 1;
-        var monthlyAmount = adjustedAmount / numberOfInstalments;
+        return new InstalmentCalculationContext(
+            mathsAndEnglish,
+            lastCensusDate,
+            paymentDate,
+            adjustedAmount
+        );
+    }
 
-        while (paymentDate <= lastCensusDate)
+    private static void GenerateMonthlyInstalments(InstalmentCalculationContext context)
+    {
+        foreach (var periodInLearning in context.MathsAndEnglish.PeriodsInLearning)
         {
-            instalments.Add(CreateInstalment(mathsAndEnglish.Key, paymentDate, monthlyAmount));
+            var paymentDate = periodInLearning.StartDate.LastDayOfMonth();
+            var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
+            var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, lastCensusDate);
 
-            paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
-        }
+            var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
-        // If an actual end date has been set and is before the planned end date then the learner has completed early and adjustments need to be made
-        if (mathsAndEnglish.ActualEndDate.HasValue && mathsAndEnglish.ActualEndDate < mathsAndEnglish.EndDate)
-        {
-            var paymentDateToAdjust = mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth();
-            var balancingCount = 0;
-
-            while (paymentDateToAdjust <= mathsAndEnglish.EndDate.LastCensusDate())
+            while (paymentDate <= periodInLearning.EndDate)
             {
-                instalments.RemoveAll(x =>
-                    x.AcademicYear == paymentDateToAdjust.ToAcademicYear() &&
-                    x.DeliveryPeriod == paymentDateToAdjust.ToDeliveryPeriod());  //todo soft delete these too?
+                context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
 
-                paymentDateToAdjust = paymentDateToAdjust.AddMonths(1).LastDayOfMonth();
-                balancingCount++;
+                paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
             }
-
-            var balancingAmount = balancingCount * monthlyAmount;
-
-            instalments.Add(
-                CreateInstalment(
-                    mathsAndEnglish.Key, 
-                    mathsAndEnglish.ActualEndDate.Value.LastDayOfMonth(), 
-                    balancingAmount,
-                    MathsAndEnglishInstalmentType.Balancing));
         }
+
+    }
+
+    private static void ApplyEarlyCompletionAdjustment(InstalmentCalculationContext context)
+    {
+        var mathsAndEnglish = context.MathsAndEnglish;
+
+        if (!mathsAndEnglish.CompletionDate.HasValue ||
+            mathsAndEnglish.CompletionDate >= mathsAndEnglish.EndDate)
+            return;
+
+        var paymentDateToAdjust = mathsAndEnglish.CompletionDate.Value.LastDayOfMonth();
+
+        while (paymentDateToAdjust <= mathsAndEnglish.EndDate.LastCensusDate())
+        {
+            context.Instalments.RemoveAll(x =>
+                x.AcademicYear == paymentDateToAdjust.ToAcademicYear() &&
+                x.DeliveryPeriod == paymentDateToAdjust.ToDeliveryPeriod());
+
+            paymentDateToAdjust = paymentDateToAdjust.AddMonths(1).LastDayOfMonth();
+        }
+
+        context.Instalments.Add(
+            CreateInstalment(
+                mathsAndEnglish.Key,
+                mathsAndEnglish.CompletionDate.Value.LastDayOfMonth(),
+                context.AmountOutStanding,
+                MathsAndEnglishInstalmentType.Balancing));
+    }
+
+    private static void ApplyWithdrawalRules(InstalmentCalculationContext context)
+    {
+        var startDate = context.MathsAndEnglish.StartDate;
+        var endDate = context.MathsAndEnglish.EndDate;
+        var withdrawalDate = context.MathsAndEnglish.WithdrawalDate;
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
-        if (mathsAndEnglish.WithdrawalDate.HasValue && !WithdrawnLearnerQualifiesForEarnings(mathsAndEnglish.StartDate, mathsAndEnglish.EndDate, mathsAndEnglish.WithdrawalDate.Value))
-            instalments.Clear();
+        if (withdrawalDate.HasValue && 
+            !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
+            context.Instalments.Clear();
 
         // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
-        if (mathsAndEnglish.WithdrawalDate.HasValue && mathsAndEnglish.WithdrawalDate.Value >= mathsAndEnglish.StartDate && mathsAndEnglish.WithdrawalDate.Value < mathsAndEnglish.StartDate.LastDayOfMonth())
-            instalments.Add(CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.StartDate, monthlyAmount));
-
-        if (mathsAndEnglish.LastDayOfCourse.HasValue)
+        if (withdrawalDate.HasValue && 
+            withdrawalDate.Value >= startDate &&
+            withdrawalDate.Value < startDate.LastDayOfMonth())
         {
-            DeleteAfterDate(instalments, mathsAndEnglish.LastDayOfCourse.Value, mathsAndEnglish.StartDate);
-        }
+            var numberOfInstalments = CalculateNumberOfInstalments(context.FirstPaymentDate, context.LastCensusDate);
+            var monthlyAmount = context.AdjustedCourseAmount / numberOfInstalments;
+            context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, startDate, monthlyAmount));
+        }   
+    }
 
-        return instalments;
+    private static void ApplyLastDayOfCourseRule(InstalmentCalculationContext context)
+    {
+        if (context.MathsAndEnglish.ActualEndDate.HasValue)
+        {
+            DeleteAfterDate(context.Instalments, context.MathsAndEnglish.ActualEndDate.Value, context.MathsAndEnglish.StartDate);
+        }
     }
 
     private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
@@ -139,4 +192,34 @@ public static class EnglishAndMathsPayments
              amount,
              instalmentType.ToString());
     }
+
+    private static int CalculateNumberOfInstalments(DateTime startDate, DateTime endDate)
+    {
+        return
+            ((endDate.Year - startDate.Year) * 12 +
+             endDate.Month - startDate.Month) + 1;
+    }
+}
+
+internal class InstalmentCalculationContext
+{
+    internal List<MathsAndEnglishInstalmentModel> Instalments { get; } = new List<MathsAndEnglishInstalmentModel>();
+    internal MathsAndEnglish MathsAndEnglish { get; private set; }
+    internal DateTime LastCensusDate { get; private set; }
+    internal DateTime FirstPaymentDate { get; private set; }
+
+    /// <summary> This is the course amount adjusted for prior learning </summary>
+    private readonly decimal _adjustedCourseAmount;
+    internal decimal AdjustedCourseAmount => _adjustedCourseAmount;
+
+    internal decimal AmountOutStanding => _adjustedCourseAmount - Instalments.Sum(x => x.Amount);
+
+    internal InstalmentCalculationContext(MathsAndEnglish mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
+    {
+        MathsAndEnglish = mathsAndEnglish;
+        LastCensusDate = lastCensusDate;
+        FirstPaymentDate = firstPaymentDate;
+        _adjustedCourseAmount = adjustedCourseTotal;
+    }
+
 }

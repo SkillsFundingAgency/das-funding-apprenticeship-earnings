@@ -57,6 +57,15 @@ public static class KeyValueModelExtensions
         return Parse<T>(model.Value);
     }
 
+    public static int? ToNullableInt(this KeyValueModel model)
+    {
+        if (int.TryParse(model.Value, out var integer))
+        {
+            return integer;
+        }
+        return null;
+    }
+
 
     public static T Parse<T>(string input) where T : new()
     {
