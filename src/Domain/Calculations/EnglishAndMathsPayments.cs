@@ -57,8 +57,6 @@ public static class EnglishAndMathsPayments
     {
         foreach (var periodInLearning in context.MathsAndEnglish.PeriodsInLearning)
         {
-            var effectiveEndDate = periodInLearning.EndDate;
-
             var paymentDate = periodInLearning.StartDate.LastDayOfMonth();
             var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
             
@@ -66,7 +64,7 @@ public static class EnglishAndMathsPayments
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
-            while (paymentDate <= effectiveEndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
+            while (paymentDate <= periodInLearning.EndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
             {
                 context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
 
