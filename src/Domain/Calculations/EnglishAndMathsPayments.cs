@@ -1,5 +1,4 @@
-﻿using Microsoft.IdentityModel.Protocols;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
@@ -50,8 +49,7 @@ public static class EnglishAndMathsPayments
             mathsAndEnglish,
             lastCensusDate,
             paymentDate,
-            adjustedAmount,
-            mathsAndEnglish.ActualEndDate
+            adjustedAmount
         );
     }
 
@@ -211,7 +209,6 @@ internal class InstalmentCalculationContext
     internal MathsAndEnglish MathsAndEnglish { get; private set; }
     internal DateTime LastCensusDate { get; private set; }
     internal DateTime FirstPaymentDate { get; private set; }
-    internal DateTime? ActualEndDate { get; private set; }
 
     /// <summary> This is the course amount adjusted for prior learning </summary>
     private readonly decimal _adjustedCourseAmount;
@@ -219,13 +216,12 @@ internal class InstalmentCalculationContext
 
     internal decimal AmountOutStanding => _adjustedCourseAmount - Instalments.Sum(x => x.Amount);
 
-    internal InstalmentCalculationContext(MathsAndEnglish mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal, DateTime? actualEndDate)
+    internal InstalmentCalculationContext(MathsAndEnglish mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
     {
         MathsAndEnglish = mathsAndEnglish;
         LastCensusDate = lastCensusDate;
         FirstPaymentDate = firstPaymentDate;
         _adjustedCourseAmount = adjustedCourseTotal;
-        ActualEndDate = actualEndDate;
     }
 
 }
