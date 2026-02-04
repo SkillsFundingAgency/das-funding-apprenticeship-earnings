@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using Microsoft.IdentityModel.Protocols;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
@@ -49,7 +50,8 @@ public static class EnglishAndMathsPayments
             mathsAndEnglish,
             lastCensusDate,
             paymentDate,
-            adjustedAmount
+            adjustedAmount,
+            mathsAndEnglish.ActualEndDate
         );
     }
 
@@ -57,20 +59,22 @@ public static class EnglishAndMathsPayments
     {
         foreach (var periodInLearning in context.MathsAndEnglish.PeriodsInLearning)
         {
+            var effectiveEndDate = periodInLearning.EndDate;
+
             var paymentDate = periodInLearning.StartDate.LastDayOfMonth();
             var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
+            
             var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, lastCensusDate);
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
-            while (paymentDate <= periodInLearning.EndDate)
+            while (paymentDate <= effectiveEndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
             {
                 context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
 
                 paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
             }
         }
-
     }
 
     private static void ApplyEarlyCompletionAdjustment(InstalmentCalculationContext context)
@@ -207,6 +211,7 @@ internal class InstalmentCalculationContext
     internal MathsAndEnglish MathsAndEnglish { get; private set; }
     internal DateTime LastCensusDate { get; private set; }
     internal DateTime FirstPaymentDate { get; private set; }
+    internal DateTime? ActualEndDate { get; private set; }
 
     /// <summary> This is the course amount adjusted for prior learning </summary>
     private readonly decimal _adjustedCourseAmount;
@@ -214,12 +219,13 @@ internal class InstalmentCalculationContext
 
     internal decimal AmountOutStanding => _adjustedCourseAmount - Instalments.Sum(x => x.Amount);
 
-    internal InstalmentCalculationContext(MathsAndEnglish mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
+    internal InstalmentCalculationContext(MathsAndEnglish mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal, DateTime? actualEndDate)
     {
         MathsAndEnglish = mathsAndEnglish;
         LastCensusDate = lastCensusDate;
         FirstPaymentDate = firstPaymentDate;
         _adjustedCourseAmount = adjustedCourseTotal;
+        ActualEndDate = actualEndDate;
     }
 
 }
