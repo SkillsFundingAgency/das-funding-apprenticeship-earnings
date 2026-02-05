@@ -59,18 +59,18 @@ public static class EnglishAndMathsPayments
         {
             var paymentDate = periodInLearning.StartDate.LastDayOfMonth();
             var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
+            
             var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, lastCensusDate);
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
-            while (paymentDate <= periodInLearning.EndDate)
+            while (paymentDate <= periodInLearning.EndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
             {
                 context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
 
                 paymentDate = paymentDate.AddDays(1).AddMonths(1).AddDays(-1);
             }
         }
-
     }
 
     private static void ApplyEarlyCompletionAdjustment(InstalmentCalculationContext context)
