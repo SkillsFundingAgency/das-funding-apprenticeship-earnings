@@ -2,6 +2,16 @@
 Pre-Deployment Script
 */
 
+/* FLP-1520: Remove BiL table */
+IF EXISTS (SELECT 1 FROM sys.tables t
+    INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+    WHERE t.name = 'EpisodeBreakInLearning'
+      AND s.name = 'Domain'
+)
+BEGIN
+    DROP TABLE [Domain].[EpisodeBreakInLearning];
+END
+
 
 
 /* This can be deleted after 1421 is deployed to prod */
