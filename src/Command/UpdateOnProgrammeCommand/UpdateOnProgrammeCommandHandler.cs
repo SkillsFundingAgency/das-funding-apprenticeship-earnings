@@ -39,6 +39,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         {
             ExecuteAndLog(() => episode.UpdateFundingBandMaximum(request.FundingBandMaximum!.Value), "update FundingBandMaximum");
             ExecuteAndLog(() => episode.UpdatePrices(request.Prices), "update Prices");
+            episode.UpdateAgeAtStart(apprenticeship.DateOfBirth);
         }
 
         ExecuteAndLog(() => apprenticeship.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
@@ -50,7 +51,6 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
         _logger.LogInformation("Completed handling UpdateOnProgrammeCommand for ApprenticeshipKey: {ApprenticeshipKey}", command.ApprenticeshipKey);
     }
-
 
 
     private void ExecuteAndLog(Action action, string actionDescription)
