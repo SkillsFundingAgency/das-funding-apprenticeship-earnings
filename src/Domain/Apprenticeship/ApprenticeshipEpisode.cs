@@ -229,9 +229,12 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         var effectiveEndDate = LastDayOfLearning ?? _prices.Max(p => p.EndDate);
 
+        var startDate = _prices.Min(p => p.StartDate);
+        var age = apprenticeship.DateOfBirth.CalculateAgeAtDate(startDate);
+
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
-            AgeAtStartOfApprenticeship,
-            _prices.Min(p => p.StartDate),
+            age,
+            startDate,
             effectiveEndDate,
             apprenticeship.HasEHCP,
             apprenticeship.IsCareLeaver,
