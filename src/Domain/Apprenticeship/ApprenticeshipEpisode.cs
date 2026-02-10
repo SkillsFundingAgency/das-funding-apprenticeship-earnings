@@ -31,7 +31,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         var episode = new ApprenticeshipEpisode(entity, apprenticeship.DateOfBirth, apprenticeship.AddChildToRoot);
         return episode;
     }
-    
+
     private readonly EpisodeModel _model;
     private List<Price> _prices;
     private List<EpisodePeriodInLearning> _periodsInLearning;
@@ -228,8 +228,6 @@ public class ApprenticeshipEpisode : AggregateComponent
         var instalments = onProgramPayments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
 
         var effectiveEndDate = LastDayOfLearning ?? _prices.Max(p => p.EndDate);
-
-
 
         var incentivePayments = IncentivePayments.GenerateIncentivePayments(
             AgeAtStartOfApprenticeship,
