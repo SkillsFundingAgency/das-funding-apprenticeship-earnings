@@ -52,7 +52,6 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         _logger.LogInformation("Completed handling UpdateOnProgrammeCommand for ApprenticeshipKey: {ApprenticeshipKey}", command.ApprenticeshipKey);
     }
 
-
     private void ExecuteAndLog(Action action, string actionDescription)
     {
         _logger.LogInformation("Starting {action}", actionDescription);
