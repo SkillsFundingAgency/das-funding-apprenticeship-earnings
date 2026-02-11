@@ -268,7 +268,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         return (periodInLearning, pricePeriods);
     }
 
-    internal void UpdateAgeAtStart(DateTime dateOfBirth)
+    public void UpdateAgeAtStart(DateTime dateOfBirth)
     {
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(_prices.Min(x => x.StartDate));
     }
