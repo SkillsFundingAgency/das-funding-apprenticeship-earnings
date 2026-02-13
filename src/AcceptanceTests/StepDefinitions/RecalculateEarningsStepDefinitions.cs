@@ -28,7 +28,7 @@ public class RecalculateEarningsStepDefinitions
     {
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Unable to await recalculation");
 
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
@@ -46,7 +46,7 @@ public class RecalculateEarningsStepDefinitions
     {
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to detect Earnings recalculation");
 
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
@@ -62,7 +62,7 @@ public class RecalculateEarningsStepDefinitions
     [Then(@"there are (.*) earnings")]
     public void AssertExpectedNumberOfEarnings(int expectedNumberOfEarnings)
     {
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count;
@@ -79,7 +79,7 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<LearningCreatedEvent>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
     }
 
-    private async Task<ApprenticeshipModel> GetApprenticeshipEntity()
+    private async Task<LearningModel> GetApprenticeshipEntity()
     {
         return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }

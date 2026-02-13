@@ -11,6 +11,7 @@ public abstract class EarningsProfileModelBase
     public Guid Version { get; set; }
     public decimal OnProgramTotal { get; set; }
     public decimal CompletionPayment { get; set; }
+    public bool IsApproved { get; set; }
 
     public EarningsProfileModelBase() { }
 

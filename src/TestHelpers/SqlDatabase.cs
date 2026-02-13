@@ -27,7 +27,7 @@ public class SqlDatabase : IDisposable
         DbContext = new ApprenticeshipEarningsDataContext(options);
     }
 
-    public async Task<ApprenticeshipModel?> GetApprenticeship(Guid learningKey)
+    public async Task<LearningModel?> GetApprenticeship(Guid learningKey)
     {
         ClearCachedEntities();
 
@@ -49,7 +49,7 @@ public class SqlDatabase : IDisposable
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
-            .SingleOrDefaultAsync(x => x.Key == learningKey);
+            .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
 
         return apprenticeship;
     }

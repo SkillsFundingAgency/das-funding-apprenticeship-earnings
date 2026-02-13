@@ -6,16 +6,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    private Apprenticeship(ApprenticeshipModel model)
+    private Apprenticeship(LearningModel model)
     {
         _model = model;
         _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
 
-    private ApprenticeshipModel _model;
+    private LearningModel _model;
     private readonly List<ApprenticeshipEpisode> _episodes;
 
-    public Guid ApprenticeshipKey => _model.Key;
+    public Guid ApprenticeshipKey => _model.LearningKey;
     public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
     public string Uln => _model.Uln;
     public bool HasEHCP => _model?.HasEHCP ?? false;
@@ -25,12 +25,12 @@ public class Apprenticeship : AggregateRoot
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     
-    public static Apprenticeship Get(ApprenticeshipModel entity)
+    public static Apprenticeship Get(LearningModel entity)
     {
         return new Apprenticeship(entity);
     }
 
-    public ApprenticeshipModel GetModel()
+    public LearningModel GetModel()
     {
         return _model;
     }

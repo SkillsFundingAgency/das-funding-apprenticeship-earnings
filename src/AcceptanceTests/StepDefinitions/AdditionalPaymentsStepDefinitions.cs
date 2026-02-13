@@ -87,7 +87,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertFirstIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, updateOnProgrammeRequest, apprenticeshipModel);
     }
@@ -96,7 +96,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertNoFirstIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, updateOnProgrammeRequest, apprenticeshipModel);
     }
@@ -105,7 +105,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertSecondIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, updateOnProgrammeRequest, apprenticeshipModel);
     }
@@ -114,7 +114,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertNoSecondIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<ApprenticeshipModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, updateOnProgrammeRequest, apprenticeshipModel);
     }

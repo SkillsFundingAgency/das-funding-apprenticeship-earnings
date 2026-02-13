@@ -12,7 +12,7 @@ internal static class TestHelper
         return Apprenticeship.Get(apprenticeshipEntityModel);
     }
 
-    internal static ApprenticeshipModel BuildApprenticeshipModel(this Fixture fixture)
+    internal static LearningModel BuildApprenticeshipModel(this Fixture fixture)
     {
         var priceStartDate = DateTime.UtcNow.AddMonths(-10);
         var priceEndDate = DateTime.UtcNow.AddMonths(10);
@@ -40,7 +40,7 @@ internal static class TestHelper
                 .Create())
             .Create();
         var apprenticeshipEntityModel = fixture
-            .Build<ApprenticeshipModel>()
+            .Build<LearningModel>()
             .With(x => x.Episodes, new List<EpisodeModel> { episodeModel })
             .Create();
 

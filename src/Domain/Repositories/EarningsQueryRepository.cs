@@ -27,7 +27,7 @@ public class EarningsQueryRepository : IEarningsQueryRepository
     {
         var query = GetApprenticeshipsQuery(ukprn, searchDate, onlyActiveApprenticeships);
         if (learningKeys != null && learningKeys.Any())
-            query = query.Where(x => learningKeys.Contains(x.Key));
+            query = query.Where(x => learningKeys.Contains(x.LearningKey));
 
         var apprenticeships = query
             .AsNoTracking()
@@ -66,10 +66,10 @@ public class EarningsQueryRepository : IEarningsQueryRepository
         return currentApprenticeships;
     }
 
-    private IQueryable<DataAccess.Entities.ApprenticeshipModel> GetApprenticeshipsQuery(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
+    private IQueryable<DataAccess.Entities.LearningModel> GetApprenticeshipsQuery(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
     {
         // first get any apprenticeships which belonged to the ukprn, splitting this query will improve performance
-        IQueryable<DataAccess.Entities.ApprenticeshipModel> query = DbContext.Apprenticeships
+        IQueryable<DataAccess.Entities.LearningModel> query = DbContext.Apprenticeships
             .Where(x => x.Episodes.Any(y => y.Ukprn == ukprn))
             .Include(x => x.Episodes)
             .ThenInclude(x => x.Prices)

@@ -57,8 +57,8 @@ public class WhenUpdatingEnglishAndMaths
 
     private Apprenticeship BuildApprenticeship()
     {
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
-        apprenticeshipModel.Episodes = [new EpisodeModel(apprenticeshipModel.Key, _fixture.Create<LearningEpisode>(), _fixture.Create<int>()){ EarningsProfile = new EarningsProfileModel
+        var apprenticeshipModel = _fixture.Create<LearningModel>();
+        apprenticeshipModel.Episodes = [new EpisodeModel(apprenticeshipModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>()){ EarningsProfile = new EarningsProfileModel
         {
             MathsAndEnglishCourses = new List<MathsAndEnglishModel>()
         }}];

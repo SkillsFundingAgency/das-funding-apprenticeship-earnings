@@ -49,7 +49,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .Include(x=> x.Episodes)
             .ThenInclude(y=> y.PeriodsInLearning)
             .AsSplitQuery()
-            .SingleAsync(x => x.Key == key);
+            .SingleAsync(x => x.LearningKey == key);
 
         return _apprenticeshipFactory.GetExisting(apprenticeship);
     }

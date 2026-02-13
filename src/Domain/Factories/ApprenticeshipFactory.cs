@@ -7,10 +7,10 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
 {
     public Apprenticeship.Apprenticeship CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
     {
-        var model = new ApprenticeshipModel
+        var model = new LearningModel
         {
             ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
-            Key = learningCreatedEvent.LearningKey,
+            LearningKey = learningCreatedEvent.LearningKey,
             Uln = learningCreatedEvent.Uln,
             Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum) },
             DateOfBirth = learningCreatedEvent.DateOfBirth
@@ -19,7 +19,7 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
         return Apprenticeship.Apprenticeship.Get(model);
     }
 
-    public Apprenticeship.Apprenticeship GetExisting(ApprenticeshipModel model)
+    public Apprenticeship.Apprenticeship GetExisting(LearningModel model)
     {
         return Apprenticeship.Apprenticeship.Get(model);
     }

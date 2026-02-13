@@ -49,7 +49,7 @@ public class WhenUpdatingEnglishAndMaths
 
         var command = new UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand(learningKey, mathsAndEnglishList);
 
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
+        var apprenticeshipModel = _fixture.Create<LearningModel>();
         apprenticeshipModel.Episodes = new List<EpisodeModel> { _fixture.Create<EpisodeModel>() };
 
         var apprenticeship = Apprenticeship.Get(apprenticeshipModel);

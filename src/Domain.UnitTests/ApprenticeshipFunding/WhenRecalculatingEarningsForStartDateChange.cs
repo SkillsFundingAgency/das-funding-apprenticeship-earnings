@@ -48,7 +48,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.EarningsProfile.MathsAndEnglishCourses = new List<MathsAndEnglishModel>();
 
         var apprenticeshipEntityModel = _fixture
-            .Build<ApprenticeshipModel>()
+            .Build<LearningModel>()
             .With(x => x.DateOfBirth, startDate.AddYears(-_ageAtStartOfLearning))
             .With(x => x.Episodes, new List<EpisodeModel> { learningEpisode })
             .Create();

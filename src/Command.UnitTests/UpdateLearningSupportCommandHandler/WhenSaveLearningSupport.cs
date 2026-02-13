@@ -49,7 +49,7 @@ public class WhenSaveLearningSupport
             new UpdateLearningSupportRequest { LearningSupport =[ new LearningSupportItem { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} ]}
             );
 
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
+        var apprenticeshipModel = _fixture.Create<LearningModel>();
         apprenticeshipModel.Episodes = new List<EpisodeModel>
         {
             _fixture.Create<EpisodeModel>()
