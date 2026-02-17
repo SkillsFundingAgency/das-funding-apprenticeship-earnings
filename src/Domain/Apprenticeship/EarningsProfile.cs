@@ -12,15 +12,15 @@ public class EarningsProfile : AggregateComponent
 
     private List<Instalment> _instalments;
 
-    public EarningsProfile(
-        decimal onProgramTotal,
+    public EarningsProfile(decimal onProgramTotal,
         List<Instalment> instalments,
         List<AdditionalPayment> additionalPayments,
         List<MathsAndEnglish> mathsAndEnglishCourses,
         decimal completionPayment,
         Guid episodeKey,
         bool isApproved,
-        Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
+        Action<AggregateComponent> addChildToRoot,
+        string calculationData): base(addChildToRoot)
     {
         var earningProfileId = Guid.NewGuid();
 
@@ -35,6 +35,7 @@ public class EarningsProfile : AggregateComponent
         Model.EpisodeKey = episodeKey;
         Model.Version = Guid.NewGuid();
         Model.IsApproved = isApproved;
+        Model.CalculationData = calculationData;
 
         AddEvent(Model.CreatedEarningsProfileUpdatedEvent(true));
     }
@@ -53,6 +54,7 @@ public class EarningsProfile : AggregateComponent
     public decimal CompletionPayment => Model.CompletionPayment;
     public Guid Version => Model.Version;
     public bool IsApproved => Model.IsApproved;
+    public string CalculationData => Model.CalculationData;
 
     public void Update(
         ISystemClockService systemClock,

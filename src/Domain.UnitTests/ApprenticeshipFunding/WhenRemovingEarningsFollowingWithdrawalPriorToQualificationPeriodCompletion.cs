@@ -37,7 +37,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(0);
@@ -64,7 +64,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
 
@@ -89,7 +89,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(1);
@@ -105,7 +105,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
         // Act
         currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
@@ -122,6 +122,6 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
         _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         var episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object);
+        episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);
     }
 }

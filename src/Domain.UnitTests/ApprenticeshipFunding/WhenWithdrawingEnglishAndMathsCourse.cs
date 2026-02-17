@@ -36,7 +36,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
         _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         _sut = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        _sut.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object);
+        _sut.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);
 
         _sut.UpdateEnglishAndMaths(CreateTestEnglishAndMathsCourses(), _mockSystemClock.Object);
     }

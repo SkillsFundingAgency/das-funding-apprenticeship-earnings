@@ -24,7 +24,8 @@ public static class UnapprovedShortCourseSetupModelExtensions
             LearningKey = Guid.NewGuid(),
             Learner = new Learner
             {
-                DateOfBirth = startDate.AddYears(age * -1)
+                DateOfBirth = startDate.AddYears(age * -1),
+                Uln = "1002"
             },
             LearningSupport = new List<LearningSupportItem>(),
             OnProgramme = new OnProgramme

@@ -12,6 +12,7 @@ public abstract class EarningsProfileModelBase
     public decimal OnProgramTotal { get; set; }
     public decimal CompletionPayment { get; set; }
     public bool IsApproved { get; set; }
+    public string CalculationData { get; set; }
 
     public EarningsProfileModelBase() { }
 

@@ -35,7 +35,7 @@ public class Apprenticeship : AggregateRoot
         return _model;
     }
 
-    public void Calculate(ISystemClockService systemClock, Guid? episodeKey = null)
+    public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null)
     {
         ApprenticeshipEpisode episode;
 
@@ -48,7 +48,7 @@ public class Apprenticeship : AggregateRoot
             episode = this.GetCurrentEpisode(systemClock);
         }
 
-        episode.CalculateOnProgram(this, systemClock);
+        episode.CalculateOnProgram(this, systemClock, calculationData);
     }
 
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)

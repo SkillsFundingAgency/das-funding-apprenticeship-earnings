@@ -64,7 +64,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             : "19+ Apprenticeship (Employer on App Service)";
 
 
-    public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
+    public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock, string calculationData)
     {
         var(instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(apprenticeship);
 
@@ -83,7 +83,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         if (_earningsProfile == null)
         {
-            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey, true);
+            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey, true, calculationData);
             _model.EarningsProfile = _earningsProfile.GetModel();
         }
         else
@@ -102,7 +102,7 @@ public class ApprenticeshipEpisode : AggregateComponent
         }
     }
 
-    public void CalculateShortCourseOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock, bool isApproved)
+    public void CalculateShortCourseOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock, bool isApproved, string calculationData)
     {
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             Prices.Single().AgreedPrice,
@@ -119,7 +119,8 @@ public class ApprenticeshipEpisode : AggregateComponent
                 new List<MathsAndEnglish>(), 
                 0, 
                 ApprenticeshipEpisodeKey,
-                isApproved);
+                isApproved,
+                calculationData);
 
             _model.EarningsProfile = _earningsProfile.GetModel();
         }

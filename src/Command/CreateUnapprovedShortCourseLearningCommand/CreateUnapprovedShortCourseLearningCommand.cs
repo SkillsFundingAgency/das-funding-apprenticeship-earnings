@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -43,7 +44,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
 
         var shortCourse = _apprenticeshipFactory.CreateNewShortCourse(command.Request);
 
-        shortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false);
+        shortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
         await _apprenticeshipRepository.Add(shortCourse);
 

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -25,5 +27,16 @@ public class ShortCourseStepDefinitions
         _scenarioContext.Set(request);
 
         await _testContext.TestInnerApi.Post($"/shortCourses", request);
+    }
+
+    [Then("Calculation Data is serialised")]
+    public async Task CalculationDataIsSerialised()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(request.LearningKey);
+
+        JsonSerializer
+            .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.Episodes.First().EarningsProfile.CalculationData)
+            .Should().BeEquivalentTo(request);
     }
 }

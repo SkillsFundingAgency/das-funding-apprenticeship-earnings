@@ -37,7 +37,7 @@ public class WhenCalculateEarnings
     [Test]
     public void ThenTheOnProgramTotalIsCalculated()
     {
-        _sut.Calculate(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, string.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .8m);
     }
@@ -45,7 +45,7 @@ public class WhenCalculateEarnings
     [Test]
     public void ThenTheCompletionAmountIsCalculated()
     {
-        _sut.Calculate(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, string.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .2m);
     }
@@ -53,7 +53,7 @@ public class WhenCalculateEarnings
     [Test]
     public void ThenTheInstalmentsAreGeneratedWithAmountsTo5dp()
     {
-        _sut.Calculate(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, string.Empty);
 
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
@@ -63,7 +63,7 @@ public class WhenCalculateEarnings
     [Test]
     public void ThenTheEarningsProfileIdIsGenerated()
     {
-        _sut.Calculate(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, string.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
@@ -71,7 +71,7 @@ public class WhenCalculateEarnings
     [Test]
     public void ThenTheEarningsProfileIsSetToApproved()
     {
-        _sut.Calculate(_mockSystemClock.Object);
+        _sut.Calculate(_mockSystemClock.Object, string.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.IsApproved.Should().BeTrue();
     }
