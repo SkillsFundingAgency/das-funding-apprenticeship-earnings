@@ -4,7 +4,8 @@
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
     [OnProgramTotal] DECIMAL(15,5) NOT NULL, 
     [CompletionPayment] DECIMAL(15,5) NULL, 
-    [Version] UNIQUEIDENTIFIER NULL
+    [Version] UNIQUEIDENTIFIER NULL, 
+    [IsApproved] BIT NOT NULL
 )
 GO
 ALTER TABLE Domain.[EarningsProfile]

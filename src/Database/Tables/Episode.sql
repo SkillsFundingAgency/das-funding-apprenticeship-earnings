@@ -11,7 +11,8 @@
     [CompletionDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
     [PauseDate] DATETIME NULL,
-    [FundingBandMaximum] DECIMAL(15,5) NULL
+    [FundingBandMaximum] DECIMAL(15,5) NULL, 
+    [TrainingType] NVARCHAR(50) NOT NULL
 )
 GO
 ALTER TABLE Domain.Episode

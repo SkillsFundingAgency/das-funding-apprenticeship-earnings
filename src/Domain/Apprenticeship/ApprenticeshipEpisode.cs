@@ -6,6 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System.Collections.ObjectModel;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -82,7 +83,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         if (_earningsProfile == null)
         {
-            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey);
+            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey, true);
             _model.EarningsProfile = _earningsProfile.GetModel();
         }
         else
@@ -98,6 +99,29 @@ public class ApprenticeshipEpisode : AggregateComponent
         if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
             this.AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(apprenticeship));
+        }
+    }
+
+    public void CalculateShortCourseOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock, bool isApproved)
+    {
+        var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
+            Prices.Single().AgreedPrice,
+            Prices.Single().StartDate,
+            Prices.Single().EndDate,
+            apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().PriceKey);
+
+        if (_earningsProfile == null)
+        {
+            _earningsProfile = this.CreateEarningsProfile(
+                Prices.Single().AgreedPrice,
+                onProgramPayments,
+                new List<AdditionalPayment>(), 
+                new List<MathsAndEnglish>(), 
+                0, 
+                ApprenticeshipEpisodeKey,
+                isApproved);
+
+            _model.EarningsProfile = _earningsProfile.GetModel();
         }
     }
 

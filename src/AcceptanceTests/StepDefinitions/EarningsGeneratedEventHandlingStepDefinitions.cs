@@ -47,13 +47,23 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<LearningCreatedEvent>().Uln, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
     }
 
+    [Then(@"On programme short course earnings are persisted as follows")]
+    public async Task ThenOnProgrammeShortCourseEarningsArePersistedAsFollows(Table table)
+    {
+        AssertOnProgrammeEarnings(table, _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey);
+    }
+
     [Then(@"On programme earnings are persisted as follows")]
     [Then(@"the instalments are balanced as follows")]
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
+        AssertOnProgrammeEarnings(table, _scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+    }
+
+    private async Task AssertOnProgrammeEarnings(Table table, Guid learningKey)
+    {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
@@ -65,7 +75,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
                               && x.AcademicYear == expectedEarning.AcademicYear
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
                               && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
-                , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
+                    , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
         }
     }
 

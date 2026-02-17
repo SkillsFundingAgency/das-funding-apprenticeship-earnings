@@ -1,18 +1,12 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandHandler = SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand.UpdateLearningSupportCommandHandler;
 using SaveCommand = SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand.UpdateLearningSupportCommand;
 

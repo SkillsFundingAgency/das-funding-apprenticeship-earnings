@@ -18,7 +18,9 @@ public class EarningsProfile : AggregateComponent
         List<AdditionalPayment> additionalPayments,
         List<MathsAndEnglish> mathsAndEnglishCourses,
         decimal completionPayment,
-        Guid episodeKey, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
+        Guid episodeKey,
+        bool isApproved,
+        Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         var earningProfileId = Guid.NewGuid();
 
@@ -32,6 +34,7 @@ public class EarningsProfile : AggregateComponent
         Model.CompletionPayment = completionPayment;
         Model.EpisodeKey = episodeKey;
         Model.Version = Guid.NewGuid();
+        Model.IsApproved = isApproved;
 
         AddEvent(Model.CreatedEarningsProfileUpdatedEvent(true));
     }
@@ -49,6 +52,7 @@ public class EarningsProfile : AggregateComponent
     public IReadOnlyCollection<MathsAndEnglish> MathsAndEnglishCourses => Model.MathsAndEnglishCourses.Select((MathsAndEnglish.Get)).ToList().AsReadOnly();
     public decimal CompletionPayment => Model.CompletionPayment;
     public Guid Version => Model.Version;
+    public bool IsApproved => Model.IsApproved;
 
     public void Update(
         ISystemClockService systemClock,

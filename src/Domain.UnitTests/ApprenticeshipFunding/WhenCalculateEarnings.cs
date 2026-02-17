@@ -67,4 +67,12 @@ public class WhenCalculateEarnings
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
+
+    [Test]
+    public void ThenTheEarningsProfileIsSetToApproved()
+    {
+        _sut.Calculate(_mockSystemClock.Object);
+        var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
+        currentEpisode.EarningsProfile.IsApproved.Should().BeTrue();
+    }
 }
