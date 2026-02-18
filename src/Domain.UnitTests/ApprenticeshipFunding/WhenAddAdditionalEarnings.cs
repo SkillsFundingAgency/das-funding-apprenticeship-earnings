@@ -102,7 +102,7 @@ public class WhenAddAdditionalEarnings
     private Apprenticeship.Apprenticeship CreateApprenticeship(byte apprenticeAge)
     {
         var sut = _fixture.CreateApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice, age: apprenticeAge);
-        sut.Calculate(_mockSystemClockService.Object);
+        sut.Calculate(_mockSystemClockService.Object, string.Empty);
         return sut;
     }
 }

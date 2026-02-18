@@ -50,9 +50,9 @@ internal static class FixtureExtensions
         DateTime? newStartDate = null, 
         bool withMissingEarningsProfile = false)
     {
-        var apprenticeshipEntityModel = fixture.Create<ApprenticeshipModel>();
+        var apprenticeshipEntityModel = fixture.Create<LearningModel>();
 
-        apprenticeshipEntityModel.Key = apprenticeship.ApprenticeshipKey;
+        apprenticeshipEntityModel.LearningKey = apprenticeship.ApprenticeshipKey;
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
 
@@ -175,7 +175,7 @@ internal static class FixtureExtensions
         }).ToList();
     }
 
-    private static void SetDateOfBirth(ApprenticeshipModel apprenticeshipEntityModel, int age)
+    private static void SetDateOfBirth(LearningModel apprenticeshipEntityModel, int age)
     {
         var startDate = apprenticeshipEntityModel.DateOfBirth = apprenticeshipEntityModel
             .Episodes.SelectMany(x => x.Prices)

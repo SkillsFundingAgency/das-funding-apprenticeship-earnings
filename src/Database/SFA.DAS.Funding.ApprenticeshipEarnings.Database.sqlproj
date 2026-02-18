@@ -64,7 +64,7 @@
   <ItemGroup>
     <Build Include="Schemas\Query.sql" />
     <Build Include="Schemas\Domain.sql" />
-    <Build Include="Tables\Apprenticeship.sql" />
+    <Build Include="Tables\Learning.sql" />
     <Build Include="Tables\Episode.sql" />
     <Build Include="Tables\EpisodePrice.sql" />
     <Build Include="Tables\EarningsProfile.sql" />

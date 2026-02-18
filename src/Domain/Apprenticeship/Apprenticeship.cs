@@ -1,21 +1,22 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Apprenticeship : AggregateRoot
 {
-    private Apprenticeship(ApprenticeshipModel model)
+    private Apprenticeship(LearningModel model)
     {
         _model = model;
         _episodes = _model.Episodes.Select(this.GetEpisodeFromModel).ToList();
     }
 
-    private ApprenticeshipModel _model;
+    private LearningModel _model;
     private readonly List<ApprenticeshipEpisode> _episodes;
 
-    public Guid ApprenticeshipKey => _model.Key;
+    public Guid ApprenticeshipKey => _model.LearningKey;
     public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
     public string Uln => _model.Uln;
     public bool HasEHCP => _model?.HasEHCP ?? false;
@@ -25,17 +26,17 @@ public class Apprenticeship : AggregateRoot
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_episodes);
     
-    public static Apprenticeship Get(ApprenticeshipModel entity)
+    public static Apprenticeship Get(LearningModel entity)
     {
         return new Apprenticeship(entity);
     }
 
-    public ApprenticeshipModel GetModel()
+    public LearningModel GetModel()
     {
         return _model;
     }
 
-    public void Calculate(ISystemClockService systemClock, Guid? episodeKey = null)
+    public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null)
     {
         ApprenticeshipEpisode episode;
 
@@ -48,7 +49,7 @@ public class Apprenticeship : AggregateRoot
             episode = this.GetCurrentEpisode(systemClock);
         }
 
-        episode.CalculateOnProgram(this, systemClock);
+        episode.CalculateOnProgram(this, systemClock, calculationData);
     }
 
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
@@ -96,4 +97,30 @@ public class Apprenticeship : AggregateRoot
             episode.UpdateAgeAtStart(dateOfBirth);
         }
     }
+
+    public void UpdateUnapprovedShortCourseInformation(ShortCourseUpdateModel updateModel)
+    {
+        _model.Uln = updateModel.Uln;
+        _model.Episodes.Single().TrainingCode = updateModel.CourseCode;
+        _model.Episodes.Single().EmployerAccountId = updateModel.EmployerId;
+        _model.Episodes.Single().Ukprn = updateModel.Ukprn;
+        _model.Episodes.Single().Prices.Single().StartDate = updateModel.StartDate;
+        _model.Episodes.Single().WithdrawalDate = updateModel.WithdrawalDate;
+        _model.Episodes.Single().CompletionDate = updateModel.CompletionDate;
+        _model.Episodes.Single().Prices.Single().EndDate = updateModel.ExpectedEndDate;
+        _model.Episodes.Single().Prices.Single().AgreedPrice = updateModel.TotalPrice;
+    }
+}
+
+public class ShortCourseUpdateModel
+{
+    public string Uln { get; set; }
+    public string CourseCode { get; set; }
+    public long EmployerId { get; set; }
+    public long Ukprn { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime? WithdrawalDate { get; set; }
+    public DateTime? CompletionDate { get; set; }
+    public DateTime ExpectedEndDate { get; set; }
+    public decimal TotalPrice { get; set; }
 }

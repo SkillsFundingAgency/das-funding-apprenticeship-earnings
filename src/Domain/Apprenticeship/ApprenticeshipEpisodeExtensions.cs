@@ -36,9 +36,12 @@ public static class LearningEpisodeExtensions
         List<AdditionalPayment> additionalPayments,
         List<MathsAndEnglish> mathsAndEnglishCourses,
         decimal completionPayment,
-        Guid episodeKey)
+        Guid episodeKey,
+        bool isApproved,
+        string calculationData)
     {
-        return new EarningsProfile(onProgramTotal, instalments,additionalPayments,mathsAndEnglishCourses,completionPayment,episodeKey, episode.AddChildToRoot);
+        return new EarningsProfile(onProgramTotal, instalments, additionalPayments, mathsAndEnglishCourses,
+            completionPayment, episodeKey, isApproved, episode.AddChildToRoot, calculationData);
     }
 
     public static List<DeliveryPeriod> BuildDeliveryPeriods(this ApprenticeshipEpisode currentEpisode)

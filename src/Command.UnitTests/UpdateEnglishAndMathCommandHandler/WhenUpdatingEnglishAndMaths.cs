@@ -57,12 +57,12 @@ public class WhenUpdatingEnglishAndMaths
 
     private Apprenticeship BuildApprenticeship()
     {
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
-        apprenticeshipModel.Episodes = [new EpisodeModel(apprenticeshipModel.Key, _fixture.Create<LearningEpisode>(), _fixture.Create<int>()){ EarningsProfile = new EarningsProfileModel
+        var learningModel = _fixture.Create<LearningModel>();
+        learningModel.Episodes = [new EpisodeModel(learningModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new EarningsProfileModel
         {
             MathsAndEnglishCourses = new List<MathsAndEnglishModel>()
         }}];
-        return Apprenticeship.Get(apprenticeshipModel);
+        return Apprenticeship.Get(learningModel);
     }
 
     private UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand BuildCommand(Apprenticeship apprenticeship)
