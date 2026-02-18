@@ -14,7 +14,7 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
             ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
             LearningKey = learningCreatedEvent.LearningKey,
             Uln = learningCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum) },
+            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum, null) },
             DateOfBirth = learningCreatedEvent.DateOfBirth
         };
 
@@ -52,7 +52,7 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
                         Key = Guid.NewGuid()
                     }
                 }
-            }, (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice)) }
+            }, (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice), commandRequest.OnProgramme.CompletionDate) }
         };
 
         return Apprenticeship.Apprenticeship.Get(model);

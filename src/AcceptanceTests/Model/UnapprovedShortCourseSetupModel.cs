@@ -8,6 +8,7 @@ public class UnapprovedShortCourseSetupModel
     public DateTime? StartDate { get; set; }
     public DateTime? ExpectedEndDate { get; set; }
     public decimal? TotalPrice { get; set; }
+    public DateTime? CompletionDate { get; set; }
 }
 
 public static class UnapprovedShortCourseSetupModelExtensions
@@ -36,7 +37,8 @@ public static class UnapprovedShortCourseSetupModelExtensions
                 Milestones = new List<Milestone>(),
                 StartDate = startDate,
                 TotalPrice = totalPrice,
-                Ukprn = 10000114
+                Ukprn = 10000114,
+                CompletionDate = model.CompletionDate
             }
         };
     }

@@ -6,7 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class ShortCoursePayments
 {
-    public static List<Instalment> GenerateShortCoursePayments(decimal totalPrice, DateTime startDate, DateTime endDate, Guid priceKey)
+    public static List<Instalment> GenerateShortCoursePayments(decimal totalPrice, DateTime startDate, DateTime endDate, Guid priceKey, DateTime? completionDate)
     {
         var payments = new List<OnProgramPayment>();
 
@@ -23,8 +23,8 @@ public static class ShortCoursePayments
 
         payments.Add(new OnProgramPayment
         {
-            AcademicYear = endDate.ToAcademicYear(),
-            DeliveryPeriod = endDate.ToDeliveryPeriod(),
+            AcademicYear = completionDate?.ToAcademicYear() ?? endDate.ToAcademicYear(),
+            DeliveryPeriod = completionDate?.ToDeliveryPeriod() ?? endDate.ToDeliveryPeriod(),
             Amount = totalPrice * 0.7m,
             PriceKey = priceKey
         });

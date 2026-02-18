@@ -108,7 +108,8 @@ public class ApprenticeshipEpisode : AggregateComponent
             Prices.Single().AgreedPrice,
             Prices.Single().StartDate,
             Prices.Single().EndDate,
-            apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().PriceKey);
+            apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().PriceKey,
+            apprenticeship.ApprenticeshipEpisodes.Single().CompletionDate);
 
         if (_earningsProfile == null)
         {
