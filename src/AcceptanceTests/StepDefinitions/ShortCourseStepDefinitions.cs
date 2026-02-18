@@ -1,5 +1,8 @@
 using System.Text.Json;
+using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
 
@@ -38,5 +41,22 @@ public class ShortCourseStepDefinitions
         JsonSerializer
             .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.Episodes.First().EarningsProfile.CalculationData)
             .Should().BeEquivalentTo(request);
+    }
+
+    [Then("the short course earnings history is maintained")]
+    public async Task AssertHistoryUpdated()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(request.LearningKey);
+        var currentEpisode = updatedEntity!.GetCurrentEpisode(TestSystemClock.Instance());
+
+        var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
+
+        if (history.Count == 0)
+        {
+            Assert.Fail("No earning history created");
+        }
+
+        history.First().Version.Should().Be(currentEpisode.EarningsProfile.Version);
     }
 }

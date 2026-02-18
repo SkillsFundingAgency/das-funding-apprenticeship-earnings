@@ -59,6 +59,45 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.CreateUnappro
             // Assert
             _mockFactory.Verify(x => x.CreateNewShortCourse(request), Times.Once);
             _mockRepository.Verify(x => x.Add(shortCourse), Times.Once);
+            _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenTheExistingShortCourseIsUpdated()
+        {
+            // Arrange
+            var request = _fixture.Create<CreateUnapprovedShortCourseLearningRequest>();
+            var command = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommand(request);
+
+            var existingShortCourse = Apprenticeship.Get(_fixture
+                .Build<LearningModel>()
+                .With(x => x.LearningKey, request.LearningKey)
+                .With(x => x.Episodes, new List<EpisodeModel>
+                {
+                    _fixture.Build<EpisodeModel>()
+                        .With(x => x.Prices, new List<EpisodePriceModel> { _fixture.Create<EpisodePriceModel>() }).Create()
+                }).Create());
+
+            _mockRepository
+                .Setup(x => x.Get(request.LearningKey))
+                .ReturnsAsync(existingShortCourse);
+
+            var sut = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler(
+                _mockLogger.Object,
+                _mockSystemClock.Object,
+                _mockFactory.Object,
+                _mockRepository.Object
+            );
+
+            // Act
+            await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            _mockRepository.Verify(x => x.Get(request.LearningKey), Times.Once);
+            _mockRepository.Verify(x => x.Update(existingShortCourse), Times.Once);
+
+            _mockRepository.Verify(x => x.Add(It.IsAny<Apprenticeship>()), Times.Never);
+            _mockFactory.Verify(x => x.CreateNewShortCourse(It.IsAny<CreateUnapprovedShortCourseLearningRequest>()), Times.Never);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -96,4 +97,30 @@ public class Apprenticeship : AggregateRoot
             episode.UpdateAgeAtStart(dateOfBirth);
         }
     }
+
+    public void UpdateUnapprovedShortCourseInformation(ShortCourseUpdateModel updateModel)
+    {
+        _model.Uln = updateModel.Uln;
+        _model.Episodes.Single().TrainingCode = updateModel.CourseCode;
+        _model.Episodes.Single().EmployerAccountId = updateModel.EmployerId;
+        _model.Episodes.Single().Ukprn = updateModel.Ukprn;
+        _model.Episodes.Single().Prices.Single().StartDate = updateModel.StartDate;
+        _model.Episodes.Single().WithdrawalDate = updateModel.WithdrawalDate;
+        _model.Episodes.Single().CompletionDate = updateModel.CompletionDate;
+        _model.Episodes.Single().Prices.Single().EndDate = updateModel.ExpectedEndDate;
+        _model.Episodes.Single().Prices.Single().AgreedPrice = updateModel.TotalPrice;
+    }
+}
+
+public class ShortCourseUpdateModel
+{
+    public string Uln { get; set; }
+    public string CourseCode { get; set; }
+    public long EmployerId { get; set; }
+    public long Ukprn { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime? WithdrawalDate { get; set; }
+    public DateTime? CompletionDate { get; set; }
+    public DateTime ExpectedEndDate { get; set; }
+    public decimal TotalPrice { get; set; }
 }

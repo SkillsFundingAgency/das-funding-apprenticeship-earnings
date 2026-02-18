@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -32,11 +33,36 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
             "Handling CreateUnapprovedShortCourseLearningCommand for learning {LearningKey}",
             command.Request.LearningKey);
 
-        var shortCourse = _apprenticeshipFactory.CreateNewShortCourse(command.Request);
+        var existingShortCourse = await _apprenticeshipRepository.Get(command.Request.LearningKey);
 
-        shortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+        if (existingShortCourse != null)
+        {
+            existingShortCourse.UpdateDateOfBirth(command.Request.Learner.DateOfBirth);
+            existingShortCourse.UpdateUnapprovedShortCourseInformation(new ShortCourseUpdateModel
+            {
+                CompletionDate = command.Request.OnProgramme.CompletionDate,
+                CourseCode = command.Request.OnProgramme.CourseCode,
+                EmployerId = command.Request.OnProgramme.EmployerId,
+                ExpectedEndDate = command.Request.OnProgramme.ExpectedEndDate,
+                StartDate = command.Request.OnProgramme.StartDate,
+                TotalPrice = command.Request.OnProgramme.TotalPrice,
+                Ukprn = command.Request.OnProgramme.Ukprn,
+                Uln = command.Request.Learner.Uln,
+                WithdrawalDate = command.Request.OnProgramme.WithdrawalDate
+            });
 
-        await _apprenticeshipRepository.Add(shortCourse);
+            existingShortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+
+            await _apprenticeshipRepository.Update(existingShortCourse);
+        }
+        else
+        {
+            var shortCourse = _apprenticeshipFactory.CreateNewShortCourse(command.Request);
+
+            shortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+
+            await _apprenticeshipRepository.Add(shortCourse);
+        }
 
         _logger.LogInformation(
             "Successfully handled CreateUnapprovedShortCourseLearningCommand for learning {LearningKey}",

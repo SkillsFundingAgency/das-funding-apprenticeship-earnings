@@ -124,6 +124,11 @@ public class ApprenticeshipEpisode : AggregateComponent
 
             _model.EarningsProfile = _earningsProfile.GetModel();
         }
+        else
+        {
+            _earningsProfile.Update(systemClock,
+                instalments: onProgramPayments);
+        }
     }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
