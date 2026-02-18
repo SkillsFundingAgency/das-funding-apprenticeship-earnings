@@ -47,13 +47,13 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.PeriodsInLearning = new List<EpisodePeriodInLearningModel>();
         learningEpisode.EarningsProfile.MathsAndEnglishCourses = new List<MathsAndEnglishModel>();
 
-        var apprenticeshipEntityModel = _fixture
+        var learningEntityModel = _fixture
             .Build<LearningModel>()
             .With(x => x.DateOfBirth, startDate.AddYears(-_ageAtStartOfLearning))
             .With(x => x.Episodes, new List<EpisodeModel> { learningEpisode })
             .Create();
 
-        _apprenticeship = Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);
+        _apprenticeship = Apprenticeship.Apprenticeship.Get(learningEntityModel);
         _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
 
         _episodeKey = _currentEpisode.ApprenticeshipEpisodeKey;

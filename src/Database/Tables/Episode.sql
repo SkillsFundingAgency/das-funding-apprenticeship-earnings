@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Domain].[Episode]
 (
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-	[LearnerKey] UNIQUEIDENTIFIER NOT NULL, 
+	[LearningKey] UNIQUEIDENTIFIER NOT NULL, 
     [Ukprn] BIGINT NOT NULL, 
     [EmployerAccountId] BIGINT NOT NULL, 
     [FundingType] NVARCHAR(50) NOT NULL, 
@@ -16,7 +16,7 @@
 )
 GO
 ALTER TABLE Domain.Episode
-ADD CONSTRAINT FK_Episode_Apprenticeship FOREIGN KEY (LearnerKey) REFERENCES [Domain].[Learning] ([LearningKey])
+ADD CONSTRAINT FK_Episode_Apprenticeship FOREIGN KEY (LearningKey) REFERENCES [Domain].[Learning] ([LearningKey])
 GO
-CREATE INDEX IX_learningKey ON Domain.[Episode] (LearnerKey);
+CREATE INDEX IX_learningKey ON Domain.[Episode] (LearningKey);
 GO

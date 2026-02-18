@@ -39,7 +39,7 @@ public class UpdateOnProgrammeStepDefinitions
 
         await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
 
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
+        var apprenticeshipEntity = await GetLearningEntity();
         
         _scenarioContext.Set(apprenticeshipEntity);
         _scenarioContext.Set(updateOnProgrammeRequest);
@@ -109,9 +109,9 @@ public class UpdateOnProgrammeStepDefinitions
         return model;
     }
 
-    private async Task<LearningModel> GetApprenticeshipEntity()
+    private async Task<LearningModel> GetLearningEntity()
     {
-        return await _testContext.SqlDatabase.GetApprenticeship(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        return await _testContext.SqlDatabase.GetLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }
 
 }

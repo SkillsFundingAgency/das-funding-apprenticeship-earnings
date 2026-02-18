@@ -29,7 +29,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     public async Task<Apprenticeship.Apprenticeship?> Get(Guid key)
     {
-        var apprenticeship = await DbContext.Apprenticeships
+        var apprenticeship = await DbContext.Learnings
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)

@@ -56,7 +56,7 @@ public class AdditionalPaymentsStepDefinitions
 
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
         var additionalPaymentsInDb = updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments;
 
@@ -76,7 +76,7 @@ public class AdditionalPaymentsStepDefinitions
     {
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
         updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
     }

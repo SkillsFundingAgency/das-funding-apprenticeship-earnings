@@ -98,7 +98,7 @@ public class LearningCreatedEventPublishingStepDefinitions
     private async Task<LearningModel?> GetApprenticeshipEntity()
     {
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        return await _testContext.SqlDatabase.GetApprenticeship(learningCreatedEvent.LearningKey);
+        return await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
     }
 
     private async Task<bool> EnsureApprenticeshipExists()

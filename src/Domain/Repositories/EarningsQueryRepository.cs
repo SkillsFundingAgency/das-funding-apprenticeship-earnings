@@ -69,7 +69,7 @@ public class EarningsQueryRepository : IEarningsQueryRepository
     private IQueryable<DataAccess.Entities.LearningModel> GetApprenticeshipsQuery(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false)
     {
         // first get any apprenticeships which belonged to the ukprn, splitting this query will improve performance
-        IQueryable<DataAccess.Entities.LearningModel> query = DbContext.Apprenticeships
+        IQueryable<DataAccess.Entities.LearningModel> query = DbContext.Learnings
             .Where(x => x.Episodes.Any(y => y.Ukprn == ukprn))
             .Include(x => x.Episodes)
             .ThenInclude(x => x.Prices)

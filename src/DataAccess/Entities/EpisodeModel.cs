@@ -11,10 +11,10 @@ public class EpisodeModel
     {
     }
 
-    public EpisodeModel(Guid apprenticeshipKey, LearningEpisode learningEpisode, int fundingBandMaximum, DateTime? completionDate) : base()
+    public EpisodeModel(Guid learningKey, LearningEpisode learningEpisode, int fundingBandMaximum, DateTime? completionDate) : base()
     {
         Key = learningEpisode.Key;
-        LearnerKey = apprenticeshipKey;
+        LearningKey = learningKey;
         Ukprn = learningEpisode.Ukprn;
         EmployerAccountId = learningEpisode.EmployerAccountId;
         FundingType = (FundingType)learningEpisode.FundingType;
@@ -33,7 +33,7 @@ public class EpisodeModel
     [Dapper.Contrib.Extensions.Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Key { get; set; }
-	public Guid LearnerKey { get; set; }
+	public Guid LearningKey { get; set; }
     public long Ukprn { get; set; }
     public long EmployerAccountId { get; set; }
 	public FundingType FundingType { get; set; }

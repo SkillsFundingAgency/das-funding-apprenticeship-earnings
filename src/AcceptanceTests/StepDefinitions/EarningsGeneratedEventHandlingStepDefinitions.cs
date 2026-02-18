@@ -66,7 +66,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
         LearningModel? updatedEntity;
 
-        updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKey);
+        updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
@@ -86,7 +86,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     public async Task ThenNoOnProgrammeEarningsArePersisted()
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
         earningsInDb.Should().BeEmpty();

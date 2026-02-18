@@ -10,7 +10,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         {
         }
 
-        public virtual DbSet<LearningModel> Apprenticeships { get; set; }
+        public virtual DbSet<LearningModel> Learnings { get; set; }
         public virtual DbSet<EpisodeModel> Episodes { get; set; }
         public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
         public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
@@ -26,7 +26,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
             modelBuilder.Entity<LearningModel>()
                 .HasMany(x => x.Episodes)
                 .WithOne()
-                .HasForeignKey(fk => fk.LearnerKey);
+                .HasForeignKey(fk => fk.LearningKey);
             modelBuilder.Entity<LearningModel>()
                 .HasKey(a => new { Key = a.LearningKey });
 

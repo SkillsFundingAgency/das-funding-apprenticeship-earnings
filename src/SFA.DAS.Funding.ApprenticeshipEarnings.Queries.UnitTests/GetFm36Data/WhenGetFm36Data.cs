@@ -126,7 +126,7 @@ public class WhenGetFm36Data
         episode.Prices.First().StartDate = _testTime.AddDays(-60);
         episode.Prices.First().EndDate = _testTime.AddDays(60);
         episode.EarningsProfile.Instalments.ForEach(x => x.Type = "Regular");
-        episode.LearnerKey = learningKey;
+        episode.LearningKey = learningKey;
 
         return episode;
     }

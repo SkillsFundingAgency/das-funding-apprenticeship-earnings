@@ -27,11 +27,11 @@ public class SqlDatabase : IDisposable
         DbContext = new ApprenticeshipEarningsDataContext(options);
     }
 
-    public async Task<LearningModel?> GetApprenticeship(Guid learningKey)
+    public async Task<LearningModel?> GetLearning(Guid learningKey)
     {
         ClearCachedEntities();
 
-        var apprenticeship = await DbContext.Apprenticeships
+        var learningEntity = await DbContext.Learnings
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
@@ -51,7 +51,7 @@ public class SqlDatabase : IDisposable
             .ThenInclude(y => y.Instalments)
             .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
 
-        return apprenticeship;
+        return learningEntity;
     }
 
     public async Task<List<EarningsProfileHistory>> GetHistory(Guid earningsProfileId)
