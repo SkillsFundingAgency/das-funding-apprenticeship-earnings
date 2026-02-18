@@ -54,12 +54,12 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddEarningsOuterApiClient(this IServiceCollection serviceCollection, EarningOuterApiConfiguration outerConfig)
     {
-        //outerConfig.BaseUrl = EnsureBaseAddressFormat(outerConfig.BaseUrl);
+        outerConfig.BaseUrl = EnsureBaseAddressFormat(outerConfig.BaseUrl);
 
         serviceCollection.AddHttpClient<IEarningsOuterApiClient, EarningsOuterApiClient.EarningsOuterApiClient>(client =>
         {
-            client.BaseAddress = new Uri("https://localhost/");
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "1");
+            client.BaseAddress = new Uri(outerConfig.BaseUrl);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", outerConfig.Key);
             client.DefaultRequestHeaders.Add("X-Version", "1");
         });
 
