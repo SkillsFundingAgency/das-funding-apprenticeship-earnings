@@ -128,7 +128,10 @@ public class ApprenticeshipEpisode : AggregateComponent
         else
         {
             _earningsProfile.Update(systemClock,
-                instalments: onProgramPayments);
+                instalments: onProgramPayments,
+                calculationData: calculationData);
+
+            _model.EarningsProfile = _earningsProfile.GetModel();
         }
     }
 

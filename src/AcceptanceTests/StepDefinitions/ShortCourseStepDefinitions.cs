@@ -23,9 +23,11 @@ public class ShortCourseStepDefinitions
     [Given("a short course has been created with the following information")]
     public async Task CreateUnapprovedShortCourseLearning(Table table)
     {
+        _scenarioContext.TryGetValue<CreateUnapprovedShortCourseLearningRequest>(out var existingRequest);
+
         var request = table
             .CreateInstance<UnapprovedShortCourseSetupModel>()
-            .ToApiRequest();
+            .ToApiRequest(existingRequest?.LearningKey);
 
         _scenarioContext.Set(request);
 

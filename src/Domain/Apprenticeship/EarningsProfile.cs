@@ -62,7 +62,8 @@ public class EarningsProfile : AggregateComponent
         List<Instalment>? instalments = null, 
         List<AdditionalPayment>? additionalPayments = null, 
         List<MathsAndEnglish>? mathsAndEnglishCourses = null,
-        decimal? completionPayment = null
+        decimal? completionPayment = null,
+        string? calculationData = null
     )
     {
         var versionChanged = false;
@@ -95,6 +96,12 @@ public class EarningsProfile : AggregateComponent
         if (completionPayment.HasValue && Model.CompletionPayment != completionPayment.Value)
         {
             Model.CompletionPayment = completionPayment.Value;
+            versionChanged = true;
+        }
+
+        if (!string.IsNullOrEmpty(calculationData) && Model.CalculationData != calculationData)
+        {
+            Model.CalculationData = calculationData;
             versionChanged = true;
         }
 
