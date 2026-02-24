@@ -17,5 +17,6 @@ DELETE FROM [Domain].[Episode];
 
 DELETE FROM [Domain].[Apprenticeship];
 
-COMMIT TRAN
+ROLLBACK TRAN
+--COMMIT TRAN
 GO
