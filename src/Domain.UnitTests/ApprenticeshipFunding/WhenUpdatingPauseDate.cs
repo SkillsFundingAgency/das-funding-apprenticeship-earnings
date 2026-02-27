@@ -31,7 +31,7 @@ internal class WhenUpdatingPauseDate
         _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         _episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        _episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object);
+        _episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);
     }
 
     [Test]
@@ -42,7 +42,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(withdrawalDate);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -57,7 +57,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(withdrawalDate);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -72,7 +72,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(lastDayOfLearning);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -89,7 +89,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(withdrawalDate);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -107,7 +107,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(withdrawalDate);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -123,7 +123,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(withdrawalDate);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -139,10 +139,10 @@ internal class WhenUpdatingPauseDate
         var numberOfAdditionalPayments = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.AdditionalPayments.Count;
         var lastDayOfLearning = new DateTime(2024, 3, 15);
         _episode.UpdatePause(lastDayOfLearning);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         _episode.UpdatePause(null);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
@@ -158,7 +158,7 @@ internal class WhenUpdatingPauseDate
 
         // Act
         _episode.UpdatePause(withdrawalDate);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);

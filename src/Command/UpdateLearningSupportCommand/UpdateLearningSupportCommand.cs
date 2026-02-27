@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 
 public class UpdateLearningSupportCommand : ICommand
 {

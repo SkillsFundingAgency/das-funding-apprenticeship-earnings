@@ -27,9 +27,9 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
         await ReleaseEvents(apprenticeship);
     }
 
-    public async Task<Apprenticeship.Apprenticeship> Get(Guid key)
+    public async Task<Apprenticeship.Apprenticeship?> Get(Guid key)
     {
-        var apprenticeship = await DbContext.Apprenticeships
+        var apprenticeship = await DbContext.Learnings
             .Include(x => x.Episodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
@@ -49,9 +49,9 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .Include(x=> x.Episodes)
             .ThenInclude(y=> y.PeriodsInLearning)
             .AsSplitQuery()
-            .SingleAsync(x => x.Key == key);
+            .SingleOrDefaultAsync(x => x.LearningKey == key);
 
-        return _apprenticeshipFactory.GetExisting(apprenticeship);
+        return apprenticeship == null ? null : _apprenticeshipFactory.GetExisting(apprenticeship);
     }
 
     public async Task Update(Apprenticeship.Apprenticeship apprenticeship)

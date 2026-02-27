@@ -49,10 +49,10 @@ public class WhenUpdatingEnglishAndMaths
 
         var command = new UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand(learningKey, mathsAndEnglishList);
 
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
-        apprenticeshipModel.Episodes = new List<EpisodeModel> { _fixture.Create<EpisodeModel>() };
+        var learningModel = _fixture.Create<LearningModel>();
+        learningModel.Episodes = new List<EpisodeModel> { _fixture.Create<EpisodeModel>() };
 
-        var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
+        var apprenticeship = Apprenticeship.Get(learningModel);
 
         _mockApprenticeshipRepository
             .Setup(repo => repo.Get(learningKey))

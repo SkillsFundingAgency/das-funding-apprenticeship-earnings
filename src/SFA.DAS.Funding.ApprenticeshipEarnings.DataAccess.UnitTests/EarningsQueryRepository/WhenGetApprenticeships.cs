@@ -53,7 +53,7 @@ public class WhenGetApprenticeships
     {
         // Arrange
         var ukprn = _fixture.Create<long>();
-        var apprenticeships = _fixture.Create<List<ApprenticeshipModel>>();
+        var apprenticeships = _fixture.Create<List<LearningModel>>();
         await PopulateDb(apprenticeships);
 
         // Act
@@ -69,7 +69,7 @@ public class WhenGetApprenticeships
         // Arrange
         var ukprn = _fixture.Create<long>();
         var testDateTime = _fixture.Create<DateTime>();
-        var apprenticeships = _fixture.Create<List<ApprenticeshipModel>>();
+        var apprenticeships = _fixture.Create<List<LearningModel>>();
 
         _mockSystemClockService.Setup(x=>x.UtcNow).Returns(testDateTime);
 
@@ -92,7 +92,7 @@ public class WhenGetApprenticeships
         result.Count.Should().Be(apprenticeships.Count);
     }
 
-    private async Task PopulateDb(List<ApprenticeshipModel> apprenticeshipModels)
+    private async Task PopulateDb(List<LearningModel> apprenticeshipModels)
     {
         await _dbContext.AddRangeAsync(apprenticeshipModels);
         await _dbContext.SaveChangesAsync();

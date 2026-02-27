@@ -63,7 +63,7 @@ public class ApprenticeshipEpisode : AggregateComponent
             : "19+ Apprenticeship (Employer on App Service)";
 
 
-    public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock)
+    public void CalculateOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock, string calculationData)
     {
         var(instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(apprenticeship);
 
@@ -82,7 +82,7 @@ public class ApprenticeshipEpisode : AggregateComponent
 
         if (_earningsProfile == null)
         {
-            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey);
+            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, ApprenticeshipEpisodeKey, true, calculationData);
             _model.EarningsProfile = _earningsProfile.GetModel();
         }
         else
@@ -98,6 +98,39 @@ public class ApprenticeshipEpisode : AggregateComponent
         if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
             this.AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(apprenticeship));
+        }
+    }
+
+    public void CalculateShortCourseOnProgram(Apprenticeship apprenticeship, ISystemClockService systemClock, bool isApproved, string calculationData)
+    {
+        var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
+            Prices.Single().AgreedPrice,
+            Prices.Single().StartDate,
+            Prices.Single().EndDate,
+            apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().PriceKey,
+            apprenticeship.ApprenticeshipEpisodes.Single().CompletionDate);
+
+        if (_earningsProfile == null)
+        {
+            _earningsProfile = this.CreateEarningsProfile(
+                Prices.Single().AgreedPrice,
+                onProgramPayments,
+                new List<AdditionalPayment>(), 
+                new List<MathsAndEnglish>(), 
+                0, 
+                ApprenticeshipEpisodeKey,
+                isApproved,
+                calculationData);
+
+            _model.EarningsProfile = _earningsProfile.GetModel();
+        }
+        else
+        {
+            _earningsProfile.Update(systemClock,
+                instalments: onProgramPayments,
+                calculationData: calculationData);
+
+            _model.EarningsProfile = _earningsProfile.GetModel();
         }
     }
 

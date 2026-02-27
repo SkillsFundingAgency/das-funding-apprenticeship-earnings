@@ -1,18 +1,12 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandHandler = SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand.UpdateLearningSupportCommandHandler;
 using SaveCommand = SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand.UpdateLearningSupportCommand;
 
@@ -49,13 +43,13 @@ public class WhenSaveLearningSupport
             new UpdateLearningSupportRequest { LearningSupport =[ new LearningSupportItem { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} ]}
             );
 
-        var apprenticeshipModel = _fixture.Create<ApprenticeshipModel>();
-        apprenticeshipModel.Episodes = new List<EpisodeModel>
+        var learningModel = _fixture.Create<LearningModel>();
+        learningModel.Episodes = new List<EpisodeModel>
         {
             _fixture.Create<EpisodeModel>()
         };
 
-        var apprenticeship = Apprenticeship.Get(apprenticeshipModel);
+        var apprenticeship = Apprenticeship.Get(learningModel);
         _mockApprenticeshipRepository
             .Setup(repo => repo.Get(command.ApprenticeshipKey))
             .ReturnsAsync(apprenticeship);

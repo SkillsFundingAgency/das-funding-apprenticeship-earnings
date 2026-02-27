@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using System.Text.Json;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -37,7 +38,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
         {
             var fundingBandMaximum = await GetFundingBandMaximum(command.LearningCreatedEvent);
             var apprenticeship = _apprenticeshipFactory.CreateNew(command.LearningCreatedEvent, fundingBandMaximum);
-            apprenticeship.Calculate(_systemClock);
+            apprenticeship.Calculate(_systemClock, JsonSerializer.Serialize(command.LearningCreatedEvent));
             await _apprenticeshipRepository.Add(apprenticeship);
             await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(apprenticeship));
             return apprenticeship;

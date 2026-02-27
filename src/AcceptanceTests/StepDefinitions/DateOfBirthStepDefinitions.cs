@@ -24,7 +24,7 @@ public class DateOfBirthStepDefinitions
     public async Task ThenDateOfBirthIsUpdatedTo(DateTime dateOfBirth)
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeship(learningKeyKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKeyKey);
         updatedEntity.DateOfBirth.Should().Be(dateOfBirth);
     }
 }
