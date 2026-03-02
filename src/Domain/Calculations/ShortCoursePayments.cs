@@ -12,27 +12,29 @@ public static class ShortCoursePayments
 
     public static List<Instalment> GenerateShortCoursePayments(decimal totalPrice, DateTime startDate, DateTime endDate, Guid priceKey, DateTime? completionDate)
     {
-        var payments = new List<OnProgramPayment>();
+        var payments = new List<Instalment>();
 
         var duration = (endDate - startDate).Days + 1;
         var firstPaymentDate = startDate.AddDays(Math.Floor(duration * FirstPaymentDurationPercentage) - 1);
 
-        payments.Add(new OnProgramPayment
-        {
-            AcademicYear = firstPaymentDate.ToAcademicYear(),
-            DeliveryPeriod = firstPaymentDate.ToDeliveryPeriod(),
-            Amount = totalPrice * FirstPaymentPortionPercentage,
-            PriceKey = priceKey
-        });
+        payments.Add(new Instalment
+        (
+            firstPaymentDate.ToAcademicYear(),
+            firstPaymentDate.ToDeliveryPeriod(),
+            totalPrice * FirstPaymentPortionPercentage,
+            priceKey,
+            InstalmentType.Regular
+        ));
 
-        payments.Add(new OnProgramPayment
-        {
-            AcademicYear = completionDate?.ToAcademicYear() ?? endDate.ToAcademicYear(),
-            DeliveryPeriod = completionDate?.ToDeliveryPeriod() ?? endDate.ToDeliveryPeriod(),
-            Amount = totalPrice * SecondPaymentPortionPercentage,
-            PriceKey = priceKey
-        });
+        payments.Add(new Instalment
+        (
+            completionDate?.ToAcademicYear() ?? endDate.ToAcademicYear(),
+            completionDate?.ToDeliveryPeriod() ?? endDate.ToDeliveryPeriod(),
+            totalPrice * SecondPaymentPortionPercentage,
+            priceKey,
+            InstalmentType.Completion
+        ));
 
-        return payments.Select(x => new Instalment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.PriceKey)).ToList();
+        return payments;
     }
 }

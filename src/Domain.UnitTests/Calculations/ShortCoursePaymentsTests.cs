@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
@@ -130,5 +131,23 @@ public class ShortCoursePaymentsTests
         // Assert
         result[1].AcademicYear.Should().Be(completionDate.ToAcademicYear());
         result[1].DeliveryPeriod.Should().Be(completionDate.ToDeliveryPeriod());
+    }
+
+    [Test]
+    public void GenerateShortCoursePayments_ShouldSetInstalmentTypesCorrectly()
+    {
+        // Arrange
+        var totalPrice = 1000m;
+        var startDate = new DateTime(2023, 11, 1);
+        var endDate = new DateTime(2023, 11, 30);
+        var completionDate = new DateTime(2024, 1, 15);
+        var priceKey = Guid.NewGuid();
+
+        // Act
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, completionDate);
+
+        // Assert
+        result[0].Type.Should().Be(InstalmentType.Regular);
+        result[1].Type.Should().Be(InstalmentType.Completion);
     }
 }
