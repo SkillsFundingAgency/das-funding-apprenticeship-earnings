@@ -5,7 +5,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 public static class ApprenticeshipEntityExtensions
 {
-    public static EpisodeModel GetCurrentEpisode(this ApprenticeshipModel apprenticeship, ISystemClockService systemClock)
+    public static EpisodeModel GetCurrentEpisode(this LearningModel apprenticeship, ISystemClockService systemClock)
     {
         var episode = apprenticeship.Episodes.Find(x => x.Prices.Exists(price => price.StartDate <= systemClock.UtcNow && price.EndDate >= systemClock.UtcNow));
 

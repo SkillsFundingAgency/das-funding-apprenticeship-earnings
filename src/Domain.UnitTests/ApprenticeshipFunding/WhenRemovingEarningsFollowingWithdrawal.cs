@@ -30,7 +30,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
         _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         var episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object);
+        episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);
     }
 
     [Test]
@@ -42,7 +42,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(withdrawalDate, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(2);
@@ -57,7 +57,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(withdrawalDate, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.AdditionalPayments.Count.Should().Be(2);
@@ -72,7 +72,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(lastDayOfLearning, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.Instalments.Should().OnlyContain(x =>
@@ -89,7 +89,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(withdrawalDate, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.AdditionalPayments.Should().OnlyContain(x =>
@@ -107,7 +107,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(withdrawalDate, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.Instalments.Should().Contain(x =>
@@ -124,7 +124,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(withdrawalDate, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
@@ -140,7 +140,7 @@ public class WhenRemovingEarningsFollowingWithdrawal
 
         // Act
         currentEpisode.UpdateWithdrawalDate(withdrawalDate, _mockSystemClock.Object);
-        _apprenticeship.Calculate(_mockSystemClock.Object);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
 
         // Assert
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();

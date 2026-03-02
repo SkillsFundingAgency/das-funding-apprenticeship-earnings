@@ -8,11 +8,11 @@ internal static class TestHelper
 {
     internal static Apprenticeship BuildApprenticeship(this Fixture fixture)
     {
-        var apprenticeshipEntityModel = fixture.BuildApprenticeshipModel();
+        var apprenticeshipEntityModel = fixture.BuildLearningModel();
         return Apprenticeship.Get(apprenticeshipEntityModel);
     }
 
-    internal static ApprenticeshipModel BuildApprenticeshipModel(this Fixture fixture)
+    internal static LearningModel BuildLearningModel(this Fixture fixture)
     {
         var priceStartDate = DateTime.UtcNow.AddMonths(-10);
         var priceEndDate = DateTime.UtcNow.AddMonths(10);
@@ -39,12 +39,12 @@ internal static class TestHelper
                 .With(x => x.MathsAndEnglishCourses, new List<MathsAndEnglishModel>())
                 .Create())
             .Create();
-        var apprenticeshipEntityModel = fixture
-            .Build<ApprenticeshipModel>()
+        var learningEntityModel = fixture
+            .Build<LearningModel>()
             .With(x => x.Episodes, new List<EpisodeModel> { episodeModel })
             .Create();
 
-        return apprenticeshipEntityModel;
+        return learningEntityModel;
     }
 
     internal static List<MathsAndEnglish> BuildMathsAndEnglishCourses(this Fixture fixture)

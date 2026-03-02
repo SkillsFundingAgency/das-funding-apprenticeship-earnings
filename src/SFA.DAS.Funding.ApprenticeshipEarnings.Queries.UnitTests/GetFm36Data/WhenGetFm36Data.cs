@@ -126,16 +126,16 @@ public class WhenGetFm36Data
         episode.Prices.First().StartDate = _testTime.AddDays(-60);
         episode.Prices.First().EndDate = _testTime.AddDays(60);
         episode.EarningsProfile.Instalments.ForEach(x => x.Type = "Regular");
-        episode.ApprenticeshipKey = learningKey;
+        episode.LearningKey = learningKey;
 
         return episode;
     }
 
     private Domain.Apprenticeship.Apprenticeship CreateApprenticeship(Guid learningKey, long ukprn, EpisodeModel episode)
     {
-        var domainApprenticeship = _fixture.Create<ApprenticeshipModel>();
+        var domainApprenticeship = _fixture.Create<LearningModel>();
 
-        domainApprenticeship.Key = learningKey;
+        domainApprenticeship.LearningKey = learningKey;
         var episodes = new List<EpisodeModel>();
 
         episode.Ukprn = ukprn;

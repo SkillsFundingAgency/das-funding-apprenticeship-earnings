@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model
 {
     public class PriceEpisodeSetupModel
     {

@@ -1,6 +1,6 @@
-﻿CREATE TABLE [Domain].[Apprenticeship]
+﻿CREATE TABLE [Domain].[Learning]
 (
-	[Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
+	[LearningKey] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
     [ApprovalsApprenticeshipId] BIGINT NOT NULL,
     [Uln] NVARCHAR(10) NOT NULL, 
     [HasEHCP] BIT NULL, 

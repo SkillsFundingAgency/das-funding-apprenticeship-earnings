@@ -39,7 +39,7 @@ public class WhenRecalculatingEarningsForPriceChange
         _originalPrice = _fixture.Create<decimal>();
         _updatedPrice = _fixture.Create<decimal>();
         _existingApprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2021, 12, 31), _originalPrice);
-        _existingApprenticeship.Calculate(_mockSystemClock.Object);
+        _existingApprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
         _apprenticeship = _fixture.CreateUpdatedApprenticeship(_existingApprenticeship, newPrice: _updatedPrice);
 
         _episodeKey = _existingApprenticeship.ApprenticeshipEpisodes.First().ApprenticeshipEpisodeKey;
@@ -62,7 +62,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheAgreedPriceIsUpdated()
     {
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.Prices.OrderBy(x => x.StartDate).Last().AgreedPrice.Should().Be(_updatedPrice);
     }
@@ -71,7 +71,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheOnProgramTotalIsCalculated()
     {
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_updatedPrice * .8m);
     }
@@ -80,7 +80,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheCompletionAmountIsCalculated()
     {
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_updatedPrice * .2m);
     }
@@ -89,7 +89,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheSumOfTheInstalmentsMatchTheOnProgramTotal()
     {
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
 
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.Instalments.Count.Should().Be(12);
@@ -101,7 +101,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenEarningsRecalculatedEventIsCreated()
     {
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
 
         var events = _apprenticeship.FlushEvents();
         events.Should().ContainSingle(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
@@ -111,7 +111,7 @@ public class WhenRecalculatingEarningsForPriceChange
     public void ThenTheEarningsProfileIdIsGenerated()
     {
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
         var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
         currentEpisode.EarningsProfile.EarningsProfileId.Should().NotBeEmpty();
     }
@@ -121,7 +121,7 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _prices.First().TotalPrice = _originalPrice;
         _episode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClock.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty, _episodeKey);
         var events = _apprenticeship.FlushEvents();
         events.Should().NotContain(x => x.GetType() == typeof(EarningsProfileUpdatedEvent));
     }
