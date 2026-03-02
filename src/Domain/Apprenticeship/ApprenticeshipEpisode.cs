@@ -113,11 +113,11 @@ public class ApprenticeshipEpisode : AggregateComponent
         if (_earningsProfile == null)
         {
             _earningsProfile = this.CreateEarningsProfile(
-                Prices.Single().AgreedPrice,
+                onProgramPayments.Where(x => x.Type == InstalmentType.Regular || x.Type == InstalmentType.Balancing).Sum(x => x.Amount),
                 onProgramPayments,
                 new List<AdditionalPayment>(), 
-                new List<MathsAndEnglish>(), 
-                0, 
+                new List<MathsAndEnglish>(),
+                onProgramPayments.Where(x => x.Type == InstalmentType.Completion).Sum(x => x.Amount), 
                 ApprenticeshipEpisodeKey,
                 isApproved,
                 calculationData);
@@ -128,7 +128,9 @@ public class ApprenticeshipEpisode : AggregateComponent
         {
             _earningsProfile.Update(systemClock,
                 instalments: onProgramPayments,
-                calculationData: calculationData);
+                calculationData: calculationData,
+                onProgramTotal: onProgramPayments.Where(x => x.Type == InstalmentType.Regular || x.Type == InstalmentType.Balancing).Sum(x => x.Amount),
+                completionPayment: onProgramPayments.Where(x => x.Type == InstalmentType.Completion).Sum(x => x.Amount));
 
             _model.EarningsProfile = _earningsProfile.GetModel();
         }
