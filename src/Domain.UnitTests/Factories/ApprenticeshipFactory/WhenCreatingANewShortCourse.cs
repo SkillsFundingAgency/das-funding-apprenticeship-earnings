@@ -39,7 +39,8 @@ public class WhenCreatingANewShortCourse
                 CourseCode = "SC101",
                 StartDate = new DateTime(2025, 01, 01),
                 ExpectedEndDate = new DateTime(2025, 06, 30),
-                TotalPrice = 1500m
+                TotalPrice = 1500m,
+                Ukprn = 10005555
             }
         };
 
@@ -58,6 +59,7 @@ public class WhenCreatingANewShortCourse
         episode.AgeAtStartOfApprenticeship.Should().Be(25); // 2025 - 2000
         episode.FundingBandMaximum.Should().Be(1500);
         episode.FundingType.Should().Be(FundingType.Levy);
+        episode.UKPRN.Should().Be(request.OnProgramme.Ukprn);
 
         var price = request.OnProgramme.TotalPrice;
         episode.Prices.Count.Should().Be(1);

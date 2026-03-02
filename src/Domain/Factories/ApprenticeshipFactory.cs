@@ -51,7 +51,8 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
                         EndDate = commandRequest.OnProgramme.ExpectedEndDate,
                         Key = Guid.NewGuid()
                     }
-                }
+                },
+                Ukprn = commandRequest.OnProgramme.Ukprn
             }, (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice), commandRequest.OnProgramme.CompletionDate) }
         };
 
