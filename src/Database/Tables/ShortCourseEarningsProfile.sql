@@ -1,4 +1,4 @@
-﻿CREATE TABLE [Domain].[EarningsProfile]
+﻿CREATE TABLE [Domain].[ShortCourseEarningsProfile]
 (
     [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
@@ -9,8 +9,8 @@
     [CalculationData] NVARCHAR(MAX) NOT NULL
 )
 GO
-ALTER TABLE Domain.[EarningsProfile]
-ADD CONSTRAINT FK_EarningsProfile_Episode FOREIGN KEY (EpisodeKey) REFERENCES Domain.Episode ([Key])
+ALTER TABLE Domain.[ShortCourseEarningsProfile]
+ADD CONSTRAINT FK_ShortCourseEarningsProfile_ShortCourseEpisode FOREIGN KEY (EpisodeKey) REFERENCES Domain.ShortCourseEpisode ([Key])
 GO
-CREATE INDEX IX_EpisodeKey ON Domain.[EarningsProfile] (EpisodeKey);
+CREATE INDEX IX_EpisodeKey ON Domain.[ShortCourseEarningsProfile] (EpisodeKey);
 GO

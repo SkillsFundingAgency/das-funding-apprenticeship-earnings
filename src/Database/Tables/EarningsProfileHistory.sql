@@ -6,9 +6,9 @@
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
 	[State] NVARCHAR(MAX) NOT NULL,
 	
-	CONSTRAINT FK_EarningsProfileHistory_EarningsProfile
+	CONSTRAINT FK_EarningsProfileHistory_ApprenticeshipEarningsProfile
         FOREIGN KEY ([EarningsProfileId])
-        REFERENCES Domain.[EarningsProfile]([EarningsProfileId])
+        REFERENCES Domain.[ApprenticeshipEarningsProfile]([EarningsProfileId])
 )
 GO
 

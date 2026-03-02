@@ -65,17 +65,20 @@
     <Build Include="Schemas\Query.sql" />
     <Build Include="Schemas\Domain.sql" />
     <Build Include="Tables\Learning.sql" />
-    <Build Include="Tables\Episode.sql" />
-    <Build Include="Tables\EpisodePrice.sql" />
-    <Build Include="Tables\EarningsProfile.sql" />
-    <Build Include="Tables\Instalment.sql" />
+    <Build Include="Tables\ApprenticeshipEpisode.sql" />
+    <Build Include="Tables\ApprenticeshipEpisodePrice.sql" />
+    <Build Include="Tables\ApprenticeshipEarningsProfile.sql" />
+    <Build Include="Tables\ApprenticeshipInstalment.sql" />
     <Build Include="Tables\AdditionalPayment.sql" />
     <Build Include="Tables\MathsAndEnglish.sql" />
     <Build Include="Tables\EarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
     <Build Include="Tables\MathsAndEnglishInstalment.sql" />
-    <Build Include="Tables\EpisodePeriodInLearning.sql" />
+    <Build Include="Tables\ApprenticeshipPeriodInLearning.sql" />
     <Build Include="Tables\MathsAndEnglishPeriodInLearning.sql" />
+    <Build Include="Tables\ShortCourseEpisode.sql" />
+    <Build Include="Tables\ShortCourseEarningsProfile.sql" />
+    <Build Include="Tables\ShortCourseInstalment.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.refactorlog" />

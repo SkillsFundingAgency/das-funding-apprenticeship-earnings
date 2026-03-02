@@ -10,5 +10,12 @@
 )
 GO
 
+
+GO
+ALTER TABLE Domain.[AdditionalPayment]
+ADD CONSTRAINT FK_AdditionalPayment_ApprenticeshipEarningsProfile FOREIGN KEY ([EarningsProfileId]) REFERENCES Domain.ApprenticeshipEarningsProfile ([EarningsProfileId])
+GO
+
 CREATE INDEX IX_AdditionalPayment_EarningsProfileId
     ON [Domain].[AdditionalPayment] (EarningsProfileId);
+GO

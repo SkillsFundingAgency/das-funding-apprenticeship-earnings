@@ -14,5 +14,12 @@
 )
 GO
 
+GO
+ALTER TABLE Domain.[MathsAndEnglish]
+ADD CONSTRAINT FK_MathsAndEnglish_ApprenticeshipEarningsProfile FOREIGN KEY ([EarningsProfileId]) REFERENCES Domain.ApprenticeshipEarningsProfile ([EarningsProfileId])
+GO
+CREATE INDEX IX_EarningsProfileId ON Domain.[MathsAndEnglish] ([EarningsProfileId]);
+GO
+
 CREATE INDEX IX_MathsAndEnglish_EarningsProfileId
     ON [Domain].[MathsAndEnglish] (EarningsProfileId);
