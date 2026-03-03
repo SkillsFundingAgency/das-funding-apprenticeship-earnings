@@ -1,28 +1,28 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
-public enum MathsAndEnglishInstalmentType
+public enum EnglishAndMathsInstalmentType
 {
     Regular = 0,
     Balancing = 1
 }
 
-public class MathsAndEnglishInstalment : IDomainEntity<EnglishAndMathsInstalmentEntity>
+public class EnglishAndMathsInstalment : IDomainEntity<EnglishAndMathsInstalmentEntity>
 {
     private EnglishAndMathsInstalmentEntity _entity;
 
     public short AcademicYear => _entity.AcademicYear;
     public byte DeliveryPeriod => _entity.DeliveryPeriod;
     public decimal Amount => _entity.Amount;
-    public MathsAndEnglishInstalmentType Type => Enum.Parse<MathsAndEnglishInstalmentType>(_entity.Type);
+    public EnglishAndMathsInstalmentType Type => Enum.Parse<EnglishAndMathsInstalmentType>(_entity.Type);
 
-    internal MathsAndEnglishInstalment(EnglishAndMathsInstalmentEntity entity)
+    internal EnglishAndMathsInstalment(EnglishAndMathsInstalmentEntity entity)
     {
         _entity = entity;
     }
 
-    public MathsAndEnglishInstalment(short academicYear, byte deliveryPeriod, decimal amount, MathsAndEnglishInstalmentType type)
+    public EnglishAndMathsInstalment(short academicYear, byte deliveryPeriod, decimal amount, EnglishAndMathsInstalmentType type)
     {
         _entity = new EnglishAndMathsInstalmentEntity
         {
@@ -34,14 +34,14 @@ public class MathsAndEnglishInstalment : IDomainEntity<EnglishAndMathsInstalment
         };
     }
 
-    public EnglishAndMathsInstalmentEntity GetModel()
+    public EnglishAndMathsInstalmentEntity GetEntity()
     {
         return _entity;
     }
 
-    public static MathsAndEnglishInstalment Get(EnglishAndMathsInstalmentEntity model)
+    public static EnglishAndMathsInstalment Get(EnglishAndMathsInstalmentEntity model)
     {
-        return new MathsAndEnglishInstalment(model);
+        return new EnglishAndMathsInstalment(model);
     }
 
     public bool AreSame(EnglishAndMathsInstalmentEntity? compare)

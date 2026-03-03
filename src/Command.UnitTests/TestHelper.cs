@@ -2,8 +2,8 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests;
 
@@ -50,9 +50,9 @@ internal static class TestHelper
         return learningEntityModel;
     }
 
-    internal static List<MathsAndEnglish> BuildMathsAndEnglishCourses(this Fixture fixture)
+    internal static List<EnglishAndMaths> BuildMathsAndEnglishCourses(this Fixture fixture)
     {
-        var courses = new List<MathsAndEnglish>
+        var courses = new List<EnglishAndMaths>
         {
             fixture.BuildMathsAndEnglish()
         };
@@ -60,10 +60,10 @@ internal static class TestHelper
         return courses;
     }
 
-    internal static MathsAndEnglish BuildMathsAndEnglish(this Fixture fixture)
+    internal static EnglishAndMaths BuildMathsAndEnglish(this Fixture fixture)
     {
         var model = fixture.BuildMathsAndEnglishModel();
-        return MathsAndEnglish.Get(model);
+        return EnglishAndMaths.Get(model);
     }
 
     internal static EnglishAndMathsEntity BuildMathsAndEnglishModel(this Fixture fixture)

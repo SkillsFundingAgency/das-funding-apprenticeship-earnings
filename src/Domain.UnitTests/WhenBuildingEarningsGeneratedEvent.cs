@@ -7,10 +7,10 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Learning.Types;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 

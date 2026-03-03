@@ -4,22 +4,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 public class AdditionalPayment : IDomainEntity<ApprenticeshipAdditionalPaymentEntity>
 {
-    private ApprenticeshipAdditionalPaymentEntity _model;
+    private ApprenticeshipAdditionalPaymentEntity _entity;
 
-    public short AcademicYear => _model.AcademicYear;
-    public byte DeliveryPeriod => _model.DeliveryPeriod;
-    public decimal Amount => _model.Amount;
-    public string AdditionalPaymentType => _model.AdditionalPaymentType;
-    public DateTime DueDate => _model.DueDate;
+    public short AcademicYear => _entity.AcademicYear;
+    public byte DeliveryPeriod => _entity.DeliveryPeriod;
+    public decimal Amount => _entity.Amount;
+    public string AdditionalPaymentType => _entity.AdditionalPaymentType;
+    public DateTime DueDate => _entity.DueDate;
 
-    private AdditionalPayment(ApprenticeshipAdditionalPaymentEntity model)
+    private AdditionalPayment(ApprenticeshipAdditionalPaymentEntity entity)
     {
-        _model = model;
+        _entity = entity;
     }
 
     public AdditionalPayment(short academicYear, byte deliveryPeriod, decimal amount, DateTime dueDate, string incentiveType)
     {
-        _model = new ApprenticeshipAdditionalPaymentEntity
+        _entity = new ApprenticeshipAdditionalPaymentEntity
         {
             Key = Guid.NewGuid(),
             AcademicYear = academicYear,
@@ -30,9 +30,9 @@ public class AdditionalPayment : IDomainEntity<ApprenticeshipAdditionalPaymentEn
         };
     }
 
-    public ApprenticeshipAdditionalPaymentEntity GetModel()
+    public ApprenticeshipAdditionalPaymentEntity GetEntity()
     {
-        return _model;
+        return _entity;
     }
 
     public static AdditionalPayment Get(ApprenticeshipAdditionalPaymentEntity model)

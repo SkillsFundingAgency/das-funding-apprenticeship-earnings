@@ -2,9 +2,9 @@
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using System;
 using System.Linq;
 
@@ -157,13 +157,13 @@ public class EnglishAndMathsPaymentsTests
         // Assert
         result.Count.Should().Be(3);
         result.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Amount.Should().Be(50));
-        result.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Type.Should().Be(MathsAndEnglishInstalmentType.Regular.ToString()));
+        result.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Type.Should().Be(EnglishAndMathsInstalmentType.Regular.ToString()));
         result.Single(x => x.DeliveryPeriod == 5).Amount.Should().Be(200);
-        result.Single(x => x.DeliveryPeriod == 5).Type.Should().Be(MathsAndEnglishInstalmentType.Balancing.ToString());
+        result.Single(x => x.DeliveryPeriod == 5).Type.Should().Be(EnglishAndMathsInstalmentType.Balancing.ToString());
 
     }
 
-    private MathsAndEnglish CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? completionDate = null)
+    private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? completionDate = null)
     {
         var model = new EnglishAndMathsEntity
         {
@@ -184,6 +184,6 @@ public class EnglishAndMathsPaymentsTests
             } ]
         };
 
-        return MathsAndEnglish.Get(model);
+        return EnglishAndMaths.Get(model);
     }
 }

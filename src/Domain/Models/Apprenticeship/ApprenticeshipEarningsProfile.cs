@@ -1,10 +1,10 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
+using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
@@ -15,7 +15,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     public ApprenticeshipEarningsProfile(decimal onProgramTotal,
         List<ApprenticeshipInstalment> instalments,
         List<AdditionalPayment> additionalPayments,
-        List<MathsAndEnglish> mathsAndEnglishCourses,
+        List<EnglishAndMathsDomainModel> mathsAndEnglishCourses,
         decimal completionPayment,
         Guid episodeKey,
         bool isApproved,
@@ -24,7 +24,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     {
         Entity.Instalments = instalments.ToModels<ApprenticeshipInstalment, ApprenticeshipInstalmentEntity>(model=> model.EarningsProfileId = EarningsProfileId);
         Entity.AdditionalPayments = additionalPayments.ToModels<AdditionalPayment, ApprenticeshipAdditionalPaymentEntity>(model => model.EarningsProfileId = EarningsProfileId);
-        Entity.MathsAndEnglishCourses = mathsAndEnglishCourses.ToModels<MathsAndEnglish, EnglishAndMathsEntity>(model => model.EarningsProfileId = EarningsProfileId);
+        Entity.MathsAndEnglishCourses = mathsAndEnglishCourses.ToModels((EnglishAndMathsEntity model) => model.EarningsProfileId = EarningsProfileId);
         _instalments = instalments;
 
         AddEvent(Entity.CreatedEarningsProfileUpdatedEvent(true));
@@ -34,16 +34,17 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     {
         _instalments = model.Instalments?.Select(ApprenticeshipInstalment.Get).ToList() ?? new List<ApprenticeshipInstalment>();
     }
+
     public IReadOnlyCollection<ApprenticeshipInstalment> Instalments => new ReadOnlyCollection<ApprenticeshipInstalment>(_instalments);
     public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Entity.AdditionalPayments.Select(AdditionalPayment.Get).ToList().AsReadOnly();
-    public IReadOnlyCollection<MathsAndEnglish> MathsAndEnglishCourses => Entity.MathsAndEnglishCourses.Select(MathsAndEnglish.Get).ToList().AsReadOnly();
+    public IReadOnlyCollection<EnglishAndMathsDomainModel> MathsAndEnglishCourses => Entity.MathsAndEnglishCourses.Select(EnglishAndMathsDomainModel.Get).ToList().AsReadOnly();
 
     public void Update(
         ISystemClockService systemClock,
         decimal? onProgramTotal = null, 
         List<ApprenticeshipInstalment>? instalments = null, 
         List<AdditionalPayment>? additionalPayments = null, 
-        List<MathsAndEnglish>? mathsAndEnglishCourses = null,
+        List<EnglishAndMathsDomainModel>? mathsAndEnglishCourses = null,
         decimal? completionPayment = null,
         string? calculationData = null
     )
@@ -114,13 +115,13 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     /// In the event of a recalculation, these should be preserved.
     /// This method returns the courses so that they can be preserved.
     /// </summary>
-    public IReadOnlyCollection<MathsAndEnglish> PersistentMathsAndEnglishCourses()
+    public IReadOnlyCollection<EnglishAndMathsDomainModel> PersistentMathsAndEnglishCourses()
     {
         if (Entity.MathsAndEnglishCourses == null)
-            return new List<MathsAndEnglish>();
+            return new List<EnglishAndMathsDomainModel>();
 
         return Entity.MathsAndEnglishCourses
-            .Select(MathsAndEnglish.Get)
+            .Select(EnglishAndMathsDomainModel.Get)
             .ToList().AsReadOnly();
     }
 
@@ -130,7 +131,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         return profile;
     }
 
-    private void UpdateEnglishAndMathsCourses(List<MathsAndEnglish> updatedCourses)
+    private void UpdateEnglishAndMathsCourses(List<EnglishAndMathsDomainModel> updatedCourses)
     {
         Entity.MathsAndEnglishCourses ??= new List<EnglishAndMathsEntity>();
 
@@ -165,7 +166,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
                     {
                         ex.Amount = up.Amount;
                     },
-                    createNew: up => up.GetModel()
+                    createNew: up => up.GetEntity()
                 );
 
                 // 3b. Sync Periods in Learning
@@ -178,10 +179,10 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
                         ex.EndDate = up.EndDate;
                         ex.OriginalExpectedEndDate = up.OriginalExpectedEndDate;
                     },
-                    createNew: up => up.GetModel()
+                    createNew: up => up.GetEntity()
                 );
             },
-            createNew: updated => updated.GetModel()
+            createNew: updated => updated.GetEntity()
         );
     }
 }

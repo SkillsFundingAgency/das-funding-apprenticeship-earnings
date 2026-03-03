@@ -5,7 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using LearningDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Learning;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 public static class LearningExtensions
 {
@@ -33,7 +33,7 @@ public static class LearningExtensions
 
     public static ApprenticeshipEpisode GetCurrentEpisode(this LearningDomainModel learning, ISystemClockService systemClock)
     {
-        return GetCurrentEpisode(learning, systemClock.UtcNow.DateTime);
+        return learning.GetCurrentEpisode(systemClock.UtcNow.DateTime);
     }
 
     public static ApprenticeshipEpisode GetEpisode(this LearningDomainModel learning,  Guid episodeKey)
@@ -44,12 +44,12 @@ public static class LearningExtensions
         return episode!;
     }
 
-    public static ApprenticeshipEpisode GetApprenticeshipEpisodeFromModel(this LearningDomainModel learning, ApprenticeshipEpisodeEntity entity)
+    public static ApprenticeshipEpisode GetApprenticeshipEpisodeFromEntity(this LearningDomainModel learning, ApprenticeshipEpisodeEntity entity)
     {
         return ApprenticeshipEpisode.Get(learning, entity);
     }
 
-    public static ShortCourseEpisode GetShortCourseEpisodeFromModel(this LearningDomainModel learning, ShortCourseEpisodeEntity entity)
+    public static ShortCourseEpisode GetShortCourseEpisodeFromEntity(this LearningDomainModel learning, ShortCourseEpisodeEntity entity)
     {
         return ShortCourseEpisode.Get(learning, entity);
     }

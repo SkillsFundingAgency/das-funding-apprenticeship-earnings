@@ -1,12 +1,12 @@
+using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using AutoFixture;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -27,7 +27,7 @@ public class WhenGeneratingInstalments
     {
         var startDate = new DateTime(startYear, startMonth, startDay);
         var endDate = new DateTime(endYear, endMonth, endDay);
-        var periodInLearnings = CreatePeriodsInLearning(new Price(_fixture.Create<Guid>(), startDate, endDate, total));
+        var periodInLearnings = CreatePeriodsInLearning(new ApprenticeshipPrice(_fixture.Create<Guid>(), startDate, endDate, total));
 
         var actualInstallments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodInLearnings, total + _fixture.Create<int>(), out var onProgramTotal, out var completionPayment);
 
@@ -49,9 +49,9 @@ public class WhenGeneratingInstalments
 
         var periodInLearnings = CreatePeriodsInLearning
         (
-            new Price(_fixture.Create<Guid>(), startDate, firstPriceChangeEffectiveFromDate.AddDays(-1), 15000), //price below funding band max
-            new Price(_fixture.Create<Guid>(), firstPriceChangeEffectiveFromDate, secondPriceChangeEffectiveFromDate.AddDays(-1), 20000), //price changed to above funding band max
-            new Price(_fixture.Create<Guid>(), secondPriceChangeEffectiveFromDate, endDate, 17000) //price reduced back down below funding band max
+            new ApprenticeshipPrice(_fixture.Create<Guid>(), startDate, firstPriceChangeEffectiveFromDate.AddDays(-1), 15000), //price below funding band max
+            new ApprenticeshipPrice(_fixture.Create<Guid>(), firstPriceChangeEffectiveFromDate, secondPriceChangeEffectiveFromDate.AddDays(-1), 20000), //price changed to above funding band max
+            new ApprenticeshipPrice(_fixture.Create<Guid>(), secondPriceChangeEffectiveFromDate, endDate, 17000) //price reduced back down below funding band max
         );
         var actualInstallments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodInLearnings, fundingBandMax, out var onProgramTotal, out var completionPayment);
 
@@ -70,7 +70,7 @@ public class WhenGeneratingInstalments
         var endDate = new DateTime(2019, 1, 5);
         var total = _fixture.Create<int>();
         var fundingBandMaximum = total + _fixture.Create<int>();
-        var periodInLearnings = CreatePeriodsInLearning(new Price(_fixture.Create<Guid>(), startDate, endDate, total));
+        var periodInLearnings = CreatePeriodsInLearning(new ApprenticeshipPrice(_fixture.Create<Guid>(), startDate, endDate, total));
         var actualInstallments = OnProgramPayments.GenerateEarningsForEpisodePrices(periodInLearnings, fundingBandMaximum, out _, out _);
 
         var expectedDeliveryPeriods = new List<(short academicYear, int deliveryPeriod)>
@@ -90,14 +90,14 @@ public class WhenGeneratingInstalments
         }
     }
 
-    private static List<(EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices)> CreatePeriodsInLearning(params Price[] prices)
+    private static List<(ApprenticeshipPeriodInLearning periodInLearning, List<PriceInPeriod> prices)> CreatePeriodsInLearning(params ApprenticeshipPrice[] prices)
     {
         var startDate = prices.Min(x => x.StartDate);
         var endDate = prices.Max(x => x.EndDate);
 
-        var periodInLearning = new EpisodePeriodInLearning(Guid.Empty, startDate, endDate, endDate);
+        var periodInLearning = new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, endDate, endDate);
         var pricePeriods = prices.Select(x => new PriceInPeriod(x, x.StartDate, x.EndDate, x.EndDate));
 
-        return new List<(EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices)>{ (periodInLearning, pricePeriods.ToList()) };
+        return new List<(ApprenticeshipPeriodInLearning periodInLearning, List<PriceInPeriod> prices)>{ (periodInLearning, pricePeriods.ToList()) };
     }
 }

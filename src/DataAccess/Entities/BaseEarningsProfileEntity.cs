@@ -2,6 +2,7 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
+[System.ComponentModel.DataAnnotations.Schema.NotMapped]
 public abstract class BaseEarningsProfileEntity
 {
     [Dapper.Contrib.Extensions.Key]

@@ -2,7 +2,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -184,7 +183,7 @@ internal static class FixtureExtensions
         };
     }
 
-    internal static List<ApprenticeshipEpisodePriceEntity>? MapPricesToModel(IReadOnlyCollection<Price>? prices, DateTime? newStartDate)
+    internal static List<ApprenticeshipEpisodePriceEntity>? MapPricesToModel(IReadOnlyCollection<ApprenticeshipPrice>? prices, DateTime? newStartDate)
     {
         return prices?.Select(x => new ApprenticeshipEpisodePriceEntity
         {

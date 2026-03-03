@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 

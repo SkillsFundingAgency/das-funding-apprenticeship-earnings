@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Collections.ObjectModel;
@@ -9,24 +10,24 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
 public class Learning : AggregateRoot
 {
-    private Learning(LearningEntity model)
+    private Learning(LearningEntity entity)
     {
-        _model = model;
-        _apprenticeshipEpisodes = _model.ApprenticeshipEpisodes.Select(this.GetApprenticeshipEpisodeFromModel).ToList();
-        _shortCourseEpisodes = _model.ShortCourseEpisodes.Select(this.GetShortCourseEpisodeFromModel).ToList();
+        _entity = entity;
+        _apprenticeshipEpisodes = _entity.ApprenticeshipEpisodes.Select(this.GetApprenticeshipEpisodeFromEntity).ToList();
+        _shortCourseEpisodes = _entity.ShortCourseEpisodes.Select(this.GetShortCourseEpisodeFromEntity).ToList();
     }
 
-    private LearningEntity _model;
+    private LearningEntity _entity;
     private readonly List<ApprenticeshipEpisode> _apprenticeshipEpisodes;
     private readonly List<ShortCourseEpisode> _shortCourseEpisodes;
 
-    public Guid ApprenticeshipKey => _model.LearningKey;
-    public long ApprovalsApprenticeshipId => _model.ApprovalsApprenticeshipId;
-    public string Uln => _model.Uln;
-    public bool HasEHCP => _model?.HasEHCP ?? false;
-    public bool IsCareLeaver => _model?.IsCareLeaver ?? false;
-    public bool CareLeaverEmployerConsentGiven => _model?.CareLeaverEmployerConsentGiven ?? false;
-    public DateTime DateOfBirth => _model.DateOfBirth;
+    public Guid ApprenticeshipKey => _entity.LearningKey;
+    public long ApprovalsApprenticeshipId => _entity.ApprovalsApprenticeshipId;
+    public string Uln => _entity.Uln;
+    public bool HasEHCP => _entity?.HasEHCP ?? false;
+    public bool IsCareLeaver => _entity?.IsCareLeaver ?? false;
+    public bool CareLeaverEmployerConsentGiven => _entity?.CareLeaverEmployerConsentGiven ?? false;
+    public DateTime DateOfBirth => _entity.DateOfBirth;
 
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_apprenticeshipEpisodes);
     public IReadOnlyCollection<ShortCourseEpisode> ShortCourseEpisodes => new ReadOnlyCollection<ShortCourseEpisode>(_shortCourseEpisodes);
@@ -38,7 +39,7 @@ public class Learning : AggregateRoot
 
     public LearningEntity GetModel()
     {
-        return _model;
+        return _entity;
     }
 
     public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null)
@@ -64,9 +65,9 @@ public class Learning : AggregateRoot
             return;
         }
 
-        _model.HasEHCP = hasEHCP;
-        _model.IsCareLeaver = isCareLeaver;
-        _model.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
+        _entity.HasEHCP = hasEHCP;
+        _entity.IsCareLeaver = isCareLeaver;
+        _entity.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
         var currentEpisode = this.GetCurrentEpisode(systemClock);
     }
 
@@ -88,7 +89,7 @@ public class Learning : AggregateRoot
     /// Maths and English course earnings are generated separately using this endpoint.
     /// Note, any existing earnings for maths and english courses will be removed.
     /// </summary>
-    public void UpdateMathsAndEnglishCourses(List<MathsAndEnglish> englishAndMathsCourses, ISystemClockService systemClock)
+    public void UpdateMathsAndEnglishCourses(List<EnglishAndMaths.EnglishAndMaths> englishAndMathsCourses, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateEnglishAndMaths(englishAndMathsCourses, systemClock);
@@ -96,7 +97,7 @@ public class Learning : AggregateRoot
 
     public void UpdateDateOfBirth(DateTime dateOfBirth)
     {
-        _model.DateOfBirth = dateOfBirth;
+        _entity.DateOfBirth = dateOfBirth;
         foreach (var episode in ApprenticeshipEpisodes)
         {
             episode.UpdateAgeAtStart(dateOfBirth);
@@ -105,8 +106,8 @@ public class Learning : AggregateRoot
 
     public void UpdateUnapprovedShortCourseInformation(ShortCourseUpdateModel updateModel)
     {
-        _model.Uln = updateModel.Uln;
-        var episode = _model.ShortCourseEpisodes.Single();
+        _entity.Uln = updateModel.Uln;
+        var episode = _entity.ShortCourseEpisodes.Single();
         episode.TrainingCode = updateModel.CourseCode;
         episode.EmployerAccountId = updateModel.EmployerId;
         episode.Ukprn = updateModel.Ukprn;

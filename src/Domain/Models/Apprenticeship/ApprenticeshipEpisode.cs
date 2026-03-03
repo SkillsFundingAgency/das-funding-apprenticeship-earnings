@@ -1,8 +1,8 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -12,15 +12,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, ApprenticeshipEarningsProfile>
 {
-    private List<Price> _prices;
-    private List<EpisodePeriodInLearning> _periodsInLearning;
+    private List<ApprenticeshipPrice> _prices;
+    private List<ApprenticeshipPeriodInLearning> _periodsInLearning;
 
-    public IReadOnlyCollection<Price> Prices => new ReadOnlyCollection<Price>(_prices);
-    public IReadOnlyCollection<EpisodePeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<EpisodePeriodInLearning>(_periodsInLearning);
-    public List<(EpisodePeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
+    public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
+    public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
+    public List<(ApprenticeshipPeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
 
-    public bool IsNonLevyFullyFunded => _model.FundingType == FundingType.NonLevy && AgeAtStartOfApprenticeship < 22;
+    public bool IsNonLevyFullyFunded => _entity.FundingType == FundingType.NonLevy && AgeAtStartOfApprenticeship < 22;
     public string FundingLineType => AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
@@ -28,11 +28,11 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     private ApprenticeshipEpisode(ApprenticeshipEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, dateOfBirth, addChildToRoot)
     {
 
-        _prices = _model.Prices.Select(Price.Get).ToList();
-        _periodsInLearning = _model.PeriodsInLearning.Select(EpisodePeriodInLearning.Get).ToList();
-        if (_model.EarningsProfile != null)
+        _prices = _entity.Prices.Select(ApprenticeshipPrice.Get).ToList();
+        _periodsInLearning = _entity.PeriodsInLearning.Select(ApprenticeshipPeriodInLearning.Get).ToList();
+        if (_entity.EarningsProfile != null)
         {
-            _earningsProfile = this.GetEarningsProfileFromModel(_model.EarningsProfile);
+            _earningsProfile = this.GetEarningsProfileFromModel(_entity.EarningsProfile);
         }
 
         UpdateAgeAtStart(_prices.Min(x => x.StartDate));
@@ -48,10 +48,10 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
 
-        if (_model.CompletionDate != null)
+        if (_entity.CompletionDate != null)
         {
-            instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_model.CompletionDate.Value, instalments, _model.Prices.Max(x => x.EndDate));
-            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_model.CompletionDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
+            instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.Max(x => x.EndDate));
+            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.CompletionDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
             instalments = instalments.Append(completionInstalment).ToList();
         }
 
@@ -63,8 +63,8 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         if (_earningsProfile == null)
         {
-            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<MathsAndEnglish>(), completionPayment, EpisodeKey, true, calculationData);
-            _model.EarningsProfile = _earningsProfile.GetModel();
+            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<EnglishAndMaths.EnglishAndMaths>(), completionPayment, EpisodeKey, true, calculationData);
+            _entity.EarningsProfile = _earningsProfile.GetModel();
         }
         else
         {
@@ -113,7 +113,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     /// Updates earnings for Maths and English courses to an apprenticeship.
     /// Overwrites any existing Maths and English courses' earnings.
     /// </summary>
-    public void UpdateEnglishAndMaths(List<MathsAndEnglish> mathsAndEnglishCourses, ISystemClockService systemClock)
+    public void UpdateEnglishAndMaths(List<EnglishAndMaths.EnglishAndMaths> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
     }
@@ -133,24 +133,24 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             else
             {
                 _prices.Remove(existingPrice);
-                _model.Prices.Remove(existingPrice.GetModel());
+                _entity.Prices.Remove(existingPrice.GetEntity());
             }
         }
 
         var newPrices = updatedPrices
             .Where(x => _prices.All(y => y.PriceKey != x.Key))
-            .Select(x => new Price(x.Key, x.StartDate, x.EndDate, x.TotalPrice))
+            .Select(x => new ApprenticeshipPrice(x.Key, x.StartDate, x.EndDate, x.TotalPrice))
             .ToList();
-        _model.Prices.AddRange(newPrices.Select(x => x.GetModel()));
+        _entity.Prices.AddRange(newPrices.Select(x => x.GetEntity()));
         _prices.AddRange(newPrices);
     }
 
     public void UpdatePause(DateTime? pauseDate)
     {
-        _model.PauseDate = pauseDate;
+        _entity.PauseDate = pauseDate;
     }
 
-    public void UpdatePeriodsInLearning(List<EpisodePeriodInLearning> newPeriodsInLearning)
+    public void UpdatePeriodsInLearning(List<ApprenticeshipPeriodInLearning> newPeriodsInLearning)
     {
         // Remove periods in learning that are no longer present
         foreach (var existingPeriodInLearning in _periodsInLearning.ToList())
@@ -163,7 +163,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             if (!stillExists)
             {
                 _periodsInLearning.Remove(existingPeriodInLearning);
-                _model.PeriodsInLearning.Remove(existingPeriodInLearning.GetModel());
+                _entity.PeriodsInLearning.Remove(existingPeriodInLearning.GetEntity());
             }
         }
 
@@ -177,12 +177,12 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             if (!alreadyExists)
             {
                 _periodsInLearning.Add(newPeriodInLearning);
-                _model.PeriodsInLearning.Add(newPeriodInLearning.GetModel());
+                _entity.PeriodsInLearning.Add(newPeriodInLearning.GetEntity());
             }
         }
     }
 
-    private (EpisodePeriodInLearning, List<PriceInPeriod>) GetPricesForPeriod(EpisodePeriodInLearning periodInLearning, List<Price> allPrices)
+    private (ApprenticeshipPeriodInLearning, List<PriceInPeriod>) GetPricesForPeriod(ApprenticeshipPeriodInLearning periodInLearning, List<ApprenticeshipPrice> allPrices)
     {
         // Select prices that overlap with this period
         var pricesInPeriod = allPrices

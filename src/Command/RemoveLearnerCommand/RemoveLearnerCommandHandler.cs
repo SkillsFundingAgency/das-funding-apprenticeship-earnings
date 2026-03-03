@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 

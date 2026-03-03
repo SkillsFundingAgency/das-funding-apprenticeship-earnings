@@ -9,9 +9,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     private int _ageAtStartOfApprenticeship;
 
-    public DateTime StartDate => _model.StartDate;
-    public DateTime EndDate => _model.EndDate;
-    public decimal CoursePrice => _model.CoursePrice;
+    public DateTime StartDate => _entity.StartDate;
+    public DateTime EndDate => _entity.EndDate;
+    public decimal CoursePrice => _entity.CoursePrice;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, dateOfBirth, addChildToRoot)
     {
@@ -45,7 +45,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
                 this.AddChildToRoot, 
                 calculationData);
 
-            _model.EarningsProfile = _earningsProfile.GetModel();
+            _entity.EarningsProfile = _earningsProfile.GetModel();
         }
         else
         {
@@ -55,7 +55,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
                 onProgramTotal: onProgramPayments.Where(x => x.Type == InstalmentType.Regular || x.Type == InstalmentType.Balancing).Sum(x => x.Amount),
                 completionPayment: onProgramPayments.Where(x => x.Type == InstalmentType.Completion).Sum(x => x.Amount));
 
-            _model.EarningsProfile = _earningsProfile.GetModel();
+            _entity.EarningsProfile = _earningsProfile.GetModel();
         }
     }
 

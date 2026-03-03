@@ -3,9 +3,9 @@ using FluentAssertions;
 using Microsoft.Azure.Amqp.Framing;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -44,7 +44,7 @@ public class WhenUpdateEnglishAndMathsCourses
     public void UpdateMathsAndEnglishCourses_ShouldAddCoursesToEarningsProfile()
     {
         // Arrange
-        var courses = new List<MathsAndEnglish>
+        var courses = new List<EnglishAndMaths>
         {
             CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102"),
             CreateMathsAndEnglishCourse(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), 450, "M103")
@@ -66,9 +66,9 @@ public class WhenUpdateEnglishAndMathsCourses
     {
         // Arrange
         var sut = CreateApprenticeship();
-        sut.UpdateMathsAndEnglishCourses(new List<MathsAndEnglish>(), _mockSystemClockService.Object); // first update
+        sut.UpdateMathsAndEnglishCourses(new List<EnglishAndMaths>(), _mockSystemClockService.Object); // first update
 
-        var courses = new List<MathsAndEnglish>
+        var courses = new List<EnglishAndMaths>
         {
             CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 3, 31), 200, "M101")
         };
@@ -88,11 +88,11 @@ public class WhenUpdateEnglishAndMathsCourses
         return sut;
     }
 
-    private MathsAndEnglish CreateMathsAndEnglishCourse(DateTime startDate, DateTime endDate, decimal amount, string courseCode)
+    private EnglishAndMaths CreateMathsAndEnglishCourse(DateTime startDate, DateTime endDate, decimal amount, string courseCode)
     {
         var periodInLearning = PeriodInLearningHelper.Create(startDate, endDate, endDate);
 
-        return new MathsAndEnglish(
+        return new EnglishAndMaths(
             startDate,
             endDate,
             courseCode,

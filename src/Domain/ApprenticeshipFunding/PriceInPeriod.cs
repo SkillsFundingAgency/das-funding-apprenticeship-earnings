@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 
@@ -10,7 +10,7 @@ public class PriceInPeriod
     public Guid PriceKey { get; private set; }
     public DateTime OriginalExpectedEndDate { get; set; }
 
-    public PriceInPeriod(Price price, DateTime periodStartDate, DateTime periodEndDate, DateTime originalExpectedEndDate)
+    public PriceInPeriod(ApprenticeshipPrice price, DateTime periodStartDate, DateTime periodEndDate, DateTime originalExpectedEndDate)
     {
         StartDate = price.StartDate > periodStartDate ? price.StartDate : periodStartDate;
         EndDate = price.EndDate < periodEndDate ? price.EndDate : periodEndDate;

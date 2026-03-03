@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -36,14 +36,14 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 
-    private List<MathsAndEnglish> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
+    private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
     {
         _logger.LogInformation("Building English and Maths details to domain models for apprenticeship {LearningKey}", command.ApprenticeshipKey);
         
-        var courses = new List<MathsAndEnglish>();
+        var courses = new List<EnglishAndMaths>();
         foreach (var detail in command.EnglishAndMathsDetails)
         {
-            var course = new MathsAndEnglish(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage, detail.PeriodsInLearning);
+            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage, detail.PeriodsInLearning);
             courses.Add(course);
         }
 

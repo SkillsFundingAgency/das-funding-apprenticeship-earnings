@@ -1,10 +1,10 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
 using ApprenticeshipEarningsRecalculatedEvent = SFA.DAS.Funding.ApprenticeshipEarnings.Types.ApprenticeshipEarningsRecalculatedEvent;
@@ -16,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 public static class ApprenticeshipEpisodeExtensions
 {
-    public static Price GetCurrentPrice(this ApprenticeshipEpisode episode, ISystemClockService systemClock)
+    public static ApprenticeshipPrice GetCurrentPrice(this ApprenticeshipEpisode episode, ISystemClockService systemClock)
     {
         var price = episode?.Prices?.FirstOrDefault(x => x.StartDate <= systemClock.UtcNow && x.EndDate >= systemClock.UtcNow);
 
@@ -41,7 +41,7 @@ public static class ApprenticeshipEpisodeExtensions
         decimal onProgramTotal,
         List<ApprenticeshipInstalment> instalments,
         List<AdditionalPayment> additionalPayments,
-        List<MathsAndEnglish> mathsAndEnglishCourses,
+        List<EnglishAndMaths> mathsAndEnglishCourses,
         decimal completionPayment,
         Guid episodeKey,
         bool isApproved,

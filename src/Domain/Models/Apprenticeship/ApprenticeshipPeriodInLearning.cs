@@ -1,9 +1,9 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
-public class EpisodePeriodInLearning
+public class ApprenticeshipPeriodInLearning
 {
     private ApprenticeshipPeriodInLearningEntity _entity;
 
@@ -15,7 +15,7 @@ public class EpisodePeriodInLearning
     public int DurationInCensusDates => StartDate.NumberOfCensusDates(EndDate);
     public int Duration => (_entity.EndDate - _entity.StartDate).Days + 1;
 
-    public EpisodePeriodInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
+    public ApprenticeshipPeriodInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
     {
         _entity = new ApprenticeshipPeriodInLearningEntity
         {
@@ -27,17 +27,17 @@ public class EpisodePeriodInLearning
         };
     }
 
-    private EpisodePeriodInLearning(ApprenticeshipPeriodInLearningEntity model)
+    private ApprenticeshipPeriodInLearning(ApprenticeshipPeriodInLearningEntity entity)
     {
-        _entity = model;
+        _entity = entity;
     }
 
-    public static EpisodePeriodInLearning Get(ApprenticeshipPeriodInLearningEntity model)
+    public static ApprenticeshipPeriodInLearning Get(ApprenticeshipPeriodInLearningEntity entity)
     {
-        return new EpisodePeriodInLearning(model);
+        return new ApprenticeshipPeriodInLearning(entity);
     }
 
-    public ApprenticeshipPeriodInLearningEntity GetModel()
+    public ApprenticeshipPeriodInLearningEntity GetEntity()
     {
         return _entity;
     }

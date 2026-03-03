@@ -11,11 +11,11 @@ public enum InstalmentType
 
 public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEntity : BaseInstalmentEntity, new()
 {
-    protected TEntity _model;
+    protected TEntity _entity;
 
     public BaseInstalment(short academicYear, byte deliveryPeriod, decimal amount, InstalmentType instalmentType = InstalmentType.Regular)
     {
-        _model = new TEntity
+        _entity = new TEntity
         {
             Key = Guid.NewGuid(),
             AcademicYear = academicYear,
@@ -27,17 +27,17 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
 
     protected BaseInstalment(TEntity model)
     {
-        _model = model;
+        _entity = model;
     }
 
-    public short AcademicYear => _model.AcademicYear;
-    public byte DeliveryPeriod => _model.DeliveryPeriod;
-    public decimal Amount => _model.Amount;
-    public InstalmentType Type => Enum.Parse<InstalmentType>(_model.Type);
+    public short AcademicYear => _entity.AcademicYear;
+    public byte DeliveryPeriod => _entity.DeliveryPeriod;
+    public decimal Amount => _entity.Amount;
+    public InstalmentType Type => Enum.Parse<InstalmentType>(_entity.Type);
 
-    public TEntity GetModel()
+    public TEntity GetEntity()
     {
-        return _model;
+        return _entity;
     }
 
     public bool AreSame(TEntity? compare)

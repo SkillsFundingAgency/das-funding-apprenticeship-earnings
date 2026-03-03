@@ -1,16 +1,15 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using System.Collections.ObjectModel;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
-public class MathsAndEnglish : IDomainEntity<EnglishAndMathsEntity>
+public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
 {
     private EnglishAndMathsEntity _entity;
-    private List<MathsAndEnglishInstalment> _instalments;
+    private List<EnglishAndMathsInstalment> _instalments;
 
     public Guid Key => _entity.Key;
     public DateTime StartDate => _entity.StartDate;
@@ -23,16 +22,16 @@ public class MathsAndEnglish : IDomainEntity<EnglishAndMathsEntity>
     public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
     public DateTime? PauseDate => _entity.PauseDate;
     public int? PriorLearningAdjustmentPercentage => _entity.PriorLearningAdjustmentPercentage;
-    public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
-    public IReadOnlyCollection<MathsAndEnglishPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<MathsAndEnglishPeriodInLearning>(_entity.PeriodsInLearning.Select(MathsAndEnglishPeriodInLearning.Get).ToList());
+    public IReadOnlyCollection<EnglishAndMathsInstalment> Instalments => new ReadOnlyCollection<EnglishAndMathsInstalment>(_instalments);
+    public IReadOnlyCollection<EnglishAndMathsPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<EnglishAndMathsPeriodInLearning>(_entity.PeriodsInLearning.Select(EnglishAndMathsPeriodInLearning.Get).ToList());
 
-    private MathsAndEnglish(EnglishAndMathsEntity model)
+    private EnglishAndMaths(EnglishAndMathsEntity entity)
     {
-        _entity = model;
-        _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
+        _entity = entity;
+        _instalments = entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
     }
 
-    public MathsAndEnglish(
+    public EnglishAndMaths(
         DateTime startDate, 
         DateTime endDate, 
         string course, 
@@ -65,17 +64,17 @@ public class MathsAndEnglish : IDomainEntity<EnglishAndMathsEntity>
         }).ToList();
         _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
 
-        _instalments = _entity.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
+        _instalments = _entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
     }
 
-    public EnglishAndMathsEntity GetModel()
+    public EnglishAndMathsEntity GetEntity()
     {
         return _entity;
     }
 
-    public static MathsAndEnglish Get(EnglishAndMathsEntity model)
+    public static EnglishAndMaths Get(EnglishAndMathsEntity model)
     {
-        return new MathsAndEnglish(model);
+        return new EnglishAndMaths(model);
     }
 
     public bool AreSame(EnglishAndMathsEntity? compare)

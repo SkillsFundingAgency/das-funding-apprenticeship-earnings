@@ -3,7 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
-internal static class EarningsProfileExtensions
+internal static class ApprenticeshipEarningsProfileExtensions
 {
     internal static EarningsProfileUpdatedEvent CreatedEarningsProfileUpdatedEvent(this ApprenticeshipEarningsProfileEntity earningsProfile, bool initialGeneration = false)
     {
