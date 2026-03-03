@@ -23,15 +23,21 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
 
     public async Task Handle(UpdateEnglishAndMathsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for learning {LearningKey}", command.ApprenticeshipKey);
 
         var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command);
 
-        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
+        var learningDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
 
-        apprenticeshipDomainModel.UpdateMathsAndEnglishCourses(englishAndMathsCourses, _systemClock);
+        if (learningDomainModel == null)
+        {
+            _logger.LogError("No learning found for {LearningKey}", command.ApprenticeshipKey);
+            throw new Exception($"No learning found for {command.ApprenticeshipKey} when handling {nameof(UpdateEnglishAndMathsCommand)}");
+        }
 
-        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+        learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);
+
+        await _apprenticeshipRepository.Update(learningDomainModel);
 
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }

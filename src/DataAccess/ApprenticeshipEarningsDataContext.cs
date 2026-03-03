@@ -67,12 +67,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasForeignKey(fk => fk.EarningsProfileId);
 
             modelBuilder.Entity<ApprenticeshipEarningsProfileEntity>()
-                .HasMany(x => x.AdditionalPayments)
+                .HasMany(x => x.ApprenticeshipAdditionalPayments)
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
 
             modelBuilder.Entity<ApprenticeshipEarningsProfileEntity>()
-                .HasMany(x => x.MathsAndEnglishCourses)
+                .HasMany(x => x.EnglishAndMathsCourses)
                 .WithOne()
                 .HasForeignKey(fk => fk.EarningsProfileId);
 

@@ -43,12 +43,12 @@ internal static class ApprenticeshipEarningsProfileExtensions
 
     private static List<AdditionalPayment> GetAdditionalPayments(this ApprenticeshipEarningsProfileEntity earningsProfile)
     {
-        if (earningsProfile.AdditionalPayments == null || !earningsProfile.AdditionalPayments.Any())
+        if (earningsProfile.ApprenticeshipAdditionalPayments == null || !earningsProfile.ApprenticeshipAdditionalPayments.Any())
         {
             return new List<AdditionalPayment>();
         }
 
-        return earningsProfile.AdditionalPayments.Select(ap => new AdditionalPayment
+        return earningsProfile.ApprenticeshipAdditionalPayments.Select(ap => new AdditionalPayment
         {
             Key = ap.Key,
             AcademicYear = ap.AcademicYear,
@@ -62,12 +62,12 @@ internal static class ApprenticeshipEarningsProfileExtensions
 
     internal static List<EnglishAndMaths> GetMathsAndEnglish(this ApprenticeshipEarningsProfileEntity earningsProfile)
     {
-        if (earningsProfile.MathsAndEnglishCourses == null || !earningsProfile.MathsAndEnglishCourses.Any())
+        if (earningsProfile.EnglishAndMathsCourses == null || !earningsProfile.EnglishAndMathsCourses.Any())
         {
             return new List<EnglishAndMaths>();
         }
 
-        return earningsProfile.MathsAndEnglishCourses.Select(me => new EnglishAndMaths
+        return earningsProfile.EnglishAndMathsCourses.Select(me => new EnglishAndMaths
         {
             EnglishAndMathsKey = me.Key,
             StartDate = me.StartDate,

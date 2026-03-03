@@ -62,7 +62,7 @@ public class WhenUpdatingEnglishAndMaths
         var learningModel = _fixture.Create<LearningEntity>();
         learningModel.ApprenticeshipEpisodes = [new ApprenticeshipEpisodeEntity(learningModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new ApprenticeshipEarningsProfileEntity
         {
-            MathsAndEnglishCourses = new List<EnglishAndMathsEntity>()
+            EnglishAndMathsCourses = new List<EnglishAndMathsEntity>()
         }}];
         return Domain.Models.Learning.Get(learningModel);
     }

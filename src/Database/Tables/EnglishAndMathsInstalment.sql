@@ -9,5 +9,5 @@
 )
 GO
 ALTER TABLE Domain.[EnglishAndMathsInstalment]
-ADD CONSTRAINT FK_EnglishAndMathsInstalment_EnglishAndMaths FOREIGN KEY ([Key]) REFERENCES Domain.EnglishAndMaths ([Key])
+ADD CONSTRAINT FK_EnglishAndMathsInstalment_EnglishAndMaths FOREIGN KEY ([EnglishAndMathsKey]) REFERENCES Domain.EnglishAndMaths ([Key])
 GO

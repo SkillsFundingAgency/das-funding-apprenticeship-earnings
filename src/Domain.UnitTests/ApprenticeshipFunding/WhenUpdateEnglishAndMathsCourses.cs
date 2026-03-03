@@ -53,7 +53,7 @@ public class WhenUpdateEnglishAndMathsCourses
         var sut = CreateApprenticeship();
 
         // Act
-        sut.UpdateMathsAndEnglishCourses(courses, _mockSystemClockService.Object);
+        sut.UpdateEnglishAndMathsCourses(courses, _mockSystemClockService.Object);
 
         // Assert
         var updatedProfile = sut.ApprenticeshipEpisodes.First().EarningsProfile;
@@ -66,7 +66,7 @@ public class WhenUpdateEnglishAndMathsCourses
     {
         // Arrange
         var sut = CreateApprenticeship();
-        sut.UpdateMathsAndEnglishCourses(new List<EnglishAndMaths>(), _mockSystemClockService.Object); // first update
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>(), _mockSystemClockService.Object); // first update
 
         var courses = new List<EnglishAndMaths>
         {
@@ -74,7 +74,7 @@ public class WhenUpdateEnglishAndMathsCourses
         };
 
         // Act
-        sut.UpdateMathsAndEnglishCourses(courses, _mockSystemClockService.Object);
+        sut.UpdateEnglishAndMathsCourses(courses, _mockSystemClockService.Object);
 
         // Assert
         var events = sut.FlushEvents().ToList();

@@ -19,13 +19,13 @@ public static class IncentivesAssertionHelper
             : startDate.AddDays(89).ToAcademicYearAndPeriod();
 
         if (expectedPayment)
-            currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
+            currentEpisode.EarningsProfile.ApprenticeshipAdditionalPayments.Should().Contain(x =>
                 x.AcademicYear == expectedPeriod.AcademicYear
                 && x.DeliveryPeriod == expectedPeriod.Period
                 && x.AdditionalPaymentType == type
                 && x.Amount == 500);
         else
-            currentEpisode.EarningsProfile.AdditionalPayments.Should().NotContain(x =>
+            currentEpisode.EarningsProfile.ApprenticeshipAdditionalPayments.Should().NotContain(x =>
                 x.AcademicYear == expectedPeriod.AcademicYear
                 && x.DeliveryPeriod == expectedPeriod.Period
                 && x.AdditionalPaymentType == type

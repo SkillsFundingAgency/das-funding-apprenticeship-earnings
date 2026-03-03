@@ -38,8 +38,8 @@ internal static class TestHelper
             .With(x => x.EarningsProfile, fixture
                 .Build<ApprenticeshipEarningsProfileEntity>()
                 .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
-                .With(x => x.AdditionalPayments, new List<ApprenticeshipAdditionalPaymentEntity>())
-                .With(x => x.MathsAndEnglishCourses, new List<EnglishAndMathsEntity>())
+                .With(x => x.ApprenticeshipAdditionalPayments, new List<ApprenticeshipAdditionalPaymentEntity>())
+                .With(x => x.EnglishAndMathsCourses, new List<EnglishAndMathsEntity>())
                 .Create())
             .Create();
         var learningEntityModel = fixture

@@ -35,16 +35,16 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .ThenInclude(y => y.Instalments)
             .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.AdditionalPayments)
+            .ThenInclude(y => y.ApprenticeshipAdditionalPayments)
             .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.Prices)
             .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.MathsAndEnglishCourses)
+            .ThenInclude(y => y.EnglishAndMathsCourses)
             .ThenInclude(y => y.PeriodsInLearning)
             .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.MathsAndEnglishCourses)
+            .ThenInclude(y => y.EnglishAndMathsCourses)
             .ThenInclude(y => y.Instalments)
             .Include(x=> x.ApprenticeshipEpisodes)
             .ThenInclude(y=> y.PeriodsInLearning)
@@ -56,8 +56,16 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     public async Task Update(Models.Learning apprenticeship)
     {
-        await DbContext.SaveChangesAsync();
-        await ReleaseEvents(apprenticeship);
+        try
+        {
+            await DbContext.SaveChangesAsync();
+            await ReleaseEvents(apprenticeship);
+        }
+        catch (Exception ex)
+        {
+            var foo = ex;
+        }
+
     }
 
     private async Task ReleaseEvents(Models.Learning apprenticeship)

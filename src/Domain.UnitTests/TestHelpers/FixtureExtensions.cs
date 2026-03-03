@@ -176,10 +176,10 @@ internal static class FixtureExtensions
         {
             OnProgramTotal = earningsProfile.OnProgramTotal,
             Instalments = instalments,
-            AdditionalPayments = additionalPayments,
+            ApprenticeshipAdditionalPayments = additionalPayments,
             CompletionPayment = earningsProfile.CompletionPayment,
             EarningsProfileId = earningsProfile.EarningsProfileId,
-            MathsAndEnglishCourses = mathAndEnglishCourses
+            EnglishAndMathsCourses = mathAndEnglishCourses
         };
     }
 

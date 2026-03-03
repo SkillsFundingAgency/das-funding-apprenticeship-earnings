@@ -89,7 +89,7 @@ public class Learning : AggregateRoot
     /// Maths and English course earnings are generated separately using this endpoint.
     /// Note, any existing earnings for maths and english courses will be removed.
     /// </summary>
-    public void UpdateMathsAndEnglishCourses(List<EnglishAndMaths.EnglishAndMaths> englishAndMathsCourses, ISystemClockService systemClock)
+    public void UpdateEnglishAndMathsCourses(List<EnglishAndMaths.EnglishAndMaths> englishAndMathsCourses, ISystemClockService systemClock)
     {
         var currentEpisode = this.GetCurrentEpisode(systemClock);
         currentEpisode.UpdateEnglishAndMaths(englishAndMathsCourses, systemClock);

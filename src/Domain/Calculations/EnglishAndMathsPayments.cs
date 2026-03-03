@@ -6,16 +6,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class EnglishAndMathsPayments
 {
-    public static List<EnglishAndMathsInstalmentEntity> GenerateInstalments(EnglishAndMaths mathsAndEnglish)
+    public static List<EnglishAndMathsInstalmentEntity> GenerateInstalments(EnglishAndMaths englishAndMaths)
     {
-        if (IsInvalidCourse(mathsAndEnglish))
+        if (IsInvalidCourse(englishAndMaths))
             return [];
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
-        if (IsSingleMonthCourse(mathsAndEnglish))
-            return [CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.EndDate, mathsAndEnglish.Amount)];
+        if (IsSingleMonthCourse(englishAndMaths))
+            return [CreateInstalment(englishAndMaths.Key, englishAndMaths.EndDate, englishAndMaths.Amount)];
 
-        var context = BuildCalculationContext(mathsAndEnglish);
+        var context = BuildCalculationContext(englishAndMaths);
 
         GenerateMonthlyInstalments(context);
         ApplyEarlyCompletionAdjustment(context);

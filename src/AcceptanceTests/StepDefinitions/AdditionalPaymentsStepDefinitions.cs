@@ -58,7 +58,7 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
-        var additionalPaymentsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments;
+        var additionalPaymentsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.ApprenticeshipAdditionalPayments;
 
         additionalPaymentsInDb.Should().HaveCount(data.Count);
 
@@ -78,7 +78,7 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
-        updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
+        updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.ApprenticeshipAdditionalPayments.Should().BeEmpty();
     }
 
     [Then("a first incentive payment is generated")]

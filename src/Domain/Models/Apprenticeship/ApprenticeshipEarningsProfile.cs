@@ -23,8 +23,8 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         string calculationData): base(onProgramTotal, completionPayment, episodeKey, isApproved, calculationData, addChildToRoot)
     {
         Entity.Instalments = instalments.ToModels<ApprenticeshipInstalment, ApprenticeshipInstalmentEntity>(model=> model.EarningsProfileId = EarningsProfileId);
-        Entity.AdditionalPayments = additionalPayments.ToModels<AdditionalPayment, ApprenticeshipAdditionalPaymentEntity>(model => model.EarningsProfileId = EarningsProfileId);
-        Entity.MathsAndEnglishCourses = mathsAndEnglishCourses.ToModels((EnglishAndMathsEntity model) => model.EarningsProfileId = EarningsProfileId);
+        Entity.ApprenticeshipAdditionalPayments = additionalPayments.ToModels<AdditionalPayment, ApprenticeshipAdditionalPaymentEntity>(model => model.EarningsProfileId = EarningsProfileId);
+        Entity.EnglishAndMathsCourses = mathsAndEnglishCourses.ToModels((EnglishAndMathsEntity model) => model.EarningsProfileId = EarningsProfileId);
         _instalments = instalments;
 
         AddEvent(Entity.CreatedEarningsProfileUpdatedEvent(true));
@@ -36,8 +36,8 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     }
 
     public IReadOnlyCollection<ApprenticeshipInstalment> Instalments => new ReadOnlyCollection<ApprenticeshipInstalment>(_instalments);
-    public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Entity.AdditionalPayments.Select(AdditionalPayment.Get).ToList().AsReadOnly();
-    public IReadOnlyCollection<EnglishAndMathsDomainModel> MathsAndEnglishCourses => Entity.MathsAndEnglishCourses.Select(EnglishAndMathsDomainModel.Get).ToList().AsReadOnly();
+    public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Entity.ApprenticeshipAdditionalPayments.Select(AdditionalPayment.Get).ToList().AsReadOnly();
+    public IReadOnlyCollection<EnglishAndMathsDomainModel> MathsAndEnglishCourses => Entity.EnglishAndMathsCourses.Select(EnglishAndMathsDomainModel.Get).ToList().AsReadOnly();
 
     public void Update(
         ISystemClockService systemClock,
@@ -64,13 +64,13 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
             versionChanged = true;
         }
             
-        if (additionalPayments != null && !additionalPayments.AreSame(Entity.AdditionalPayments))
+        if (additionalPayments != null && !additionalPayments.AreSame(Entity.ApprenticeshipAdditionalPayments))
         {
-            Entity.AdditionalPayments = additionalPayments!.ToModels<AdditionalPayment, ApprenticeshipAdditionalPaymentEntity>();
+            Entity.ApprenticeshipAdditionalPayments = additionalPayments!.ToModels<AdditionalPayment, ApprenticeshipAdditionalPaymentEntity>();
             versionChanged = true;
         }
 
-        if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Entity.MathsAndEnglishCourses))
+        if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Entity.EnglishAndMathsCourses))
         {
             UpdateEnglishAndMathsCourses(mathsAndEnglishCourses);
             versionChanged = true;
@@ -104,7 +104,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     /// </summary>
     public IReadOnlyCollection<AdditionalPayment> PersistentAdditionalPayments()
     {
-        return Entity.AdditionalPayments
+        return Entity.ApprenticeshipAdditionalPayments
             .Where(x=> x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
             .Select(AdditionalPayment.Get)
             .ToList().AsReadOnly();
@@ -117,10 +117,10 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     /// </summary>
     public IReadOnlyCollection<EnglishAndMathsDomainModel> PersistentMathsAndEnglishCourses()
     {
-        if (Entity.MathsAndEnglishCourses == null)
+        if (Entity.EnglishAndMathsCourses == null)
             return new List<EnglishAndMathsDomainModel>();
 
-        return Entity.MathsAndEnglishCourses
+        return Entity.EnglishAndMathsCourses
             .Select(EnglishAndMathsDomainModel.Get)
             .ToList().AsReadOnly();
     }
@@ -133,17 +133,17 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
 
     private void UpdateEnglishAndMathsCourses(List<EnglishAndMathsDomainModel> updatedCourses)
     {
-        Entity.MathsAndEnglishCourses ??= new List<EnglishAndMathsEntity>();
+        Entity.EnglishAndMathsCourses ??= new List<EnglishAndMathsEntity>();
 
         // 1. If nothing remains, clear everything
         if (updatedCourses.Count == 0)
         {
-            Entity.MathsAndEnglishCourses.Clear();
+            Entity.EnglishAndMathsCourses.Clear();
             return;
         }
 
         // 2. Sync courses by (LearnAimRef, StartDate)
-        Entity.MathsAndEnglishCourses.SyncByKey(
+        Entity.EnglishAndMathsCourses.SyncByKey(
             updatedCourses,
             existingKey: c => (c.LearnAimRef, c.StartDate),
             updatedKey: c => (c.LearnAimRef, c.StartDate),

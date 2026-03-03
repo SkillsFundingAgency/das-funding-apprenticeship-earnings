@@ -61,7 +61,7 @@ public class EnglishAndMathsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
-        var mathsAndEnglishCoursesInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.MathsAndEnglishCourses;
+        var mathsAndEnglishCoursesInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.EnglishAndMathsCourses;
 
         // Check number of instalments per course
         var expectedCourses = data.Select(d => d.Course).Distinct().ToList();
@@ -100,7 +100,7 @@ public class EnglishAndMathsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
-        var mathsAndEnglishInstalmentsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.MathsAndEnglishCourses.SelectMany(x => x.Instalments);
+        var mathsAndEnglishInstalmentsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.EnglishAndMathsCourses.SelectMany(x => x.Instalments);
 
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
     }

@@ -8,6 +8,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprentices
 public class ApprenticeshipEarningsProfileEntity : BaseEarningsProfileEntity
 {
     public List<ApprenticeshipInstalmentEntity> Instalments { get; set; } = null!;
-    public List<ApprenticeshipAdditionalPaymentEntity> AdditionalPayments { get; set; } = null!;
-    public List<EnglishAndMathsEntity> MathsAndEnglishCourses { get; set; } = null!;
+    public List<ApprenticeshipAdditionalPaymentEntity> ApprenticeshipAdditionalPayments { get; set; } = null!;
+    public List<EnglishAndMathsEntity> EnglishAndMathsCourses { get; set; } = null!;
 }

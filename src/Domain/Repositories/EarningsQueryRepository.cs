@@ -78,7 +78,7 @@ public class EarningsQueryRepository : IEarningsQueryRepository
             .ThenInclude(x => x.Instalments)
             .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(x => x.EarningsProfile)
-            .ThenInclude(x => x.AdditionalPayments);
+            .ThenInclude(x => x.ApprenticeshipAdditionalPayments);
 
         if (onlyActiveApprenticeships)
         {
