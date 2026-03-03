@@ -47,8 +47,6 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
                 TrainingCode = commandRequest.OnProgramme.CourseCode,
                 CompletionDate = commandRequest.OnProgramme.CompletionDate,
                 WithdrawalDate = commandRequest.OnProgramme.WithdrawalDate,
-                PauseDate = null,
-                FundingBandMaximum = (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice), //todo maybe FBM becomes relevant in a future story?
                 StartDate = commandRequest.OnProgramme.StartDate,
                 EndDate = commandRequest.OnProgramme.ExpectedEndDate,
                 CoursePrice = commandRequest.OnProgramme.TotalPrice                 

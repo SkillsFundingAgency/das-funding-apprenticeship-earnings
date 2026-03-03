@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
-[System.ComponentModel.DataAnnotations.Schema.NotMapped]
 public abstract class BaseInstalmentEntity
 {
     [Dapper.Contrib.Extensions.Key]

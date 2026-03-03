@@ -14,6 +14,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     private List<ApprenticeshipPrice> _prices;
     private List<ApprenticeshipPeriodInLearning> _periodsInLearning;
 
+    public DateTime? PauseDate => _entity.PauseDate;
+    public decimal FundingBandMaximum => _entity.FundingBandMaximum;
+
     public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
     public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
     public List<(ApprenticeshipPeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
@@ -234,5 +237,10 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         var startDate = _prices.Min(x => x.StartDate);
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(Prices.Min(x => x.StartDate));
+    }
+
+    public void UpdateFundingBandMaximum(int fundingBandMaximum)
+    {
+        _entity.FundingBandMaximum = fundingBandMaximum;
     }
 }

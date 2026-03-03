@@ -56,7 +56,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
 
     public async Task Update(Models.Learning apprenticeship)
     {
-        try
+        try// TODO Delete this before PR
         {
             await DbContext.SaveChangesAsync();
             await ReleaseEvents(apprenticeship);

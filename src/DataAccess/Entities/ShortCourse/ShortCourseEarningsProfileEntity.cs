@@ -2,8 +2,8 @@
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 
-[Dapper.Contrib.Extensions.Table("Domain.ShortCourseEarningsProfileModel")]
-[Table("ShortCourseEarningsProfileModel", Schema = "Domain")]
+[Dapper.Contrib.Extensions.Table("Domain.ShortCourseEarningsProfile")]
+[Table("ShortCourseEarningsProfile", Schema = "Domain")]
 public class ShortCourseEarningsProfileEntity : BaseEarningsProfileEntity
 {
     public List<ShortCourseInstalmentEntity> Instalments { get; set; } = null!;

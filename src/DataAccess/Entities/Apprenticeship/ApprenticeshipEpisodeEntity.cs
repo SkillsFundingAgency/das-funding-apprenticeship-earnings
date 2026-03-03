@@ -10,6 +10,8 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
     public ApprenticeshipEarningsProfileEntity EarningsProfile { get; set; }
     public List<ApprenticeshipEpisodePriceEntity> Prices { get; set; } = new();
     public List<ApprenticeshipPeriodInLearningEntity> PeriodsInLearning { get; set; } = new();
+    public DateTime? PauseDate { get; set; }
+    public decimal FundingBandMaximum { get; set; }
 
     public ApprenticeshipEpisodeEntity()
     {

@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
-[System.ComponentModel.DataAnnotations.Schema.NotMapped]
 public abstract class BaseEpisodeEntity
 {
     public BaseEpisodeEntity()
@@ -22,6 +21,4 @@ public abstract class BaseEpisodeEntity
     public string TrainingCode { get; set; } = null!;
     public DateTime? CompletionDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
-    public DateTime? PauseDate { get; set; }
-    public decimal FundingBandMaximum { get; set; }
 }

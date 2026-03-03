@@ -30,8 +30,7 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: A
     public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;
     public DateTime? CompletionDate => _entity.CompletionDate;
     public DateTime? WithdrawalDate => _entity.WithdrawalDate;
-    public DateTime? PauseDate => _entity.PauseDate;
-    public decimal FundingBandMaximum => _entity.FundingBandMaximum;
+
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
@@ -44,10 +43,5 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: A
     public void UpdateCompletion(DateTime? completionDate)
     {
         _entity.CompletionDate = completionDate;
-    }
-
-    public void UpdateFundingBandMaximum(int fundingBandMaximum)
-    {
-        _entity.FundingBandMaximum = fundingBandMaximum;
     }
 }

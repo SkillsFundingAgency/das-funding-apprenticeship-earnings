@@ -57,7 +57,6 @@ public class WhenCreatingANewShortCourse
         episode.EmployerAccountId.Should().Be(request.OnProgramme.EmployerId);
         episode.TrainingCode.Should().Be(request.OnProgramme.CourseCode);
         episode.AgeAtStartOfApprenticeship.Should().Be(25); // 2025 - 2000
-        episode.FundingBandMaximum.Should().Be(1500);
         episode.FundingType.Should().Be(FundingType.Levy);
         episode.UKPRN.Should().Be(request.OnProgramme.Ukprn);
 
