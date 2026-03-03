@@ -1,21 +1,19 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
 public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCourseEarningsProfile>
 {
-
-    private int _ageAtStartOfApprenticeship;
-
     public DateTime StartDate => _entity.StartDate;
     public DateTime EndDate => _entity.EndDate;
     public decimal CoursePrice => _entity.CoursePrice;
 
-    private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, dateOfBirth, addChildToRoot)
+    private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
-        UpdateAgeAtStart(model.StartDate);
+        UpdateAgeAtStart(dateOfBirth);
     }
 
     internal static ShortCourseEpisode Get(Learning learning, ShortCourseEpisodeEntity entity)
@@ -59,4 +57,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         }
     }
 
+    public void UpdateAgeAtStart(DateTime dateOfBirth)
+    {
+        _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
+    }
 }

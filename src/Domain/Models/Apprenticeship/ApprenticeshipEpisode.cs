@@ -2,7 +2,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -25,7 +24,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
 
-    private ApprenticeshipEpisode(ApprenticeshipEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, dateOfBirth, addChildToRoot)
+    private ApprenticeshipEpisode(ApprenticeshipEpisodeEntity entity, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(entity, addChildToRoot)
     {
 
         _prices = _entity.Prices.Select(ApprenticeshipPrice.Get).ToList();
@@ -35,12 +34,12 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             _earningsProfile = this.GetEarningsProfileFromModel(_entity.EarningsProfile);
         }
 
-        UpdateAgeAtStart(_prices.Min(x => x.StartDate));
+        UpdateAgeAtStart(dateOfBirth);
     }
 
-    internal static ApprenticeshipEpisode Get(Learning apprenticeship, ApprenticeshipEpisodeEntity entity)
+    internal static ApprenticeshipEpisode Get(Learning learning, ApprenticeshipEpisodeEntity entity)
     {
-        var episode = new ApprenticeshipEpisode(entity, apprenticeship.DateOfBirth, apprenticeship.AddChildToRoot);
+        var episode = new ApprenticeshipEpisode(entity, learning.DateOfBirth, learning.AddChildToRoot);
         return episode;
     }
 
@@ -231,4 +230,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         return (instalments, additionalPayments, onProgramTotal, completionPayment);
     }
 
+    public void UpdateAgeAtStart(DateTime dateOfBirth)
+    {
+        var startDate = _prices.Min(x => x.StartDate);
+        _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(Prices.Min(x => x.StartDate));
+    }
 }

@@ -26,11 +26,11 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
     {
         _logger.LogInformation("Handling UpdateOnProgrammeCommand for ApprenticeshipKey: {ApprenticeshipKey}", command.ApprenticeshipKey);
         
-        var apprenticeship = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
-        var episode = apprenticeship.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
+        var learning = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
+        var episode = learning.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
         var request = command.Request;
 
-        ExecuteAndLog(() => apprenticeship.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
+        ExecuteAndLog(() => learning.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
         ExecuteAndLog(() => episode.UpdatePause(request.PauseDate), "update Pause");
         ExecuteAndLog(() => episode.UpdatePeriodsInLearning(request.ToEpisodePeriodsInLearning()), "update Periods in learning");
         ExecuteAndLog(() => episode.UpdateCompletion(request.CompletionDate), "update Completion");
@@ -40,15 +40,15 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         {
             ExecuteAndLog(() => episode.UpdateFundingBandMaximum(request.FundingBandMaximum!.Value), "update FundingBandMaximum");
             ExecuteAndLog(() => episode.UpdatePrices(request.Prices), "update Prices");
-            episode.UpdateAgeAtStart(apprenticeship.DateOfBirth);
+            episode.UpdateAgeAtStart(learning.DateOfBirth);
         }
 
-        ExecuteAndLog(() => apprenticeship.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
+        ExecuteAndLog(() => learning.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
 
-        ExecuteAndLog(() => apprenticeship.Calculate(_systemClock, JsonSerializer.Serialize(command.Request), request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
+        ExecuteAndLog(() => learning.Calculate(_systemClock, JsonSerializer.Serialize(command.Request), request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
 
         _logger.LogInformation("Updating ApprenticeshipKey: {ApprenticeshipKey} in repository", command.ApprenticeshipKey);
-        await _apprenticeshipRepository.Update(apprenticeship);
+        await _apprenticeshipRepository.Update(learning);
 
         _logger.LogInformation("Completed handling UpdateOnProgrammeCommand for ApprenticeshipKey: {ApprenticeshipKey}", command.ApprenticeshipKey);
     }

@@ -9,13 +9,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: AggregateComponent where TEpisodeEntity : BaseEpisodeEntity
 {
     protected readonly TEpisodeEntity _entity;
-    private readonly DateTime _dateOfBirth;
-    private int _ageAtStartOfApprenticeship;
+    protected int _ageAtStartOfApprenticeship;
 
-    protected BaseEpisode(TEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
+    protected BaseEpisode(TEpisodeEntity model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         _entity = model;
-        _dateOfBirth = dateOfBirth;
     }
 
     protected TEarningProfileDomainModel? _earningsProfile;
@@ -35,9 +33,6 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: A
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
 
-
-
-
     public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _entity.WithdrawalDate = withdrawalDate;
@@ -54,10 +49,5 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: A
     public void UpdateFundingBandMaximum(int fundingBandMaximum)
     {
         _entity.FundingBandMaximum = fundingBandMaximum;
-    }
-
-    public void UpdateAgeAtStart(DateTime startDate)
-    {
-        _ageAtStartOfApprenticeship = _dateOfBirth.CalculateAgeAtDate(startDate);
     }
 }
