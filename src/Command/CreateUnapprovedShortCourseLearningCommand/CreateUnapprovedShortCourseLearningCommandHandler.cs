@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
 
@@ -51,7 +51,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 WithdrawalDate = command.Request.OnProgramme.WithdrawalDate
             });
 
-            existingShortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            existingShortCourse.ShortCourseEpisodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
             await _apprenticeshipRepository.Update(existingShortCourse);
         }
@@ -59,7 +59,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
         {
             var shortCourse = _apprenticeshipFactory.CreateNewShortCourse(command.Request);
 
-            shortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            shortCourse.ShortCourseEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
             await _apprenticeshipRepository.Add(shortCourse);
         }

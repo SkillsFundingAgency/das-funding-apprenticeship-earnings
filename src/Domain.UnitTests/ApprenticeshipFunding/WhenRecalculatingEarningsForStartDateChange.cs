@@ -3,7 +3,11 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -18,8 +22,8 @@ public class WhenRecalculatingEarningsForStartDateChange
 {
     private Fixture? _fixture;
     private Mock<ISystemClockService>? _mockSystemClockService;
-    private Apprenticeship.Apprenticeship? _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode? _currentEpisode;
+    private Models.Learning? _apprenticeship;
+    private ApprenticeshipEpisode? _currentEpisode;
     private Guid _episodeKey;
     private List<LearningEpisodePrice> _prices;
     private const int _ageAtStartOfLearning = 20;
@@ -32,8 +36,8 @@ public class WhenRecalculatingEarningsForStartDateChange
         _mockSystemClockService = new Mock<ISystemClockService>();
         _mockSystemClockService.Setup(x => x.UtcNow).Returns(new DateTimeOffset(new DateTime(2023, 11, 1)));
 
-        var learningEpisode = _fixture.Create<EpisodeModel>();
-        var prices = _fixture.CreateMany<EpisodePriceModel>(3).ToList();
+        var learningEpisode = _fixture.Create<ApprenticeshipEpisodeEntity>();
+        var prices = _fixture.CreateMany<ApprenticeshipEpisodePriceEntity>(3).ToList();
         prices[0].StartDate = new DateTime(2023, 2, 1);
         prices[0].EndDate = new DateTime(2023, 5, 1);
         prices[1].StartDate = new DateTime(2023, 5, 1);
@@ -44,19 +48,19 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.WithdrawalDate = null;
         learningEpisode.CompletionDate = null;
         learningEpisode.FundingBandMaximum = int.MaxValue;
-        learningEpisode.PeriodsInLearning = new List<EpisodePeriodInLearningModel>();
-        learningEpisode.EarningsProfile.MathsAndEnglishCourses = new List<MathsAndEnglishModel>();
+        learningEpisode.PeriodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>();
+        learningEpisode.EarningsProfile.MathsAndEnglishCourses = new List<EnglishAndMathsEntity>();
 
         var learningEntityModel = _fixture
-            .Build<LearningModel>()
+            .Build<LearningEntity>()
             .With(x => x.DateOfBirth, startDate.AddYears(-_ageAtStartOfLearning))
-            .With(x => x.Episodes, new List<EpisodeModel> { learningEpisode })
+            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeEntity> { learningEpisode })
             .Create();
 
-        _apprenticeship = Apprenticeship.Apprenticeship.Get(learningEntityModel);
+        _apprenticeship = Models.Learning.Get(learningEntityModel);
         _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
 
-        _episodeKey = _currentEpisode.ApprenticeshipEpisodeKey;
+        _episodeKey = _currentEpisode.EpisodeKey;
         _prices = new List<LearningEpisodePrice>
         {
             new LearningEpisodePrice

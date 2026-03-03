@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
@@ -6,7 +6,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class EnglishAndMathsPayments
 {
-    public static List<MathsAndEnglishInstalmentModel> GenerateInstalments(MathsAndEnglish mathsAndEnglish)
+    public static List<EnglishAndMathsInstalmentEntity> GenerateInstalments(MathsAndEnglish mathsAndEnglish)
     {
         if (IsInvalidCourse(mathsAndEnglish))
             return [];
@@ -144,7 +144,7 @@ public static class EnglishAndMathsPayments
     }
 
     private static void DeleteAfterDate(
-        List<MathsAndEnglishInstalmentModel> instalments,
+        List<EnglishAndMathsInstalmentEntity> instalments,
         DateTime cutoff,
         DateTime startDate)
     {
@@ -154,7 +154,7 @@ public static class EnglishAndMathsPayments
 
     }
 
-    private static List<MathsAndEnglishInstalmentModel> GetEnglishAndMathsEarningsToKeep(List<MathsAndEnglishInstalmentModel> instalments, DateTime startDate, DateTime? lastDayOfLearning)
+    private static List<EnglishAndMathsInstalmentEntity> GetEnglishAndMathsEarningsToKeep(List<EnglishAndMathsInstalmentEntity> instalments, DateTime startDate, DateTime? lastDayOfLearning)
     {
         if (!lastDayOfLearning.HasValue)
         {
@@ -183,9 +183,9 @@ public static class EnglishAndMathsPayments
 
     }
 
-    private static MathsAndEnglishInstalmentModel CreateInstalment(Guid key, DateTime dateTime, decimal amount, MathsAndEnglishInstalmentType instalmentType = MathsAndEnglishInstalmentType.Regular)
+    private static EnglishAndMathsInstalmentEntity CreateInstalment(Guid key, DateTime dateTime, decimal amount, MathsAndEnglishInstalmentType instalmentType = MathsAndEnglishInstalmentType.Regular)
     {
-        return new MathsAndEnglishInstalmentModel(
+        return new EnglishAndMathsInstalmentEntity(
              key,
              dateTime.ToAcademicYear(),
              dateTime.ToDeliveryPeriod(),
@@ -203,7 +203,7 @@ public static class EnglishAndMathsPayments
 
 internal class InstalmentCalculationContext
 {
-    internal List<MathsAndEnglishInstalmentModel> Instalments { get; } = new List<MathsAndEnglishInstalmentModel>();
+    internal List<EnglishAndMathsInstalmentEntity> Instalments { get; } = new List<EnglishAndMathsInstalmentEntity>();
     internal MathsAndEnglish MathsAndEnglish { get; private set; }
     internal DateTime LastCensusDate { get; private set; }
     internal DateTime FirstPaymentDate { get; private set; }

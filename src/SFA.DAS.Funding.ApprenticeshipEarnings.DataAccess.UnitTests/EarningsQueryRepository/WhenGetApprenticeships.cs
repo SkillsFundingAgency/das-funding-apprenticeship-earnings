@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQueryRepository;
@@ -53,7 +54,7 @@ public class WhenGetApprenticeships
     {
         // Arrange
         var ukprn = _fixture.Create<long>();
-        var apprenticeships = _fixture.Create<List<LearningModel>>();
+        var apprenticeships = _fixture.Create<List<LearningEntity>>();
         await PopulateDb(apprenticeships);
 
         // Act
@@ -69,19 +70,19 @@ public class WhenGetApprenticeships
         // Arrange
         var ukprn = _fixture.Create<long>();
         var testDateTime = _fixture.Create<DateTime>();
-        var apprenticeships = _fixture.Create<List<LearningModel>>();
+        var apprenticeships = _fixture.Create<List<LearningEntity>>();
 
         _mockSystemClockService.Setup(x=>x.UtcNow).Returns(testDateTime);
 
         foreach (var apprenticeship in apprenticeships)
         {
-            var episode = _fixture.Create<EpisodeModel>();
+            var episode = _fixture.Create<ApprenticeshipEpisodeEntity>();
             
             episode.Ukprn = ukprn;
             episode.Prices.First().StartDate = testDateTime.AddDays(-60);
             episode.Prices.First().EndDate = testDateTime.AddDays(60);
 
-            apprenticeship.Episodes = new List<EpisodeModel> { episode };
+            apprenticeship.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity> { episode };
         }
         await PopulateDb(apprenticeships);
 
@@ -92,7 +93,7 @@ public class WhenGetApprenticeships
         result.Count.Should().Be(apprenticeships.Count);
     }
 
-    private async Task PopulateDb(List<LearningModel> apprenticeshipModels)
+    private async Task PopulateDb(List<LearningEntity> apprenticeshipModels)
     {
         await _dbContext.AddRangeAsync(apprenticeshipModels);
         await _dbContext.SaveChangesAsync();

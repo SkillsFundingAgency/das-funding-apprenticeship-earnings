@@ -19,7 +19,7 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
         _messageSession = messageSession;
     }
 
-    public async Task Add(Apprenticeship.Apprenticeship apprenticeship)
+    public async Task Add(Models.Learning apprenticeship)
     {
         var entity = apprenticeship.GetModel();
         await DbContext.AddAsync(entity);
@@ -27,26 +27,26 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
         await ReleaseEvents(apprenticeship);
     }
 
-    public async Task<Apprenticeship.Apprenticeship?> Get(Guid key)
+    public async Task<Models.Learning?> Get(Guid key)
     {
         var apprenticeship = await DbContext.Learnings
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.AdditionalPayments)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.Prices)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.PeriodsInLearning)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
-            .Include(x=> x.Episodes)
+            .Include(x=> x.ApprenticeshipEpisodes)
             .ThenInclude(y=> y.PeriodsInLearning)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.LearningKey == key);
@@ -54,13 +54,13 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
         return apprenticeship == null ? null : _apprenticeshipFactory.GetExisting(apprenticeship);
     }
 
-    public async Task Update(Apprenticeship.Apprenticeship apprenticeship)
+    public async Task Update(Models.Learning apprenticeship)
     {
         await DbContext.SaveChangesAsync();
         await ReleaseEvents(apprenticeship);
     }
 
-    private async Task ReleaseEvents(Apprenticeship.Apprenticeship apprenticeship)
+    private async Task ReleaseEvents(Models.Learning apprenticeship)
     {
         foreach (var @event in apprenticeship.FlushEvents())
         {

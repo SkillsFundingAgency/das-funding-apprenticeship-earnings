@@ -3,6 +3,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
@@ -99,9 +101,9 @@ public class WhenAddAdditionalEarnings
         events.Any(x => x is Types.EarningsProfileUpdatedEvent).Should().BeTrue();
     }
 
-    private Apprenticeship.Apprenticeship CreateApprenticeship(byte apprenticeAge)
+    private Models.Learning CreateApprenticeship(byte apprenticeAge)
     {
-        var sut = _fixture.CreateApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice, age: apprenticeAge);
+        var sut = _fixture.CreateLearningWithApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice, age: apprenticeAge);
         sut.Calculate(_mockSystemClockService.Object, string.Empty);
         return sut;
     }

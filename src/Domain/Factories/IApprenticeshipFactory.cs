@@ -6,8 +6,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories
 {
     public interface IApprenticeshipFactory
     {
-        Apprenticeship.Apprenticeship CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum);
-        Apprenticeship.Apprenticeship GetExisting(LearningModel model);
-        Apprenticeship.Apprenticeship CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest);
+        Models.Learning CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum);
+        Models.Learning GetExisting(LearningEntity model);
+        Models.Learning CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest);
     }
 }

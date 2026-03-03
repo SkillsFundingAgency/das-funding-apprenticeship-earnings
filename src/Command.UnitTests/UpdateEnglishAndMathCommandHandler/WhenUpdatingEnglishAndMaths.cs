@@ -3,7 +3,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -52,20 +55,20 @@ public class WhenUpdatingEnglishAndMaths
 
         // Assert
         _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
     }
 
-    private Apprenticeship BuildApprenticeship()
+    private Domain.Models.Learning BuildApprenticeship()
     {
-        var learningModel = _fixture.Create<LearningModel>();
-        learningModel.Episodes = [new EpisodeModel(learningModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new EarningsProfileModel
+        var learningModel = _fixture.Create<LearningEntity>();
+        learningModel.ApprenticeshipEpisodes = [new ApprenticeshipEpisodeEntity(learningModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new ApprenticeshipEarningsProfileEntity
         {
-            MathsAndEnglishCourses = new List<MathsAndEnglishModel>()
+            MathsAndEnglishCourses = new List<EnglishAndMathsEntity>()
         }}];
-        return Apprenticeship.Get(learningModel);
+        return Domain.Models.Learning.Get(learningModel);
     }
 
-    private UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand BuildCommand(Apprenticeship apprenticeship)
+    private UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand BuildCommand(Domain.Models.Learning apprenticeship)
     {
         var request = new UpdateEnglishAndMathsRequest
         {

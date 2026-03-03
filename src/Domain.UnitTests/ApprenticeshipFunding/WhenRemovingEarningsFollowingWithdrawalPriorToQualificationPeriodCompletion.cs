@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -14,7 +15,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCompletion
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _apprenticeship;
+    private Models.Learning _apprenticeship;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -119,7 +120,7 @@ public class WhenRemovingEarningsFollowingWithdrawalPriorToQualificationPeriodCo
 
     private void SetupApprenticeship(DateTime actualStartDate, DateTime plannedEndDate, decimal agreedPrice)
     {
-        _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _apprenticeship = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         var episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
         episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);

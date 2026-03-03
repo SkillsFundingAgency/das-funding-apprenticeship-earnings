@@ -8,6 +8,8 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -64,10 +66,10 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     private async Task AssertOnProgrammeEarnings(Table table, Guid learningKey)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-        LearningModel? updatedEntity;
+        LearningEntity? updatedEntity;
 
         updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKey);
-        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+        var earningsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
 
@@ -87,7 +89,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKeyKey);
-        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
+        var earningsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.Instalments;
 
         earningsInDb.Should().BeEmpty();
     }

@@ -1,11 +1,12 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class BalancingInstalments
 {
-    public static List<Instalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<Instalment> instalments, DateTime plannedEndDate)
+    public static List<ApprenticeshipInstalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<ApprenticeshipInstalment> instalments, DateTime plannedEndDate)
     {
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var completionYear = completionDate.ToAcademicYear();
@@ -43,7 +44,7 @@ public static class BalancingInstalments
         //Now create balancing instalment
         if (balancingAmount > 0)
         {
-            var balancingInstalment = new Instalment(completionYear, completionPeriod, balancingAmount, completionPeriodInstalment.EpisodePriceKey, InstalmentType.Balancing);
+            var balancingInstalment = new ApprenticeshipInstalment(completionYear, completionPeriod, balancingAmount, completionPeriodInstalment.EpisodePriceKey, InstalmentType.Balancing);
             instalments.Add(balancingInstalment);
         }
 

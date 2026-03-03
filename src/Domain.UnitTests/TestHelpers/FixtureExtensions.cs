@@ -1,7 +1,12 @@
 ﻿using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
@@ -14,12 +19,12 @@ internal static class FixtureExtensions
 {
     private static ApprenticeshipFactory _apprenticeshipFactory = new ApprenticeshipFactory();
 
-    internal static Apprenticeship.Apprenticeship CreateApprenticeship(
+    internal static Models.Learning CreateLearning(
         this Fixture fixture,
         FundingType? fundingType = null,
         byte age = 17)
     {
-        return fixture.CreateApprenticeship(
+        return fixture.CreateLearningWithApprenticeship(
             new DateTime(2021, 1, 15),
             new DateTime(2022, 1, 31), 
             7000,
@@ -27,7 +32,7 @@ internal static class FixtureExtensions
             age);
     }
 
-    internal static Apprenticeship.Apprenticeship CreateApprenticeship(
+    internal static Models.Learning CreateLearningWithApprenticeship(
         this Fixture fixture, 
         DateTime startDate, 
         DateTime endDate, 
@@ -42,21 +47,36 @@ internal static class FixtureExtensions
         return _apprenticeshipFactory.CreateNew(learningCreatedEvent, int.MaxValue);
     }
 
+    internal static Models.Learning CreateLearningWithShortCourse(
+        this Fixture fixture,
+        DateTime startDate,
+        DateTime endDate,
+        decimal agreedPrice)
+    {
+        var createRequest = fixture.Create<CreateUnapprovedShortCourseLearningRequest>();
 
-    internal static Apprenticeship.Apprenticeship CreateUpdatedApprenticeship(
+        createRequest.OnProgramme.StartDate = startDate;
+        createRequest.OnProgramme.ExpectedEndDate = endDate;
+        createRequest.OnProgramme.TotalPrice = agreedPrice;
+
+        return _apprenticeshipFactory.CreateNewShortCourse(createRequest);
+    }
+
+
+    internal static Models.Learning CreateUpdatedApprenticeship(
         this Fixture fixture, 
-        Apprenticeship.Apprenticeship apprenticeship, 
+        Models.Learning apprenticeship, 
         decimal? newPrice = null, 
         DateTime? newStartDate = null, 
         bool withMissingEarningsProfile = false)
     {
-        var apprenticeshipEntityModel = fixture.Create<LearningModel>();
+        var apprenticeshipEntityModel = fixture.Create<LearningEntity>();
 
         apprenticeshipEntityModel.LearningKey = apprenticeship.ApprenticeshipKey;
         apprenticeshipEntityModel.ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId;
         apprenticeshipEntityModel.Uln = apprenticeship.Uln;
 
-        apprenticeshipEntityModel.Episodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new EpisodeModel
+        apprenticeshipEntityModel.ApprenticeshipEpisodes = apprenticeship.ApprenticeshipEpisodes.Select(x => new ApprenticeshipEpisodeEntity
         {
             Ukprn = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
@@ -67,8 +87,8 @@ internal static class FixtureExtensions
             FundingEmployerAccountId = x.FundingEmployerAccountId,
             FundingBandMaximum = x.FundingBandMaximum,
             Prices = MapPricesToModel(x.Prices, newStartDate),
-            Key = x.ApprenticeshipEpisodeKey,
-            PeriodsInLearning = x.EpisodePeriodsInLearning.Select(p => new EpisodePeriodInLearningModel
+            Key = x.EpisodeKey,
+            PeriodsInLearning = x.EpisodePeriodsInLearning.Select(p => new ApprenticeshipPeriodInLearningEntity
             {
                 StartDate = p.StartDate,
                 EndDate = p.EndDate,
@@ -76,7 +96,7 @@ internal static class FixtureExtensions
             }).ToList()
         }).ToList();
 
-        return Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);
+        return Models.Learning.Get(apprenticeshipEntityModel);
     }
 
     internal static LearningCreatedEvent CreateLearningCreatedEvent(
@@ -115,9 +135,9 @@ internal static class FixtureExtensions
         return createdEvent;
     }
 
-    internal static EarningsProfileModel MapEarningsProfileToModel(EarningsProfile earningsProfile)
+    internal static ApprenticeshipEarningsProfileEntity MapEarningsProfileToModel(ApprenticeshipEarningsProfile earningsProfile)
     {
-        var instalments = earningsProfile.Instalments.Select(i => new InstalmentModel
+        var instalments = earningsProfile.Instalments.Select(i => new ApprenticeshipInstalmentEntity
         {
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
@@ -125,7 +145,7 @@ internal static class FixtureExtensions
             EpisodePriceKey = i.EpisodePriceKey
         }).ToList();
 
-        var additionalPayments = earningsProfile.AdditionalPayments.Select(p => new AdditionalPaymentModel
+        var additionalPayments = earningsProfile.AdditionalPayments.Select(p => new ApprenticeshipAdditionalPaymentEntity
             {
                 AcademicYear = p.AcademicYear,
                 DeliveryPeriod = p.DeliveryPeriod,
@@ -134,12 +154,12 @@ internal static class FixtureExtensions
                 AdditionalPaymentType = p.AdditionalPaymentType
             }).ToList();
 
-        var mathAndEnglishCourses = earningsProfile.MathsAndEnglishCourses.Select(c => new MathsAndEnglishModel
+        var mathAndEnglishCourses = earningsProfile.MathsAndEnglishCourses.Select(c => new EnglishAndMathsEntity
         {
             Course = c.Course,
             WithdrawalDate = c.WithdrawalDate,
             StartDate = c.StartDate,
-            Instalments = c.Instalments.Select(i => new MathsAndEnglishInstalmentModel
+            Instalments = c.Instalments.Select(i => new EnglishAndMathsInstalmentEntity
             {
                 AcademicYear = i.AcademicYear,
                 DeliveryPeriod = i.DeliveryPeriod,
@@ -153,7 +173,7 @@ internal static class FixtureExtensions
             PriorLearningAdjustmentPercentage = c.PriorLearningAdjustmentPercentage
         }).ToList();
 
-        return new EarningsProfileModel
+        return new ApprenticeshipEarningsProfileEntity
         {
             OnProgramTotal = earningsProfile.OnProgramTotal,
             Instalments = instalments,
@@ -164,9 +184,9 @@ internal static class FixtureExtensions
         };
     }
 
-    internal static List<EpisodePriceModel>? MapPricesToModel(IReadOnlyCollection<Price>? prices, DateTime? newStartDate)
+    internal static List<ApprenticeshipEpisodePriceEntity>? MapPricesToModel(IReadOnlyCollection<Price>? prices, DateTime? newStartDate)
     {
-        return prices?.Select(x => new EpisodePriceModel
+        return prices?.Select(x => new ApprenticeshipEpisodePriceEntity
         {
             Key = x.PriceKey,
             StartDate = newStartDate ?? x.StartDate,
@@ -175,10 +195,10 @@ internal static class FixtureExtensions
         }).ToList();
     }
 
-    private static void SetDateOfBirth(LearningModel apprenticeshipEntityModel, int age)
+    private static void SetDateOfBirth(LearningEntity apprenticeshipEntityModel, int age)
     {
         var startDate = apprenticeshipEntityModel.DateOfBirth = apprenticeshipEntityModel
-            .Episodes.SelectMany(x => x.Prices)
+            .ApprenticeshipEpisodes.SelectMany(x => x.Prices)
             .Select(x => x.StartDate)
             .Min();
 

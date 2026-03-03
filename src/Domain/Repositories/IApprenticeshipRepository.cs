@@ -2,7 +2,7 @@
 
 public interface IApprenticeshipRepository
 {
-    Task Add(Apprenticeship.Apprenticeship apprenticeship);
-    Task<Apprenticeship.Apprenticeship?> Get(Guid key);
-    Task Update(Apprenticeship.Apprenticeship apprenticeship);
+    Task Add(Models.Learning apprenticeship);
+    Task<Models.Learning?> Get(Guid key);
+    Task Update(Models.Learning apprenticeship);
 }

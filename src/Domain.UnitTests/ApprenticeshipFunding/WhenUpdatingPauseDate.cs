@@ -5,6 +5,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -14,8 +16,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 internal class WhenUpdatingPauseDate
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode _episode;
+    private Models.Learning _apprenticeship;
+    private ApprenticeshipEpisode _episode;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -28,7 +30,7 @@ internal class WhenUpdatingPauseDate
         var plannedEndDate = new DateTime(2024, 12, 31);
         var agreedPrice = 12000m;
 
-        _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _apprenticeship = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         _episode = _apprenticeship.ApprenticeshipEpisodes.First();
 
         _episode.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);

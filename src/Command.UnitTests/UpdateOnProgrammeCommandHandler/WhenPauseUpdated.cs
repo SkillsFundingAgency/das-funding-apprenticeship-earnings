@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -33,7 +34,7 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(r => r.Update(It.Is<Apprenticeship>(a => 
+        ApprenticeshipRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a => 
             a == apprenticeship && 
             a.ApprenticeshipEpisodes.First().PauseDate == pauseDate)), Times.Once);
     }
@@ -80,7 +81,7 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(r => r.Update(It.Is<Apprenticeship>(a =>
+        ApprenticeshipRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a =>
             a == apprenticeship &&
             a.ApprenticeshipEpisodes.First().PauseDate == null)), Times.Once);
     }
@@ -88,7 +89,7 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
     /// <summary>
     /// Gets a pause date that falls within the valid range for pausing an apprenticeship.
     /// </summary>
-    private static DateTime GetValidPauseDate(Apprenticeship apprenticeship)
+    private static DateTime GetValidPauseDate(Domain.Models.Learning apprenticeship)
     {
         var earliestStartDate = apprenticeship.ApprenticeshipEpisodes
             .SelectMany(e => e.Prices)

@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -10,7 +9,7 @@ using NServiceBus;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
 public class LearningCreatedEventHandler(
-    ICommandHandler<CreateApprenticeshipCommand, Apprenticeship> createApprenticeshipCommandHandler,
+    ICommandHandler<CreateApprenticeshipCommand, Domain.Models.Learning> createApprenticeshipCommandHandler,
     ILogger<LearningCreatedEventHandler> logger)
     : IHandleMessages<LearningCreatedEvent>
 {

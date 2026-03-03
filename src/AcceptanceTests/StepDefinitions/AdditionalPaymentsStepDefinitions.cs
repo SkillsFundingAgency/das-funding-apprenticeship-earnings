@@ -58,7 +58,7 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
-        var additionalPaymentsInDb = updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments;
+        var additionalPaymentsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments;
 
         additionalPaymentsInDb.Should().HaveCount(data.Count);
 
@@ -78,14 +78,14 @@ public class AdditionalPaymentsStepDefinitions
 
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
 
-        updatedEntity.Episodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
+        updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Should().BeEmpty();
     }
 
     [Then("a first incentive payment is generated")]
     public void AssertFirstIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningEntity>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, true, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, true, updateOnProgrammeRequest, apprenticeshipModel);
     }
@@ -94,7 +94,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertNoFirstIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningEntity>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", false, false, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", false, false, updateOnProgrammeRequest, apprenticeshipModel);
     }
@@ -103,7 +103,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertSecondIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningEntity>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, true, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, true, updateOnProgrammeRequest, apprenticeshipModel);
     }
@@ -112,7 +112,7 @@ public class AdditionalPaymentsStepDefinitions
     public void AssertNoSecondIncentivePayment()
     {
         var updateOnProgrammeRequest = _scenarioContext.Get<UpdateOnProgrammeRequest>();
-        var apprenticeshipModel = _scenarioContext.Get<LearningModel>();
+        var apprenticeshipModel = _scenarioContext.Get<LearningEntity>();
         IncentivesAssertionHelper.AssertIncentivePayment("ProviderIncentive", true, false, updateOnProgrammeRequest, apprenticeshipModel);
         IncentivesAssertionHelper.AssertIncentivePayment("EmployerIncentive", true, false, updateOnProgrammeRequest, apprenticeshipModel);
     }

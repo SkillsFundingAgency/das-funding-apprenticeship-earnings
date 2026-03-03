@@ -3,6 +3,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -18,8 +20,8 @@ public class WhenRecalculatingEarningsForPriceChange
 {
     private readonly Fixture _fixture;
     private readonly Mock<ISystemClockService> _mockSystemClock;
-    private Apprenticeship.Apprenticeship? _existingApprenticeship; //represents the apprenticeship before the price change
-    private Apprenticeship.Apprenticeship? _apprenticeship; // represents the apprenticeship after the price change
+    private Models.Learning? _existingApprenticeship; //represents the apprenticeship before the price change
+    private Models.Learning? _apprenticeship; // represents the apprenticeship after the price change
     private ApprenticeshipEpisode _episode;
     private decimal _originalPrice;
     private decimal _updatedPrice;
@@ -38,11 +40,11 @@ public class WhenRecalculatingEarningsForPriceChange
     {
         _originalPrice = _fixture.Create<decimal>();
         _updatedPrice = _fixture.Create<decimal>();
-        _existingApprenticeship = _fixture.CreateApprenticeship(new DateTime(2021, 1, 15), new DateTime(2021, 12, 31), _originalPrice);
+        _existingApprenticeship = _fixture.CreateLearningWithApprenticeship(new DateTime(2021, 1, 15), new DateTime(2021, 12, 31), _originalPrice);
         _existingApprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
         _apprenticeship = _fixture.CreateUpdatedApprenticeship(_existingApprenticeship, newPrice: _updatedPrice);
 
-        _episodeKey = _existingApprenticeship.ApprenticeshipEpisodes.First().ApprenticeshipEpisodeKey;
+        _episodeKey = _existingApprenticeship.ApprenticeshipEpisodes.First().EpisodeKey;
         _prices = new List<LearningEpisodePrice>
         {
             new()

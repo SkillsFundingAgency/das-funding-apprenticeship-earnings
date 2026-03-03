@@ -109,7 +109,7 @@ public class UpdateOnProgrammeStepDefinitions
         return model;
     }
 
-    private async Task<LearningModel> GetLearningEntity()
+    private async Task<LearningEntity> GetLearningEntity()
     {
         return await _testContext.SqlDatabase.GetLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }

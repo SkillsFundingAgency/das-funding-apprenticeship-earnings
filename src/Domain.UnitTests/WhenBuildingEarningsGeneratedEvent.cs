@@ -10,6 +10,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -18,7 +19,7 @@ public class WhenBuildingEarningsGeneratedEvent
     private EarningsGeneratedEventBuilder _sut;
     private EarningsGeneratedEvent _result;
     private Fixture _fixture;
-    private Apprenticeship.Apprenticeship _apprenticeship;
+    private Models.Learning _apprenticeship;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -29,7 +30,7 @@ public class WhenBuildingEarningsGeneratedEvent
         _sut = new EarningsGeneratedEventBuilder(_mockSystemClock.Object);
         _fixture = new Fixture();
 
-        _apprenticeship = _fixture.CreateApprenticeship(
+        _apprenticeship = _fixture.CreateLearningWithApprenticeship(
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,

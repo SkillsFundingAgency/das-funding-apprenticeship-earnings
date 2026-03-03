@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
@@ -34,13 +36,13 @@ public abstract class BaseUpdateCommandHandlerTests
         return handler;
     }
 
-    internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Domain.Apprenticeship.Apprenticeship apprenticeship, int fundingBand = 0)
+    internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Domain.Models.Learning apprenticeship, int fundingBand = 0)
     {
         var episode = apprenticeship.ApprenticeshipEpisodes.Single();
 
         var request = new UpdateOnProgrammeCommand.UpdateOnProgrammeRequest
         {
-            ApprenticeshipEpisodeKey = episode.ApprenticeshipEpisodeKey,
+            ApprenticeshipEpisodeKey = episode.EpisodeKey,
             CompletionDate = episode.CompletionDate,
             WithdrawalDate = episode.WithdrawalDate,
             PauseDate = episode.PauseDate,
@@ -71,7 +73,7 @@ public abstract class BaseUpdateCommandHandlerTests
         return command;
     }
 
-    private static List<LearningEpisodePrice> GetPrices(Domain.Apprenticeship.ApprenticeshipEpisode episode)
+    private static List<LearningEpisodePrice> GetPrices(ApprenticeshipEpisode episode)
     {
         var prices = episode.Prices.Select(p => new LearningEpisodePrice
         {

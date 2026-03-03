@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -80,9 +81,9 @@ public class WhenUpdateEnglishAndMathsCourses
         events.Any(x => x is Types.EarningsProfileUpdatedEvent).Should().BeTrue();
     }
 
-    private Apprenticeship.Apprenticeship CreateApprenticeship()
+    private Models.Learning CreateApprenticeship()
     {
-        var sut = _fixture.CreateApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice);
+        var sut = _fixture.CreateLearningWithApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice);
         sut.Calculate(_mockSystemClockService.Object, string.Empty);
         return sut;
     }

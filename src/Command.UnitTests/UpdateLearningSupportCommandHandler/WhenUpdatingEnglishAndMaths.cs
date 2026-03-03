@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -49,10 +51,10 @@ public class WhenUpdatingEnglishAndMaths
 
         var command = new UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand(learningKey, mathsAndEnglishList);
 
-        var learningModel = _fixture.Create<LearningModel>();
-        learningModel.Episodes = new List<EpisodeModel> { _fixture.Create<EpisodeModel>() };
+        var learningModel = _fixture.Create<LearningEntity>();
+        learningModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity> { _fixture.Create<ApprenticeshipEpisodeEntity>() };
 
-        var apprenticeship = Apprenticeship.Get(learningModel);
+        var apprenticeship = Domain.Models.Learning.Get(learningModel);
 
         _mockApprenticeshipRepository
             .Setup(repo => repo.Get(learningKey))

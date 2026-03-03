@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
@@ -6,28 +7,28 @@ using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
-public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
+public class MathsAndEnglish : IDomainEntity<EnglishAndMathsEntity>
 {
-    private MathsAndEnglishModel _model;
+    private EnglishAndMathsEntity _entity;
     private List<MathsAndEnglishInstalment> _instalments;
 
-    public Guid Key => _model.Key;
-    public DateTime StartDate => _model.StartDate;
-    public DateTime EndDate => _model.EndDate;
-    public string Course => _model.Course;
-    public string LearnAimRef => _model.LearnAimRef;
-    public decimal Amount => _model.Amount;
-    public DateTime? WithdrawalDate => _model.WithdrawalDate;
-    public DateTime? CompletionDate => _model.CompletionDate;
+    public Guid Key => _entity.Key;
+    public DateTime StartDate => _entity.StartDate;
+    public DateTime EndDate => _entity.EndDate;
+    public string Course => _entity.Course;
+    public string LearnAimRef => _entity.LearnAimRef;
+    public decimal Amount => _entity.Amount;
+    public DateTime? WithdrawalDate => _entity.WithdrawalDate;
+    public DateTime? CompletionDate => _entity.CompletionDate;
     public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
-    public DateTime? PauseDate => _model.PauseDate;
-    public int? PriorLearningAdjustmentPercentage => _model.PriorLearningAdjustmentPercentage;
+    public DateTime? PauseDate => _entity.PauseDate;
+    public int? PriorLearningAdjustmentPercentage => _entity.PriorLearningAdjustmentPercentage;
     public IReadOnlyCollection<MathsAndEnglishInstalment> Instalments => new ReadOnlyCollection<MathsAndEnglishInstalment>(_instalments);
-    public IReadOnlyCollection<MathsAndEnglishPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<MathsAndEnglishPeriodInLearning>(_model.PeriodsInLearning.Select(MathsAndEnglishPeriodInLearning.Get).ToList());
+    public IReadOnlyCollection<MathsAndEnglishPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<MathsAndEnglishPeriodInLearning>(_entity.PeriodsInLearning.Select(MathsAndEnglishPeriodInLearning.Get).ToList());
 
-    private MathsAndEnglish(MathsAndEnglishModel model)
+    private MathsAndEnglish(EnglishAndMathsEntity model)
     {
-        _model = model;
+        _entity = model;
         _instalments = model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
@@ -43,41 +44,41 @@ public class MathsAndEnglish : IDomainEntity<MathsAndEnglishModel>
         int? priorLearningAdjustmentPercentage,
         IEnumerable<IPeriodInLearning> periodsInLearning)
     {
-        _model = new MathsAndEnglishModel();
-        _model.Key = Guid.NewGuid();
-        _model.StartDate = startDate;
-        _model.EndDate = endDate;
-        _model.Course = course;
-        _model.LearnAimRef = learnAimRef;
-        _model.Amount = amount;
-        _model.CompletionDate = completionDate;
-        _model.WithdrawalDate = withdrawalDate;
-        _model.PauseDate = pauseDate;
-        _model.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
-        _model.PeriodsInLearning = periodsInLearning.Select(pil => new MathsAndEnglishPeriodInLearningModel
+        _entity = new EnglishAndMathsEntity();
+        _entity.Key = Guid.NewGuid();
+        _entity.StartDate = startDate;
+        _entity.EndDate = endDate;
+        _entity.Course = course;
+        _entity.LearnAimRef = learnAimRef;
+        _entity.Amount = amount;
+        _entity.CompletionDate = completionDate;
+        _entity.WithdrawalDate = withdrawalDate;
+        _entity.PauseDate = pauseDate;
+        _entity.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
+        _entity.PeriodsInLearning = periodsInLearning.Select(pil => new EnglishAndMathsPeriodInLearningEntity
         {
             Key = Guid.NewGuid(),
-            MathsAndEnglishKey = _model.Key,
+            EnglishAndMathsKey = _entity.Key,
             StartDate = pil.StartDate,
             EndDate = pil.EndDate,
             OriginalExpectedEndDate = pil.OriginalExpectedEndDate
         }).ToList();
-        _model.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
+        _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
 
-        _instalments = _model.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
+        _instalments = _entity.Instalments.Select(MathsAndEnglishInstalment.Get).ToList();
     }
 
-    public MathsAndEnglishModel GetModel()
+    public EnglishAndMathsEntity GetModel()
     {
-        return _model;
+        return _entity;
     }
 
-    public static MathsAndEnglish Get(MathsAndEnglishModel model)
+    public static MathsAndEnglish Get(EnglishAndMathsEntity model)
     {
         return new MathsAndEnglish(model);
     }
 
-    public bool AreSame(MathsAndEnglishModel? compare)
+    public bool AreSame(EnglishAndMathsEntity? compare)
     {
         if (compare == null)
             return false;

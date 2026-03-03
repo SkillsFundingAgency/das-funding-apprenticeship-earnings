@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -26,6 +27,6 @@ public class WhenWithdrawUpdated : BaseUpdateCommandHandlerTests
 
         // Assert
         ApprenticeshipRepositoryMock.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        ApprenticeshipRepositoryMock.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        ApprenticeshipRepositoryMock.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
     }
 }

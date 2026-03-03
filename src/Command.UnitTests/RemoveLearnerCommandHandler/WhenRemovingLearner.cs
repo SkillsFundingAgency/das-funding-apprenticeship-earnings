@@ -2,6 +2,8 @@
 using FluentAssertions;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -38,7 +40,7 @@ public class WhenRemovingLearner
 
         // Assert
         _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        _mockRepository.Verify(x => x.Update(It.Is<Apprenticeship>(a => a.ApprenticeshipKey == apprenticeship.ApprenticeshipKey)), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.Is<Domain.Models.Learning>(a => a.ApprenticeshipKey == apprenticeship.ApprenticeshipKey)), Times.Once);
     }
 
     [Test]
@@ -54,17 +56,17 @@ public class WhenRemovingLearner
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
         _mockRepository.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
 
-        Apprenticeship updated = null!;
+        Domain.Models.Learning updated = null!;
 
         _mockRepository
-            .Setup(x => x.Update(It.IsAny<Apprenticeship>()))
-            .Callback<Apprenticeship>(a => updated = a);
+            .Setup(x => x.Update(It.IsAny<Domain.Models.Learning>()))
+            .Callback<Domain.Models.Learning>(a => updated = a);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
         updated.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile.MathsAndEnglishCourses.Should().BeEmpty();
     }
 
@@ -83,17 +85,17 @@ public class WhenRemovingLearner
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
         _mockRepository.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
 
-        Apprenticeship updated = null!;
+        Domain.Models.Learning updated = null!;
 
         _mockRepository
-            .Setup(x => x.Update(It.IsAny<Apprenticeship>()))
-            .Callback<Apprenticeship>(a => updated = a);
+            .Setup(x => x.Update(It.IsAny<Domain.Models.Learning>()))
+            .Callback<Domain.Models.Learning>(a => updated = a);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
         updated.GetCurrentEpisode(_mockSystemClock.Object)
             .EarningsProfile.AdditionalPayments.Should().BeEmpty();
     }
@@ -110,17 +112,17 @@ public class WhenRemovingLearner
         _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
         _mockRepository.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
 
-        Apprenticeship updated = null!;
+        Domain.Models.Learning updated = null!;
 
         _mockRepository
-            .Setup(x => x.Update(It.IsAny<Apprenticeship>()))
-            .Callback<Apprenticeship>(a => updated = a);
+            .Setup(x => x.Update(It.IsAny<Domain.Models.Learning>()))
+            .Callback<Domain.Models.Learning>(a => updated = a);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
 
         updated.GetCurrentEpisode(_mockSystemClock.Object).EpisodePeriodsInLearning.Should().BeEmpty();
     }

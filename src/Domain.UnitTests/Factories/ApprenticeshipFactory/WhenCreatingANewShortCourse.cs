@@ -45,14 +45,14 @@ public class WhenCreatingANewShortCourse
         };
 
         // Act
-        var apprenticeship = _factory.CreateNewShortCourse(request);
+        var learning = _factory.CreateNewShortCourse(request);
 
         // Assert
-        apprenticeship.ApprenticeshipKey.Should().Be(request.LearningKey);
-        apprenticeship.DateOfBirth.Should().Be(request.Learner.DateOfBirth);
-        apprenticeship.Uln.Should().Be(request.Learner.Uln);
+        learning.ApprenticeshipKey.Should().Be(request.LearningKey);
+        learning.DateOfBirth.Should().Be(request.Learner.DateOfBirth);
+        learning.Uln.Should().Be(request.Learner.Uln);
 
-        var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault();
+        var episode = learning.ShortCourseEpisodes.SingleOrDefault();
         episode.Should().NotBeNull();
         episode.EmployerAccountId.Should().Be(request.OnProgramme.EmployerId);
         episode.TrainingCode.Should().Be(request.OnProgramme.CourseCode);
@@ -62,10 +62,8 @@ public class WhenCreatingANewShortCourse
         episode.UKPRN.Should().Be(request.OnProgramme.Ukprn);
 
         var price = request.OnProgramme.TotalPrice;
-        episode.Prices.Count.Should().Be(1);
-        var episodePrice = episode.Prices.Single();
-        episodePrice.AgreedPrice.Should().Be(price);
-        episodePrice.StartDate.Should().Be(request.OnProgramme.StartDate);
-        episodePrice.EndDate.Should().Be(request.OnProgramme.ExpectedEndDate);
+        episode.CoursePrice.Should().Be(price);
+        episode.StartDate.Should().Be(request.OnProgramme.StartDate);
+        episode.EndDate.Should().Be(request.OnProgramme.ExpectedEndDate);
     }
 }

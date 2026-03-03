@@ -4,6 +4,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -17,8 +19,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenWithdrawingEnglishAndMathsCourse
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode _sut;
+    private Models.Learning _apprenticeship;
+    private ApprenticeshipEpisode _sut;
     private Mock<ISystemClockService> _mockSystemClock;
     private string _courseName = "English Level 2";
     private List<MathsAndEnglish> _courses;
@@ -33,7 +35,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
         var plannedEndDate = new DateTime(2024, 12, 31);
         var agreedPrice = 12000m;
 
-        _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _apprenticeship = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
         _sut = _apprenticeship.ApprenticeshipEpisodes.First();
 
         _sut.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);

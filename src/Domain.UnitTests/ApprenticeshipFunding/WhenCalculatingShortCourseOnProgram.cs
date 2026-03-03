@@ -1,12 +1,15 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using System;
+using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
@@ -14,8 +17,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 internal class WhenCalculatingShortCourseOnProgram
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _apprenticeship;
-    private ApprenticeshipEpisode _episode;
+    private Models.Learning _learning;
+    private ShortCourseEpisode _episode;
     private Mock<ISystemClockService> _mockSystemClock;
     private decimal _agreedPrice;
 
@@ -30,8 +33,8 @@ internal class WhenCalculatingShortCourseOnProgram
         
         _agreedPrice = 3000m;
 
-        _apprenticeship = _fixture.CreateApprenticeship(startDate, endDate, _agreedPrice);
-        _episode = _apprenticeship.ApprenticeshipEpisodes.Single();
+        _learning = _fixture.CreateLearningWithShortCourse(startDate, endDate, _agreedPrice);
+        _episode = _learning.ShortCourseEpisodes.Single();
     }
 
     [Test]
@@ -39,7 +42,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Act
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: true,
             calculationData: "test-data");
@@ -54,7 +57,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Act
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: true,
             calculationData: "test-data");
@@ -68,7 +71,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Act
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: true,
             calculationData: "test-data");
@@ -82,7 +85,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Act
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: true,
             calculationData: "test-data");
@@ -96,7 +99,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Arrange
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: false,
             calculationData: "initial");
@@ -105,7 +108,7 @@ internal class WhenCalculatingShortCourseOnProgram
 
         // Act
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: true,
             calculationData: "updated");
@@ -119,14 +122,14 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Arrange
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: false,
             calculationData: "initial");
 
         // Act
         _episode.CalculateShortCourseOnProgram(
-            _apprenticeship,
+            _learning,
             _mockSystemClock.Object,
             isApproved: true,
             calculationData: "updated");

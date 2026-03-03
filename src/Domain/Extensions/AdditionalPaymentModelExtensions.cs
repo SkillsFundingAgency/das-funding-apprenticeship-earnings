@@ -1,11 +1,11 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 internal static class AdditionalPaymentModelExtensions
 {
-    public static bool IsIncentivePayment(this AdditionalPaymentModel model)
+    public static bool IsIncentivePayment(this ApprenticeshipAdditionalPaymentEntity model)
     {
         return model.AdditionalPaymentType == InstalmentTypes.EmployerIncentive || model.AdditionalPaymentType == InstalmentTypes.ProviderIncentive;
     }

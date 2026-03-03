@@ -1,23 +1,23 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class EpisodePeriodInLearning
 {
-    private EpisodePeriodInLearningModel _model;
+    private ApprenticeshipPeriodInLearningEntity _entity;
 
-    public Guid Key => _model.Key;
-    public Guid EpisodeKey => _model.EpisodeKey;
-    public DateTime StartDate => _model.StartDate;
-    public DateTime EndDate => _model.EndDate;
-    public DateTime OriginalExpectedEndDate => _model.OriginalExpectedEndDate;
+    public Guid Key => _entity.Key;
+    public Guid EpisodeKey => _entity.EpisodeKey;
+    public DateTime StartDate => _entity.StartDate;
+    public DateTime EndDate => _entity.EndDate;
+    public DateTime OriginalExpectedEndDate => _entity.OriginalExpectedEndDate;
     public int DurationInCensusDates => StartDate.NumberOfCensusDates(EndDate);
-    public int Duration => (_model.EndDate - _model.StartDate).Days + 1;
+    public int Duration => (_entity.EndDate - _entity.StartDate).Days + 1;
 
     public EpisodePeriodInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
     {
-        _model = new EpisodePeriodInLearningModel
+        _entity = new ApprenticeshipPeriodInLearningEntity
         {
             Key = Guid.NewGuid(),
             EpisodeKey = episodeKey,
@@ -27,18 +27,18 @@ public class EpisodePeriodInLearning
         };
     }
 
-    private EpisodePeriodInLearning(EpisodePeriodInLearningModel model)
+    private EpisodePeriodInLearning(ApprenticeshipPeriodInLearningEntity model)
     {
-        _model = model;
+        _entity = model;
     }
 
-    public static EpisodePeriodInLearning Get(EpisodePeriodInLearningModel model)
+    public static EpisodePeriodInLearning Get(ApprenticeshipPeriodInLearningEntity model)
     {
         return new EpisodePeriodInLearning(model);
     }
 
-    public EpisodePeriodInLearningModel GetModel()
+    public ApprenticeshipPeriodInLearningEntity GetModel()
     {
-        return _model;
+        return _entity;
     }
 }

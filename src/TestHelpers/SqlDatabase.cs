@@ -27,25 +27,25 @@ public class SqlDatabase : IDisposable
         DbContext = new ApprenticeshipEarningsDataContext(options);
     }
 
-    public async Task<LearningModel?> GetLearning(Guid learningKey)
+    public async Task<LearningEntity?> GetLearning(Guid learningKey)
     {
         ClearCachedEntities();
 
         var learningEntity = await DbContext.Learnings
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.Instalments)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.AdditionalPayments)
-            .Include(x => x.Episodes)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.Prices)
-            .Include(x => x.Episodes)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
-            .Include(x => x.Episodes)
+            .Include(x => x.ApprenticeshipEpisodes)
             .ThenInclude(y => y.EarningsProfile)
             .ThenInclude(y => y.MathsAndEnglishCourses)
             .ThenInclude(y => y.Instalments)
@@ -54,7 +54,7 @@ public class SqlDatabase : IDisposable
         return learningEntity;
     }
 
-    public async Task<List<EarningsProfileHistory>> GetHistory(Guid earningsProfileId)
+    public async Task<List<EarningsProfileHistoryEntity>> GetHistory(Guid earningsProfileId)
     {
         return await DbContext.EarningsProfileHistories2
             .Where(x => x.EarningsProfileId == earningsProfileId)

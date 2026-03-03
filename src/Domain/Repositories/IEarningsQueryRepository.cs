@@ -2,6 +2,6 @@
 
 public interface IEarningsQueryRepository
 {
-    List<Apprenticeship.Apprenticeship>? GetApprenticeships(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
-    List<Apprenticeship.Apprenticeship> GetApprenticeships(List<Guid>? learningKeys, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
+    List<Models.Learning>? GetApprenticeships(long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
+    List<Models.Learning> GetApprenticeships(List<Guid>? learningKeys, long ukprn, DateTime searchDate, bool onlyActiveApprenticeships = false);
 }

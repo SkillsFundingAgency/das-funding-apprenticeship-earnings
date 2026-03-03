@@ -69,13 +69,13 @@
     <Build Include="Tables\ApprenticeshipEpisodePrice.sql" />
     <Build Include="Tables\ApprenticeshipEarningsProfile.sql" />
     <Build Include="Tables\ApprenticeshipInstalment.sql" />
-    <Build Include="Tables\AdditionalPayment.sql" />
-    <Build Include="Tables\MathsAndEnglish.sql" />
+    <Build Include="Tables\ApprenticeshipAdditionalPayment.sql" />
+    <Build Include="Tables\EnglishAndMaths.sql" />
     <Build Include="Tables\EarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
-    <Build Include="Tables\MathsAndEnglishInstalment.sql" />
+    <Build Include="Tables\EnglishAndMathsInstalment.sql" />
     <Build Include="Tables\ApprenticeshipPeriodInLearning.sql" />
-    <Build Include="Tables\MathsAndEnglishPeriodInLearning.sql" />
+    <Build Include="Tables\EnglishAndMathsPeriodInLearning.sql" />
     <Build Include="Tables\ShortCourseEpisode.sql" />
     <Build Include="Tables\ShortCourseEarningsProfile.sql" />
     <Build Include="Tables\ShortCourseInstalment.sql" />

@@ -40,7 +40,7 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
         _logger.LogInformation("Successfully handled UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
     }
 
-    private async Task<Domain.Apprenticeship.Apprenticeship> GetDomainApprenticeship(Guid LearningKey)
+    private async Task<Domain.Models.Learning> GetDomainApprenticeship(Guid LearningKey)
     {
         try
         {

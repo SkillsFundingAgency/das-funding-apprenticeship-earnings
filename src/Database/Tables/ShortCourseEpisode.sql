@@ -10,7 +10,6 @@
     [TrainingCode] NCHAR(50) NOT NULL,
     [CompletionDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
-    [PauseDate] DATETIME NULL,
     [StartDate] DATETIME NOT NULL, 
     [EndDate] DATETIME NOT NULL, 
     [CoursePrice] DECIMAL(15,5) NOT NULL

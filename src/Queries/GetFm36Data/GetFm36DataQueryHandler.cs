@@ -37,7 +37,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         return new GetFm36DataResponse { Apprenticeships = apprenticeships };
     }
 
-    private Apprenticeship MapApprenticeship(Domain.Apprenticeship.Apprenticeship source)
+    private Apprenticeship MapApprenticeship(Domain.Models.Learning source)
     {
         var currentEpisode = source.GetCurrentEpisode(_systemClockService);
 
@@ -47,7 +47,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             Ukprn = currentEpisode.UKPRN,
             Episodes = source.ApprenticeshipEpisodes.Select(x => new Episode
             {
-                Key = x.ApprenticeshipEpisodeKey,
+                Key = x.EpisodeKey,
                 NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
                 Instalments = x.EarningsProfile.Instalments.Select(i => new Instalment
                 {

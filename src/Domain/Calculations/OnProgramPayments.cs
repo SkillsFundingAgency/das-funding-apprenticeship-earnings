@@ -1,6 +1,8 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
@@ -25,9 +27,9 @@ public static class OnProgramPayments
         return onProgramPayments;
     }
 
-    public static List<Instalment> RemoveAfterLastDayOfLearning(List<Instalment> instalments, List<Price> prices, DateTime lastDayOfLearning)
+    public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, List<Price> prices, DateTime lastDayOfLearning)
     {
-        List<Instalment> result;
+        List<ApprenticeshipInstalment> result;
 
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();

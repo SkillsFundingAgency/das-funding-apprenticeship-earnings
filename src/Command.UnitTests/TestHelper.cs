@@ -1,47 +1,50 @@
 ﻿using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests;
 
 internal static class TestHelper
 {
-    internal static Apprenticeship BuildApprenticeship(this Fixture fixture)
+    internal static Domain.Models.Learning BuildApprenticeship(this Fixture fixture)
     {
         var apprenticeshipEntityModel = fixture.BuildLearningModel();
-        return Apprenticeship.Get(apprenticeshipEntityModel);
+        return Domain.Models.Learning.Get(apprenticeshipEntityModel);
     }
 
-    internal static LearningModel BuildLearningModel(this Fixture fixture)
+    internal static LearningEntity BuildLearningModel(this Fixture fixture)
     {
         var priceStartDate = DateTime.UtcNow.AddMonths(-10);
         var priceEndDate = DateTime.UtcNow.AddMonths(10);
 
         var episodeModel = fixture
-            .Build<EpisodeModel>()
-            .With(x => x.PeriodsInLearning, new List<EpisodePeriodInLearningModel>
+            .Build<ApprenticeshipEpisodeEntity>()
+            .With(x => x.PeriodsInLearning, new List<ApprenticeshipPeriodInLearningEntity>
             {
-                fixture.Build<EpisodePeriodInLearningModel>()
+                fixture.Build<ApprenticeshipPeriodInLearningEntity>()
                     .With(x => x.StartDate, priceStartDate)
                     .With(x => x.EndDate, priceEndDate)
                     .With(x => x.OriginalExpectedEndDate, priceEndDate)
                     .Create()
             })
             .With(x=> x.FundingBandMaximum, int.MaxValue)
-            .With(x => x.Prices, new List<EpisodePriceModel>{ fixture.Build<EpisodePriceModel>()
+            .With(x => x.Prices, new List<ApprenticeshipEpisodePriceEntity>{ fixture.Build<ApprenticeshipEpisodePriceEntity>()
                 .With(x => x.StartDate, priceStartDate)
                 .With(x => x.EndDate, priceEndDate)
                 .Create() })
             .With(x => x.EarningsProfile, fixture
-                .Build<EarningsProfileModel>()
-                .With(x => x.Instalments, new List<InstalmentModel>())
-                .With(x => x.AdditionalPayments, new List<AdditionalPaymentModel>())
-                .With(x => x.MathsAndEnglishCourses, new List<MathsAndEnglishModel>())
+                .Build<ApprenticeshipEarningsProfileEntity>()
+                .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
+                .With(x => x.AdditionalPayments, new List<ApprenticeshipAdditionalPaymentEntity>())
+                .With(x => x.MathsAndEnglishCourses, new List<EnglishAndMathsEntity>())
                 .Create())
             .Create();
         var learningEntityModel = fixture
-            .Build<LearningModel>()
-            .With(x => x.Episodes, new List<EpisodeModel> { episodeModel })
+            .Build<LearningEntity>()
+            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeEntity> { episodeModel })
             .Create();
 
         return learningEntityModel;
@@ -63,9 +66,9 @@ internal static class TestHelper
         return MathsAndEnglish.Get(model);
     }
 
-    internal static MathsAndEnglishModel BuildMathsAndEnglishModel(this Fixture fixture)
+    internal static EnglishAndMathsEntity BuildMathsAndEnglishModel(this Fixture fixture)
     {
-        return fixture.Build<MathsAndEnglishModel>()
+        return fixture.Build<EnglishAndMathsEntity>()
             .Create();
     }
 }

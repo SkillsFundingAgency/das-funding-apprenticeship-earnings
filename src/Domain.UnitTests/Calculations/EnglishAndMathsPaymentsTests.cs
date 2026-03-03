@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -164,7 +165,7 @@ public class EnglishAndMathsPaymentsTests
 
     private MathsAndEnglish CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? completionDate = null)
     {
-        var model = new MathsAndEnglishModel
+        var model = new EnglishAndMathsEntity
         {
             Key = Guid.NewGuid(),
             Course = courseCode,
@@ -175,7 +176,7 @@ public class EnglishAndMathsPaymentsTests
             WithdrawalDate = withdrawalDate,
             CompletionDate = completionDate,
             PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage,
-            PeriodsInLearning = [ new MathsAndEnglishPeriodInLearningModel
+            PeriodsInLearning = [ new EnglishAndMathsPeriodInLearningEntity
             {
                 StartDate = startDate,
                 EndDate = endDate,

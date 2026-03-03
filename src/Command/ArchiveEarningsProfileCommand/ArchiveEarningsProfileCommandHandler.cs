@@ -15,7 +15,7 @@ public class ArchiveEarningsProfileCommandHandler(IEarningsProfileHistoryReposit
 
         var json = JsonSerializer.Serialize(command.EarningsProfileUpdatedEvent, new JsonSerializerOptions { WriteIndented = true });
 
-        var history = new EarningsProfileHistory
+        var history = new EarningsProfileHistoryEntity
         {
             Key = Guid.NewGuid(),
             CreatedOn = DateTime.UtcNow,

@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public interface IEarningsGeneratedEventBuilder
 {
-    EarningsGeneratedEvent Build(Apprenticeship apprenticeship);
+    EarningsGeneratedEvent Build(Domain.Models.Learning apprenticeship);
 }
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
@@ -19,7 +19,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
         _systemClock = systemClock;
     }
 
-    public EarningsGeneratedEvent Build(Apprenticeship apprenticeship)
+    public EarningsGeneratedEvent Build(Domain.Models.Learning apprenticeship)
     {
         var currentEpisode = apprenticeship.GetCurrentEpisode(_systemClock);
 

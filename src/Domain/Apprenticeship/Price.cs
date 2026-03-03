@@ -1,19 +1,19 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
 public class Price
 {
-    private EpisodePriceModel _model;
+    private ApprenticeshipEpisodePriceEntity _model;
 
-    public Price(EpisodePriceModel model)
+    public Price(ApprenticeshipEpisodePriceEntity model)
     {
         _model = model;
     }
 
     public Price(Guid priceKey, DateTime startDate, DateTime endDate, decimal agreedPrice)
     {
-        _model = new EpisodePriceModel
+        _model = new ApprenticeshipEpisodePriceEntity
         {
             Key = priceKey,
             StartDate = startDate,
@@ -27,7 +27,7 @@ public class Price
     public DateTime EndDate => _model.EndDate;
     public decimal AgreedPrice => _model.AgreedPrice;
 
-    public static Price Get(EpisodePriceModel model)
+    public static Price Get(ApprenticeshipEpisodePriceEntity model)
     {
         return new Price(model);
     }
@@ -39,7 +39,7 @@ public class Price
         _model.AgreedPrice = totalPrice;
     }
 
-    public EpisodePriceModel GetModel()
+    public ApprenticeshipEpisodePriceEntity GetModel()
     {
         return _model;
     }

@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -14,7 +15,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenCalculateEarnings
 {
     private Fixture _fixture;
-    private Apprenticeship.Apprenticeship _sut;
+    private Models.Learning _sut;
     private Mock<ISystemClockService> _mockSystemClock;
 
     public WhenCalculateEarnings()
@@ -31,7 +32,7 @@ public class WhenCalculateEarnings
         var agreedPrice = _fixture.Create<decimal>();
         var actualStartDate = new DateTime(2021, 1, 15);
         var plannedEndDate = new DateTime(2021, 12, 31);
-        _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _sut = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
     }
 
     [Test]

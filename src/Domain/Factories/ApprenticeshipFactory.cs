@@ -1,62 +1,61 @@
 ﻿using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using FundingType = SFA.DAS.Learning.Enums.FundingType;
+using FundingType = SFA.DAS.Learning.Types.FundingType;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
 public class ApprenticeshipFactory : IApprenticeshipFactory
 {
-    public Apprenticeship.Apprenticeship CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
+    public Models.Learning CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
     {
-        var model = new LearningModel
+        var model = new LearningEntity
         {
             ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
             LearningKey = learningCreatedEvent.LearningKey,
             Uln = learningCreatedEvent.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum, null) },
+            ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity> { new ApprenticeshipEpisodeEntity(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum, null) },
             DateOfBirth = learningCreatedEvent.DateOfBirth
         };
 
-        return Apprenticeship.Apprenticeship.Get(model);
+        return Models.Learning.Get(model);
     }
 
-    public Apprenticeship.Apprenticeship GetExisting(LearningModel model)
+    public Models.Learning GetExisting(LearningEntity model)
     {
-        return Apprenticeship.Apprenticeship.Get(model);
+        return Models.Learning.Get(model);
     }
 
-    public Apprenticeship.Apprenticeship CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest)
+    public Models.Learning CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest)
     {
-        var model = new LearningModel
+        var model = new LearningEntity
         {
             LearningKey = commandRequest.LearningKey,
             DateOfBirth = commandRequest.Learner.DateOfBirth,
             Uln = commandRequest.Learner.Uln,
-            Episodes = new List<EpisodeModel> { new EpisodeModel(commandRequest.LearningKey, new LearningEpisode
+            ShortCourseEpisodes = new List<ShortCourseEpisodeEntity> {  new ShortCourseEpisodeEntity
             {
-                EmployerAccountId = commandRequest.OnProgramme.EmployerId,
-                TrainingCode = commandRequest.OnProgramme.CourseCode,
-                AgeAtStartOfLearning = GetAgeAtStartOfLearning(commandRequest.OnProgramme.StartDate, commandRequest.Learner.DateOfBirth),
-                FundingBandMaximum = (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice), //todo maybe FBM becomes relevant in a future story?
-                FundingType = FundingType.Levy,
                 Key = Guid.NewGuid(),
+                LearningKey = commandRequest.LearningKey,
+                Ukprn = commandRequest.OnProgramme.Ukprn,
+                EmployerAccountId = commandRequest.OnProgramme.EmployerId,
+                FundingType = FundingType.Levy,
+                FundingEmployerAccountId = null,
                 LegalEntityName = string.Empty,
-                Prices = new List<LearningEpisodePrice>
-                {
-                    new LearningEpisodePrice
-                    {
-                        TotalPrice = commandRequest.OnProgramme.TotalPrice,
-                        StartDate = commandRequest.OnProgramme.StartDate,
-                        EndDate = commandRequest.OnProgramme.ExpectedEndDate,
-                        Key = Guid.NewGuid()
-                    }
-                },
-                Ukprn = commandRequest.OnProgramme.Ukprn
-            }, (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice), commandRequest.OnProgramme.CompletionDate) }
+                TrainingCode = commandRequest.OnProgramme.CourseCode,
+                CompletionDate = commandRequest.OnProgramme.CompletionDate,
+                WithdrawalDate = commandRequest.OnProgramme.WithdrawalDate,
+                PauseDate = null,
+                FundingBandMaximum = (int)Math.Ceiling(commandRequest.OnProgramme.TotalPrice), //todo maybe FBM becomes relevant in a future story?
+                StartDate = commandRequest.OnProgramme.StartDate,
+                EndDate = commandRequest.OnProgramme.ExpectedEndDate,
+                CoursePrice = commandRequest.OnProgramme.TotalPrice                 
+            } },
         };
 
-        return Apprenticeship.Apprenticeship.Get(model);
+        return Models.Learning.Get(model);
     }
 
     private int GetAgeAtStartOfLearning(DateTime startDate, DateTime dateOfBirth)
