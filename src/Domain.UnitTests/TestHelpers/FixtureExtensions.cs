@@ -16,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
 internal static class FixtureExtensions
 {
-    private static ApprenticeshipFactory _apprenticeshipFactory = new ApprenticeshipFactory();
+    private static LearningFactory _apprenticeshipFactory = new LearningFactory();
 
     internal static Models.Learning CreateLearning(
         this Fixture fixture,

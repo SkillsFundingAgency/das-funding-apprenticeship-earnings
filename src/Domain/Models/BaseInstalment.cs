@@ -13,6 +13,11 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
 {
     protected TEntity _entity;
 
+    public short AcademicYear => _entity.AcademicYear;
+    public byte DeliveryPeriod => _entity.DeliveryPeriod;
+    public decimal Amount => _entity.Amount;
+    public InstalmentType Type => Enum.Parse<InstalmentType>(_entity.Type);
+
     public BaseInstalment(short academicYear, byte deliveryPeriod, decimal amount, InstalmentType instalmentType = InstalmentType.Regular)
     {
         _entity = new TEntity
@@ -29,11 +34,6 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
     {
         _entity = model;
     }
-
-    public short AcademicYear => _entity.AcademicYear;
-    public byte DeliveryPeriod => _entity.DeliveryPeriod;
-    public decimal Amount => _entity.Amount;
-    public InstalmentType Type => Enum.Parse<InstalmentType>(_entity.Type);
 
     public TEntity GetEntity()
     {

@@ -19,7 +19,7 @@ public class WhenUpdatingEnglishAndMaths
     private readonly Fixture _fixture = new();
     private readonly Mock<ILogger<UpdateEnglishAndMathsCommandHandler>> _mockLogger = new();
     private readonly Mock<ISystemClockService> _mockSystemClock = new();
-    private readonly Mock<IApprenticeshipRepository> _mockRepository = new();
+    private readonly Mock<ILearningRepository> _mockRepository = new();
 
     private void SetupMocks()
     {
@@ -33,15 +33,15 @@ public class WhenUpdatingEnglishAndMaths
     public async Task ThenTheMathsAndEnglishCourseIsAdded()
     {
         // Arrange
-        var apprenticeship = BuildApprenticeship();
+        var learningDomainModel = BuildLearning();
 
         SetupMocks();
 
-        var command = BuildCommand(apprenticeship);
+        var command = BuildCommand(learningDomainModel);
 
         _mockRepository
-            .Setup(x => x.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+            .Setup(x => x.Get(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
 
         var sut = new UpdateEnglishAndMathsCommandHandler(
             _mockLogger.Object,
@@ -53,18 +53,18 @@ public class WhenUpdatingEnglishAndMaths
         await sut.Handle(command);
 
         // Assert
-        _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
+        _mockRepository.Verify(x => x.Get(command.LearningKey), Times.Once);
         _mockRepository.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
     }
 
-    private Domain.Models.Learning BuildApprenticeship()
+    private Domain.Models.Learning BuildLearning()
     {
-        var learningModel = _fixture.Create<LearningEntity>();
-        learningModel.ApprenticeshipEpisodes = [new ApprenticeshipEpisodeEntity(learningModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new ApprenticeshipEarningsProfileEntity
+        var learningEntity = _fixture.Create<LearningEntity>();
+        learningEntity.ApprenticeshipEpisodes = [new ApprenticeshipEpisodeEntity(learningEntity.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new ApprenticeshipEarningsProfileEntity
         {
             EnglishAndMathsCourses = new List<EnglishAndMathsEntity>()
         }}];
-        return Domain.Models.Learning.Get(learningModel);
+        return Domain.Models.Learning.Get(learningEntity);
     }
 
     private UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand BuildCommand(Domain.Models.Learning apprenticeship)

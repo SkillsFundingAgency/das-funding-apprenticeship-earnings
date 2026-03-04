@@ -18,23 +18,23 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
     public async Task Handle_WhenPaused_ShouldSaveUpdatedApprenticeship()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
-        var pauseDate = GetValidPauseDate(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
+        var pauseDate = GetValidPauseDate(learningDomainModel);
         command.Request.PauseDate = pauseDate;
 
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock
-            .Setup(r => r.Get(apprenticeship.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+        LearningRepositoryMock
+            .Setup(r => r.Get(learningDomainModel.ApprenticeshipKey))
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a => 
-            a == apprenticeship && 
+        LearningRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a => 
+            a == learningDomainModel && 
             a.ApprenticeshipEpisodes.First().PauseDate == pauseDate)), Times.Once);
     }
 
@@ -42,14 +42,14 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
     public async Task Handle_WhenPausingWithInvalidKey_ShouldPropagateExceptionsFromRepository()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
-        var pauseDate = GetValidPauseDate(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
+        var pauseDate = GetValidPauseDate(learningDomainModel);
         command.Request.PauseDate = pauseDate;
 
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock
+        LearningRepositoryMock
             .Setup(r => r.Get(It.IsAny<Guid>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
 
@@ -64,37 +64,37 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
     public async Task Handle_WhenRemovingPause_ShouldSaveUpdatedApprenticeship()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
         command.Request.PauseDate = null;
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        var episode = apprenticeship.ApprenticeshipEpisodes.First();
-        episode.UpdatePause(GetValidPauseDate(apprenticeship));
+        var episode = learningDomainModel.ApprenticeshipEpisodes.First();
+        episode.UpdatePause(GetValidPauseDate(learningDomainModel));
 
-        ApprenticeshipRepositoryMock
-            .Setup(r => r.Get(apprenticeship.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+        LearningRepositoryMock
+            .Setup(r => r.Get(learningDomainModel.ApprenticeshipKey))
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a =>
-            a == apprenticeship &&
+        LearningRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a =>
+            a == learningDomainModel &&
             a.ApprenticeshipEpisodes.First().PauseDate == null)), Times.Once);
     }
 
     /// <summary>
     /// Gets a pause date that falls within the valid range for pausing an apprenticeship.
     /// </summary>
-    private static DateTime GetValidPauseDate(Domain.Models.Learning apprenticeship)
+    private static DateTime GetValidPauseDate(Domain.Models.Learning learning)
     {
-        var earliestStartDate = apprenticeship.ApprenticeshipEpisodes
+        var earliestStartDate = learning.ApprenticeshipEpisodes
             .SelectMany(e => e.Prices)
             .Min(e => e.StartDate);
 
-        var latestEndDate = apprenticeship.ApprenticeshipEpisodes
+        var latestEndDate = learning.ApprenticeshipEpisodes
             .SelectMany(e => e.Prices)
             .Max(e => e.EndDate);
 

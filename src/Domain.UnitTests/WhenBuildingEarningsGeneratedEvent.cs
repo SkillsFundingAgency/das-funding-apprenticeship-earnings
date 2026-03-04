@@ -19,7 +19,7 @@ public class WhenBuildingEarningsGeneratedEvent
     private EarningsGeneratedEventBuilder _sut;
     private EarningsGeneratedEvent _result;
     private Fixture _fixture;
-    private Models.Learning _apprenticeship;
+    private Models.Learning _learningDomainModel;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -30,63 +30,63 @@ public class WhenBuildingEarningsGeneratedEvent
         _sut = new EarningsGeneratedEventBuilder(_mockSystemClock.Object);
         _fixture = new Fixture();
 
-        _apprenticeship = _fixture.CreateLearningWithApprenticeship(
+        _learningDomainModel = _fixture.CreateLearningWithApprenticeship(
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,
             fundingType: Learning.Enums.FundingType.NonLevy);
 
-        _apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
+        _learningDomainModel.Calculate(_mockSystemClock.Object, string.Empty);
 
-        _result = _sut.Build(_apprenticeship);
+        _result = _sut.Build(_learningDomainModel);
     }
 
     [Test]
     public void ShouldPopulateThe_learningKey_Correctly()
     {
-        _result.ApprenticeshipKey.Should().Be(_apprenticeship.ApprenticeshipKey);
+        _result.ApprenticeshipKey.Should().Be(_learningDomainModel.ApprenticeshipKey);
     }
 
     [Test]
     public void ShouldPopulateThe_Uln_Correctly()
     {
-        _result.Uln.Should().Be(_apprenticeship.Uln);
+        _result.Uln.Should().Be(_learningDomainModel.Uln);
     }
 
     [Test]
     public void ShouldPopulateThe_EmployerId_Correctly()
     {
-        _result.EmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
+        _result.EmployerId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_ProviderId_Correctly()
     {
-        _result.ProviderId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().UKPRN);
+        _result.ProviderId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().UKPRN);
     }
 
     [Test]
     public void ShouldPopulateThe_TransferSenderEmployerId_Correctly()
     {
-        _result.TransferSenderEmployerId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_AgreedPrice_Correctly()
     {
-        _result.AgreedPrice.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice);
+        _result.AgreedPrice.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice);
     }
 
     [Test]
     public void ShouldPopulateThe_StartDate_Correctly()
     {
-        _result.StartDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().StartDate);
+        _result.StartDate.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().Prices.Single().StartDate);
     }
 
     [Test]
     public void ShouldPopulateThe_TrainingCode_Correctly()
     {
-        _result.TrainingCode.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().TrainingCode);
+        _result.TrainingCode.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().TrainingCode);
     }
 
     [Test]
@@ -164,38 +164,38 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_FirstDeliveryPeriodFundingLineType_Correctly()
     {
-        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _learningDomainModel.GetCurrentEpisode(_mockSystemClock.Object);
         _result.DeliveryPeriods.First(x => x.Period == 1).FundingLineType.Should().Be(currentEpisode.FundingLineType);
     }
 
     [Test]
     public void ShouldPopulateThe_SecondDeliveryPeriodFundingLineType_Correctly()
     {
-        var currentEpisode = _apprenticeship.GetCurrentEpisode(_mockSystemClock.Object);
+        var currentEpisode = _learningDomainModel.GetCurrentEpisode(_mockSystemClock.Object);
         _result.DeliveryPeriods.First(x => x.Period == 2).FundingLineType.Should().Be(currentEpisode.FundingLineType);
     }
 
     [Test]
     public void ShouldPopulateThe_EmployerAccountId_Correctly()
     {
-        _result.EmployerAccountId.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().EmployerAccountId);
+        _result.EmployerAccountId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_PlannedEndDate_Correctly()
     {
-        _result.PlannedEndDate.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
+        _result.PlannedEndDate.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
     }
 
     [Test]
     public void ShouldPopulateThe_ApprovalsApprenticeshipId_Correctly()
     {
-        _result.ApprovalsApprenticeshipId.Should().Be(_apprenticeship.ApprovalsApprenticeshipId);
+        _result.ApprovalsApprenticeshipId.Should().Be(_learningDomainModel.ApprovalsApprenticeshipId);
     }
 
     [Test]
     public void ShouldPopulateThe_ageAtStartOfLearning_Correctly()
     {
-        _result.AgeAtStartOfLearning.Should().Be(_apprenticeship.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+        _result.AgeAtStartOfLearning.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
     }
 }

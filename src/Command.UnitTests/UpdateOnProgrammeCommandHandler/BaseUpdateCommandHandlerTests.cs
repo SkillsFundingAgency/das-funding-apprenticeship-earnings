@@ -14,31 +14,31 @@ public abstract class BaseUpdateCommandHandlerTests
 {
     private readonly Fixture _fixture = new();
     private Mock<ILogger<UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler>> _loggerMock;
-    private Mock<IApprenticeshipRepository> _apprenticeshipRepositoryMock;
-    private Mock<ISystemClockService> _systemClockServiceMock;
+    private Mock<ILearningRepository> _mockRepository;
+    private Mock<ISystemClockService> _mockSystemClockService;
 
     protected Fixture Fixture => _fixture;
-    protected Mock<IApprenticeshipRepository> ApprenticeshipRepositoryMock => _apprenticeshipRepositoryMock;
-    protected Mock<ISystemClockService> SystemClockServiceMock => _systemClockServiceMock;
+    protected Mock<ILearningRepository> LearningRepositoryMock => _mockRepository;
+    protected Mock<ISystemClockService> SystemClockServiceMock => _mockSystemClockService;
 
     public UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler GetUpdateOnProgrammeCommandHandler()
     {
         _loggerMock = new Mock<ILogger<UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler>>();
-        _apprenticeshipRepositoryMock = new Mock<IApprenticeshipRepository>();
-        _systemClockServiceMock = new Mock<ISystemClockService>();
-        _systemClockServiceMock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
+        _mockRepository = new Mock<ILearningRepository>();
+        _mockSystemClockService = new Mock<ISystemClockService>();
+        _mockSystemClockService.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
 
         var handler = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommandHandler(
             _loggerMock.Object,
-            _apprenticeshipRepositoryMock.Object,
-            _systemClockServiceMock.Object);
+            _mockRepository.Object,
+            _mockSystemClockService.Object);
 
         return handler;
     }
 
-    internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Domain.Models.Learning apprenticeship, int fundingBand = 0)
+    internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Domain.Models.Learning learningDomainModel, int fundingBand = 0)
     {
-        var episode = apprenticeship.ApprenticeshipEpisodes.Single();
+        var episode = learningDomainModel.ApprenticeshipEpisodes.Single();
 
         var request = new UpdateOnProgrammeCommand.UpdateOnProgrammeRequest
         {
@@ -46,15 +46,15 @@ public abstract class BaseUpdateCommandHandlerTests
             CompletionDate = episode.CompletionDate,
             WithdrawalDate = episode.WithdrawalDate,
             PauseDate = episode.PauseDate,
-            DateOfBirth = apprenticeship.DateOfBirth,
+            DateOfBirth = learningDomainModel.DateOfBirth,
             Prices = GetPrices(episode),
             Care = new Care
             {
-                CareLeaverEmployerConsentGiven = apprenticeship.CareLeaverEmployerConsentGiven,
-                HasEHCP = apprenticeship.HasEHCP,
-                IsCareLeaver = apprenticeship.IsCareLeaver
+                CareLeaverEmployerConsentGiven = learningDomainModel.CareLeaverEmployerConsentGiven,
+                HasEHCP = learningDomainModel.HasEHCP,
+                IsCareLeaver = learningDomainModel.IsCareLeaver
             },
-            PeriodsInLearning = apprenticeship.ApprenticeshipEpisodes.SelectMany(e => e.EpisodePeriodsInLearning).Select(p => new PeriodInLearningItem
+            PeriodsInLearning = learningDomainModel.ApprenticeshipEpisodes.SelectMany(e => e.EpisodePeriodsInLearning).Select(p => new PeriodInLearningItem
             {
                 StartDate = p.StartDate,
                 EndDate = p.EndDate,
@@ -68,7 +68,7 @@ public abstract class BaseUpdateCommandHandlerTests
             request.IncludesFundingBandMaximumUpdate = true;
         }
 
-        var command = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommand(apprenticeship.ApprenticeshipKey, request);
+        var command = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommand(learningDomainModel.ApprenticeshipKey, request);
 
         return command;
     }

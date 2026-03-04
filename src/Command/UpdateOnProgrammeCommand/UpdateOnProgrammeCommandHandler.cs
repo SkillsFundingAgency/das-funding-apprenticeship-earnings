@@ -9,12 +9,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeComman
 public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgrammeCommand>
 {
     private readonly ILogger<UpdateOnProgrammeCommandHandler> _logger;
-    private readonly IApprenticeshipRepository _apprenticeshipRepository;
+    private readonly ILearningRepository _apprenticeshipRepository;
     private readonly ISystemClockService _systemClock;
 
     public UpdateOnProgrammeCommandHandler(
         ILogger<UpdateOnProgrammeCommandHandler> logger,
-        IApprenticeshipRepository apprenticeshipRepository,
+        ILearningRepository apprenticeshipRepository,
         ISystemClockService systemClock)
     {
         _logger = logger;

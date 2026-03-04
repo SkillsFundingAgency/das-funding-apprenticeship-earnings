@@ -12,6 +12,10 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
 {
     private List<ApprenticeshipInstalment> _instalments;
 
+    public IReadOnlyCollection<ApprenticeshipInstalment> Instalments => new ReadOnlyCollection<ApprenticeshipInstalment>(_instalments);
+    public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Entity.ApprenticeshipAdditionalPayments.Select(AdditionalPayment.Get).ToList().AsReadOnly();
+    public IReadOnlyCollection<EnglishAndMathsDomainModel> MathsAndEnglishCourses => Entity.EnglishAndMathsCourses.Select(EnglishAndMathsDomainModel.Get).ToList().AsReadOnly();
+
     public ApprenticeshipEarningsProfile(decimal onProgramTotal,
         List<ApprenticeshipInstalment> instalments,
         List<AdditionalPayment> additionalPayments,
@@ -34,11 +38,6 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     {
         _instalments = model.Instalments?.Select(ApprenticeshipInstalment.Get).ToList() ?? new List<ApprenticeshipInstalment>();
     }
-
-    public IReadOnlyCollection<ApprenticeshipInstalment> Instalments => new ReadOnlyCollection<ApprenticeshipInstalment>(_instalments);
-    public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Entity.ApprenticeshipAdditionalPayments.Select(AdditionalPayment.Get).ToList().AsReadOnly();
-    public IReadOnlyCollection<EnglishAndMathsDomainModel> MathsAndEnglishCourses => Entity.EnglishAndMathsCourses.Select(EnglishAndMathsDomainModel.Get).ToList().AsReadOnly();
-
     public void Update(
         ISystemClockService systemClock,
         decimal? onProgramTotal = null, 

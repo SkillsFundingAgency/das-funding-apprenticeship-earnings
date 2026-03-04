@@ -10,15 +10,7 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: A
 {
     protected readonly TEpisodeEntity _entity;
     protected int _ageAtStartOfApprenticeship;
-
-    protected BaseEpisode(TEpisodeEntity model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
-    {
-        _entity = model;
-    }
-
     protected TEarningProfileDomainModel? _earningsProfile;
-
-
     public Guid EpisodeKey => _entity.Key;
     public long UKPRN => _entity.Ukprn;
     public long EmployerAccountId => _entity.EmployerAccountId;
@@ -31,6 +23,10 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: A
     public DateTime? CompletionDate => _entity.CompletionDate;
     public DateTime? WithdrawalDate => _entity.WithdrawalDate;
 
+    protected BaseEpisode(TEpisodeEntity model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
+    {
+        _entity = model;
+    }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
     {

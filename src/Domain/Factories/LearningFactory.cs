@@ -7,7 +7,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
-public class ApprenticeshipFactory : IApprenticeshipFactory
+public class LearningFactory : ILearningFactory
 {
     public Models.Learning CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
     {
@@ -54,14 +54,5 @@ public class ApprenticeshipFactory : IApprenticeshipFactory
         };
 
         return Models.Learning.Get(model);
-    }
-
-    private int GetAgeAtStartOfLearning(DateTime startDate, DateTime dateOfBirth)
-    {
-        var age = startDate.Year - dateOfBirth.Year;
-
-        if (startDate < dateOfBirth.AddYears(age)) age--;
-
-        return age;
     }
 }

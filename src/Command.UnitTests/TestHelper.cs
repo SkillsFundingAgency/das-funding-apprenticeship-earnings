@@ -9,7 +9,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests;
 
 internal static class TestHelper
 {
-    internal static Domain.Models.Learning BuildApprenticeship(this Fixture fixture)
+    internal static Domain.Models.Learning BuildLearning(this Fixture fixture)
     {
         var apprenticeshipEntityModel = fixture.BuildLearningModel();
         return Domain.Models.Learning.Get(apprenticeshipEntityModel);

@@ -18,7 +18,7 @@ public class WhenSaveLearningSupport
 {
     private readonly Fixture _fixture = new();
     private Mock<ILogger<CommandHandler>> _mockLogger;
-    private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
+    private Mock<ILearningRepository> _mockRepository;
     private Mock<ISystemClockService> _mockSystemClockService;
     private CommandHandler _handler;
 
@@ -26,12 +26,12 @@ public class WhenSaveLearningSupport
     public void SetUp()
     {
         _mockLogger = new Mock<ILogger<CommandHandler>>();
-        _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+        _mockRepository = new Mock<ILearningRepository>();
         _mockSystemClockService = new Mock<ISystemClockService>();
 
         _handler = new CommandHandler(
             _mockLogger.Object,
-            _mockApprenticeshipRepository.Object,
+            _mockRepository.Object,
             _mockSystemClockService.Object);
     }
 
@@ -44,21 +44,21 @@ public class WhenSaveLearningSupport
             new UpdateLearningSupportRequest { LearningSupport =[ new LearningSupportItem { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} ]}
             );
 
-        var learningModel = _fixture.Create<LearningEntity>();
-        learningModel.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity>
+        var learningEntity = _fixture.Create<LearningEntity>();
+        learningEntity.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity>
         {
             _fixture.Create<ApprenticeshipEpisodeEntity>()
         };
 
-        var apprenticeship = Domain.Models.Learning.Get(learningModel);
-        _mockApprenticeshipRepository
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+        var learning = Domain.Models.Learning.Get(learningEntity);
+        _mockRepository
+            .Setup(repo => repo.Get(command.LearningKey))
+            .ReturnsAsync(learning);
 
         // Act
         await _handler.Handle(command);
 
         // Assert
-        _mockApprenticeshipRepository.Verify(repo => repo.Update(apprenticeship), Times.Once);
+        _mockRepository.Verify(repo => repo.Update(learning), Times.Once);
     }
 }

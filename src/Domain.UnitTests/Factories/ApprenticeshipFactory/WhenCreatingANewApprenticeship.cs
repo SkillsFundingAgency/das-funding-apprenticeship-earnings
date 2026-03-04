@@ -10,13 +10,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
 public class WhenCreatingANewApprenticeship
 {
     private Fixture _fixture;
-    private Domain.Factories.ApprenticeshipFactory _factory;
+    private Domain.Factories.LearningFactory _factory;
 
     [SetUp]
     public void SetUp()
     {
         _fixture = new Fixture();
-        _factory = new Domain.Factories.ApprenticeshipFactory();
+        _factory = new Domain.Factories.LearningFactory();
     }
 
     [Test]

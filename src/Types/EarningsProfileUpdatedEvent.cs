@@ -1,5 +1,6 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
+#pragma warning disable CS8618
 public class ShortCourseEarningsProfileUpdatedEvent
 {
     public Guid EarningsProfileId { get; set; }
@@ -60,3 +61,4 @@ public class Instalment
     public byte DeliveryPeriod { get; set; }
     public decimal Amount { get; set; }
 }
+#pragma warning restore CS8618

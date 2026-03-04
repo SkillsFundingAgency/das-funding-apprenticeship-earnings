@@ -8,43 +8,43 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCo
 public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglishAndMathsCommand>
 {
     private readonly ILogger<UpdateEnglishAndMathsCommandHandler> _logger;
-    private readonly IApprenticeshipRepository _apprenticeshipRepository;
+    private readonly ILearningRepository _learningRepository;
     private readonly ISystemClockService _systemClock;
 
     public UpdateEnglishAndMathsCommandHandler(
         ILogger<UpdateEnglishAndMathsCommandHandler> logger,
-        IApprenticeshipRepository apprenticeshipRepository,
+        ILearningRepository learningRepository,
         ISystemClockService systemClock)
     {
         _logger = logger;
-        _apprenticeshipRepository = apprenticeshipRepository;
+        _learningRepository = learningRepository;
         _systemClock = systemClock;
     }
 
     public async Task Handle(UpdateEnglishAndMathsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for learning {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for learning {LearningKey}", command.LearningKey);
 
         var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command);
 
-        var learningDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
+        var learningDomainModel = await _learningRepository.Get(command.LearningKey);
 
         if (learningDomainModel == null)
         {
-            _logger.LogError("No learning found for {LearningKey}", command.ApprenticeshipKey);
-            throw new Exception($"No learning found for {command.ApprenticeshipKey} when handling {nameof(UpdateEnglishAndMathsCommand)}");
+            _logger.LogError("No learning found for {LearningKey}", command.LearningKey);
+            throw new Exception($"No learning found for {command.LearningKey} when handling {nameof(UpdateEnglishAndMathsCommand)}");
         }
 
         learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);
 
-        await _apprenticeshipRepository.Update(learningDomainModel);
+        await _learningRepository.Update(learningDomainModel);
 
-        _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.LearningKey);
     }
 
     private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
     {
-        _logger.LogInformation("Building English and Maths details to domain models for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Building English and Maths details to domain models for apprenticeship {LearningKey}", command.LearningKey);
         
         var courses = new List<EnglishAndMaths>();
         foreach (var detail in command.EnglishAndMathsDetails)
@@ -53,7 +53,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
             courses.Add(course);
         }
 
-        _logger.LogInformation("{CourseCount} English and Maths courses built for apprenticeship {LearningKey}", courses.Count, command.ApprenticeshipKey);
+        _logger.LogInformation("{CourseCount} English and Maths courses built for apprenticeship {LearningKey}", courses.Count, command.LearningKey);
         return courses;
     }
 }

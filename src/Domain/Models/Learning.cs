@@ -10,13 +10,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
 public class Learning : AggregateRoot
 {
-    private Learning(LearningEntity entity)
-    {
-        _entity = entity;
-        _apprenticeshipEpisodes = _entity.ApprenticeshipEpisodes.Select(this.GetApprenticeshipEpisodeFromEntity).ToList();
-        _shortCourseEpisodes = _entity.ShortCourseEpisodes.Select(this.GetShortCourseEpisodeFromEntity).ToList();
-    }
-
     private LearningEntity _entity;
     private readonly List<ApprenticeshipEpisode> _apprenticeshipEpisodes;
     private readonly List<ShortCourseEpisode> _shortCourseEpisodes;
@@ -28,9 +21,15 @@ public class Learning : AggregateRoot
     public bool IsCareLeaver => _entity?.IsCareLeaver ?? false;
     public bool CareLeaverEmployerConsentGiven => _entity?.CareLeaverEmployerConsentGiven ?? false;
     public DateTime DateOfBirth => _entity.DateOfBirth;
-
     public IReadOnlyCollection<ApprenticeshipEpisode> ApprenticeshipEpisodes => new ReadOnlyCollection<ApprenticeshipEpisode>(_apprenticeshipEpisodes);
     public IReadOnlyCollection<ShortCourseEpisode> ShortCourseEpisodes => new ReadOnlyCollection<ShortCourseEpisode>(_shortCourseEpisodes);
+
+    private Learning(LearningEntity entity)
+    {
+        _entity = entity;
+        _apprenticeshipEpisodes = _entity.ApprenticeshipEpisodes.Select(this.GetApprenticeshipEpisodeFromEntity).ToList();
+        _shortCourseEpisodes = _entity.ShortCourseEpisodes.Select(this.GetShortCourseEpisodeFromEntity).ToList();
+    }
 
     public static Learning Get(LearningEntity entity)
     {
@@ -119,6 +118,7 @@ public class Learning : AggregateRoot
     }
 }
 
+#pragma warning disable CS8618
 public class ShortCourseUpdateModel
 {
     public string Uln { get; set; }
@@ -131,3 +131,4 @@ public class ShortCourseUpdateModel
     public DateTime ExpectedEndDate { get; set; }
     public decimal TotalPrice { get; set; }
 }
+#pragma warning restore CS8618

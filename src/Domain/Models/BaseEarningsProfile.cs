@@ -7,6 +7,13 @@ public class BaseEarningsProfile<T> : AggregateComponent where T : BaseEarningsP
 {
     protected T Entity { get; set; }
 
+    public Guid EarningsProfileId => Entity.EarningsProfileId;
+    public decimal OnProgramTotal => Entity.OnProgramTotal;
+    public decimal CompletionPayment => Entity.CompletionPayment;
+    public Guid Version => Entity.Version;
+    public bool IsApproved => Entity.IsApproved;
+    public string CalculationData => Entity.CalculationData;
+
     public BaseEarningsProfile(T entity, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
         Entity = entity;
@@ -31,13 +38,6 @@ public class BaseEarningsProfile<T> : AggregateComponent where T : BaseEarningsP
         Entity.CalculationData = calculationData;
 
     }
-
-    public Guid EarningsProfileId => Entity.EarningsProfileId;
-    public decimal OnProgramTotal => Entity.OnProgramTotal;
-    public decimal CompletionPayment => Entity.CompletionPayment;
-    public Guid Version => Entity.Version;
-    public bool IsApproved => Entity.IsApproved;
-    public string CalculationData => Entity.CalculationData;
 
     public T GetModel()
     {

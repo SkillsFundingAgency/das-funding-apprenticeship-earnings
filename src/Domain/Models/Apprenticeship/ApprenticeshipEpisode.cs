@@ -108,7 +108,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     public void RemoveAdditionalEarnings(ISystemClockService systemClock)
     {
-        _earningsProfile.Update(systemClock, additionalPayments: new List<AdditionalPayment>());
+        _earningsProfile!.Update(systemClock, additionalPayments: new List<AdditionalPayment>());
     }
 
     /// <summary>

@@ -13,19 +13,19 @@ public class WhenWithdrawUpdated : BaseUpdateCommandHandlerTests
     public async Task ThenTheApprenticeshipIsWithdrawn()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
         command.Request.WithdrawalDate = new DateTime(2024, 11, 30);
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         SystemClockServiceMock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
-        ApprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
+        LearningRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        ApprenticeshipRepositoryMock.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
+        LearningRepositoryMock.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
+        LearningRepositoryMock.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
     }
 }

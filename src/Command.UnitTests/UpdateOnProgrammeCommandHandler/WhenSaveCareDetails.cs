@@ -10,25 +10,25 @@ public class WhenSaveCareDetails : BaseUpdateCommandHandlerTests
     public async Task Handle_ShouldUpdateCareDetails_WhenCalled()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
 
-        command.Request.Care.HasEHCP = !apprenticeship.HasEHCP;
-        command.Request.Care.IsCareLeaver = !apprenticeship.IsCareLeaver;
+        command.Request.Care.HasEHCP = !learningDomainModel.HasEHCP;
+        command.Request.Care.IsCareLeaver = !learningDomainModel.IsCareLeaver;
         command.Request.Care.CareLeaverEmployerConsentGiven =
-            !apprenticeship.CareLeaverEmployerConsentGiven;
+            !learningDomainModel.CareLeaverEmployerConsentGiven;
 
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock
+        LearningRepositoryMock
             .Setup(repo => repo.Get(It.IsAny<Guid>()))
-            .ReturnsAsync(apprenticeship);
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(repo =>
+        LearningRepositoryMock.Verify(repo =>
                 repo.Update(It.Is<Domain.Models.Learning>(a =>
                     a.HasEHCP == command.Request.Care.HasEHCP &&
                     a.IsCareLeaver == command.Request.Care.IsCareLeaver &&

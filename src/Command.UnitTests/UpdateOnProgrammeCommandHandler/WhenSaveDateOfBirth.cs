@@ -16,18 +16,18 @@ public class WhenSaveDateOfBirth : BaseUpdateCommandHandlerTests
     public async Task Handle_ShouldUpdateApprenticeship_WhenCalled()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
-        command.Request.DateOfBirth = apprenticeship.DateOfBirth.AddYears(-1);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
+        command.Request.DateOfBirth = learningDomainModel.DateOfBirth.AddYears(-1);
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
+        LearningRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(repo => repo.Update(It.Is<Domain.Models.Learning>(a =>
+        LearningRepositoryMock.Verify(repo => repo.Update(It.Is<Domain.Models.Learning>(a =>
             a.DateOfBirth == command.Request.DateOfBirth
         )), Times.Once);
     }

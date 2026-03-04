@@ -1,35 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using LearningDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Learning;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 
-public class ApprenticeshipRepository : IApprenticeshipRepository
+public class LearningRepository : ILearningRepository
 {
     private readonly Lazy<ApprenticeshipEarningsDataContext> _lazyContext;
-    private readonly IApprenticeshipFactory _apprenticeshipFactory;
+    private readonly ILearningFactory _learningFactory;
     private readonly IMessageSession _messageSession;
 
     private ApprenticeshipEarningsDataContext DbContext => _lazyContext.Value;
 
-    public ApprenticeshipRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext, IApprenticeshipFactory apprenticeshipFactory, IMessageSession messageSession)
+    public LearningRepository(Lazy<ApprenticeshipEarningsDataContext> dbContext, ILearningFactory learningFactory, IMessageSession messageSession)
     {
         _lazyContext = dbContext;
-        _apprenticeshipFactory = apprenticeshipFactory;
+        _learningFactory = learningFactory;
         _messageSession = messageSession;
     }
 
-    public async Task Add(Models.Learning apprenticeship)
+    public async Task Add(LearningDomainModel learning)
     {
-        var entity = apprenticeship.GetModel();
+        var entity = learning.GetModel();
         await DbContext.AddAsync(entity);
         await DbContext.SaveChangesAsync();
-        await ReleaseEvents(apprenticeship);
+        await ReleaseEvents(learning);
     }
 
-    public async Task<Models.Learning?> Get(Guid key)
+    public async Task<LearningDomainModel?> Get(Guid key)
     {
-        var apprenticeship = await DbContext.Learnings
+        var learning = await DbContext.Learnings
             .Include(x => x.ApprenticeshipEpisodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.Instalments)
@@ -54,26 +55,18 @@ public class ApprenticeshipRepository : IApprenticeshipRepository
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.LearningKey == key);
 
-        return apprenticeship == null ? null : _apprenticeshipFactory.GetExisting(apprenticeship);
+        return learning == null ? null : _learningFactory.GetExisting(learning);
     }
 
-    public async Task Update(Models.Learning apprenticeship)
+    public async Task Update(LearningDomainModel learning)
     {
-        try// TODO Delete this before PR
-        {
-            await DbContext.SaveChangesAsync();
-            await ReleaseEvents(apprenticeship);
-        }
-        catch (Exception ex)
-        {
-            var foo = ex;
-        }
-
+        await DbContext.SaveChangesAsync();
+        await ReleaseEvents(learning);
     }
 
-    private async Task ReleaseEvents(Models.Learning apprenticeship)
+    private async Task ReleaseEvents(LearningDomainModel learning)
     {
-        foreach (var @event in apprenticeship.FlushEvents())
+        foreach (var @event in learning.FlushEvents())
         {
             await _messageSession.Publish(@event); 
         }

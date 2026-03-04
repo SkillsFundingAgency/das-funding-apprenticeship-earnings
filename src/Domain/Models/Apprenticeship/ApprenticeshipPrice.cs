@@ -6,6 +6,11 @@ public class ApprenticeshipPrice
 {
     private ApprenticeshipEpisodePriceEntity _entity;
 
+    public Guid PriceKey => _entity.Key;
+    public DateTime StartDate => _entity.StartDate;
+    public DateTime EndDate => _entity.EndDate;
+    public decimal AgreedPrice => _entity.AgreedPrice;
+
     public ApprenticeshipPrice(ApprenticeshipEpisodePriceEntity entity)
     {
         _entity = entity;
@@ -21,12 +26,6 @@ public class ApprenticeshipPrice
             AgreedPrice = agreedPrice
         };
     }
-
-    public Guid PriceKey => _entity.Key;
-    public DateTime StartDate => _entity.StartDate;
-    public DateTime EndDate => _entity.EndDate;
-    public decimal AgreedPrice => _entity.AgreedPrice;
-
     public static ApprenticeshipPrice Get(ApprenticeshipEpisodePriceEntity model)
     {
         return new ApprenticeshipPrice(model);
