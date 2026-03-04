@@ -12,13 +12,15 @@ public class EarningsProfile : AggregateComponent
 
     private List<Instalment> _instalments;
 
-    public EarningsProfile(
-        decimal onProgramTotal,
+    public EarningsProfile(decimal onProgramTotal,
         List<Instalment> instalments,
         List<AdditionalPayment> additionalPayments,
         List<MathsAndEnglish> mathsAndEnglishCourses,
         decimal completionPayment,
-        Guid episodeKey, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
+        Guid episodeKey,
+        bool isApproved,
+        Action<AggregateComponent> addChildToRoot,
+        string calculationData): base(addChildToRoot)
     {
         var earningProfileId = Guid.NewGuid();
 
@@ -32,6 +34,8 @@ public class EarningsProfile : AggregateComponent
         Model.CompletionPayment = completionPayment;
         Model.EpisodeKey = episodeKey;
         Model.Version = Guid.NewGuid();
+        Model.IsApproved = isApproved;
+        Model.CalculationData = calculationData;
 
         AddEvent(Model.CreatedEarningsProfileUpdatedEvent(true));
     }
@@ -49,6 +53,8 @@ public class EarningsProfile : AggregateComponent
     public IReadOnlyCollection<MathsAndEnglish> MathsAndEnglishCourses => Model.MathsAndEnglishCourses.Select((MathsAndEnglish.Get)).ToList().AsReadOnly();
     public decimal CompletionPayment => Model.CompletionPayment;
     public Guid Version => Model.Version;
+    public bool IsApproved => Model.IsApproved;
+    public string CalculationData => Model.CalculationData;
 
     public void Update(
         ISystemClockService systemClock,
@@ -56,7 +62,8 @@ public class EarningsProfile : AggregateComponent
         List<Instalment>? instalments = null, 
         List<AdditionalPayment>? additionalPayments = null, 
         List<MathsAndEnglish>? mathsAndEnglishCourses = null,
-        decimal? completionPayment = null
+        decimal? completionPayment = null,
+        string? calculationData = null
     )
     {
         var versionChanged = false;
@@ -89,6 +96,12 @@ public class EarningsProfile : AggregateComponent
         if (completionPayment.HasValue && Model.CompletionPayment != completionPayment.Value)
         {
             Model.CompletionPayment = completionPayment.Value;
+            versionChanged = true;
+        }
+
+        if (!string.IsNullOrEmpty(calculationData) && Model.CalculationData != calculationData)
+        {
+            Model.CalculationData = calculationData;
             versionChanged = true;
         }
 

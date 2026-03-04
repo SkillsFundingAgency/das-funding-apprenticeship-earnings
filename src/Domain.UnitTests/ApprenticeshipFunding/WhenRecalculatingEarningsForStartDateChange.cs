@@ -47,13 +47,13 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.PeriodsInLearning = new List<EpisodePeriodInLearningModel>();
         learningEpisode.EarningsProfile.MathsAndEnglishCourses = new List<MathsAndEnglishModel>();
 
-        var apprenticeshipEntityModel = _fixture
-            .Build<ApprenticeshipModel>()
+        var learningEntityModel = _fixture
+            .Build<LearningModel>()
             .With(x => x.DateOfBirth, startDate.AddYears(-_ageAtStartOfLearning))
             .With(x => x.Episodes, new List<EpisodeModel> { learningEpisode })
             .Create();
 
-        _apprenticeship = Apprenticeship.Apprenticeship.Get(apprenticeshipEntityModel);
+        _apprenticeship = Apprenticeship.Apprenticeship.Get(learningEntityModel);
         _currentEpisode = _apprenticeship.ApprenticeshipEpisodes.First();
 
         _episodeKey = _currentEpisode.ApprenticeshipEpisodeKey;
@@ -73,7 +73,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _currentEpisode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClockService.Object, string.Empty, _episodeKey);
 
         // Assert
         var updatedPrice = _currentEpisode.Prices.FirstOrDefault(p => p.PriceKey == _prices.First().Key);
@@ -87,7 +87,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _currentEpisode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClockService.Object, string.Empty, _episodeKey);
 
         // Assert
         _currentEpisode.AgeAtStartOfApprenticeship.Should().Be(_ageAtStartOfLearning);
@@ -98,7 +98,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _currentEpisode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClockService.Object, string.Empty, _episodeKey);
 
         // Assert
         _currentEpisode.Prices.Should().OnlyContain(p => _prices.Any(eventPrices => eventPrices.Key == p.PriceKey));
@@ -109,7 +109,7 @@ public class WhenRecalculatingEarningsForStartDateChange
     {
         // Act
         _currentEpisode.UpdatePrices(_prices);
-        _apprenticeship.Calculate(_mockSystemClockService.Object, _episodeKey);
+        _apprenticeship.Calculate(_mockSystemClockService.Object, string.Empty, _episodeKey);
 
         // Assert
         var events = _apprenticeship.FlushEvents().OfType<EarningsProfileUpdatedEvent>().ToList();

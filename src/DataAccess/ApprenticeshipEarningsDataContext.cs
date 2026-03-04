@@ -10,7 +10,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         {
         }
 
-        public virtual DbSet<ApprenticeshipModel> Apprenticeships { get; set; }
+        public virtual DbSet<LearningModel> Learnings { get; set; }
         public virtual DbSet<EpisodeModel> Episodes { get; set; }
         public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
         public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
@@ -23,12 +23,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Apprenticeship
-            modelBuilder.Entity<ApprenticeshipModel>()
+            modelBuilder.Entity<LearningModel>()
                 .HasMany(x => x.Episodes)
                 .WithOne()
-                .HasForeignKey(fk => fk.ApprenticeshipKey);
-            modelBuilder.Entity<ApprenticeshipModel>()
-                .HasKey(a => new { a.Key });
+                .HasForeignKey(fk => fk.LearningKey);
+            modelBuilder.Entity<LearningModel>()
+                .HasKey(a => new { Key = a.LearningKey });
 
             // Episode
             modelBuilder.Entity<EpisodeModel>()
@@ -48,6 +48,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
                 .HasMany(a => a.PeriodsInLearning)
                 .WithOne()
                 .HasForeignKey(x => x.EpisodeKey);
+            modelBuilder.Entity<EpisodeModel>()
+                .Property(p => p.TrainingType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (TrainingType)Enum.Parse(typeof(TrainingType), v));
 
             // EpisodePrice
             modelBuilder.Entity<EpisodePriceModel>()

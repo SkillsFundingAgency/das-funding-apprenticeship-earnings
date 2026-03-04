@@ -8,7 +8,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
 public static class IncentivesAssertionHelper
 {
-    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, UpdateOnProgrammeRequest updateOnProgrammeRequest, ApprenticeshipModel apprenticeshipModel)
+    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, UpdateOnProgrammeRequest updateOnProgrammeRequest, LearningModel apprenticeshipModel)
     {
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 

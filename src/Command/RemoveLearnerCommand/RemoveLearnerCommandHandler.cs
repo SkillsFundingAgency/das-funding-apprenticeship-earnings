@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+﻿using System.Text.Json;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 
@@ -23,7 +24,7 @@ public class RemoveLearnerCommandHandler : ICommandHandler<RemoveLearnerCommand>
         episode.UpdateWithdrawalDate(startDate, _systemClock);
         episode.UpdateEnglishAndMaths([], _systemClock);
         episode.RemoveAdditionalEarnings(_systemClock);
-        apprenticeshipDomainModel.Calculate(_systemClock);
+        apprenticeshipDomainModel.Calculate(_systemClock, JsonSerializer.Serialize(command.ApprenticeshipKey));
         episode.UpdatePeriodsInLearning([]);
 
         await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
