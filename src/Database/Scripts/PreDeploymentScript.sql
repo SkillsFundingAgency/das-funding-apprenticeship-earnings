@@ -28,3 +28,24 @@ BEGIN
     END
 END
 GO
+
+/* This can be deleted after 1614 is deployed - Removes old tables*/
+IF EXISTS (SELECT 1 FROM sys.tables t
+    INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+    WHERE t.name = 'AdditionalPayment'
+      AND s.name = 'Domain'
+)
+BEGIN
+    DROP TABLE [Domain].[AdditionalPayment];
+    DROP TABLE [Domain].[Instalment];
+    DROP TABLE [Domain].[EpisodePrice];
+    DROP TABLE [Domain].[EpisodePeriodInLearning];
+    DROP TABLE [History].[EarningsProfileHistory];
+    DROP TABLE [Domain].[EarningsProfile];
+
+    DROP TABLE [Domain].[MathsAndEnglishInstalment];
+    DROP TABLE [Domain].[MathsAndEnglishPeriodInLearning];
+    DROP TABLE [Domain].[MathsAndEnglish];
+
+    DROP TABLE [Domain].[Episode];
+END
