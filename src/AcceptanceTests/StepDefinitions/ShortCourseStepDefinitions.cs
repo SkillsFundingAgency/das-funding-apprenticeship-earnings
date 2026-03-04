@@ -41,7 +41,7 @@ public class ShortCourseStepDefinitions
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(request.LearningKey);
 
         JsonSerializer
-            .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.CalculationData)
+            .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.ShortCourseEpisodes.First().EarningsProfile.CalculationData)
             .Should().BeEquivalentTo(request);
     }
 
