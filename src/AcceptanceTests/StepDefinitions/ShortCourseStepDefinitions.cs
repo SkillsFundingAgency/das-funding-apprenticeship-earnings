@@ -50,15 +50,15 @@ public class ShortCourseStepDefinitions
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var updatedEntity = await _testContext.SqlDatabase.GetLearning(request.LearningKey);
-        var currentEpisode = updatedEntity!.GetCurrentEpisode(TestSystemClock.Instance());
+        var episode = updatedEntity.ShortCourseEpisodes.Single();
 
-        var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
+        var history = await _testContext.SqlDatabase.GetShortCourseHistory(episode.EarningsProfile.EarningsProfileId);
 
         if (history.Count == 0)
         {
             Assert.Fail("No earning history created");
         }
 
-        history.First().Version.Should().Be(currentEpisode.EarningsProfile.Version);
+        history.First().Version.Should().Be(episode.EarningsProfile.Version);
     }
 }

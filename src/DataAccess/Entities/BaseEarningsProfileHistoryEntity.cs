@@ -1,11 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
-[Dapper.Contrib.Extensions.Table("History.EarningsProfileHistory")]
-[Table("EarningsProfileHistory", Schema = "History")]
-public class EarningsProfileHistoryEntity
+public abstract class BaseEarningsProfileHistoryEntity
 {
     [Key]
     public Guid Key { get; set; }

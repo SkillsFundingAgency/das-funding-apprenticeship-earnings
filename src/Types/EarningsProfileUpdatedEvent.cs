@@ -1,5 +1,16 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
+public class ShortCourseEarningsProfileUpdatedEvent
+{
+    public Guid EarningsProfileId { get; set; }
+    public Guid EpisodeKey { get; set; }
+    public Guid Version { get; set; }
+    public decimal OnProgramTotal { get; set; }
+    public decimal CompletionPayment { get; set; }
+    public List<Instalment> Instalments { get; set; } = null!;
+    public bool InitialGeneration { get; set; }
+}
+
 public class EarningsProfileUpdatedEvent
 {
     public Guid EarningsProfileId { get; set; }

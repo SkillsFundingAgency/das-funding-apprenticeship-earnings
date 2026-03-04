@@ -71,7 +71,7 @@
     <Build Include="Tables\ApprenticeshipInstalment.sql" />
     <Build Include="Tables\ApprenticeshipAdditionalPayment.sql" />
     <Build Include="Tables\EnglishAndMaths.sql" />
-    <Build Include="Tables\EarningsProfileHistory.sql" />
+    <Build Include="Tables\ApprenticeshipEarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
     <Build Include="Tables\EnglishAndMathsInstalment.sql" />
     <Build Include="Tables\ApprenticeshipPeriodInLearning.sql" />
@@ -79,6 +79,7 @@
     <Build Include="Tables\ShortCourseEpisode.sql" />
     <Build Include="Tables\ShortCourseEarningsProfile.sql" />
     <Build Include="Tables\ShortCourseInstalment.sql" />
+    <Build Include="Tables\ShortCourseEarningsProfileHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Funding.ApprenticeshipEarnings.Database.refactorlog" />

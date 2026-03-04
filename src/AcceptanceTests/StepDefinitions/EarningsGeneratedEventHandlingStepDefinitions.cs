@@ -104,7 +104,6 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         }
     }
 
-
     [Then(@"no on programme earnings are persisted")]
     public async Task ThenNoOnProgrammeEarningsArePersisted()
     {

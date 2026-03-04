@@ -23,7 +23,7 @@ public class ShortCourseEarningsProfile : BaseEarningsProfile<ShortCourseEarning
         Entity.Instalments = instalments.ToModels<ShortCourseInstalment, ShortCourseInstalmentEntity>(model => model.EarningsProfileId = EarningsProfileId);
         _instalments = instalments;
 
-        //AddEvent(Entity.CreatedEarningsProfileUpdatedEvent(true)); TODO Add SC event for this
+        AddEvent(Entity.CreatedEarningsProfileUpdatedEvent(true));
     }
 
     public void Update(

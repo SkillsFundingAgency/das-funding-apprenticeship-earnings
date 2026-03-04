@@ -23,7 +23,8 @@ public class ApprenticeshipEarningsDataContext : DbContext
     public virtual DbSet<ApprenticeshipInstalmentEntity> Instalments { get; set; }
     public virtual DbSet<ApprenticeshipAdditionalPaymentEntity> AdditionalPayments { get; set; }
     public virtual DbSet<ApprenticeshipPeriodInLearningEntity> EpisodePeriodsInLearnings { get; set; }
-    public virtual DbSet<EarningsProfileHistoryEntity> EarningsProfileHistories2 { get; set; }
+    public virtual DbSet<ApprenticeshipEarningsProfileHistoryEntity> EarningsProfileHistories2 { get; set; }
+    public virtual DbSet<ShortCourseEarningsProfileHistoryEntity> ShortCourseEarningsProfileHistories { get; set; }
     public virtual DbSet<EnglishAndMathsPeriodInLearningEntity> MathsAndEnglishPeriodsInLearning { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,13 +45,16 @@ public class ApprenticeshipEarningsDataContext : DbContext
         modelBuilder.Entity<EnglishAndMathsPeriodInLearningEntity>().HasKey(x => x.Key);
 
         //  Apprenticeship History
-        modelBuilder.Entity<EarningsProfileHistoryEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<ApprenticeshipEarningsProfileHistoryEntity>().HasKey(x => x.Key);
         modelBuilder.Entity<AdditionalPaymentHistoryEntity>().HasKey(x => x.Key);
 
         //  Short Course
         modelBuilder.Entity<ShortCourseEpisodeEntity>().Configure();
         modelBuilder.Entity<ShortCourseEarningsProfileEntity>().Configure();
         modelBuilder.Entity<ShortCourseInstalmentEntity>().HasKey(x => x.Key);
+
+        //  Short Course History
+        modelBuilder.Entity<ShortCourseEarningsProfileHistoryEntity>().HasKey(x => x.Key);
 
         base.OnModelCreating(modelBuilder);
     }

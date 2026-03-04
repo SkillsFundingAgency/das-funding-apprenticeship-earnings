@@ -1,4 +1,4 @@
-﻿CREATE TABLE [History].[EarningsProfileHistory]
+﻿CREATE TABLE [History].[ApprenticeshipEarningsProfileHistory]
 (
 	[Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[EarningsProfileId] UNIQUEIDENTIFIER NOT NULL,
@@ -6,13 +6,13 @@
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
 	[State] NVARCHAR(MAX) NOT NULL,
 	
-	CONSTRAINT FK_EarningsProfileHistory_ApprenticeshipEarningsProfile
+	CONSTRAINT FK_ApprenticeshipEarningsProfileHistory_ApprenticeshipEarningsProfile
         FOREIGN KEY ([EarningsProfileId])
         REFERENCES Domain.[ApprenticeshipEarningsProfile]([EarningsProfileId])
 )
 GO
 
-CREATE NONCLUSTERED INDEX IX_EarningsProfileHistory_Version
-    ON [History].[EarningsProfileHistory] ([Version]);
+CREATE NONCLUSTERED INDEX IX_ApprenticeshipEarningsProfileHistory_Version
+    ON [History].[ApprenticeshipEarningsProfileHistory] ([Version]);
 
 

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using System.Data;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -57,9 +59,17 @@ public class SqlDatabase : IDisposable
         return learningEntity;
     }
 
-    public async Task<List<EarningsProfileHistoryEntity>> GetHistory(Guid earningsProfileId)
+    public async Task<List<ApprenticeshipEarningsProfileHistoryEntity>> GetHistory(Guid earningsProfileId)
     {
         return await DbContext.EarningsProfileHistories2
+            .Where(x => x.EarningsProfileId == earningsProfileId)
+            .OrderByDescending(x => x.CreatedOn)
+            .ToListAsync();
+    }
+
+    public async Task<List<ShortCourseEarningsProfileHistoryEntity>> GetShortCourseHistory(Guid earningsProfileId)
+    {
+        return await DbContext.ShortCourseEarningsProfileHistories
             .Where(x => x.EarningsProfileId == earningsProfileId)
             .OrderByDescending(x => x.CreatedOn)
             .ToListAsync();
