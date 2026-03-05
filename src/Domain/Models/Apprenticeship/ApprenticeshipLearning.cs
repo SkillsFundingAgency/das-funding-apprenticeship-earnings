@@ -42,7 +42,6 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         _entity.HasEHCP = hasEHCP;
         _entity.IsCareLeaver = isCareLeaver;
         _entity.CareLeaverEmployerConsentGiven = careLeaverEmployerConsentGiven;
-        var currentEpisode = this.GetCurrentEpisode(systemClock);
     }
 
     /// <summary>

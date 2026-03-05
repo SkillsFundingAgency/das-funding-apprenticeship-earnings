@@ -15,7 +15,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgr
 public class WhenSavePrices : BaseUpdateCommandHandlerTests
 {
     [Test]
-    public async Task Handle_ShouldCallRepositoryGet_WithApprenticeshipKey()
+    public async Task Handle_ShouldCallRepositoryGet_WithLearningKey()
     {
         // Arrange
         var learningDomainModel = Fixture.BuildLearning();
