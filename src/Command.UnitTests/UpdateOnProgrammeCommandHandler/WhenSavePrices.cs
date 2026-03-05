@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -16,67 +15,67 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgr
 public class WhenSavePrices : BaseUpdateCommandHandlerTests
 {
     [Test]
-    public async Task Handle_ShouldCallRepositoryGet_WithApprenticeshipKey()
+    public async Task Handle_ShouldCallRepositoryGet_WithLearningKey()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
         UpdatePrice(command);
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+        LearningRepositoryMock
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(repo => repo.Get(command.ApprenticeshipKey), Times.Once);
+        LearningRepositoryMock.Verify(repo => repo.GetApprenticeshipLearning(command.LearningKey), Times.Once);
     }
 
     [Test]
     public async Task Handle_ShouldUpdatePrices_OnApprenticeship()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship, (int)apprenticeship.ApprenticeshipEpisodes.Single().FundingBandMaximum);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel, (int)learningDomainModel.Episodes.Single().FundingBandMaximum);
         UpdatePrice(command);
 
-        var priceBeforeUpdate = apprenticeship.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice;
-        var initialPriceCount = apprenticeship.ApprenticeshipEpisodes.First().Prices.Count;
+        var priceBeforeUpdate = learningDomainModel.Episodes.First().Prices.First().AgreedPrice;
+        var initialPriceCount = learningDomainModel.Episodes.First().Prices.Count;
 
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+        LearningRepositoryMock
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        apprenticeship.ApprenticeshipEpisodes.First().Prices.Last().AgreedPrice.Should().NotBe(priceBeforeUpdate);
-        apprenticeship.ApprenticeshipEpisodes.First().Prices.Should().HaveCount(initialPriceCount + 1);
+        learningDomainModel.Episodes.First().Prices.Last().AgreedPrice.Should().NotBe(priceBeforeUpdate);
+        learningDomainModel.Episodes.First().Prices.Should().HaveCount(initialPriceCount + 1);
     }
 
     [Test]
     public async Task Handle_ShouldCallRepositoryUpdate_WithUpdatedApprenticeship()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship, (int)apprenticeship.ApprenticeshipEpisodes.Single().FundingBandMaximum);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel, (int)learningDomainModel.Episodes.Single().FundingBandMaximum);
         UpdatePrice(command);
         var handler = GetUpdateOnProgrammeCommandHandler();
-        ApprenticeshipRepositoryMock
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+        LearningRepositoryMock
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(repo => repo.Update(apprenticeship), Times.Once);
+        LearningRepositoryMock.Verify(repo => repo.Update(learningDomainModel), Times.Once);
     }
 
     private void UpdatePrice(UpdateOnProgrammeCommand.UpdateOnProgrammeCommand command)

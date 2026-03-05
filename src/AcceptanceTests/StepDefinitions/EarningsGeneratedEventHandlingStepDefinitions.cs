@@ -1,12 +1,15 @@
 using Newtonsoft.Json;
-using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -51,22 +54,43 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     [Then(@"On programme short course earnings are persisted as follows")]
     public async Task ThenOnProgrammeShortCourseEarningsArePersistedAsFollows(Table table)
     {
-        await AssertOnProgrammeEarnings(table, _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey);
+        await AssertShortCourseOnProgrammeEarnings(table, _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey);
     }
 
     [Then(@"On programme earnings are persisted as follows")]
     [Then(@"the instalments are balanced as follows")]
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
-        await AssertOnProgrammeEarnings(table, _scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        await AssertApprenticeshipOnProgrammeEarnings(table, _scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }
 
-    private async Task AssertOnProgrammeEarnings(Table table, Guid learningKey)
+    private async Task AssertApprenticeshipOnProgrammeEarnings(Table table, Guid learningKey)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-        LearningModel? updatedEntity;
+        ApprenticeshipLearningEntity? updatedEntity;
 
-        updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKey);
+        updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+
+        earningsInDb.Should().HaveCount(data.Count);
+
+        foreach (var expectedEarning in data)
+        {
+            earningsInDb.Should()
+                .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                              && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
+                    , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
+        }
+    }
+
+    private async Task AssertShortCourseOnProgrammeEarnings(Table table, Guid learningKey)
+    {
+        var data = table.CreateSet<EarningDbExpectationModel>().ToList();
+        ShortCourseLearningEntity? updatedEntity;
+
+        updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
@@ -86,7 +110,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     public async Task ThenNoOnProgrammeEarningsArePersisted()
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
-        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKeyKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
         earningsInDb.Should().BeEmpty();

@@ -1,5 +1,6 @@
 ﻿using Moq;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
@@ -10,26 +11,26 @@ public class WhenSaveCareDetails : BaseUpdateCommandHandlerTests
     public async Task Handle_ShouldUpdateCareDetails_WhenCalled()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
 
-        command.Request.Care.HasEHCP = !apprenticeship.HasEHCP;
-        command.Request.Care.IsCareLeaver = !apprenticeship.IsCareLeaver;
+        command.Request.Care.HasEHCP = !learningDomainModel.HasEHCP;
+        command.Request.Care.IsCareLeaver = !learningDomainModel.IsCareLeaver;
         command.Request.Care.CareLeaverEmployerConsentGiven =
-            !apprenticeship.CareLeaverEmployerConsentGiven;
+            !learningDomainModel.CareLeaverEmployerConsentGiven;
 
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock
-            .Setup(repo => repo.Get(It.IsAny<Guid>()))
-            .ReturnsAsync(apprenticeship);
+        LearningRepositoryMock
+            .Setup(repo => repo.GetApprenticeshipLearning(It.IsAny<Guid>()))
+            .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(repo =>
-                repo.Update(It.Is<Apprenticeship>(a =>
+        LearningRepositoryMock.Verify(repo =>
+                repo.Update(It.Is<ApprenticeshipLearning>(a =>
                     a.HasEHCP == command.Request.Care.HasEHCP &&
                     a.IsCareLeaver == command.Request.Care.IsCareLeaver &&
                     a.CareLeaverEmployerConsentGiven ==

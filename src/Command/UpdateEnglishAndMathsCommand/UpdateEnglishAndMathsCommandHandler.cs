@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -8,46 +8,52 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCo
 public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglishAndMathsCommand>
 {
     private readonly ILogger<UpdateEnglishAndMathsCommandHandler> _logger;
-    private readonly IApprenticeshipRepository _apprenticeshipRepository;
+    private readonly ILearningRepository _learningRepository;
     private readonly ISystemClockService _systemClock;
 
     public UpdateEnglishAndMathsCommandHandler(
         ILogger<UpdateEnglishAndMathsCommandHandler> logger,
-        IApprenticeshipRepository apprenticeshipRepository,
+        ILearningRepository learningRepository,
         ISystemClockService systemClock)
     {
         _logger = logger;
-        _apprenticeshipRepository = apprenticeshipRepository;
+        _learningRepository = learningRepository;
         _systemClock = systemClock;
     }
 
     public async Task Handle(UpdateEnglishAndMathsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for learning {LearningKey}", command.LearningKey);
 
         var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command);
 
-        var apprenticeshipDomainModel = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
+        var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
 
-        apprenticeshipDomainModel.UpdateMathsAndEnglishCourses(englishAndMathsCourses, _systemClock);
+        if (learningDomainModel == null)
+        {
+            _logger.LogError("No learning found for {LearningKey}", command.LearningKey);
+            throw new Exception($"No learning found for {command.LearningKey} when handling {nameof(UpdateEnglishAndMathsCommand)}");
+        }
 
-        await _apprenticeshipRepository.Update(apprenticeshipDomainModel);
+        learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);
 
-        _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        await _learningRepository.Update(learningDomainModel);
+
+        _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.LearningKey);
     }
 
-    private List<MathsAndEnglish> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
+    private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
     {
-        _logger.LogInformation("Building English and Maths details to domain models for apprenticeship {LearningKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Building English and Maths details to domain models for apprenticeship {LearningKey}", command.LearningKey);
         
-        var courses = new List<MathsAndEnglish>();
+        var courses = new List<EnglishAndMaths>();
         foreach (var detail in command.EnglishAndMathsDetails)
         {
-            var course = new MathsAndEnglish(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage, detail.PeriodsInLearning);
+            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.PriorLearningAdjustmentPercentage, detail.PeriodsInLearning);
             courses.Add(course);
         }
 
-        _logger.LogInformation("{CourseCount} English and Maths courses built for apprenticeship {LearningKey}", courses.Count, command.ApprenticeshipKey);
+        _logger.LogInformation("{CourseCount} English and Maths courses built for apprenticeship {LearningKey}", courses.Count, command.LearningKey);
         return courses;
     }
 }

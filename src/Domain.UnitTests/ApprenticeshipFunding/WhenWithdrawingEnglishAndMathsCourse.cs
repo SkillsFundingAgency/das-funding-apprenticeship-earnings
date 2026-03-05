@@ -2,8 +2,10 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -17,11 +19,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenWithdrawingEnglishAndMathsCourse
 {
     private readonly Fixture _fixture = new();
-    private Apprenticeship.Apprenticeship _apprenticeship;
-    private Apprenticeship.ApprenticeshipEpisode _sut;
+    private ApprenticeshipLearning _learning;
+    private ApprenticeshipEpisode _sut;
     private Mock<ISystemClockService> _mockSystemClock;
     private string _courseName = "English Level 2";
-    private List<MathsAndEnglish> _courses;
+    private List<EnglishAndMaths> _courses;
 
     [SetUp]
     public void SetUp()
@@ -33,10 +35,10 @@ public class WhenWithdrawingEnglishAndMathsCourse
         var plannedEndDate = new DateTime(2024, 12, 31);
         var agreedPrice = 12000m;
 
-        _apprenticeship = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
-        _sut = _apprenticeship.ApprenticeshipEpisodes.First();
+        _learning = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _sut = _learning.Episodes.First();
 
-        _sut.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);
+        _sut.CalculateOnProgram(_learning, _mockSystemClock.Object, string.Empty);
 
         _sut.UpdateEnglishAndMaths(CreateTestEnglishAndMathsCourses(), _mockSystemClock.Object);
     }
@@ -136,14 +138,14 @@ public class WhenWithdrawingEnglishAndMathsCourse
         updatedVersion.Should().NotBe(initialVersion);
     }
 
-    private List<MathsAndEnglish> CreateTestEnglishAndMathsCourses(DateTime? withdrawalDate = null)
+    private List<EnglishAndMaths> CreateTestEnglishAndMathsCourses(DateTime? withdrawalDate = null)
     {
         var startDate = new DateTime(2024, 1, 1);
         var endDate = new DateTime(2024, 12, 31);
 
         var periodInLearning = PeriodInLearningHelper.Create(startDate, endDate, endDate);
 
-        var mathsAndEnglishCourse = new MathsAndEnglish(startDate, endDate, _courseName, _courseName, 1200m, withdrawalDate, null, null, null, new List<IPeriodInLearning> { periodInLearning });
-        return new List<MathsAndEnglish> { mathsAndEnglishCourse };
+        var mathsAndEnglishCourse = new EnglishAndMaths(startDate, endDate, _courseName, _courseName, 1200m, withdrawalDate, null, null, null, new List<IPeriodInLearning> { periodInLearning });
+        return new List<EnglishAndMaths> { mathsAndEnglishCourse };
     }
 }

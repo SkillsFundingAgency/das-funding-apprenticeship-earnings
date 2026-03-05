@@ -73,7 +73,7 @@ public class WhenGettingFundingBandMaximum
     {
         var courseCode = GenerateCourseCode();
         var getStandardResponse = _fixture.Create<GetStandardResponse>();
-        var apprenticeshipKey = Guid.NewGuid();
+        var learningKey = Guid.NewGuid();
         var actualStartDate = new DateTime(2021, 01, 01);
         getStandardResponse.ApprenticeshipFunding = _fixture.CreateMany<GetStandardFundingResponse>(2).ToList();
         getStandardResponse.ApprenticeshipFunding[0].EffectiveFrom = new DateTime(2022, 01, 01);

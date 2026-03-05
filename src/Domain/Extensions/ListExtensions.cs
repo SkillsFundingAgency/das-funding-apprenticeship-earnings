@@ -56,7 +56,7 @@ internal static class ListExtensions
         return list
                 .Select(x =>
                 {
-                    var model = x.GetModel();
+                    var model = x.GetEntity();
                     modify?.Invoke(model);
                     return model;
                 })

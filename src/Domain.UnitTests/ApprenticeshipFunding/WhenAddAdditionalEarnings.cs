@@ -2,7 +2,8 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 using System;
@@ -55,7 +56,7 @@ public class WhenAddAdditionalEarnings
         sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
-        sut.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(2);
+        sut.Episodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(2);
     }
 
     [Test]
@@ -77,7 +78,7 @@ public class WhenAddAdditionalEarnings
         sut.AddAdditionalEarnings(additionalPayments, InstalmentTypes.LearningSupport, _mockSystemClockService.Object);
 
         // Assert
-        sut.ApprenticeshipEpisodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(6);
+        sut.Episodes.First().EarningsProfile.AdditionalPayments.Count.Should().Be(6);
     }
 
     [Test]
@@ -99,9 +100,9 @@ public class WhenAddAdditionalEarnings
         events.Any(x => x is Types.EarningsProfileUpdatedEvent).Should().BeTrue();
     }
 
-    private Apprenticeship.Apprenticeship CreateApprenticeship(byte apprenticeAge)
+    private ApprenticeshipLearning CreateApprenticeship(byte apprenticeAge)
     {
-        var sut = _fixture.CreateApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice, age: apprenticeAge);
+        var sut = _fixture.CreateLearningWithApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice, age: apprenticeAge);
         sut.Calculate(_mockSystemClockService.Object, string.Empty);
         return sut;
     }

@@ -1,21 +1,21 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class EnglishAndMathsPayments
 {
-    public static List<MathsAndEnglishInstalmentModel> GenerateInstalments(MathsAndEnglish mathsAndEnglish)
+    public static List<EnglishAndMathsInstalmentEntity> GenerateInstalments(EnglishAndMaths englishAndMaths)
     {
-        if (IsInvalidCourse(mathsAndEnglish))
+        if (IsInvalidCourse(englishAndMaths))
             return [];
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
-        if (IsSingleMonthCourse(mathsAndEnglish))
-            return [CreateInstalment(mathsAndEnglish.Key, mathsAndEnglish.EndDate, mathsAndEnglish.Amount)];
+        if (IsSingleMonthCourse(englishAndMaths))
+            return [CreateInstalment(englishAndMaths.Key, englishAndMaths.EndDate, englishAndMaths.Amount)];
 
-        var context = BuildCalculationContext(mathsAndEnglish);
+        var context = BuildCalculationContext(englishAndMaths);
 
         GenerateMonthlyInstalments(context);
         ApplyEarlyCompletionAdjustment(context);
@@ -25,17 +25,17 @@ public static class EnglishAndMathsPayments
         return context.Instalments;
     }
 
-    private static bool IsInvalidCourse(MathsAndEnglish mathsAndEnglish)
+    private static bool IsInvalidCourse(EnglishAndMaths mathsAndEnglish)
     {
         return mathsAndEnglish.StartDate > mathsAndEnglish.EndDate;
     }
 
-    private static bool IsSingleMonthCourse(MathsAndEnglish mathsAndEnglish)
+    private static bool IsSingleMonthCourse(EnglishAndMaths mathsAndEnglish)
     {
         return mathsAndEnglish.StartDate.Month == mathsAndEnglish.EndDate.Month && mathsAndEnglish.StartDate.Year == mathsAndEnglish.EndDate.Year;
     }
 
-    private static InstalmentCalculationContext BuildCalculationContext(MathsAndEnglish mathsAndEnglish)
+    private static InstalmentCalculationContext BuildCalculationContext(EnglishAndMaths mathsAndEnglish)
     {
         var lastCensusDate = mathsAndEnglish.EndDate.LastCensusDate();
         var paymentDate = mathsAndEnglish.StartDate.LastDayOfMonth();
@@ -97,7 +97,7 @@ public static class EnglishAndMathsPayments
                 mathsAndEnglish.Key,
                 mathsAndEnglish.CompletionDate.Value.LastDayOfMonth(),
                 context.AmountOutStanding,
-                MathsAndEnglishInstalmentType.Balancing));
+                EnglishAndMathsInstalmentType.Balancing));
     }
 
     private static void ApplyWithdrawalRules(InstalmentCalculationContext context)
@@ -144,7 +144,7 @@ public static class EnglishAndMathsPayments
     }
 
     private static void DeleteAfterDate(
-        List<MathsAndEnglishInstalmentModel> instalments,
+        List<EnglishAndMathsInstalmentEntity> instalments,
         DateTime cutoff,
         DateTime startDate)
     {
@@ -154,7 +154,7 @@ public static class EnglishAndMathsPayments
 
     }
 
-    private static List<MathsAndEnglishInstalmentModel> GetEnglishAndMathsEarningsToKeep(List<MathsAndEnglishInstalmentModel> instalments, DateTime startDate, DateTime? lastDayOfLearning)
+    private static List<EnglishAndMathsInstalmentEntity> GetEnglishAndMathsEarningsToKeep(List<EnglishAndMathsInstalmentEntity> instalments, DateTime startDate, DateTime? lastDayOfLearning)
     {
         if (!lastDayOfLearning.HasValue)
         {
@@ -168,7 +168,7 @@ public static class EnglishAndMathsPayments
 
         return instalments
             .Where(x =>
-                x.Type != MathsAndEnglishInstalmentType.Regular.ToString() //keep non-regular instalments
+                x.Type != EnglishAndMathsInstalmentType.Regular.ToString() //keep non-regular instalments
                 ||
                 (
                     x.AcademicYear < academicYear //keep earnings from previous academic years
@@ -183,9 +183,9 @@ public static class EnglishAndMathsPayments
 
     }
 
-    private static MathsAndEnglishInstalmentModel CreateInstalment(Guid key, DateTime dateTime, decimal amount, MathsAndEnglishInstalmentType instalmentType = MathsAndEnglishInstalmentType.Regular)
+    private static EnglishAndMathsInstalmentEntity CreateInstalment(Guid key, DateTime dateTime, decimal amount, EnglishAndMathsInstalmentType instalmentType = EnglishAndMathsInstalmentType.Regular)
     {
-        return new MathsAndEnglishInstalmentModel(
+        return new EnglishAndMathsInstalmentEntity(
              key,
              dateTime.ToAcademicYear(),
              dateTime.ToDeliveryPeriod(),
@@ -203,8 +203,8 @@ public static class EnglishAndMathsPayments
 
 internal class InstalmentCalculationContext
 {
-    internal List<MathsAndEnglishInstalmentModel> Instalments { get; } = new List<MathsAndEnglishInstalmentModel>();
-    internal MathsAndEnglish MathsAndEnglish { get; private set; }
+    internal List<EnglishAndMathsInstalmentEntity> Instalments { get; } = new List<EnglishAndMathsInstalmentEntity>();
+    internal EnglishAndMaths MathsAndEnglish { get; private set; }
     internal DateTime LastCensusDate { get; private set; }
     internal DateTime FirstPaymentDate { get; private set; }
 
@@ -214,7 +214,7 @@ internal class InstalmentCalculationContext
 
     internal decimal AmountOutStanding => _adjustedCourseAmount - Instalments.Sum(x => x.Amount);
 
-    internal InstalmentCalculationContext(MathsAndEnglish mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
+    internal InstalmentCalculationContext(EnglishAndMaths mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
     {
         MathsAndEnglish = mathsAndEnglish;
         LastCensusDate = lastCensusDate;

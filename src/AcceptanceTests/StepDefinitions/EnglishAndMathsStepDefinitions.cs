@@ -59,9 +59,9 @@ public class EnglishAndMathsStepDefinitions
 
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
 
-        var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses;
+        var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.EnglishAndMathsCourses;
 
         // Check number of instalments per course
         var expectedCourses = data.Select(d => d.Course).Distinct().ToList();
@@ -98,9 +98,9 @@ public class EnglishAndMathsStepDefinitions
     {
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
 
-        var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.MathsAndEnglishCourses.SelectMany(x => x.Instalments);
+        var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.EnglishAndMathsCourses.SelectMany(x => x.Instalments);
 
         mathsAndEnglishInstalmentsInDb.Should().BeEmpty();
     }

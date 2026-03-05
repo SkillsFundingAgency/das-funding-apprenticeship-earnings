@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using System.Text.Json;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEarningsProfileCommand;
 
@@ -15,7 +15,7 @@ public class ArchiveEarningsProfileCommandHandler(IEarningsProfileHistoryReposit
 
         var json = JsonSerializer.Serialize(command.EarningsProfileUpdatedEvent, new JsonSerializerOptions { WriteIndented = true });
 
-        var history = new EarningsProfileHistory
+        var history = new ApprenticeshipEarningsProfileHistoryEntity
         {
             Key = Guid.NewGuid(),
             CreatedOn = DateTime.UtcNow,

@@ -1,55 +1,59 @@
 ﻿using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests;
 
 internal static class TestHelper
 {
-    internal static Apprenticeship BuildApprenticeship(this Fixture fixture)
+    internal static ApprenticeshipLearning BuildLearning(this Fixture fixture)
     {
         var apprenticeshipEntityModel = fixture.BuildLearningModel();
-        return Apprenticeship.Get(apprenticeshipEntityModel);
+        return ApprenticeshipLearning.Get(apprenticeshipEntityModel);
     }
 
-    internal static LearningModel BuildLearningModel(this Fixture fixture)
+    internal static ApprenticeshipLearningEntity BuildLearningModel(this Fixture fixture)
     {
         var priceStartDate = DateTime.UtcNow.AddMonths(-10);
         var priceEndDate = DateTime.UtcNow.AddMonths(10);
 
         var episodeModel = fixture
-            .Build<EpisodeModel>()
-            .With(x => x.PeriodsInLearning, new List<EpisodePeriodInLearningModel>
+            .Build<ApprenticeshipEpisodeEntity>()
+            .With(x => x.PeriodsInLearning, new List<ApprenticeshipPeriodInLearningEntity>
             {
-                fixture.Build<EpisodePeriodInLearningModel>()
+                fixture.Build<ApprenticeshipPeriodInLearningEntity>()
                     .With(x => x.StartDate, priceStartDate)
                     .With(x => x.EndDate, priceEndDate)
                     .With(x => x.OriginalExpectedEndDate, priceEndDate)
                     .Create()
             })
             .With(x=> x.FundingBandMaximum, int.MaxValue)
-            .With(x => x.Prices, new List<EpisodePriceModel>{ fixture.Build<EpisodePriceModel>()
+            .With(x => x.Prices, new List<ApprenticeshipEpisodePriceEntity>{ fixture.Build<ApprenticeshipEpisodePriceEntity>()
                 .With(x => x.StartDate, priceStartDate)
                 .With(x => x.EndDate, priceEndDate)
                 .Create() })
             .With(x => x.EarningsProfile, fixture
-                .Build<EarningsProfileModel>()
-                .With(x => x.Instalments, new List<InstalmentModel>())
-                .With(x => x.AdditionalPayments, new List<AdditionalPaymentModel>())
-                .With(x => x.MathsAndEnglishCourses, new List<MathsAndEnglishModel>())
+                .Build<ApprenticeshipEarningsProfileEntity>()
+                .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
+                .With(x => x.ApprenticeshipAdditionalPayments, new List<ApprenticeshipAdditionalPaymentEntity>())
+                .With(x => x.EnglishAndMathsCourses, new List<EnglishAndMathsEntity>())
                 .Create())
             .Create();
         var learningEntityModel = fixture
-            .Build<LearningModel>()
-            .With(x => x.Episodes, new List<EpisodeModel> { episodeModel })
+            .Build<ApprenticeshipLearningEntity>()
+            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeModel })
             .Create();
 
         return learningEntityModel;
     }
 
-    internal static List<MathsAndEnglish> BuildMathsAndEnglishCourses(this Fixture fixture)
+    internal static List<EnglishAndMaths> BuildMathsAndEnglishCourses(this Fixture fixture)
     {
-        var courses = new List<MathsAndEnglish>
+        var courses = new List<EnglishAndMaths>
         {
             fixture.BuildMathsAndEnglish()
         };
@@ -57,15 +61,15 @@ internal static class TestHelper
         return courses;
     }
 
-    internal static MathsAndEnglish BuildMathsAndEnglish(this Fixture fixture)
+    internal static EnglishAndMaths BuildMathsAndEnglish(this Fixture fixture)
     {
         var model = fixture.BuildMathsAndEnglishModel();
-        return MathsAndEnglish.Get(model);
+        return EnglishAndMaths.Get(model);
     }
 
-    internal static MathsAndEnglishModel BuildMathsAndEnglishModel(this Fixture fixture)
+    internal static EnglishAndMathsEntity BuildMathsAndEnglishModel(this Fixture fixture)
     {
-        return fixture.Build<MathsAndEnglishModel>()
+        return fixture.Build<EnglishAndMathsEntity>()
             .Create();
     }
 }

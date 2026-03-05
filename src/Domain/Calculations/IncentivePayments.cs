@@ -1,12 +1,12 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class IncentivePayments
 {
-    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, List<EpisodePeriodInLearning> periodsInLearning)
+    public static List<IncentivePayment> GenerateIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, List<ApprenticeshipPeriodInLearning> periodsInLearning)
     {
         var incentivePayments = new List<IncentivePayment>();
         incentivePayments.AddRange(GenerateUnder19sIncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, periodsInLearning));
@@ -14,7 +14,7 @@ public static class IncentivePayments
         return incentivePayments;
     }
 
-    public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, List<EpisodePeriodInLearning> periodsInLearning)
+    public static List<IncentivePayment> GenerateUnder19sIncentivePayments(int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime apprenticeshipEndDate, List<ApprenticeshipPeriodInLearning> periodsInLearning)
     {
         var incentivePayments = new List<IncentivePayment>();
 
@@ -46,7 +46,7 @@ public static class IncentivePayments
         bool hasEHCP,
         bool isCareLeaver,
         bool careLeaverEmployerConsentGiven,
-        List<EpisodePeriodInLearning> periodsInLearning)
+        List<ApprenticeshipPeriodInLearning> periodsInLearning)
     {
         var incentivePayments = new List<IncentivePayment>();
 
@@ -83,7 +83,7 @@ public static class IncentivePayments
         return incentivePayments;
     }
 
-    private static bool IsEligibleForIncentive(DateTime startDate, DateTime endDate, int milestoneDays, List<EpisodePeriodInLearning> periodsInLearning)
+    private static bool IsEligibleForIncentive(DateTime startDate, DateTime endDate, int milestoneDays, List<ApprenticeshipPeriodInLearning> periodsInLearning)
     {
         var adjustedDate = AdjustForBreaks(startDate, milestoneDays, periodsInLearning);
         return adjustedDate <= endDate;
@@ -101,7 +101,7 @@ public static class IncentivePayments
         });
     }
 
-    private static DateTime AdjustForBreaks(DateTime startDate, int milestoneDays, List<EpisodePeriodInLearning> periodsInLearning)
+    private static DateTime AdjustForBreaks(DateTime startDate, int milestoneDays, List<ApprenticeshipPeriodInLearning> periodsInLearning)
     {
         var incentiveDate = startDate.AddDays(milestoneDays);
 

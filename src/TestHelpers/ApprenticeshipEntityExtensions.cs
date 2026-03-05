@@ -1,11 +1,12 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 
 public static class ApprenticeshipEntityExtensions
 {
-    public static EpisodeModel GetCurrentEpisode(this LearningModel apprenticeship, ISystemClockService systemClock)
+    public static ApprenticeshipEpisodeEntity GetCurrentEpisode(this ApprenticeshipLearningEntity apprenticeship, ISystemClockService systemClock)
     {
         var episode = apprenticeship.Episodes.Find(x => x.Prices.Exists(price => price.StartDate <= systemClock.UtcNow && price.EndDate >= systemClock.UtcNow));
 

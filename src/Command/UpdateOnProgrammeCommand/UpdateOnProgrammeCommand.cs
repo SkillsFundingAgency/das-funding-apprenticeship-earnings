@@ -2,12 +2,12 @@
 
 public class UpdateOnProgrammeCommand : ICommand
 {
-    public Guid ApprenticeshipKey { get; internal set; }
+    public Guid LearningKey { get; internal set; }
     public UpdateOnProgrammeRequest Request { get; set; }
 
-    public UpdateOnProgrammeCommand(Guid apprenticeshipKey, UpdateOnProgrammeRequest request)
+    public UpdateOnProgrammeCommand(Guid learningKey, UpdateOnProgrammeRequest request)
     {
-        ApprenticeshipKey = apprenticeshipKey;
+        LearningKey = learningKey;
         Request = request;
     }
 }

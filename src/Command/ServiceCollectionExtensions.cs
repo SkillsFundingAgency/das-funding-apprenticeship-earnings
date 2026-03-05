@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCommandDependencies(this IServiceCollection serviceCollection)
     {
         serviceCollection
-            .AddScoped<IApprenticeshipFactory, ApprenticeshipFactory>()
+            .AddScoped<ILearningFactory, LearningFactory>()
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
             .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>()
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddPersistenceServices(this IServiceCollection serviceCollection)
     {
 
-        serviceCollection.AddScoped<IApprenticeshipRepository, ApprenticeshipRepository>();
+        serviceCollection.AddScoped<ILearningRepository, LearningRepository>();
         serviceCollection.AddScoped<IEarningsQueryRepository, EarningsQueryRepository>();
         serviceCollection.AddScoped<IEarningsProfileHistoryRepository, EarningsProfileHistoryRepository>();
         return serviceCollection;

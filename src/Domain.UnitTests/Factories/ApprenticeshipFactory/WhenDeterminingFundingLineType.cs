@@ -12,36 +12,36 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
     public class WhenDeterminingFundingLineType
     {
         private Fixture _fixture;
-        private Domain.Factories.ApprenticeshipFactory _factory;
+        private Domain.Factories.LearningFactory _factory;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _factory = new Domain.Factories.ApprenticeshipFactory();
+            _factory = new Domain.Factories.LearningFactory();
         }
 
         [Test]
         public void ThenTheFundingLineTypeIsCorrectWhenApprenticeUnder19()
         {
-            var apprenticeship = _fixture.CreateApprenticeship(age: 18);
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
+            var apprenticeship = _fixture.CreateLearning(age: 18);
+            apprenticeship.Episodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
         }
 
         [Test]
         public void ThenTheFundingLineTypeIsCorrectWhenApprenticeIs19()
         {
-            var apprenticeship = _fixture.CreateApprenticeship(age: 19);
+            var apprenticeship = _fixture.CreateLearning(age: 19);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.Episodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
 
         [Test]
         public void ThenTheFundingLineTypeIsCorrectWhenApprenticeIsOver19()
         {
-            var apprenticeship = _fixture.CreateApprenticeship(age: 20);
+            var apprenticeship = _fixture.CreateLearning(age: 20);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.Episodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
     }
 }

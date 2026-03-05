@@ -80,6 +80,7 @@ public class LearningCreatedEventBuilder
     {
         _prices = models.Select(x => new LearningEpisodePrice
         {
+            Key = Guid.NewGuid(),
             TotalPrice = x.Price,
             StartDate = x.StartDate,
             EndDate = x.EndDate,

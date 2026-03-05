@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Learning.Types;
 
@@ -8,7 +9,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
 public static class IncentivesAssertionHelper
 {
-    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, UpdateOnProgrammeRequest updateOnProgrammeRequest, LearningModel apprenticeshipModel)
+    public static void AssertIncentivePayment(string type, bool second, bool expectedPayment, UpdateOnProgrammeRequest updateOnProgrammeRequest, ApprenticeshipLearningEntity apprenticeshipModel)
     {
         var currentEpisode = apprenticeshipModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
@@ -19,13 +20,13 @@ public static class IncentivesAssertionHelper
             : startDate.AddDays(89).ToAcademicYearAndPeriod();
 
         if (expectedPayment)
-            currentEpisode.EarningsProfile.AdditionalPayments.Should().Contain(x =>
+            currentEpisode.EarningsProfile.ApprenticeshipAdditionalPayments.Should().Contain(x =>
                 x.AcademicYear == expectedPeriod.AcademicYear
                 && x.DeliveryPeriod == expectedPeriod.Period
                 && x.AdditionalPaymentType == type
                 && x.Amount == 500);
         else
-            currentEpisode.EarningsProfile.AdditionalPayments.Should().NotContain(x =>
+            currentEpisode.EarningsProfile.ApprenticeshipAdditionalPayments.Should().NotContain(x =>
                 x.AcademicYear == expectedPeriod.AcademicYear
                 && x.DeliveryPeriod == expectedPeriod.Period
                 && x.AdditionalPaymentType == type

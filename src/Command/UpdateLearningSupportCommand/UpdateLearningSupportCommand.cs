@@ -4,12 +4,12 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCo
 
 public class UpdateLearningSupportCommand : ICommand
 {
-    public UpdateLearningSupportCommand(Guid apprenticeshipKey, UpdateLearningSupportRequest updateLearningSupportRequest)
+    public UpdateLearningSupportCommand(Guid learningKey, UpdateLearningSupportRequest updateLearningSupportRequest)
     {
-        ApprenticeshipKey = apprenticeshipKey;
+        LearningKey = learningKey;
         LearningSupportPayments = updateLearningSupportRequest.LearningSupport;
     }
 
-    public Guid ApprenticeshipKey { get; }
+    public Guid LearningKey { get; }
     public List<LearningSupportItem> LearningSupportPayments { get; set; } = new List<LearningSupportItem>();
 }

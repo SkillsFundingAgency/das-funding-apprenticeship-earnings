@@ -1,12 +1,13 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class OnProgramPayments
 {
-    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(List<(EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices)> periodsInLearningWithPrices, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
+    public static List<OnProgramPayment> GenerateEarningsForEpisodePrices(List<(ApprenticeshipPeriodInLearning periodInLearning, List<PriceInPeriod> prices)> periodsInLearningWithPrices, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
     {
         var onProgramPayments = new List<OnProgramPayment>();
         var runningTotal = 0m;
@@ -25,9 +26,9 @@ public static class OnProgramPayments
         return onProgramPayments;
     }
 
-    public static List<Instalment> RemoveAfterLastDayOfLearning(List<Instalment> instalments, List<Price> prices, DateTime lastDayOfLearning)
+    public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, List<ApprenticeshipPrice> prices, DateTime lastDayOfLearning)
     {
-        List<Instalment> result;
+        List<ApprenticeshipInstalment> result;
 
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
@@ -55,7 +56,7 @@ public static class OnProgramPayments
         return instalments;
     }
 
-    private static List<OnProgramPayment> GenerateForLearningPeriod((EpisodePeriodInLearning periodInLearning, List<PriceInPeriod> prices) periodInLearningWithPrices, decimal paidInPreviousPeriods, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
+    private static List<OnProgramPayment> GenerateForLearningPeriod((ApprenticeshipPeriodInLearning periodInLearning, List<PriceInPeriod> prices) periodInLearningWithPrices, decimal paidInPreviousPeriods, decimal fundingBandMaximum, out decimal onProgramTotal, out decimal completionPayment)
     {
         var onProgramPayments = new List<OnProgramPayment>();
         onProgramTotal = 0;

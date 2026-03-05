@@ -3,7 +3,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -17,7 +20,7 @@ public class WhenUpdatingEnglishAndMaths
     private readonly Fixture _fixture = new();
     private readonly Mock<ILogger<UpdateEnglishAndMathsCommandHandler>> _mockLogger = new();
     private readonly Mock<ISystemClockService> _mockSystemClock = new();
-    private readonly Mock<IApprenticeshipRepository> _mockRepository = new();
+    private readonly Mock<ILearningRepository> _mockRepository = new();
 
     private void SetupMocks()
     {
@@ -31,15 +34,15 @@ public class WhenUpdatingEnglishAndMaths
     public async Task ThenTheMathsAndEnglishCourseIsAdded()
     {
         // Arrange
-        var apprenticeship = BuildApprenticeship();
+        var learningDomainModel = BuildLearning();
 
         SetupMocks();
 
-        var command = BuildCommand(apprenticeship);
+        var command = BuildCommand(learningDomainModel);
 
         _mockRepository
-            .Setup(x => x.Get(command.ApprenticeshipKey))
-            .ReturnsAsync(apprenticeship);
+            .Setup(x => x.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
 
         var sut = new UpdateEnglishAndMathsCommandHandler(
             _mockLogger.Object,
@@ -51,21 +54,21 @@ public class WhenUpdatingEnglishAndMaths
         await sut.Handle(command);
 
         // Assert
-        _mockRepository.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        _mockRepository.Verify(x => x.Update(It.IsAny<Apprenticeship>()), Times.Once);
+        _mockRepository.Verify(x => x.GetApprenticeshipLearning(command.LearningKey), Times.Once);
+        _mockRepository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Once);
     }
 
-    private Apprenticeship BuildApprenticeship()
+    private ApprenticeshipLearning BuildLearning()
     {
-        var learningModel = _fixture.Create<LearningModel>();
-        learningModel.Episodes = [new EpisodeModel(learningModel.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new EarningsProfileModel
+        var learningEntity = _fixture.Create<ApprenticeshipLearningEntity>();
+        learningEntity.Episodes = [new ApprenticeshipEpisodeEntity(learningEntity.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new ApprenticeshipEarningsProfileEntity
         {
-            MathsAndEnglishCourses = new List<MathsAndEnglishModel>()
+            EnglishAndMathsCourses = new List<EnglishAndMathsEntity>()
         }}];
-        return Apprenticeship.Get(learningModel);
+        return ApprenticeshipLearning.Get(learningEntity);
     }
 
-    private UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand BuildCommand(Apprenticeship apprenticeship)
+    private UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand BuildCommand(ApprenticeshipLearning apprenticeship)
     {
         var request = new UpdateEnglishAndMathsRequest
         {
@@ -83,6 +86,6 @@ public class WhenUpdatingEnglishAndMaths
 
         };
 
-        return new UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand(apprenticeship.ApprenticeshipKey, request);
+        return new UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand(apprenticeship.LearningKey, request);
     }
 }

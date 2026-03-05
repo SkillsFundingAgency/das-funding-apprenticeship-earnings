@@ -1,47 +1,47 @@
-﻿using System.Text.Json;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Learning.Types;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
-    public class CreateApprenticeshipCommandHandler : ICommandHandler<CreateApprenticeshipCommand, Apprenticeship>
+    public class CreateApprenticeshipCommandHandler : ICommandHandler<CreateApprenticeshipCommand, ApprenticeshipLearning>
     {
-        private readonly IApprenticeshipFactory _apprenticeshipFactory;
-        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly ILearningFactory _learningFactory;
+        private readonly ILearningRepository _learningRepository;
         private readonly IMessageSession _messageSession;
         private readonly IEarningsGeneratedEventBuilder _earningsGeneratedEventBuilder; 
         private readonly ISystemClockService _systemClock;
         private readonly IFundingBandMaximumService _fundingBandMaximumService;
 
         public CreateApprenticeshipCommandHandler(
-            IApprenticeshipFactory apprenticeshipFactory, 
-            IApprenticeshipRepository apprenticeshipRepository, 
+            ILearningFactory learningFactory, 
+            ILearningRepository learningRepository, 
             IMessageSession messageSession,
             IEarningsGeneratedEventBuilder earningsGeneratedEventBuilder, 
             ISystemClockService systemClock,
             IFundingBandMaximumService fundingBandMaximumService
             )
         {
-            _apprenticeshipFactory = apprenticeshipFactory;
-            _apprenticeshipRepository = apprenticeshipRepository;
+            _learningFactory = learningFactory;
+            _learningRepository = learningRepository;
             _messageSession = messageSession;
             _earningsGeneratedEventBuilder = earningsGeneratedEventBuilder;
             _systemClock = systemClock;
             _fundingBandMaximumService = fundingBandMaximumService;
         }
 
-        public async Task<Apprenticeship> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
+        public async Task<ApprenticeshipLearning> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
         {
             var fundingBandMaximum = await GetFundingBandMaximum(command.LearningCreatedEvent);
-            var apprenticeship = _apprenticeshipFactory.CreateNew(command.LearningCreatedEvent, fundingBandMaximum);
-            apprenticeship.Calculate(_systemClock, JsonSerializer.Serialize(command.LearningCreatedEvent));
-            await _apprenticeshipRepository.Add(apprenticeship);
-            await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(apprenticeship));
-            return apprenticeship;
+            var learning = _learningFactory.CreateNew(command.LearningCreatedEvent, fundingBandMaximum);
+            learning.Calculate(_systemClock, JsonSerializer.Serialize(command.LearningCreatedEvent));
+            await _learningRepository.Add(learning);
+            await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(learning));
+            return learning;
         }
 
         private async Task<int> GetFundingBandMaximum(LearningCreatedEvent learningCreatedEvent)

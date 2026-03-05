@@ -1,7 +1,8 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -16,18 +17,18 @@ public class WhenSaveDateOfBirth : BaseUpdateCommandHandlerTests
     public async Task Handle_ShouldUpdateApprenticeship_WhenCalled()
     {
         // Arrange
-        var apprenticeship = Fixture.BuildApprenticeship();
-        var command = BuildCommand(apprenticeship);
-        command.Request.DateOfBirth = apprenticeship.DateOfBirth.AddYears(-1);
+        var learningDomainModel = Fixture.BuildLearning();
+        var command = BuildCommand(learningDomainModel);
+        command.Request.DateOfBirth = learningDomainModel.DateOfBirth.AddYears(-1);
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        ApprenticeshipRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(apprenticeship);
+        LearningRepositoryMock.Setup(repo => repo.GetApprenticeshipLearning(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        ApprenticeshipRepositoryMock.Verify(repo => repo.Update(It.Is<Apprenticeship>(a =>
+        LearningRepositoryMock.Verify(repo => repo.Update(It.Is<ApprenticeshipLearning>(a =>
             a.DateOfBirth == command.Request.DateOfBirth
         )), Times.Once);
     }

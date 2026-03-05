@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
 
@@ -12,17 +12,17 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
 {
     private readonly ILogger<CreateUnapprovedShortCourseLearningCommandHandler> _logger;
     private readonly ISystemClockService _systemClockService;
-    private IApprenticeshipFactory _apprenticeshipFactory;
-    private IApprenticeshipRepository _apprenticeshipRepository;
+    private ILearningFactory _learningFactory;
+    private ILearningRepository _learningRepository;
 
     public CreateUnapprovedShortCourseLearningCommandHandler(
         ILogger<CreateUnapprovedShortCourseLearningCommandHandler> logger,
-        ISystemClockService systemClockService, IApprenticeshipFactory apprenticeshipFactory, IApprenticeshipRepository apprenticeshipRepository)
+        ISystemClockService systemClockService, ILearningFactory learningFactory, ILearningRepository learningRepository)
     {
         _logger = logger;
         _systemClockService = systemClockService;
-        _apprenticeshipFactory = apprenticeshipFactory;
-        _apprenticeshipRepository = apprenticeshipRepository;
+        _learningFactory = learningFactory;
+        _learningRepository = learningRepository;
     }
 
     public async Task Handle(
@@ -33,7 +33,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
             "Handling CreateUnapprovedShortCourseLearningCommand for learning {LearningKey}",
             command.Request.LearningKey);
 
-        var existingShortCourse = await _apprenticeshipRepository.Get(command.Request.LearningKey);
+        var existingShortCourse = await _learningRepository.GetShortCourseLearning(command.Request.LearningKey);
 
         if (existingShortCourse != null)
         {
@@ -51,17 +51,17 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 WithdrawalDate = command.Request.OnProgramme.WithdrawalDate
             });
 
-            existingShortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            existingShortCourse.Episodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
-            await _apprenticeshipRepository.Update(existingShortCourse);
+            await _learningRepository.Update(existingShortCourse);
         }
         else
         {
-            var shortCourse = _apprenticeshipFactory.CreateNewShortCourse(command.Request);
+            var shortCourse = _learningFactory.CreateNewShortCourse(command.Request);
 
-            shortCourse.ApprenticeshipEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            shortCourse.Episodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
-            await _apprenticeshipRepository.Add(shortCourse);
+            await _learningRepository.Add(shortCourse);
         }
 
         _logger.LogInformation(
