@@ -16,15 +16,15 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         UpdateAgeAtStart(dateOfBirth);
     }
 
-    internal static ShortCourseEpisode Get(Learning learning, ShortCourseEpisodeEntity entity)
+    internal static ShortCourseEpisode Get(ShortCourseLearning learning, ShortCourseEpisodeEntity entity)
     {
         var episode = new ShortCourseEpisode(entity, learning.DateOfBirth, learning.AddChildToRoot);
         return episode;
     }
 
-    public void CalculateShortCourseOnProgram(Learning learning, ISystemClockService systemClock, bool isApproved, string calculationData)
+    public void CalculateShortCourseOnProgram(ShortCourseLearning learning, ISystemClockService systemClock, bool isApproved, string calculationData)
     {
-        var currentEpisode = learning.ShortCourseEpisodes.Single();
+        var currentEpisode = learning.Episodes.Single();
 
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             CoursePrice,

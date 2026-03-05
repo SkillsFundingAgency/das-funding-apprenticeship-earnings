@@ -5,6 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsComman
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -50,13 +51,13 @@ public class WhenUpdatingEnglishAndMaths
 
         var command = new UpdateEnglishAndMathsCommand.UpdateEnglishAndMathsCommand(learningKey, mathsAndEnglishList);
 
-        var learningEntity = _fixture.Create<LearningEntity>();
-        learningEntity.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity> { _fixture.Create<ApprenticeshipEpisodeEntity>() };
+        var learningEntity = _fixture.Create<ApprenticeshipLearningEntity>();
+        learningEntity.Episodes = new List<ApprenticeshipEpisodeEntity> { _fixture.Create<ApprenticeshipEpisodeEntity>() };
 
-        var learningDomainModel = Domain.Models.Learning.Get(learningEntity);
+        var learningDomainModel = ApprenticeshipLearning.Get(learningEntity);
 
         _mockRepository
-            .Setup(repo => repo.Get(learningKey))
+            .Setup(repo => repo.GetApprenticeshipLearning(learningKey))
             .ReturnsAsync(learningDomainModel);
 
         // Act

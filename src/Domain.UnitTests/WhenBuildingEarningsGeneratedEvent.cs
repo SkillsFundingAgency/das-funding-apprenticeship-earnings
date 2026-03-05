@@ -1,16 +1,17 @@
-using System;
-using System.Linq;
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Learning.Types;
-using Moq;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
+using System;
+using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests;
 
@@ -19,7 +20,7 @@ public class WhenBuildingEarningsGeneratedEvent
     private EarningsGeneratedEventBuilder _sut;
     private EarningsGeneratedEvent _result;
     private Fixture _fixture;
-    private Models.Learning _learningDomainModel;
+    private ApprenticeshipLearning _learningDomainModel;
     private Mock<ISystemClockService> _mockSystemClock;
 
     [SetUp]
@@ -44,7 +45,7 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_learningKey_Correctly()
     {
-        _result.ApprenticeshipKey.Should().Be(_learningDomainModel.ApprenticeshipKey);
+        _result.ApprenticeshipKey.Should().Be(_learningDomainModel.LearningKey);
     }
 
     [Test]
@@ -56,37 +57,37 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerId_Correctly()
     {
-        _result.EmployerId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().EmployerAccountId);
+        _result.EmployerId.Should().Be(_learningDomainModel.Episodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_ProviderId_Correctly()
     {
-        _result.ProviderId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().UKPRN);
+        _result.ProviderId.Should().Be(_learningDomainModel.Episodes.Single().UKPRN);
     }
 
     [Test]
     public void ShouldPopulateThe_TransferSenderEmployerId_Correctly()
     {
-        _result.TransferSenderEmployerId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().FundingEmployerAccountId);
+        _result.TransferSenderEmployerId.Should().Be(_learningDomainModel.Episodes.Single().FundingEmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_AgreedPrice_Correctly()
     {
-        _result.AgreedPrice.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice);
+        _result.AgreedPrice.Should().Be(_learningDomainModel.Episodes.Single().Prices.Single().AgreedPrice);
     }
 
     [Test]
     public void ShouldPopulateThe_StartDate_Correctly()
     {
-        _result.StartDate.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().Prices.Single().StartDate);
+        _result.StartDate.Should().Be(_learningDomainModel.Episodes.Single().Prices.Single().StartDate);
     }
 
     [Test]
     public void ShouldPopulateThe_TrainingCode_Correctly()
     {
-        _result.TrainingCode.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().TrainingCode);
+        _result.TrainingCode.Should().Be(_learningDomainModel.Episodes.Single().TrainingCode);
     }
 
     [Test]
@@ -178,13 +179,13 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerAccountId_Correctly()
     {
-        _result.EmployerAccountId.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().EmployerAccountId);
+        _result.EmployerAccountId.Should().Be(_learningDomainModel.Episodes.Single().EmployerAccountId);
     }
 
     [Test]
     public void ShouldPopulateThe_PlannedEndDate_Correctly()
     {
-        _result.PlannedEndDate.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().Prices.Single().EndDate);
+        _result.PlannedEndDate.Should().Be(_learningDomainModel.Episodes.Single().Prices.Single().EndDate);
     }
 
     [Test]
@@ -196,6 +197,6 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_ageAtStartOfLearning_Correctly()
     {
-        _result.AgeAtStartOfLearning.Should().Be(_learningDomainModel.ApprenticeshipEpisodes.Single().AgeAtStartOfApprenticeship);
+        _result.AgeAtStartOfLearning.Should().Be(_learningDomainModel.Episodes.Single().AgeAtStartOfApprenticeship);
     }
 }

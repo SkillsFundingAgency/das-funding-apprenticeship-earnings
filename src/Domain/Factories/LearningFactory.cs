@@ -1,41 +1,47 @@
-﻿using SFA.DAS.Learning.Types;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using FundingType = SFA.DAS.Learning.Types.FundingType;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
+using FundingType = SFA.DAS.Learning.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
 public class LearningFactory : ILearningFactory
 {
-    public Models.Learning CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
+    public ApprenticeshipLearning CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
     {
-        var model = new LearningEntity
+        var model = new ApprenticeshipLearningEntity
         {
             ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
             LearningKey = learningCreatedEvent.LearningKey,
             Uln = learningCreatedEvent.Uln,
-            ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity> { new ApprenticeshipEpisodeEntity(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum, null) },
+            Episodes = new List<ApprenticeshipEpisodeEntity> { new ApprenticeshipEpisodeEntity(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum, null) },
             DateOfBirth = learningCreatedEvent.DateOfBirth
         };
 
-        return Models.Learning.Get(model);
+        return ApprenticeshipLearning.Get(model);
     }
 
-    public Models.Learning GetExisting(LearningEntity model)
+    public ApprenticeshipLearning GetExistingApprenticeship(ApprenticeshipLearningEntity model)
     {
-        return Models.Learning.Get(model);
+        return ApprenticeshipLearning.Get(model);
     }
 
-    public Models.Learning CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest)
+    public ShortCourseLearning GetExistingShortCourse(ShortCourseLearningEntity model)
     {
-        var model = new LearningEntity
+        return ShortCourseLearning.Get(model);
+    }
+
+    public ShortCourseLearning CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest)
+    {
+        var model = new DataAccess.Entities.ShortCourse.ShortCourseLearningEntity
         {
             LearningKey = commandRequest.LearningKey,
             DateOfBirth = commandRequest.Learner.DateOfBirth,
             Uln = commandRequest.Learner.Uln,
-            ShortCourseEpisodes = new List<ShortCourseEpisodeEntity> {  new ShortCourseEpisodeEntity
+            Episodes = new List<ShortCourseEpisodeEntity> {  new ShortCourseEpisodeEntity
             {
                 Key = Guid.NewGuid(),
                 LearningKey = commandRequest.LearningKey,
@@ -53,6 +59,6 @@ public class LearningFactory : ILearningFactory
             } },
         };
 
-        return Models.Learning.Get(model);
+        return ShortCourseLearning.Get(model);
     }
 }

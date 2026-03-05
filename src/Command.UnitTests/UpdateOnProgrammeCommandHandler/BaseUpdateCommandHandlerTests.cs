@@ -36,9 +36,9 @@ public abstract class BaseUpdateCommandHandlerTests
         return handler;
     }
 
-    internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(Domain.Models.Learning learningDomainModel, int fundingBand = 0)
+    internal static UpdateOnProgrammeCommand.UpdateOnProgrammeCommand BuildCommand(ApprenticeshipLearning learningDomainModel, int fundingBand = 0)
     {
-        var episode = learningDomainModel.ApprenticeshipEpisodes.Single();
+        var episode = learningDomainModel.Episodes.Single();
 
         var request = new UpdateOnProgrammeCommand.UpdateOnProgrammeRequest
         {
@@ -54,7 +54,7 @@ public abstract class BaseUpdateCommandHandlerTests
                 HasEHCP = learningDomainModel.HasEHCP,
                 IsCareLeaver = learningDomainModel.IsCareLeaver
             },
-            PeriodsInLearning = learningDomainModel.ApprenticeshipEpisodes.SelectMany(e => e.EpisodePeriodsInLearning).Select(p => new PeriodInLearningItem
+            PeriodsInLearning = learningDomainModel.Episodes.SelectMany(e => e.EpisodePeriodsInLearning).Select(p => new PeriodInLearningItem
             {
                 StartDate = p.StartDate,
                 EndDate = p.EndDate,
@@ -68,7 +68,7 @@ public abstract class BaseUpdateCommandHandlerTests
             request.IncludesFundingBandMaximumUpdate = true;
         }
 
-        var command = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommand(learningDomainModel.ApprenticeshipKey, request);
+        var command = new UpdateOnProgrammeCommand.UpdateOnProgrammeCommand(learningDomainModel.LearningKey, request);
 
         return command;
     }

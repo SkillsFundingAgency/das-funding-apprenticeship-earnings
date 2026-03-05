@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -21,13 +22,13 @@ public class WhenSaveDateOfBirth : BaseUpdateCommandHandlerTests
         command.Request.DateOfBirth = learningDomainModel.DateOfBirth.AddYears(-1);
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        LearningRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
+        LearningRepositoryMock.Setup(repo => repo.GetApprenticeshipLearning(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        LearningRepositoryMock.Verify(repo => repo.Update(It.Is<Domain.Models.Learning>(a =>
+        LearningRepositoryMock.Verify(repo => repo.Update(It.Is<ApprenticeshipLearning>(a =>
             a.DateOfBirth == command.Request.DateOfBirth
         )), Times.Once);
     }

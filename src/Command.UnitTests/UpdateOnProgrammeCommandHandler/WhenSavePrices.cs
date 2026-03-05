@@ -24,14 +24,14 @@ public class WhenSavePrices : BaseUpdateCommandHandlerTests
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         LearningRepositoryMock
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
             .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        LearningRepositoryMock.Verify(repo => repo.Get(command.ApprenticeshipKey), Times.Once);
+        LearningRepositoryMock.Verify(repo => repo.GetApprenticeshipLearning(command.LearningKey), Times.Once);
     }
 
     [Test]
@@ -39,24 +39,24 @@ public class WhenSavePrices : BaseUpdateCommandHandlerTests
     {
         // Arrange
         var learningDomainModel = Fixture.BuildLearning();
-        var command = BuildCommand(learningDomainModel, (int)learningDomainModel.ApprenticeshipEpisodes.Single().FundingBandMaximum);
+        var command = BuildCommand(learningDomainModel, (int)learningDomainModel.Episodes.Single().FundingBandMaximum);
         UpdatePrice(command);
 
-        var priceBeforeUpdate = learningDomainModel.ApprenticeshipEpisodes.First().Prices.First().AgreedPrice;
-        var initialPriceCount = learningDomainModel.ApprenticeshipEpisodes.First().Prices.Count;
+        var priceBeforeUpdate = learningDomainModel.Episodes.First().Prices.First().AgreedPrice;
+        var initialPriceCount = learningDomainModel.Episodes.First().Prices.Count;
 
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         LearningRepositoryMock
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
             .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        learningDomainModel.ApprenticeshipEpisodes.First().Prices.Last().AgreedPrice.Should().NotBe(priceBeforeUpdate);
-        learningDomainModel.ApprenticeshipEpisodes.First().Prices.Should().HaveCount(initialPriceCount + 1);
+        learningDomainModel.Episodes.First().Prices.Last().AgreedPrice.Should().NotBe(priceBeforeUpdate);
+        learningDomainModel.Episodes.First().Prices.Should().HaveCount(initialPriceCount + 1);
     }
 
     [Test]
@@ -64,11 +64,11 @@ public class WhenSavePrices : BaseUpdateCommandHandlerTests
     {
         // Arrange
         var learningDomainModel = Fixture.BuildLearning();
-        var command = BuildCommand(learningDomainModel, (int)learningDomainModel.ApprenticeshipEpisodes.Single().FundingBandMaximum);
+        var command = BuildCommand(learningDomainModel, (int)learningDomainModel.Episodes.Single().FundingBandMaximum);
         UpdatePrice(command);
         var handler = GetUpdateOnProgrammeCommandHandler();
         LearningRepositoryMock
-            .Setup(repo => repo.Get(command.ApprenticeshipKey))
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
             .ReturnsAsync(learningDomainModel);
 
         // Act

@@ -5,7 +5,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Learning.Types;
-using System.Reflection.Emit;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 
@@ -15,7 +14,8 @@ public class ApprenticeshipEarningsDataContext : DbContext
     {
     }
 
-    public virtual DbSet<LearningEntity> Learnings { get; set; }
+    public virtual DbSet<ApprenticeshipLearningEntity> ApprenticeshipLearnings { get; set; }
+    public virtual DbSet<ShortCourseLearningEntity> ShortCourseLearnings { get; set; }
     public virtual DbSet<ApprenticeshipEpisodeEntity> ApprenticeshipEpisodes { get; set; }
     public virtual DbSet<ShortCourseEpisodeEntity> ShortCourseEpisodes { get; set; }
     public virtual DbSet<ApprenticeshipEpisodePriceEntity> EpisodePrices { get; set; }
@@ -29,9 +29,8 @@ public class ApprenticeshipEarningsDataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<LearningEntity>().Configure();
-
         //  Apprenticeship
+        modelBuilder.Entity<ApprenticeshipLearningEntity>().Configure();
         modelBuilder.Entity<ApprenticeshipEpisodeEntity>().Configure();
         modelBuilder.Entity<ApprenticeshipEpisodePriceEntity>().HasKey(x => x.Key);
         modelBuilder.Entity<ApprenticeshipEarningsProfileEntity>().Configure();
@@ -49,6 +48,7 @@ public class ApprenticeshipEarningsDataContext : DbContext
         modelBuilder.Entity<AdditionalPaymentHistoryEntity>().HasKey(x => x.Key);
 
         //  Short Course
+        modelBuilder.Entity<ShortCourseLearningEntity>().Configure();
         modelBuilder.Entity<ShortCourseEpisodeEntity>().Configure();
         modelBuilder.Entity<ShortCourseEarningsProfileEntity>().Configure();
         modelBuilder.Entity<ShortCourseInstalmentEntity>().HasKey(x => x.Key);
@@ -62,15 +62,23 @@ public class ApprenticeshipEarningsDataContext : DbContext
 
 internal static class ModelBuilderExtensions
 {
-    public static EntityTypeBuilder<LearningEntity> Configure(this EntityTypeBuilder<LearningEntity> builder)
+    public static EntityTypeBuilder<ApprenticeshipLearningEntity> Configure(this EntityTypeBuilder<ApprenticeshipLearningEntity> builder)
     {
         builder
-            .HasMany(x => x.ApprenticeshipEpisodes)
+            .HasMany(x => x.Episodes)
             .WithOne()
             .HasForeignKey(fk => fk.LearningKey);
 
         builder
-            .HasMany(x => x.ShortCourseEpisodes)
+            .HasKey(a => new { Key = a.LearningKey });
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<ShortCourseLearningEntity> Configure(this EntityTypeBuilder<ShortCourseLearningEntity> builder)
+    {
+        builder
+            .HasMany(x => x.Episodes)
             .WithOne()
             .HasForeignKey(fk => fk.LearningKey);
 

@@ -18,7 +18,7 @@ public class RemoveLearnerCommandHandler : ICommandHandler<RemoveLearnerCommand>
 
     public async Task Handle(RemoveLearnerCommand command, CancellationToken cancellationToken = default)
     {
-        var learningDomainModel = await _learningRepository.Get(command.LearningKey);
+        var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
         var episode = learningDomainModel!.GetCurrentEpisode(_systemClock);
         var startDate = episode.Prices.Min(x => x.StartDate);
         episode.UpdateWithdrawalDate(startDate, _systemClock);

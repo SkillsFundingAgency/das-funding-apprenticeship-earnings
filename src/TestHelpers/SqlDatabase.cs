@@ -29,35 +29,46 @@ public class SqlDatabase : IDisposable
         DbContext = new ApprenticeshipEarningsDataContext(options);
     }
 
-    public async Task<LearningEntity?> GetLearning(Guid learningKey)
+    public async Task<ApprenticeshipLearningEntity?> GetApprenticeshipLearning(Guid learningKey)
     {
         ClearCachedEntities();
 
-        var learningEntity = await DbContext.Learnings
-            .Include(x => x.ApprenticeshipEpisodes)
+        var learningEntity = await DbContext.ApprenticeshipLearnings
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.Instalments)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.ApprenticeshipAdditionalPayments)
-            .Include(x => x.ApprenticeshipEpisodes)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.Prices)
-            .Include(x => x.ApprenticeshipEpisodes)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.EnglishAndMathsCourses)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.EnglishAndMathsCourses)
                 .ThenInclude(y => y.Instalments)
-            .Include(x => x.ShortCourseEpisodes)
+            .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
+
+        return learningEntity;
+    }
+
+    public async Task<ShortCourseLearningEntity?> GetShortCourseLearning(Guid learningKey)
+    {
+        ClearCachedEntities();
+
+        var learningEntity = await DbContext.ShortCourseLearnings
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.Instalments)
             .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
 
         return learningEntity;
     }
+
 
     public async Task<List<ApprenticeshipEarningsProfileHistoryEntity>> GetHistory(Guid earningsProfileId)
     {

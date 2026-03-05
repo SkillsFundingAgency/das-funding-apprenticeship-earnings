@@ -7,6 +7,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
@@ -45,7 +46,7 @@ public class WhenGetFm36Data
     {
         // Arrange
         var query = new GetFm36DataRequest(_fixture.Create<long>(), 2021, 1, _fixture.Create<List<Guid>>());
-        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns((List<Domain.Models.Learning>)null);
+        _mockEarningsQueryRepository.Setup(x => x.GetApprenticeships(query.Ukprn, It.IsAny<DateTime>(), It.IsAny<bool>())).Returns((List<ApprenticeshipLearning>)null);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -59,7 +60,7 @@ public class WhenGetFm36Data
     {
         // Arrange
         var query = new GetFm36DataRequest( _fixture.Create<long>(), 2021, 1, _fixture.Create<List<Guid>>());
-        var expectedApprenticeships = new List<Domain.Models.Learning>();
+        var expectedApprenticeships = new List<ApprenticeshipLearning>();
         foreach(var learningKey in query.LearningKeys)
         {
             var currentEpisode = CreateCurrentEpisode(learningKey);
@@ -79,9 +80,9 @@ public class WhenGetFm36Data
         {
 
             
-            var apprenticeship = result.Apprenticeships.Single(x=>x.Key == expectedApprenticeship.ApprenticeshipKey);
+            var apprenticeship = result.Apprenticeships.Single(x=>x.Key == expectedApprenticeship.LearningKey);
             var currentEpisode = expectedApprenticeship.GetCurrentEpisode(_testTime);
-            apprenticeship.Key.Should().Be(expectedApprenticeship.ApprenticeshipKey);
+            apprenticeship.Key.Should().Be(expectedApprenticeship.LearningKey);
             apprenticeship.Ukprn.Should().Be(query.Ukprn);
             apprenticeship.FundingLineType.Should().Be(currentEpisode.AgeAtStartOfApprenticeship < 19
                 ? "16-18 Apprenticeship (Employer on App Service)"
@@ -133,9 +134,9 @@ public class WhenGetFm36Data
         return episode;
     }
 
-    private Domain.Models.Learning CreateApprenticeship(Guid learningKey, long ukprn, ApprenticeshipEpisodeEntity episode)
+    private ApprenticeshipLearning CreateApprenticeship(Guid learningKey, long ukprn, ApprenticeshipEpisodeEntity episode)
     {
-        var domainApprenticeship = _fixture.Create<LearningEntity>();
+        var domainApprenticeship = _fixture.Create<ApprenticeshipLearningEntity>();
 
         domainApprenticeship.LearningKey = learningKey;
         var episodes = new List<ApprenticeshipEpisodeEntity>();
@@ -143,8 +144,8 @@ public class WhenGetFm36Data
         episode.Ukprn = ukprn;
 
         episodes.Add(episode);
-        domainApprenticeship.ApprenticeshipEpisodes = episodes;
+        domainApprenticeship.Episodes = episodes;
 
-        return Domain.Models.Learning.Get(domainApprenticeship);
+        return ApprenticeshipLearning.Get(domainApprenticeship);
     }
 }

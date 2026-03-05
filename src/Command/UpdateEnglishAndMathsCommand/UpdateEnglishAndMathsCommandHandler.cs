@@ -27,7 +27,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
 
         var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command);
 
-        var learningDomainModel = await _learningRepository.Get(command.LearningKey);
+        var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
 
         if (learningDomainModel == null)
         {

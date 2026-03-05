@@ -40,13 +40,13 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         UpdateAgeAtStart(dateOfBirth);
     }
 
-    internal static ApprenticeshipEpisode Get(Learning learning, ApprenticeshipEpisodeEntity entity)
+    internal static ApprenticeshipEpisode Get(ApprenticeshipLearning learning, ApprenticeshipEpisodeEntity entity)
     {
         var episode = new ApprenticeshipEpisode(entity, learning.DateOfBirth, learning.AddChildToRoot);
         return episode;
     }
 
-    public void CalculateOnProgram(Learning learning, ISystemClockService systemClock, string calculationData)
+    public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
     {
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
 
@@ -211,7 +211,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     // This will generate instalments and additional payments not taking into account
     // any external factors (e.g. a break in between periods of learning, these will be applied later)
-    private (List<ApprenticeshipInstalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(Learning apprenticeship)
+    private (List<ApprenticeshipInstalment> instalments, List<AdditionalPayment> additionalPayments, decimal onProgramTotal, decimal completionPayment) GenerateBasicEarnings(ApprenticeshipLearning apprenticeship)
     {
         var onProgramPayments = OnProgramPayments.GenerateEarningsForEpisodePrices(PeriodsInLearningWithMatchedPrices, FundingBandMaximum, out var onProgramTotal, out var completionPayment);
 

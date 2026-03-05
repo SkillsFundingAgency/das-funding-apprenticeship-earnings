@@ -48,11 +48,11 @@ public class WhenCreatingANewShortCourse
         var learning = _factory.CreateNewShortCourse(request);
 
         // Assert
-        learning.ApprenticeshipKey.Should().Be(request.LearningKey);
+        learning.LearningKey.Should().Be(request.LearningKey);
         learning.DateOfBirth.Should().Be(request.Learner.DateOfBirth);
         learning.Uln.Should().Be(request.Learner.Uln);
 
-        var episode = learning.ShortCourseEpisodes.SingleOrDefault();
+        var episode = learning.Episodes.SingleOrDefault();
         episode.Should().NotBeNull();
         episode.EmployerAccountId.Should().Be(request.OnProgramme.EmployerId);
         episode.TrainingCode.Should().Be(request.OnProgramme.CourseCode);

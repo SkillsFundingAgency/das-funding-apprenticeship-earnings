@@ -25,7 +25,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
         public void ThenTheFundingLineTypeIsCorrectWhenApprenticeUnder19()
         {
             var apprenticeship = _fixture.CreateLearning(age: 18);
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
+            apprenticeship.Episodes.Single().FundingLineType.Should().Be("16-18 Apprenticeship (Employer on App Service)");
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
         {
             var apprenticeship = _fixture.CreateLearning(age: 19);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.Episodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
         {
             var apprenticeship = _fixture.CreateLearning(age: 20);
 
-            apprenticeship.ApprenticeshipEpisodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
+            apprenticeship.Episodes.Single().FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
     }
 }

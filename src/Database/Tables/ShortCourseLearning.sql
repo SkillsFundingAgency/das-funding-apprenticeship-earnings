@@ -1,4 +1,4 @@
-﻿CREATE TABLE [Domain].[Learning]
+﻿CREATE TABLE [Domain].[ShortCourseLearning]
 (
 	[LearningKey] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
     [ApprovalsApprenticeshipId] BIGINT NOT NULL,

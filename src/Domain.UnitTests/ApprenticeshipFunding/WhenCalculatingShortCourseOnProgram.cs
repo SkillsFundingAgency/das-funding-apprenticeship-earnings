@@ -16,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 internal class WhenCalculatingShortCourseOnProgram
 {
     private readonly Fixture _fixture = new();
-    private Models.Learning _learning;
+    private ShortCourseLearning _learning;
     private ShortCourseEpisode _episode;
     private Mock<ISystemClockService> _mockSystemClock;
     private decimal _agreedPrice;
@@ -33,7 +33,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _agreedPrice = 3000m;
 
         _learning = _fixture.CreateLearningWithShortCourse(startDate, endDate, _agreedPrice);
-        _episode = _learning.ShortCourseEpisodes.Single();
+        _episode = _learning.Episodes.Single();
     }
 
     [Test]

@@ -19,7 +19,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenWithdrawingEnglishAndMathsCourse
 {
     private readonly Fixture _fixture = new();
-    private Models.Learning _apprenticeship;
+    private ApprenticeshipLearning _learning;
     private ApprenticeshipEpisode _sut;
     private Mock<ISystemClockService> _mockSystemClock;
     private string _courseName = "English Level 2";
@@ -35,10 +35,10 @@ public class WhenWithdrawingEnglishAndMathsCourse
         var plannedEndDate = new DateTime(2024, 12, 31);
         var agreedPrice = 12000m;
 
-        _apprenticeship = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
-        _sut = _apprenticeship.ApprenticeshipEpisodes.First();
+        _learning = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _sut = _learning.Episodes.First();
 
-        _sut.CalculateOnProgram(_apprenticeship, _mockSystemClock.Object, string.Empty);
+        _sut.CalculateOnProgram(_learning, _mockSystemClock.Object, string.Empty);
 
         _sut.UpdateEnglishAndMaths(CreateTestEnglishAndMathsCourses(), _mockSystemClock.Object);
     }

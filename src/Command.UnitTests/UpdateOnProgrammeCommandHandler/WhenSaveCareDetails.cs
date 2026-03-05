@@ -1,5 +1,6 @@
 ﻿using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.UpdateOnProgrammeCommandHandler;
 
@@ -21,7 +22,7 @@ public class WhenSaveCareDetails : BaseUpdateCommandHandlerTests
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         LearningRepositoryMock
-            .Setup(repo => repo.Get(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetApprenticeshipLearning(It.IsAny<Guid>()))
             .ReturnsAsync(learningDomainModel);
 
         // Act
@@ -29,7 +30,7 @@ public class WhenSaveCareDetails : BaseUpdateCommandHandlerTests
 
         // Assert
         LearningRepositoryMock.Verify(repo =>
-                repo.Update(It.Is<Domain.Models.Learning>(a =>
+                repo.Update(It.Is<ApprenticeshipLearning>(a =>
                     a.HasEHCP == command.Request.Care.HasEHCP &&
                     a.IsCareLeaver == command.Request.Care.IsCareLeaver &&
                     a.CareLeaverEmployerConsentGiven ==

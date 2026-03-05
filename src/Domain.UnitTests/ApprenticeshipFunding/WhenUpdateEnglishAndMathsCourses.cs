@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
@@ -56,7 +57,7 @@ public class WhenUpdateEnglishAndMathsCourses
         sut.UpdateEnglishAndMathsCourses(courses, _mockSystemClockService.Object);
 
         // Assert
-        var updatedProfile = sut.ApprenticeshipEpisodes.First().EarningsProfile;
+        var updatedProfile = sut.Episodes.First().EarningsProfile;
         updatedProfile.MathsAndEnglishCourses.Count.Should().Be(2);
         updatedProfile.MathsAndEnglishCourses.Sum(x => x.Amount).Should().Be(750);
     }
@@ -81,7 +82,7 @@ public class WhenUpdateEnglishAndMathsCourses
         events.Any(x => x is Types.EarningsProfileUpdatedEvent).Should().BeTrue();
     }
 
-    private Models.Learning CreateApprenticeship()
+    private ApprenticeshipLearning CreateApprenticeship()
     {
         var sut = _fixture.CreateLearningWithApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice);
         sut.Calculate(_mockSystemClockService.Object, string.Empty);

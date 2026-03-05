@@ -1,14 +1,14 @@
-﻿using System.Text.Json;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Learning.Types;
-using LearningDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Learning;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand
 {
-    public class CreateApprenticeshipCommandHandler : ICommandHandler<CreateApprenticeshipCommand, LearningDomainModel>
+    public class CreateApprenticeshipCommandHandler : ICommandHandler<CreateApprenticeshipCommand, ApprenticeshipLearning>
     {
         private readonly ILearningFactory _learningFactory;
         private readonly ILearningRepository _learningRepository;
@@ -34,7 +34,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
             _fundingBandMaximumService = fundingBandMaximumService;
         }
 
-        public async Task<LearningDomainModel> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
+        public async Task<ApprenticeshipLearning> Handle(CreateApprenticeshipCommand command, CancellationToken cancellationToken = default)
         {
             var fundingBandMaximum = await GetFundingBandMaximum(command.LearningCreatedEvent);
             var learning = _learningFactory.CreateNew(command.LearningCreatedEvent, fundingBandMaximum);

@@ -1,15 +1,10 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Learning.Types;
 using ApprenticeshipEarningsRecalculatedEvent = SFA.DAS.Funding.ApprenticeshipEarnings.Types.ApprenticeshipEarningsRecalculatedEvent;
 using DeliveryPeriod = SFA.DAS.Funding.ApprenticeshipEarnings.Types.DeliveryPeriod;
-using LearningDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Learning;
 
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -105,11 +100,11 @@ public static class ApprenticeshipEpisodeExtensions
             .FirstOrDefault();
     }
 
-    internal static ApprenticeshipEarningsRecalculatedEvent CreateApprenticeshipEarningsRecalculatedEvent(this ApprenticeshipEpisode episode, LearningDomainModel learning)
+    internal static ApprenticeshipEarningsRecalculatedEvent CreateApprenticeshipEarningsRecalculatedEvent(this ApprenticeshipEpisode episode, ApprenticeshipLearning learning)
     {
         return new ApprenticeshipEarningsRecalculatedEvent
         {
-            ApprenticeshipKey = learning.ApprenticeshipKey,
+            ApprenticeshipKey = learning.LearningKey,
             DeliveryPeriods = episode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EarningsProfileId = episode.EarningsProfile!.EarningsProfileId,
             StartDate = episode.Prices.OrderBy(x => x.StartDate).First().StartDate,

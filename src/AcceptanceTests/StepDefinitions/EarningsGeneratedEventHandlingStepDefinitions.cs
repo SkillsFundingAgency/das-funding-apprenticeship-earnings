@@ -1,14 +1,16 @@
 using Newtonsoft.Json;
-using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -65,10 +67,10 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     private async Task AssertApprenticeshipOnProgrammeEarnings(Table table, Guid learningKey)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-        LearningEntity? updatedEntity;
+        ApprenticeshipLearningEntity? updatedEntity;
 
-        updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKey);
-        var earningsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+        updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
 
@@ -86,10 +88,10 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     private async Task AssertShortCourseOnProgrammeEarnings(Table table, Guid learningKey)
     {
         var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-        LearningEntity? updatedEntity;
+        ShortCourseLearningEntity? updatedEntity;
 
-        updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKey);
-        var earningsInDb = updatedEntity.ShortCourseEpisodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+        updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
 
         earningsInDb.Should().HaveCount(data.Count);
 
@@ -108,8 +110,8 @@ public class EarningsGeneratedEventHandlingStepDefinitions
     public async Task ThenNoOnProgrammeEarningsArePersisted()
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
-        var updatedEntity = await _testContext.SqlDatabase.GetLearning(learningKeyKey);
-        var earningsInDb = updatedEntity.ApprenticeshipEpisodes.First().EarningsProfile.Instalments;
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
         earningsInDb.Should().BeEmpty();
     }

@@ -1,9 +1,10 @@
-using SFA.DAS.Learning.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 using FundingPlatform = SFA.DAS.Learning.Enums.FundingPlatform;
 
@@ -58,7 +59,7 @@ public class LearningCreatedEventPublishingStepDefinitions
     [Then(@"the total completion payment amount of 20% of the adjusted price must be calculated")]
     public async Task ThenTheCompletionPaymentAmountIsCalculated()
     {
-        var entity = await GetApprenticeshipEntity();
+        var entity = await GetApprenticeshipLearningEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
         currentEpisode.EarningsProfile.CompletionPayment.Should().Be(learningCreatedEvent.Episode.Prices.First().TotalPrice * .2m);
@@ -95,15 +96,15 @@ public class LearningCreatedEventPublishingStepDefinitions
         _scenarioContext.Set(learningCreatedEvent);
     }
 
-    private async Task<LearningEntity?> GetApprenticeshipEntity()
+    private async Task<ApprenticeshipLearningEntity?> GetApprenticeshipLearningEntity()
     {
         var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        return await _testContext.SqlDatabase.GetLearning(learningCreatedEvent.LearningKey);
+        return await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
     }
 
     private async Task<bool> EnsureApprenticeshipExists()
     {
-        var apprenticeshipEntity = await GetApprenticeshipEntity();
+        var apprenticeshipEntity = await GetApprenticeshipLearningEntity();
 
         if (apprenticeshipEntity == null)
         {

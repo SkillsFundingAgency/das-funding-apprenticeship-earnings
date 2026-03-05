@@ -3,6 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Learning.Types;
 using System;
@@ -109,9 +110,9 @@ public class UpdateOnProgrammeStepDefinitions
         return model;
     }
 
-    private async Task<LearningEntity> GetLearningEntity()
+    private async Task<ApprenticeshipLearningEntity> GetLearningEntity()
     {
-        return await _testContext.SqlDatabase.GetLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        return await _testContext.SqlDatabase.GetApprenticeshipLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }
 
 }

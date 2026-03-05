@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -40,11 +41,11 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
         _logger.LogInformation("Successfully handled UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
     }
 
-    private async Task<Domain.Models.Learning> GetDomainApprenticeship(Guid LearningKey)
+    private async Task<ApprenticeshipLearning> GetDomainApprenticeship(Guid LearningKey)
     {
         try
         {
-            return await _learningRepository.Get(LearningKey);
+            return await _learningRepository.GetApprenticeshipLearning(LearningKey);
         }
         catch (Exception ex)
         {

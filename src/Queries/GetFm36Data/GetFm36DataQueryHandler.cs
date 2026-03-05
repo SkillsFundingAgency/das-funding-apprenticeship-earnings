@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
@@ -36,15 +37,15 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         return new GetFm36DataResponse { Apprenticeships = apprenticeships };
     }
 
-    private Apprenticeship MapApprenticeship(Domain.Models.Learning source)
+    private Apprenticeship MapApprenticeship(ApprenticeshipLearning source)
     {
         var currentEpisode = source.GetCurrentEpisode(_systemClockService);
 
         return new Apprenticeship
         {
-            Key = source.ApprenticeshipKey,
+            Key = source.LearningKey,
             Ukprn = currentEpisode.UKPRN,
-            Episodes = source.ApprenticeshipEpisodes.Select(x => new Episode
+            Episodes = source.Episodes.Select(x => new Episode
             {
                 Key = x.EpisodeKey,
                 NumberOfInstalments = x.EarningsProfile!.Instalments.Count,

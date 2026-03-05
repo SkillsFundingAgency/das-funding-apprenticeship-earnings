@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -19,13 +20,13 @@ public class WhenWithdrawUpdated : BaseUpdateCommandHandlerTests
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         SystemClockServiceMock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 12, 1));
-        LearningRepositoryMock.Setup(repo => repo.Get(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
+        LearningRepositoryMock.Setup(repo => repo.GetApprenticeshipLearning(It.IsAny<Guid>())).ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        LearningRepositoryMock.Verify(x => x.Get(command.ApprenticeshipKey), Times.Once);
-        LearningRepositoryMock.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Once);
+        LearningRepositoryMock.Verify(x => x.GetApprenticeshipLearning(command.LearningKey), Times.Once);
+        LearningRepositoryMock.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Once);
     }
 }

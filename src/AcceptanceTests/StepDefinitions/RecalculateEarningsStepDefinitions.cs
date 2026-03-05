@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -25,7 +26,7 @@ public class RecalculateEarningsStepDefinitions
     {
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Unable to await recalculation");
 
-        var learningModel = _scenarioContext.Get<LearningEntity>();
+        var learningModel = _scenarioContext.Get<ApprenticeshipLearningEntity>();
         var currentEpisode = learningModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
@@ -43,7 +44,7 @@ public class RecalculateEarningsStepDefinitions
     {
         await WaitHelper.WaitForItAsync(async () => await EnsureRecalculationHasHappened(), "Failed to detect Earnings recalculation");
 
-        var learningModel = _scenarioContext.Get<LearningEntity>();
+        var learningModel = _scenarioContext.Get<ApprenticeshipLearningEntity>();
         var currentEpisode = learningModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var history = await _testContext.SqlDatabase.GetHistory(currentEpisode.EarningsProfile.EarningsProfileId);
@@ -59,7 +60,7 @@ public class RecalculateEarningsStepDefinitions
     [Then(@"there are (.*) earnings")]
     public void AssertExpectedNumberOfEarnings(int expectedNumberOfEarnings)
     {
-        var learningModel = _scenarioContext.Get<LearningEntity>();
+        var learningModel = _scenarioContext.Get<ApprenticeshipLearningEntity>();
         var currentEpisode = learningModel!.GetCurrentEpisode(TestSystemClock.Instance());
 
         var matchingInstalments = currentEpisode.EarningsProfile.Instalments.Count;
@@ -76,9 +77,9 @@ public class RecalculateEarningsStepDefinitions
         await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<LearningCreatedEvent>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
     }
 
-    private async Task<LearningEntity> GetLearningEntity()
+    private async Task<ApprenticeshipLearningEntity> GetLearningEntity()
     {
-        return await _testContext.SqlDatabase.GetLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        return await _testContext.SqlDatabase.GetApprenticeshipLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
     }
 
     private async Task<bool> EnsureRecalculationHasHappened()

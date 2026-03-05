@@ -16,7 +16,7 @@
 )
 GO
 ALTER TABLE Domain.ShortCourseEpisode
-ADD CONSTRAINT FK_ShortCourseEpisode_Learning FOREIGN KEY (LearningKey) REFERENCES [Domain].[Learning] ([LearningKey])
+ADD CONSTRAINT FK_ShortCourseEpisode_Learning FOREIGN KEY (LearningKey) REFERENCES [Domain].[ShortCourseLearning] ([LearningKey])
 GO
 CREATE INDEX IX_learningKey ON Domain.[ShortCourseEpisode] (LearningKey);
 GO

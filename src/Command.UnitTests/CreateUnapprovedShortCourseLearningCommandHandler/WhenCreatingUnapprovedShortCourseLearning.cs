@@ -2,9 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -38,9 +41,9 @@ public class WhenCreatingUnapprovedShortCourseLearning
         var request = _fixture.Create<CreateUnapprovedShortCourseLearningRequest>();
         var command = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommand(request);
 
-        var shortCourse = Domain.Models.Learning.Get(_fixture
-            .Build<LearningEntity>()
-            .With(x => x.ShortCourseEpisodes, new List<ShortCourseEpisodeEntity> { 
+        var shortCourse = ShortCourseLearning.Get(_fixture
+            .Build<ShortCourseLearningEntity>()
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { 
                 _fixture.Build<ShortCourseEpisodeEntity>().Create() 
             })
             .Create());
@@ -62,7 +65,7 @@ public class WhenCreatingUnapprovedShortCourseLearning
         // Assert
         _mockFactory.Verify(x => x.CreateNewShortCourse(request), Times.Once);
         _mockRepository.Verify(x => x.Add(shortCourse), Times.Once);
-        _mockRepository.Verify(x => x.Update(It.IsAny<Domain.Models.Learning>()), Times.Never);
+        _mockRepository.Verify(x => x.Update(It.IsAny<ShortCourseLearning>()), Times.Never);
     }
 
     [Test]
@@ -72,16 +75,16 @@ public class WhenCreatingUnapprovedShortCourseLearning
         var request = _fixture.Create<CreateUnapprovedShortCourseLearningRequest>();
         var command = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommand(request);
 
-        var existingShortCourse = Domain.Models.Learning.Get(_fixture
-            .Build<LearningEntity>()
+        var existingShortCourse = ShortCourseLearning.Get(_fixture
+            .Build<ShortCourseLearningEntity>()
             .With(x => x.LearningKey, request.LearningKey)
-            .With(x => x.ShortCourseEpisodes, new List<ShortCourseEpisodeEntity>
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity>
             {
                 _fixture.Build<ShortCourseEpisodeEntity>().Create()
             }).Create());
 
         _mockRepository
-            .Setup(x => x.Get(request.LearningKey))
+            .Setup(x => x.GetShortCourseLearning(request.LearningKey))
             .ReturnsAsync(existingShortCourse);
 
         var sut = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler(
@@ -95,10 +98,10 @@ public class WhenCreatingUnapprovedShortCourseLearning
         await sut.Handle(command, CancellationToken.None);
 
         // Assert
-        _mockRepository.Verify(x => x.Get(request.LearningKey), Times.Once);
+        _mockRepository.Verify(x => x.GetShortCourseLearning(request.LearningKey), Times.Once);
         _mockRepository.Verify(x => x.Update(existingShortCourse), Times.Once);
 
-        _mockRepository.Verify(x => x.Add(It.IsAny<Domain.Models.Learning>()), Times.Never);
+        _mockRepository.Verify(x => x.Add(It.IsAny<ShortCourseLearning>()), Times.Never);
         _mockFactory.Verify(x => x.CreateNewShortCourse(It.IsAny<CreateUnapprovedShortCourseLearningRequest>()), Times.Never);
     }
 }

@@ -38,10 +38,10 @@ public class ShortCourseStepDefinitions
     public async Task CalculationDataIsSerialised()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        var updatedEntity = await _testContext.SqlDatabase.GetLearning(request.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
 
         JsonSerializer
-            .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.ShortCourseEpisodes.First().EarningsProfile.CalculationData)
+            .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.Episodes.First().EarningsProfile.CalculationData)
             .Should().BeEquivalentTo(request);
     }
 
@@ -49,8 +49,8 @@ public class ShortCourseStepDefinitions
     public async Task AssertHistoryUpdated()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        var updatedEntity = await _testContext.SqlDatabase.GetLearning(request.LearningKey);
-        var episode = updatedEntity.ShortCourseEpisodes.Single();
+        var updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        var episode = updatedEntity.Episodes.Single();
 
         var history = await _testContext.SqlDatabase.GetShortCourseHistory(episode.EarningsProfile.EarningsProfileId);
 

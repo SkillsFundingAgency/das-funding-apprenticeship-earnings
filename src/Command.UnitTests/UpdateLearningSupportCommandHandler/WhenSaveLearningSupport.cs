@@ -5,6 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportComman
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -44,15 +45,15 @@ public class WhenSaveLearningSupport
             new UpdateLearningSupportRequest { LearningSupport =[ new LearningSupportItem { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} ]}
             );
 
-        var learningEntity = _fixture.Create<LearningEntity>();
-        learningEntity.ApprenticeshipEpisodes = new List<ApprenticeshipEpisodeEntity>
+        var learningEntity = _fixture.Create<ApprenticeshipLearningEntity>();
+        learningEntity.Episodes = new List<ApprenticeshipEpisodeEntity>
         {
             _fixture.Create<ApprenticeshipEpisodeEntity>()
         };
 
-        var learning = Domain.Models.Learning.Get(learningEntity);
+        var learning = ApprenticeshipLearning.Get(learningEntity);
         _mockRepository
-            .Setup(repo => repo.Get(command.LearningKey))
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
             .ReturnsAsync(learning);
 
         // Act

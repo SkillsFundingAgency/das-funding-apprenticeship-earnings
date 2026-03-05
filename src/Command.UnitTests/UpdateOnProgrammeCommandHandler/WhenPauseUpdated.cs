@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -26,16 +27,16 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         LearningRepositoryMock
-            .Setup(r => r.Get(learningDomainModel.ApprenticeshipKey))
+            .Setup(r => r.GetApprenticeshipLearning(learningDomainModel.LearningKey))
             .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        LearningRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a => 
+        LearningRepositoryMock.Verify(r => r.Update(It.Is<ApprenticeshipLearning>(a => 
             a == learningDomainModel && 
-            a.ApprenticeshipEpisodes.First().PauseDate == pauseDate)), Times.Once);
+            a.Episodes.First().PauseDate == pauseDate)), Times.Once);
     }
 
     [Test]
@@ -50,7 +51,7 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
         var handler = GetUpdateOnProgrammeCommandHandler();
 
         LearningRepositoryMock
-            .Setup(r => r.Get(It.IsAny<Guid>()))
+            .Setup(r => r.GetApprenticeshipLearning(It.IsAny<Guid>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         // Act
@@ -69,32 +70,32 @@ public class WhenPauseUpdated : BaseUpdateCommandHandlerTests
         command.Request.PauseDate = null;
         var handler = GetUpdateOnProgrammeCommandHandler();
 
-        var episode = learningDomainModel.ApprenticeshipEpisodes.First();
+        var episode = learningDomainModel.Episodes.First();
         episode.UpdatePause(GetValidPauseDate(learningDomainModel));
 
         LearningRepositoryMock
-            .Setup(r => r.Get(learningDomainModel.ApprenticeshipKey))
+            .Setup(r => r.GetApprenticeshipLearning(learningDomainModel.LearningKey))
             .ReturnsAsync(learningDomainModel);
 
         // Act
         await handler.Handle(command);
 
         // Assert
-        LearningRepositoryMock.Verify(r => r.Update(It.Is<Domain.Models.Learning>(a =>
+        LearningRepositoryMock.Verify(r => r.Update(It.Is<ApprenticeshipLearning>(a =>
             a == learningDomainModel &&
-            a.ApprenticeshipEpisodes.First().PauseDate == null)), Times.Once);
+            a.Episodes.First().PauseDate == null)), Times.Once);
     }
 
     /// <summary>
     /// Gets a pause date that falls within the valid range for pausing an apprenticeship.
     /// </summary>
-    private static DateTime GetValidPauseDate(Domain.Models.Learning learning)
+    private static DateTime GetValidPauseDate(ApprenticeshipLearning learning)
     {
-        var earliestStartDate = learning.ApprenticeshipEpisodes
+        var earliestStartDate = learning.Episodes
             .SelectMany(e => e.Prices)
             .Min(e => e.StartDate);
 
-        var latestEndDate = learning.ApprenticeshipEpisodes
+        var latestEndDate = learning.Episodes
             .SelectMany(e => e.Prices)
             .Max(e => e.EndDate);
 

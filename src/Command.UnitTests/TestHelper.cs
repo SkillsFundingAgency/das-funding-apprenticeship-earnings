@@ -3,19 +3,20 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests;
 
 internal static class TestHelper
 {
-    internal static Domain.Models.Learning BuildLearning(this Fixture fixture)
+    internal static ApprenticeshipLearning BuildLearning(this Fixture fixture)
     {
         var apprenticeshipEntityModel = fixture.BuildLearningModel();
-        return Domain.Models.Learning.Get(apprenticeshipEntityModel);
+        return ApprenticeshipLearning.Get(apprenticeshipEntityModel);
     }
 
-    internal static LearningEntity BuildLearningModel(this Fixture fixture)
+    internal static ApprenticeshipLearningEntity BuildLearningModel(this Fixture fixture)
     {
         var priceStartDate = DateTime.UtcNow.AddMonths(-10);
         var priceEndDate = DateTime.UtcNow.AddMonths(10);
@@ -43,8 +44,8 @@ internal static class TestHelper
                 .Create())
             .Create();
         var learningEntityModel = fixture
-            .Build<LearningEntity>()
-            .With(x => x.ApprenticeshipEpisodes, new List<ApprenticeshipEpisodeEntity> { episodeModel })
+            .Build<ApprenticeshipLearningEntity>()
+            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeModel })
             .Create();
 
         return learningEntityModel;

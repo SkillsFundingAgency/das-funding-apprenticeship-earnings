@@ -33,7 +33,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
             "Handling CreateUnapprovedShortCourseLearningCommand for learning {LearningKey}",
             command.Request.LearningKey);
 
-        var existingShortCourse = await _learningRepository.Get(command.Request.LearningKey);
+        var existingShortCourse = await _learningRepository.GetShortCourseLearning(command.Request.LearningKey);
 
         if (existingShortCourse != null)
         {
@@ -51,7 +51,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 WithdrawalDate = command.Request.OnProgramme.WithdrawalDate
             });
 
-            existingShortCourse.ShortCourseEpisodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            existingShortCourse.Episodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Update(existingShortCourse);
         }
@@ -59,7 +59,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
         {
             var shortCourse = _learningFactory.CreateNewShortCourse(command.Request);
 
-            shortCourse.ShortCourseEpisodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            shortCourse.Episodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Add(shortCourse);
         }

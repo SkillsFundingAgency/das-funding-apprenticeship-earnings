@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
-using LearningDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Learning;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 
@@ -20,7 +23,7 @@ public class LearningRepository : ILearningRepository
         _messageSession = messageSession;
     }
 
-    public async Task Add(LearningDomainModel learning)
+    public async Task Add<TEntity, TEpisode>(BaseLearning<TEntity, TEpisode> learning) where TEntity : BaseLearningEntity
     {
         var entity = learning.GetModel();
         await DbContext.AddAsync(entity);
@@ -28,43 +31,58 @@ public class LearningRepository : ILearningRepository
         await ReleaseEvents(learning);
     }
 
-    public async Task<LearningDomainModel?> Get(Guid key)
+    public async Task<ApprenticeshipLearning?> GetApprenticeshipLearning(Guid key)
     {
-        var learning = await DbContext.Learnings
-            .Include(x => x.ApprenticeshipEpisodes)
+        var learning = await DbContext.ApprenticeshipLearnings
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.Instalments)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.ApprenticeshipAdditionalPayments)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.Prices)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.EnglishAndMathsCourses)
                 .ThenInclude(y => y.PeriodsInLearning)
-            .Include(x => x.ApprenticeshipEpisodes)
+            .Include(x => x.Episodes)
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.EnglishAndMathsCourses)
                 .ThenInclude(y => y.Instalments)
-            .Include(x=> x.ApprenticeshipEpisodes)
+            .Include(x=> x.Episodes)
                 .ThenInclude(y=> y.PeriodsInLearning)
-            .Include(x => x.ShortCourseEpisodes)
-                .ThenInclude(y=> y.EarningsProfile)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(x => x.LearningKey == key);
+
+        return learning == null ? null : _learningFactory.GetExistingApprenticeship(learning);
+    }
+
+    public async Task<ShortCourseLearning?> GetShortCourseLearning(Guid key)
+    {
+        var learning = await DbContext.ShortCourseLearnings
+            .Include(x => x.Episodes)
+                .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.Instalments)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.LearningKey == key);
 
-        return learning == null ? null : _learningFactory.GetExisting(learning);
+        return learning == null ? null : _learningFactory.GetExistingShortCourse(learning);
     }
 
-    public async Task Update(LearningDomainModel learning)
+    public async Task Update(ApprenticeshipLearning learning)
     {
         await DbContext.SaveChangesAsync();
         await ReleaseEvents(learning);
     }
 
-    private async Task ReleaseEvents(LearningDomainModel learning)
+    public async Task Update(ShortCourseLearning learning)
+    {
+        await DbContext.SaveChangesAsync();
+        await ReleaseEvents(learning);
+    }
+
+    private async Task ReleaseEvents(AggregateRoot learning)
     {
         foreach (var @event in learning.FlushEvents())
         {

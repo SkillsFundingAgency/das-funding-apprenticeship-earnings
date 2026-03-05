@@ -26,11 +26,11 @@ public class WhenCreatingANewApprenticeship
 
         var apprenticeship = _factory.CreateNew(learningCreatedEvent, _fixture.Create<int>());
 
-        learningCreatedEvent.LearningKey.Should().Be(apprenticeship.ApprenticeshipKey);
+        learningCreatedEvent.LearningKey.Should().Be(apprenticeship.LearningKey);
         learningCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
         learningCreatedEvent.Uln.Should().Be(apprenticeship.Uln);
         
-        var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
+        var episode = apprenticeship.Episodes.SingleOrDefault(x =>
             x.UKPRN == learningCreatedEvent.Episode.Ukprn &&
             x.EmployerAccountId == learningCreatedEvent.Episode.EmployerAccountId &&
             x.TrainingCode == learningCreatedEvent.Episode.TrainingCode &&
