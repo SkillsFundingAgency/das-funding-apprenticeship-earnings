@@ -13,6 +13,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
+        if (_entity.EarningsProfile != null)
+            _earningsProfile = new ShortCourseEarningsProfile(_entity.EarningsProfile, addChildToRoot);
+
         UpdateAgeAtStart(dateOfBirth);
     }
 
@@ -61,4 +64,6 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
+
+    public override void Approve() => _earningsProfile!.Approve();
 }
