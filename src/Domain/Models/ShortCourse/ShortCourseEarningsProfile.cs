@@ -11,6 +11,11 @@ public class ShortCourseEarningsProfile : BaseEarningsProfile<ShortCourseEarning
 
     public IReadOnlyCollection<ShortCourseInstalment> Instalments => new ReadOnlyCollection<ShortCourseInstalment>(_instalments);
 
+    public ShortCourseEarningsProfile(ShortCourseEarningsProfileEntity model, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
+    {
+        _instalments = model.Instalments?.Select(ShortCourseInstalment.Get).ToList() ?? new List<ShortCourseInstalment>();
+    }
+
     public ShortCourseEarningsProfile(decimal onProgramTotal,
         List<ShortCourseInstalment> instalments,
         decimal completionPayment,
