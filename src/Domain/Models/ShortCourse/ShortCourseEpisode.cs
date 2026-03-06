@@ -61,4 +61,6 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
+
+    public override void Approve() => _earningsProfile!.Approve();
 }
