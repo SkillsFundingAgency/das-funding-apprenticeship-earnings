@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using System;
@@ -40,7 +39,7 @@ public class WhenGetShortCourseEarnings
         var ukprn = _fixture.Create<long>();
         var expectedResponse = new GetShortCourseEarningsResponse
         {
-            Earnings = new List<ShortCourseEarning>
+            Earnings = new List<GetShortCourseEarningsResponse.Earning>
             {
                 new() { CollectionYear = 2021, CollectionPeriod = 7, Amount = 600, Type = "Regular" },
                 new() { CollectionYear = 2021, CollectionPeriod = 11, Amount = 1400, Type = "Completion" }

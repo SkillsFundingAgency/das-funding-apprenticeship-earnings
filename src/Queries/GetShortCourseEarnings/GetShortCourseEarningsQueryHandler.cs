@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 
@@ -37,7 +36,7 @@ public class GetShortCourseEarningsQueryHandler : IQueryHandler<GetShortCourseEa
         }
 
         var earnings = episode.EarningsProfile.Instalments
-            .Select(i => new ShortCourseEarning
+            .Select(i => new GetShortCourseEarningsResponse.Earning
             {
                 CollectionYear = i.AcademicYear,
                 CollectionPeriod = i.DeliveryPeriod,
