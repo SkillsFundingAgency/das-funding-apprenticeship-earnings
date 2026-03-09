@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ public class WhenCreateUnapprovedShortCourseLearning
 {
     private Mock<ILogger<InnerApi.Controllers.ShortCoursesController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
+    private Mock<IQueryDispatcher> _queryDispatcherMock;
     private InnerApi.Controllers.ShortCoursesController _controller;
     private Fixture _fixture;
 
@@ -24,7 +26,8 @@ public class WhenCreateUnapprovedShortCourseLearning
     {
         _loggerMock = new Mock<ILogger<InnerApi.Controllers.ShortCoursesController>>();
         _commandDispatcherMock = new Mock<ICommandDispatcher>();
-        _controller = new InnerApi.Controllers.ShortCoursesController(_loggerMock.Object, _commandDispatcherMock.Object);
+        _queryDispatcherMock = new Mock<IQueryDispatcher>();
+        _controller = new InnerApi.Controllers.ShortCoursesController(_loggerMock.Object, _commandDispatcherMock.Object, _queryDispatcherMock.Object);
         _fixture = new Fixture();
     }
 

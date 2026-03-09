@@ -13,6 +13,11 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
+        if (_entity.EarningsProfile != null)
+        {
+            _earningsProfile = ShortCourseEarningsProfile.Get(this, _entity.EarningsProfile);
+        }
+
         UpdateAgeAtStart(dateOfBirth);
     }
 
