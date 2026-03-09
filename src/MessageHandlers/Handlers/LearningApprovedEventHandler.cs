@@ -14,7 +14,7 @@ public class LearningApprovedEventHandler(
 {
     public async Task Handle(LearningApprovedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("{handlerName} processing LearningKey: {LearningKey}",
+        logger.LogInformation("{HandlerName} processing LearningKey: {LearningKey}",
             nameof(LearningApprovedEventHandler),
             message.LearningKey);
 
