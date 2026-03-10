@@ -6,6 +6,6 @@ Scenario: Short course earnings are returned for a given learning key and ukprn
 		| 2021-01-01 | 2021-06-25      |       2000 |
 	When I request the short course earnings
 	Then the earnings response contains
-		| CollectionYear | CollectionPeriod | Amount | Type       |
-		|           2021 |                7 |    600 | Regular    |
-		|           2021 |               11 |   1400 | Completion |
+		| CollectionYear | CollectionPeriod | Amount | Type                          |
+		| 2021           | 7                | 600    | ThirtyPercentLearningComplete |
+		| 2021           | 11               | 1400   | LearningComplete              |
