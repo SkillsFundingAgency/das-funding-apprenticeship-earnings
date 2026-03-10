@@ -1,22 +1,20 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
 
 public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36DataResponse>
 {
-    private readonly IEarningsQueryRepository _earningsQueryRepository;
-    private readonly ISystemClockService _systemClockService;
+    private readonly ApprenticeshipEarningsDataContext _dbContext;
     private readonly ILogger<GetFm36DataQueryHandler> _logger;
 
-    public GetFm36DataQueryHandler(IEarningsQueryRepository earningsQueryRepository, ISystemClockService systemClockService, ILogger<GetFm36DataQueryHandler> logger)
+    public GetFm36DataQueryHandler(ApprenticeshipEarningsDataContext dbContext, ILogger<GetFm36DataQueryHandler> logger)
     {
-        _earningsQueryRepository = earningsQueryRepository;
-        _systemClockService = systemClockService;
+        _dbContext = dbContext;
         _logger = logger;
     }
 
@@ -24,51 +22,102 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
     {
         _logger.LogInformation("Handling GetFm36DataRequest for Ukprn: {ukprn} Year:{collectionYear} Period:{collectionPeriod} LearningKeys:{learningKeys}", query.Ukprn, query.CollectionYear, query.CollectionPeriod, query.LearningKeysLogInfo());
 
-        var domainApprenticeships = _earningsQueryRepository.GetApprenticeships(query.LearningKeys, query.Ukprn, query.CollectionYear.ToDateTime(query.CollectionPeriod), true);
+        var searchDate = query.CollectionYear.ToDateTime(query.CollectionPeriod);
+        var academicYearStart = searchDate.Month >= 8 ? new DateTime(searchDate.Year, 8, 1) : new DateTime(searchDate.Year - 1, 8, 1);
+        var academicYearEnd = searchDate.Month >= 8 ? new DateTime(searchDate.Year + 1, 7, 31) : new DateTime(searchDate.Year, 7, 31);
 
-        if (domainApprenticeships == null || !domainApprenticeships.Any())
+        var dbQuery = _dbContext.ApprenticeshipLearnings
+            .Where(x => x.Episodes.Any(e => e.Ukprn == query.Ukprn))
+            .Where(x => x.Episodes.Any(e =>
+                e.Prices.Any(p => p.EndDate >= academicYearStart) &&
+                e.Prices.Any(p => p.StartDate <= academicYearEnd)))
+            .Include(x => x.Episodes)
+                .ThenInclude(x => x.Prices)
+            .Include(x => x.Episodes)
+                .ThenInclude(x => x.EarningsProfile)
+                    .ThenInclude(x => x.Instalments)
+            .Include(x => x.Episodes)
+                .ThenInclude(x => x.EarningsProfile)
+                    .ThenInclude(x => x.ApprenticeshipAdditionalPayments)
+            .AsNoTracking()
+            .AsSplitQuery();
+
+        if (query.LearningKeys != null && query.LearningKeys.Any())
+            dbQuery = dbQuery.Where(x => query.LearningKeys.Contains(x.LearningKey));
+
+        var learnings = await dbQuery.ToListAsync(cancellationToken);
+
+        var apprenticeships = learnings
+            .Select(l => (learning: l, currentEpisode: GetCurrentEpisode(l.Episodes, searchDate)))
+            .Where(x => x.currentEpisode?.Ukprn == query.Ukprn)
+            .Select(x => MapApprenticeship(x.learning, x.currentEpisode!))
+            .ToList();
+
+        if (!apprenticeships.Any())
         {
             _logger.LogInformation("No apprenticeships found for: {ukprn}", query.Ukprn);
             return new GetFm36DataResponse();
         }
 
-        var apprenticeships = domainApprenticeships.Select(x => MapApprenticeship(x)).ToList();
-
         return new GetFm36DataResponse { Apprenticeships = apprenticeships };
     }
 
-    private Apprenticeship MapApprenticeship(ApprenticeshipLearning source)
+    private static Apprenticeship MapApprenticeship(ApprenticeshipLearningEntity learning, ApprenticeshipEpisodeEntity currentEpisode)
     {
-        var currentEpisode = source.GetCurrentEpisode(_systemClockService);
+        var priceStartDate = currentEpisode.Prices.Min(p => p.StartDate);
+        var ageAtStart = learning.DateOfBirth.CalculateAgeAtDate(priceStartDate);
+        var fundingLineType = ageAtStart < 19
+            ? "16-18 Apprenticeship (Employer on App Service)"
+            : "19+ Apprenticeship (Employer on App Service)";
 
         return new Apprenticeship
         {
-            Key = source.LearningKey,
-            Ukprn = currentEpisode.UKPRN,
-            Episodes = source.Episodes.Select(x => new Episode
-            {
-                Key = x.EpisodeKey,
-                NumberOfInstalments = x.EarningsProfile!.Instalments.Count,
-                Instalments = x.EarningsProfile.Instalments.Select(i => new Instalment
-                {
-                    AcademicYear = i.AcademicYear,
-                    DeliveryPeriod = i.DeliveryPeriod,
-                    Amount = i.Amount,
-                    EpisodePriceKey = i.EpisodePriceKey,
-                    InstalmentType = i.Type.ToString()
-                }).ToList(),
-                AdditionalPayments = x.EarningsProfile!.AdditionalPayments.Select(p => new AdditionalPayment
-                {
-                    AcademicYear = p.AcademicYear,
-                    DeliveryPeriod = p.DeliveryPeriod,
-                    Amount = p.Amount,
-                    AdditionalPaymentType = p.AdditionalPaymentType,
-                    DueDate = p.DueDate
-                }).ToList(),
-                CompletionPayment = x.EarningsProfile.CompletionPayment,
-                OnProgramTotal = x.EarningsProfile.OnProgramTotal
-            }).ToList(),
-            FundingLineType = currentEpisode.FundingLineType.ToString()
+            Key = learning.LearningKey,
+            Ukprn = currentEpisode.Ukprn,
+            FundingLineType = fundingLineType,
+            Episodes = learning.Episodes.Select(MapEpisode).ToList()
         };
+    }
+
+    private static Episode MapEpisode(ApprenticeshipEpisodeEntity episode)
+    {
+        var profile = episode.EarningsProfile;
+
+        return new Episode
+        {
+            Key = episode.Key,
+            NumberOfInstalments = profile?.Instalments.Count ?? 0,
+            Instalments = (profile?.Instalments ?? []).Select(i => new Instalment
+            {
+                AcademicYear = i.AcademicYear,
+                DeliveryPeriod = i.DeliveryPeriod,
+                Amount = i.Amount,
+                EpisodePriceKey = i.EpisodePriceKey,
+                InstalmentType = i.Type
+            }).ToList(),
+            AdditionalPayments = (profile?.ApprenticeshipAdditionalPayments ?? []).Select(p => new AdditionalPayment
+            {
+                AcademicYear = p.AcademicYear,
+                DeliveryPeriod = p.DeliveryPeriod,
+                Amount = p.Amount,
+                AdditionalPaymentType = p.AdditionalPaymentType,
+                DueDate = p.DueDate
+            }).ToList(),
+            CompletionPayment = profile?.CompletionPayment ?? 0,
+            OnProgramTotal = profile?.OnProgramTotal ?? 0
+        };
+    }
+
+    private static ApprenticeshipEpisodeEntity? GetCurrentEpisode(List<ApprenticeshipEpisodeEntity> episodes, DateTime searchDate)
+    {
+        var episode = episodes.FirstOrDefault(e => e.Prices.Any(p => p.StartDate <= searchDate && p.EndDate >= searchDate));
+
+        if (episode == null)
+            episode = episodes.SingleOrDefault(e => e.Prices.Any(p => p.StartDate >= searchDate));
+
+        if (episode == null)
+            episode = episodes.Where(e => e.Prices.Any()).OrderByDescending(e => e.Prices.Max(p => p.EndDate)).FirstOrDefault();
+
+        return episode;
     }
 }

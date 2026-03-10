@@ -34,7 +34,6 @@ public static class ServiceCollectionExtensions
     {
 
         serviceCollection.AddScoped<ILearningRepository, LearningRepository>();
-        serviceCollection.AddScoped<IEarningsQueryRepository, EarningsQueryRepository>();
         serviceCollection.AddScoped<IEarningsProfileHistoryRepository, EarningsProfileHistoryRepository>();
         return serviceCollection;
     }
