@@ -1,11 +1,10 @@
-using AutoFixture;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using System;
 using System.Collections.Generic;
@@ -17,66 +16,56 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetShortCours
 [TestFixture]
 public class WhenGetShortCourseEarnings
 {
-    private Fixture _fixture;
-    private Mock<ILearningRepository> _mockLearningRepository;
+    private ApprenticeshipEarningsDataContext _dbContext;
     private GetShortCourseEarningsQueryHandler _queryHandler;
 
     [SetUp]
     public void Setup()
     {
-        _fixture = new Fixture();
-        _mockLearningRepository = new Mock<ILearningRepository>();
+        var options = new DbContextOptionsBuilder<ApprenticeshipEarningsDataContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        _dbContext = new ApprenticeshipEarningsDataContext(options);
         _queryHandler = new GetShortCourseEarningsQueryHandler(
-            _mockLearningRepository.Object,
+            _dbContext,
             Mock.Of<ILogger<GetShortCourseEarningsQueryHandler>>());
     }
+
+    [TearDown]
+    public void TearDown() => _dbContext.Dispose();
 
     [Test]
     public async Task Handle_LearningNotFound_ReturnsEmptyEarnings()
     {
-        // Arrange
-        var query = new GetShortCourseEarningsRequest(_fixture.Create<Guid>(), _fixture.Create<long>());
-        _mockLearningRepository.Setup(x => x.GetShortCourseLearning(query.LearningKey))
-            .ReturnsAsync((ShortCourseLearning?)null);
+        var query = new GetShortCourseEarningsRequest(Guid.NewGuid(), 10005077);
 
-        // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Earnings.Should().BeEmpty();
     }
 
     [Test]
     public async Task Handle_LearningExists_ReturnsMappedEarnings()
     {
-        // Arrange
-        var learningKey = _fixture.Create<Guid>();
-        var ukprn = _fixture.Create<long>();
+        var learningKey = Guid.NewGuid();
+        const long ukprn = 10005077;
         var query = new GetShortCourseEarningsRequest(learningKey, ukprn);
 
-        var instalments = new List<ShortCourseInstalmentEntity>
+        await SeedEpisodeWithInstalments(learningKey, ukprn, new List<ShortCourseInstalmentEntity>
         {
             new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 7, Amount = 600, Type = "ThirtyPercentLearningComplete" },
             new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 11, Amount = 1400, Type = "LearningComplete" }
-        };
+        });
 
-        var learning = CreateShortCourseLearning(learningKey, ukprn, instalments);
-
-        _mockLearningRepository.Setup(x => x.GetShortCourseLearning(learningKey))
-            .ReturnsAsync(learning);
-
-        // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Earnings.Should().HaveCount(2);
-
         result.Earnings.Should().ContainSingle(e =>
             e.CollectionYear == 2021 &&
             e.CollectionPeriod == 7 &&
             e.Amount == 600 &&
             e.Type == "ThirtyPercentLearningComplete");
-
         result.Earnings.Should().ContainSingle(e =>
             e.CollectionYear == 2021 &&
             e.CollectionPeriod == 11 &&
@@ -85,30 +74,24 @@ public class WhenGetShortCourseEarnings
     }
 
     [Test]
-    public async Task Handle_UkprnDoesNotMatchEpisode_Throws()
+    public async Task Handle_UkprnDoesNotMatchEpisode_ReturnsEmptyEarnings()
     {
-        // Arrange
-        var learningKey = _fixture.Create<Guid>();
-        var query = new GetShortCourseEarningsRequest(learningKey, _fixture.Create<long>());
-        var differentUkprn = _fixture.Create<long>();
+        var learningKey = Guid.NewGuid();
+        var query = new GetShortCourseEarningsRequest(learningKey, 10005077);
 
-        var learning = CreateShortCourseLearning(learningKey, differentUkprn, new List<ShortCourseInstalmentEntity>());
+        await SeedEpisodeWithInstalments(learningKey, ukprn: 99999999, new List<ShortCourseInstalmentEntity>());
 
-        _mockLearningRepository.Setup(x => x.GetShortCourseLearning(learningKey))
-            .ReturnsAsync(learning);
+        var result = await _queryHandler.Handle(query, CancellationToken.None);
 
-        // Act
-        var act = async () => await _queryHandler.Handle(query, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        result.Earnings.Should().BeEmpty();
     }
 
-    private static ShortCourseLearning CreateShortCourseLearning(Guid learningKey, long ukprn, List<ShortCourseInstalmentEntity> instalments)
+    private async Task SeedEpisodeWithInstalments(Guid learningKey, long ukprn, List<ShortCourseInstalmentEntity> instalments)
     {
         var earningsProfile = new ShortCourseEarningsProfileEntity
         {
             EarningsProfileId = Guid.NewGuid(),
+            CalculationData = "{}",
             Instalments = instalments
         };
 
@@ -117,18 +100,22 @@ public class WhenGetShortCourseEarnings
             Key = Guid.NewGuid(),
             LearningKey = learningKey,
             Ukprn = ukprn,
+            LegalEntityName = "Test Employer",
+            TrainingCode = "SC001",
             StartDate = new DateTime(2021, 1, 1),
             EndDate = new DateTime(2021, 6, 25),
             EarningsProfile = earningsProfile
         };
 
-        var entity = new ShortCourseLearningEntity
+        var learning = new ShortCourseLearningEntity
         {
             LearningKey = learningKey,
+            Uln = "1234567890",
             DateOfBirth = new DateTime(1990, 1, 1),
             Episodes = new List<ShortCourseEpisodeEntity> { episode }
         };
 
-        return ShortCourseLearning.Get(entity);
+        _dbContext.ShortCourseLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
     }
 }
