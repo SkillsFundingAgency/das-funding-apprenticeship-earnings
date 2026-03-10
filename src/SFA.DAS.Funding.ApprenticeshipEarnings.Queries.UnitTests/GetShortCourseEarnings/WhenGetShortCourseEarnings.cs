@@ -56,8 +56,8 @@ public class WhenGetShortCourseEarnings
 
         var instalments = new List<ShortCourseInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 7, Amount = 600, Type = "Regular" },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 11, Amount = 1400, Type = "Completion" }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 7, Amount = 600, Type = "ThirtyPercentLearningComplete" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 11, Amount = 1400, Type = "LearningComplete" }
         };
 
         var learning = CreateShortCourseLearning(learningKey, ukprn, instalments);
@@ -75,13 +75,13 @@ public class WhenGetShortCourseEarnings
             e.CollectionYear == 2021 &&
             e.CollectionPeriod == 7 &&
             e.Amount == 600 &&
-            e.Type == "Regular");
+            e.Type == "ThirtyPercentLearningComplete");
 
         result.Earnings.Should().ContainSingle(e =>
             e.CollectionYear == 2021 &&
             e.CollectionPeriod == 11 &&
             e.Amount == 1400 &&
-            e.Type == "Completion");
+            e.Type == "LearningComplete");
     }
 
     [Test]
