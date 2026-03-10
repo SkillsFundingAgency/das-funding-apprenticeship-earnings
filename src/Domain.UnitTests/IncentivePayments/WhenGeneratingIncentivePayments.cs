@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using System;
 using System.Collections.Generic;
 using IncentivePaymentsCalculator = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations.IncentivePayments;
@@ -27,7 +27,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             // Arrange
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddYears(1);
-            var periodsInLearning = new List<EpisodePeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
 
             // Act
             var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(19, apprenticeshipStartDate, apprenticeshipEndDate, periodsInLearning);
@@ -44,7 +44,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var ageAtStartOfLearning = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddDays(duration - 1);
-            var periodsInLearning = new List<EpisodePeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
 
             var expectedIncentiveDate = apprenticeshipStartDate.AddDays(89);
 
@@ -68,7 +68,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var ageAtStartOfLearning = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddYears(1);
-            var periodsInLearning = new List<EpisodePeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
 
             var firstIncentiveDate = apprenticeshipStartDate.AddDays(89);
             var secondIncentiveDate = apprenticeshipStartDate.AddDays(364);
@@ -96,7 +96,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var ageAtStartOfLearning = 17;
             var apprenticeshipStartDate = new DateTime(2024, 8, 1);
             var apprenticeshipEndDate = new DateTime(2025, 7, 31);
-            var periodsInLearning = new List<EpisodePeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
 
             //Then
             var firstIncentiveDate = new DateTime(2024, 10, 29);
@@ -124,7 +124,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var ageAtStartOfLearning = 17;
             var apprenticeshipStartDate = _fixture.Create<DateTime>();
             var apprenticeshipEndDate = apprenticeshipStartDate.AddMonths(2);
-            var periodsInLearning = new List<EpisodePeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new(Guid.NewGuid(), apprenticeshipStartDate, apprenticeshipEndDate, apprenticeshipEndDate) };
 
             // Act
             var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(ageAtStartOfLearning, apprenticeshipStartDate, apprenticeshipEndDate, periodsInLearning);
@@ -140,11 +140,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var periodsInLearning = new List<EpisodePeriodInLearning>
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning>
             {
-                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
                 // Break from day 30 to day 70 of duration 41 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
             };
 
             var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1;
@@ -177,13 +177,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
 
             TestContext.WriteLine($"Start Date: {startDate}");
 
-            var periodsInLearning = new List<EpisodePeriodInLearning>
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning>
             {
-                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
                 // Break from day 30 to day 70 of duration 41 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), startDate.AddDays(119), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(71), startDate.AddDays(119), endDate),
                 // Break from day 120 to day 150 of duration 31 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
             };
 
             // Act
@@ -222,11 +222,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddDays(100); // long enough for 90-day incentive normally
 
-            var periodsInLearning = new List<EpisodePeriodInLearning>
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning>
             {
-                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(39), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, startDate.AddDays(39), endDate),
                 // Break from day 40 to day 90 of duration 51 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(91), endDate, endDate)
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(91), endDate, endDate)
             };
 
             // Act
@@ -245,11 +245,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var periodsInLearning = new List<EpisodePeriodInLearning>
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning>
             {
-                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
                 // Break from day 30 to day 70 of duration 41 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
             };
 
             var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1;
@@ -288,13 +288,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddYears(2);
 
-            var periodsInLearning = new List<EpisodePeriodInLearning>
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning>
             {
-                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, startDate.AddDays(29), endDate),
                 // Break from day 30 to day 70 of duration 41 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(71), startDate.AddDays(119), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(71), startDate.AddDays(119), endDate),
                 // Break from day 120 to day 150 of duration 31 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
             };
 
             var break1Duration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1; // 41
@@ -334,11 +334,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
             var startDate = _fixture.Create<DateTime>();
             var endDate = startDate.AddDays(100);
 
-            var periodsInLearning = new List<EpisodePeriodInLearning>
+            var periodsInLearning = new List<ApprenticeshipPeriodInLearning>
             {
-                new EpisodePeriodInLearning(Guid.Empty, startDate, startDate.AddDays(39), endDate),
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate, startDate.AddDays(39), endDate),
                 // Break from day 40 to day 90 of duration 51 days
-                new EpisodePeriodInLearning(Guid.Empty, startDate.AddDays(91), endDate, endDate)
+                new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(91), endDate, endDate)
             };
 
             // Act

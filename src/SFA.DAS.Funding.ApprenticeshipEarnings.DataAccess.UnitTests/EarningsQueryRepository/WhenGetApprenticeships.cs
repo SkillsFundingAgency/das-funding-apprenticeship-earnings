@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.UnitTests.EarningsQueryRepository;
@@ -53,8 +54,8 @@ public class WhenGetApprenticeships
     {
         // Arrange
         var ukprn = _fixture.Create<long>();
-        var apprenticeships = _fixture.Create<List<LearningModel>>();
-        await PopulateDb(apprenticeships);
+        var apprenticeshipLearnings = _fixture.Create<List<ApprenticeshipLearningEntity>>();
+        await PopulateDb(apprenticeshipLearnings);
 
         // Act
         var result = _sut.GetApprenticeships(ukprn, _fixture.Create<DateTime>(), false);
@@ -69,30 +70,30 @@ public class WhenGetApprenticeships
         // Arrange
         var ukprn = _fixture.Create<long>();
         var testDateTime = _fixture.Create<DateTime>();
-        var apprenticeships = _fixture.Create<List<LearningModel>>();
+        var apprenticeshipLearnings = _fixture.Create<List<ApprenticeshipLearningEntity>>();
 
         _mockSystemClockService.Setup(x=>x.UtcNow).Returns(testDateTime);
 
-        foreach (var apprenticeship in apprenticeships)
+        foreach (var learning in apprenticeshipLearnings)
         {
-            var episode = _fixture.Create<EpisodeModel>();
+            var episode = _fixture.Create<ApprenticeshipEpisodeEntity>();
             
             episode.Ukprn = ukprn;
             episode.Prices.First().StartDate = testDateTime.AddDays(-60);
             episode.Prices.First().EndDate = testDateTime.AddDays(60);
 
-            apprenticeship.Episodes = new List<EpisodeModel> { episode };
+            learning.Episodes = new List<ApprenticeshipEpisodeEntity> { episode };
         }
-        await PopulateDb(apprenticeships);
+        await PopulateDb(apprenticeshipLearnings);
 
         // Act
         var result = _sut.GetApprenticeships(ukprn, _fixture.Create<DateTime>(), false);
 
         // Assert
-        result.Count.Should().Be(apprenticeships.Count);
+        result.Count.Should().Be(apprenticeshipLearnings.Count);
     }
 
-    private async Task PopulateDb(List<LearningModel> apprenticeshipModels)
+    private async Task PopulateDb(List<ApprenticeshipLearningEntity> apprenticeshipModels)
     {
         await _dbContext.AddRangeAsync(apprenticeshipModels);
         await _dbContext.SaveChangesAsync();

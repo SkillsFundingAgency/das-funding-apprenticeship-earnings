@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using System.Data;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
@@ -27,36 +29,58 @@ public class SqlDatabase : IDisposable
         DbContext = new ApprenticeshipEarningsDataContext(options);
     }
 
-    public async Task<LearningModel?> GetLearning(Guid learningKey)
+    public async Task<ApprenticeshipLearningEntity?> GetApprenticeshipLearning(Guid learningKey)
     {
         ClearCachedEntities();
 
-        var learningEntity = await DbContext.Learnings
+        var learningEntity = await DbContext.ApprenticeshipLearnings
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.Instalments)
+                .ThenInclude(y => y.EarningsProfile)
+                .ThenInclude(y => y.Instalments)
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.AdditionalPayments)
-            .Include(x => x.Episodes)
-            .Include(x => x.Episodes)
-            .ThenInclude(y => y.Prices)
+                .ThenInclude(y => y.EarningsProfile)
+                .ThenInclude(y => y.ApprenticeshipAdditionalPayments)
             .Include(x => x.Episodes)
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.MathsAndEnglishCourses)
+                .ThenInclude(y => y.Prices)
             .Include(x => x.Episodes)
-            .ThenInclude(y => y.EarningsProfile)
-            .ThenInclude(y => y.MathsAndEnglishCourses)
-            .ThenInclude(y => y.Instalments)
+            .Include(x => x.Episodes)
+                .ThenInclude(y => y.EarningsProfile)
+                .ThenInclude(y => y.EnglishAndMathsCourses)
+            .Include(x => x.Episodes)
+                .ThenInclude(y => y.EarningsProfile)
+                .ThenInclude(y => y.EnglishAndMathsCourses)
+                .ThenInclude(y => y.Instalments)
             .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
 
         return learningEntity;
     }
 
-    public async Task<List<EarningsProfileHistory>> GetHistory(Guid earningsProfileId)
+    public async Task<ShortCourseLearningEntity?> GetShortCourseLearning(Guid learningKey)
+    {
+        ClearCachedEntities();
+
+        var learningEntity = await DbContext.ShortCourseLearnings
+            .Include(x => x.Episodes)
+                .ThenInclude(y => y.EarningsProfile)
+                .ThenInclude(y => y.Instalments)
+            .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
+
+        return learningEntity;
+    }
+
+
+    public async Task<List<ApprenticeshipEarningsProfileHistoryEntity>> GetHistory(Guid earningsProfileId)
     {
         return await DbContext.EarningsProfileHistories2
+            .Where(x => x.EarningsProfileId == earningsProfileId)
+            .OrderByDescending(x => x.CreatedOn)
+            .ToListAsync();
+    }
+
+    public async Task<List<ShortCourseEarningsProfileHistoryEntity>> GetShortCourseHistory(Guid earningsProfileId)
+    {
+        return await DbContext.ShortCourseEarningsProfileHistories
             .Where(x => x.EarningsProfileId == earningsProfileId)
             .OrderByDescending(x => x.CreatedOn)
             .ToListAsync();

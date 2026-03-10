@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -9,28 +9,33 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeComman
 public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgrammeCommand>
 {
     private readonly ILogger<UpdateOnProgrammeCommandHandler> _logger;
-    private readonly IApprenticeshipRepository _apprenticeshipRepository;
+    private readonly ILearningRepository _learningRepository;
     private readonly ISystemClockService _systemClock;
 
     public UpdateOnProgrammeCommandHandler(
         ILogger<UpdateOnProgrammeCommandHandler> logger,
-        IApprenticeshipRepository apprenticeshipRepository,
+        ILearningRepository apprenticeshipRepository,
         ISystemClockService systemClock)
     {
         _logger = logger;
-        _apprenticeshipRepository = apprenticeshipRepository;
+        _learningRepository = apprenticeshipRepository;
         _systemClock = systemClock;
     }
 
     public async Task Handle(UpdateOnProgrammeCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling UpdateOnProgrammeCommand for ApprenticeshipKey: {ApprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Handling UpdateOnProgrammeCommand for LearningKey: {LearningKey}", command.LearningKey);
         
-        var apprenticeship = await _apprenticeshipRepository.Get(command.ApprenticeshipKey);
-        var episode = apprenticeship.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
+        var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
+
+        if(learningDomainModel == null)
+            throw new InvalidOperationException($"Learning domain model not found for LearningKey: {command.LearningKey}");
+
+
+        var episode = learningDomainModel.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
         var request = command.Request;
 
-        ExecuteAndLog(() => apprenticeship.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
+        ExecuteAndLog(() => learningDomainModel.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
         ExecuteAndLog(() => episode.UpdatePause(request.PauseDate), "update Pause");
         ExecuteAndLog(() => episode.UpdatePeriodsInLearning(request.ToEpisodePeriodsInLearning()), "update Periods in learning");
         ExecuteAndLog(() => episode.UpdateCompletion(request.CompletionDate), "update Completion");
@@ -40,17 +45,17 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         {
             ExecuteAndLog(() => episode.UpdateFundingBandMaximum(request.FundingBandMaximum!.Value), "update FundingBandMaximum");
             ExecuteAndLog(() => episode.UpdatePrices(request.Prices), "update Prices");
-            episode.UpdateAgeAtStart(apprenticeship.DateOfBirth);
+            episode.UpdateAgeAtStart(learningDomainModel.DateOfBirth);
         }
 
-        ExecuteAndLog(() => apprenticeship.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
+        ExecuteAndLog(() => learningDomainModel.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
 
-        ExecuteAndLog(() => apprenticeship.Calculate(_systemClock, JsonSerializer.Serialize(command.Request), request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
+        ExecuteAndLog(() => learningDomainModel.Calculate(_systemClock, JsonSerializer.Serialize(command.Request), request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
 
-        _logger.LogInformation("Updating ApprenticeshipKey: {ApprenticeshipKey} in repository", command.ApprenticeshipKey);
-        await _apprenticeshipRepository.Update(apprenticeship);
+        _logger.LogInformation("Updating LearningKey: {LearningKey} in repository", command.LearningKey);
+        await _learningRepository.Update(learningDomainModel);
 
-        _logger.LogInformation("Completed handling UpdateOnProgrammeCommand for ApprenticeshipKey: {ApprenticeshipKey}", command.ApprenticeshipKey);
+        _logger.LogInformation("Completed handling UpdateOnProgrammeCommand for LearningKey: {LearningKey}", command.LearningKey);
     }
 
     private void ExecuteAndLog(Action action, string actionDescription)

@@ -3,5 +3,5 @@
 public interface IDomainEntity<T>
 {
     public bool AreSame(T? compare);
-    public T GetModel();
+    public T GetEntity();
 }

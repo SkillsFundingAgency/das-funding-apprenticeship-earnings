@@ -1,124 +1,191 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Learning.Types;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Learning.Types;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+
+public class ApprenticeshipEarningsDataContext : DbContext
 {
-    public class ApprenticeshipEarningsDataContext : DbContext
+    public ApprenticeshipEarningsDataContext(DbContextOptions<ApprenticeshipEarningsDataContext> options) : base(options)
     {
-        public ApprenticeshipEarningsDataContext(DbContextOptions<ApprenticeshipEarningsDataContext> options) : base(options)
-        {
-        }
-
-        public virtual DbSet<LearningModel> Learnings { get; set; }
-        public virtual DbSet<EpisodeModel> Episodes { get; set; }
-        public virtual DbSet<EpisodePriceModel> EpisodePrices { get; set; }
-        public virtual DbSet<EarningsProfileModel> EarningsProfiles { get; set; }
-        public virtual DbSet<InstalmentModel> Instalments { get; set; }
-        public virtual DbSet<AdditionalPaymentModel> AdditionalPayments { get; set; }
-        public virtual DbSet<EpisodePeriodInLearningModel> EpisodePeriodsInLearnings { get; set; }
-        public virtual DbSet<EarningsProfileHistory> EarningsProfileHistories2 { get; set; }
-        public virtual DbSet<MathsAndEnglishPeriodInLearningModel> MathsAndEnglishPeriodsInLearning { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Apprenticeship
-            modelBuilder.Entity<LearningModel>()
-                .HasMany(x => x.Episodes)
-                .WithOne()
-                .HasForeignKey(fk => fk.LearningKey);
-            modelBuilder.Entity<LearningModel>()
-                .HasKey(a => new { Key = a.LearningKey });
-
-            // Episode
-            modelBuilder.Entity<EpisodeModel>()
-                .HasKey(a => new { a.Key });
-            modelBuilder.Entity<EpisodeModel>()
-                .HasOne(a => a.EarningsProfile).WithOne().HasForeignKey<EarningsProfileModel>(x => x.EpisodeKey);
-            modelBuilder.Entity<EpisodeModel>()
-                .Property(p => p.FundingType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (FundingType)Enum.Parse(typeof(FundingType), v));
-            modelBuilder.Entity<EpisodeModel>()
-                .HasMany(a => a.Prices)
-                .WithOne()  
-                .HasForeignKey(x => x.EpisodeKey);
-            modelBuilder.Entity<EpisodeModel>()
-                .HasMany(a => a.PeriodsInLearning)
-                .WithOne()
-                .HasForeignKey(x => x.EpisodeKey);
-            modelBuilder.Entity<EpisodeModel>()
-                .Property(p => p.TrainingType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (TrainingType)Enum.Parse(typeof(TrainingType), v));
-
-            // EpisodePrice
-            modelBuilder.Entity<EpisodePriceModel>()
-                .HasKey(x => x.Key);
-
-            // EarningsProfile
-            modelBuilder.Entity<EarningsProfileModel>()
-                .HasKey(x => x.EarningsProfileId);
-
-            modelBuilder.Entity<EarningsProfileModel>()
-                .HasMany(x => x.Instalments)
-                .WithOne()
-                .HasForeignKey(fk => fk.EarningsProfileId);
-
-            modelBuilder.Entity<EarningsProfileModel>()
-                .HasMany(x => x.AdditionalPayments)
-                .WithOne()
-                .HasForeignKey(fk => fk.EarningsProfileId);
-
-            modelBuilder.Entity<EarningsProfileModel>()
-                .HasMany(x => x.MathsAndEnglishCourses)
-                .WithOne()
-                .HasForeignKey(fk => fk.EarningsProfileId);
-
-            // Instalment
-            modelBuilder.Entity<InstalmentModel>()
-                .HasKey(x => x.Key);
-
-            // EarningsProfileHistory
-            modelBuilder.Entity<EarningsProfileHistory>()
-                .HasKey(x => x.Key);
-
-            // AdditionalPayment
-            modelBuilder.Entity<AdditionalPaymentModel>()
-                .HasKey(x => x.Key);
-
-            modelBuilder.Entity<AdditionalPaymentHistoryModel>()
-                .HasKey(x => x.Key);
-
-            // MathsAndEnglish
-            modelBuilder.Entity<MathsAndEnglishModel>()
-                .HasKey(x => x.Key);
-
-            modelBuilder.Entity<MathsAndEnglishModel>()
-                .HasMany(x => x.Instalments)
-                .WithOne()
-                .HasForeignKey(fk => fk.MathsAndEnglishKey);
-
-            modelBuilder.Entity<MathsAndEnglishModel>()
-                .HasMany(x => x.PeriodsInLearning)
-                .WithOne()
-                .HasForeignKey(fk => fk.MathsAndEnglishKey);
-
-            // MathsAndEnglishInstalment
-            modelBuilder.Entity<MathsAndEnglishInstalmentModel>()
-                .HasKey(x => x.Key);
-
-            // MathsAndEnglishPeriodInLearningModel
-            modelBuilder.Entity<MathsAndEnglishPeriodInLearningModel>()
-                .HasKey(x => x.Key);
-
-            // EpisodeBreakInLearning
-            modelBuilder.Entity<EpisodePeriodInLearningModel>()
-                .HasKey(x => x.Key);
-
-            base.OnModelCreating(modelBuilder);
-        }
     }
+
+    public virtual DbSet<ApprenticeshipLearningEntity> ApprenticeshipLearnings { get; set; }
+    public virtual DbSet<ShortCourseLearningEntity> ShortCourseLearnings { get; set; }
+    public virtual DbSet<ApprenticeshipEpisodeEntity> ApprenticeshipEpisodes { get; set; }
+    public virtual DbSet<ShortCourseEpisodeEntity> ShortCourseEpisodes { get; set; }
+    public virtual DbSet<ApprenticeshipEpisodePriceEntity> EpisodePrices { get; set; }
+    public virtual DbSet<ApprenticeshipEarningsProfileEntity> EarningsProfiles { get; set; }
+    public virtual DbSet<ApprenticeshipInstalmentEntity> Instalments { get; set; }
+    public virtual DbSet<ApprenticeshipAdditionalPaymentEntity> AdditionalPayments { get; set; }
+    public virtual DbSet<ApprenticeshipPeriodInLearningEntity> EpisodePeriodsInLearnings { get; set; }
+    public virtual DbSet<ApprenticeshipEarningsProfileHistoryEntity> EarningsProfileHistories2 { get; set; }
+    public virtual DbSet<ShortCourseEarningsProfileHistoryEntity> ShortCourseEarningsProfileHistories { get; set; }
+    public virtual DbSet<EnglishAndMathsPeriodInLearningEntity> MathsAndEnglishPeriodsInLearning { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        //  Apprenticeship
+        modelBuilder.Entity<ApprenticeshipLearningEntity>().Configure();
+        modelBuilder.Entity<ApprenticeshipEpisodeEntity>().Configure();
+        modelBuilder.Entity<ApprenticeshipEpisodePriceEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<ApprenticeshipEarningsProfileEntity>().Configure();
+        modelBuilder.Entity<ApprenticeshipInstalmentEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<ApprenticeshipAdditionalPaymentEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<ApprenticeshipPeriodInLearningEntity>().HasKey(x => x.Key);
+
+        //  English and Maths
+        modelBuilder.Entity<EnglishAndMathsEntity>().Configure();
+        modelBuilder.Entity<EnglishAndMathsInstalmentEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<EnglishAndMathsPeriodInLearningEntity>().HasKey(x => x.Key);
+
+        //  Apprenticeship History
+        modelBuilder.Entity<ApprenticeshipEarningsProfileHistoryEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<AdditionalPaymentHistoryEntity>().HasKey(x => x.Key);
+
+        //  Short Course
+        modelBuilder.Entity<ShortCourseLearningEntity>().Configure();
+        modelBuilder.Entity<ShortCourseEpisodeEntity>().Configure();
+        modelBuilder.Entity<ShortCourseEarningsProfileEntity>().Configure();
+        modelBuilder.Entity<ShortCourseInstalmentEntity>().HasKey(x => x.Key);
+
+        //  Short Course History
+        modelBuilder.Entity<ShortCourseEarningsProfileHistoryEntity>().HasKey(x => x.Key);
+
+        base.OnModelCreating(modelBuilder);
+    }
+}
+
+internal static class ModelBuilderExtensions
+{
+    public static EntityTypeBuilder<ApprenticeshipLearningEntity> Configure(this EntityTypeBuilder<ApprenticeshipLearningEntity> builder)
+    {
+        builder
+            .HasMany(x => x.Episodes)
+            .WithOne()
+            .HasForeignKey(fk => fk.LearningKey);
+
+        builder
+            .HasKey(a => new { Key = a.LearningKey });
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<ShortCourseLearningEntity> Configure(this EntityTypeBuilder<ShortCourseLearningEntity> builder)
+    {
+        builder
+            .HasMany(x => x.Episodes)
+            .WithOne()
+            .HasForeignKey(fk => fk.LearningKey);
+
+        builder
+            .HasKey(a => new { Key = a.LearningKey });
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<ApprenticeshipEpisodeEntity> Configure(this EntityTypeBuilder<ApprenticeshipEpisodeEntity> builder)
+    {
+        builder.HasKey(a => new { a.Key });
+
+        builder
+            .HasOne(a => a.EarningsProfile)
+            .WithOne()
+            .HasForeignKey<ApprenticeshipEarningsProfileEntity>(x => x.EpisodeKey);
+
+        builder
+            .Property(p => p.FundingType)
+            .HasConversion(
+                v => v.ToString(),
+                v => (FundingType)Enum.Parse(typeof(FundingType), v));
+
+        builder
+            .HasMany(a => a.Prices)
+            .WithOne()
+            .HasForeignKey(x => x.EpisodeKey);
+
+        builder
+            .HasMany(a => a.PeriodsInLearning)
+            .WithOne()
+            .HasForeignKey(x => x.EpisodeKey);
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<ApprenticeshipEarningsProfileEntity> Configure(this EntityTypeBuilder<ApprenticeshipEarningsProfileEntity> builder)
+    {
+        builder
+            .HasKey(x => x.EarningsProfileId);
+
+        builder
+            .HasMany(x => x.Instalments)
+            .WithOne()
+            .HasForeignKey(fk => fk.EarningsProfileId);
+
+        builder
+            .HasMany(x => x.ApprenticeshipAdditionalPayments)
+            .WithOne()
+            .HasForeignKey(fk => fk.EarningsProfileId);
+
+        builder
+            .HasMany(x => x.EnglishAndMathsCourses)
+            .WithOne()
+            .HasForeignKey(fk => fk.EarningsProfileId);
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<EnglishAndMathsEntity> Configure(this EntityTypeBuilder<EnglishAndMathsEntity> builder)
+    {
+        builder
+            .HasKey(x => x.Key);
+
+        builder
+            .HasMany(x => x.Instalments)
+            .WithOne()
+            .HasForeignKey(fk => fk.EnglishAndMathsKey);
+
+        builder
+            .HasMany(x => x.PeriodsInLearning)
+            .WithOne()
+            .HasForeignKey(fk => fk.EnglishAndMathsKey);
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<ShortCourseEpisodeEntity> Configure(this EntityTypeBuilder<ShortCourseEpisodeEntity> builder)
+    {
+        builder.HasKey(a => new { a.Key });
+
+        builder
+            .HasOne(a => a.EarningsProfile)
+            .WithOne()
+            .HasForeignKey<ShortCourseEarningsProfileEntity>(x => x.EpisodeKey);
+
+        builder
+            .Property(p => p.FundingType)
+            .HasConversion(
+                v => v.ToString(),
+                v => (FundingType)Enum.Parse(typeof(FundingType), v));
+
+        return builder;
+    }
+
+    public static EntityTypeBuilder<ShortCourseEarningsProfileEntity> Configure(this EntityTypeBuilder<ShortCourseEarningsProfileEntity> builder)
+    {
+        builder
+            .HasKey(x => x.EarningsProfileId);
+
+        builder
+            .HasMany(x => x.Instalments)
+            .WithOne()
+            .HasForeignKey(fk => fk.EarningsProfileId);
+
+        return builder;
+    }
+
 }

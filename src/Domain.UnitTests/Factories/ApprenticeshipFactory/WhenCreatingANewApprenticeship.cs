@@ -10,13 +10,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.Appr
 public class WhenCreatingANewApprenticeship
 {
     private Fixture _fixture;
-    private Domain.Factories.ApprenticeshipFactory _factory;
+    private Domain.Factories.LearningFactory _factory;
 
     [SetUp]
     public void SetUp()
     {
         _fixture = new Fixture();
-        _factory = new Domain.Factories.ApprenticeshipFactory();
+        _factory = new Domain.Factories.LearningFactory();
     }
 
     [Test]
@@ -26,18 +26,18 @@ public class WhenCreatingANewApprenticeship
 
         var apprenticeship = _factory.CreateNew(learningCreatedEvent, _fixture.Create<int>());
 
-        learningCreatedEvent.LearningKey.Should().Be(apprenticeship.ApprenticeshipKey);
+        learningCreatedEvent.LearningKey.Should().Be(apprenticeship.LearningKey);
         learningCreatedEvent.ApprovalsApprenticeshipId.Should().Be(apprenticeship.ApprovalsApprenticeshipId);
         learningCreatedEvent.Uln.Should().Be(apprenticeship.Uln);
         
-        var episode = apprenticeship.ApprenticeshipEpisodes.SingleOrDefault(x =>
+        var episode = apprenticeship.Episodes.SingleOrDefault(x =>
             x.UKPRN == learningCreatedEvent.Episode.Ukprn &&
             x.EmployerAccountId == learningCreatedEvent.Episode.EmployerAccountId &&
             x.TrainingCode == learningCreatedEvent.Episode.TrainingCode &&
             x.LegalEntityName == learningCreatedEvent.Episode.LegalEntityName &&
             x.AgeAtStartOfApprenticeship == learningCreatedEvent.Episode.AgeAtStartOfLearning &&
             x.FundingEmployerAccountId == learningCreatedEvent.Episode.FundingEmployerAccountId &&
-            x.ApprenticeshipEpisodeKey == learningCreatedEvent.Episode.Key);
+            x.EpisodeKey == learningCreatedEvent.Episode.Key);
 
         episode.Should().NotBeNull();
 

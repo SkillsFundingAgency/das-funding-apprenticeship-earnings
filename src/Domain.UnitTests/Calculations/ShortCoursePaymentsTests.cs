@@ -3,6 +3,8 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Calculations;
 
@@ -16,10 +18,9 @@ public class ShortCoursePaymentsTests
         var totalPrice = 1000m;
         var startDate = new DateTime(2023, 11, 1);
         var endDate = new DateTime(2023, 11, 30);
-        var priceKey = Guid.NewGuid();
 
         // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, null);
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, null);
 
         // Assert
         result.Count.Should().Be(2);
@@ -35,28 +36,11 @@ public class ShortCoursePaymentsTests
         var priceKey = Guid.NewGuid();
 
         // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, null);
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, null);
 
         // Assert
         result[0].Amount.Should().Be(300m);
         result[1].Amount.Should().Be(700m);
-    }
-
-    [Test]
-    public void GenerateShortCoursePayments_ShouldGeneratePaymentsWithCorrectPriceKey()
-    {
-        // Arrange
-        var totalPrice = 1000m;
-        var startDate = new DateTime(2023, 11, 1);
-        var endDate = new DateTime(2023, 11, 30);
-        var priceKey = Guid.NewGuid();
-
-        // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, null);
-
-        // Assert
-        result[0].EpisodePriceKey.Should().Be(priceKey);
-        result[1].EpisodePriceKey.Should().Be(priceKey);
     }
 
     [Test]
@@ -72,7 +56,7 @@ public class ShortCoursePaymentsTests
         var firstPaymentDate = startDate.AddDays(Math.Floor(duration * 0.3) - 1);
 
         // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, null);
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, null);
 
         // Assert
         result[0].AcademicYear.Should().Be(firstPaymentDate.ToAcademicYear());
@@ -89,7 +73,7 @@ public class ShortCoursePaymentsTests
         var priceKey = Guid.NewGuid();
 
         // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, null);
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, null);
 
         // Assert
         result[1].AcademicYear.Should().Be(endDate.ToAcademicYear());
@@ -106,7 +90,7 @@ public class ShortCoursePaymentsTests
         var priceKey = Guid.NewGuid();
 
         // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, null);
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, null);
 
         // Assert
         result.Count.Should().Be(2);
@@ -125,10 +109,28 @@ public class ShortCoursePaymentsTests
         var priceKey = Guid.NewGuid();
 
         // Act
-        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, priceKey, completionDate);
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, completionDate);
 
         // Assert
         result[1].AcademicYear.Should().Be(completionDate.ToAcademicYear());
         result[1].DeliveryPeriod.Should().Be(completionDate.ToDeliveryPeriod());
+    }
+
+    [Test]
+    public void GenerateShortCoursePayments_ShouldSetInstalmentTypesCorrectly()
+    {
+        // Arrange
+        var totalPrice = 1000m;
+        var startDate = new DateTime(2023, 11, 1);
+        var endDate = new DateTime(2023, 11, 30);
+        var completionDate = new DateTime(2024, 1, 15);
+        var priceKey = Guid.NewGuid();
+
+        // Act
+        var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, completionDate);
+
+        // Assert
+        result[0].Type.Should().Be(InstalmentType.Regular);
+        result[1].Type.Should().Be(InstalmentType.Completion);
     }
 }

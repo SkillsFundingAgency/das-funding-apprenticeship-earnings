@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Calculations;
 
@@ -17,15 +18,15 @@ public class BalancingInstalmentsTests
         // Arrange
         var completionDate = new DateTime(2024, 8, 1); //R01
         var priceKey = Guid.NewGuid();
-        var instalments = new List<Instalment>
+        var instalments = new List<ApprenticeshipInstalment>
         {
-            new Instalment(2324, 12, 500, priceKey),
-            new Instalment(2324, 11, 300, priceKey)
+            new ApprenticeshipInstalment(2324, 12, 500, priceKey),
+            new ApprenticeshipInstalment(2324, 11, 300, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 7, 15);
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
 
         // Assert
         result.Should().BeEquivalentTo(instalments);
@@ -40,19 +41,19 @@ public class BalancingInstalmentsTests
         var completionYear = completionDate.ToAcademicYear();
         var priceKey = Guid.NewGuid();
 
-        var instalments = new List<Instalment>
+        var instalments = new List<ApprenticeshipInstalment>
         {
-            new Instalment(completionYear, 9, 200, priceKey),
-            new Instalment(completionYear, 10, 300, priceKey),
-            new Instalment(completionYear, 11, 100, priceKey),
-            new Instalment(completionYear, 12, 400, priceKey)
+            new ApprenticeshipInstalment(completionYear, 9, 200, priceKey),
+            new ApprenticeshipInstalment(completionYear, 10, 300, priceKey),
+            new ApprenticeshipInstalment(completionYear, 11, 100, priceKey),
+            new ApprenticeshipInstalment(completionYear, 12, 400, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 7, 15);
 
         var expectedBalancingAmount = 500;
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
 
         // Assert
         result.Should().ContainSingle(x =>
@@ -74,15 +75,15 @@ public class BalancingInstalmentsTests
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var priceKey = Guid.NewGuid();
 
-        var instalments = new List<Instalment>
+        var instalments = new List<ApprenticeshipInstalment>
         {
-            new Instalment(completionYear, 11, 100, priceKey),
-            new Instalment(completionYear, 10, 200, priceKey)
+            new ApprenticeshipInstalment(completionYear, 11, 100, priceKey),
+            new ApprenticeshipInstalment(completionYear, 10, 200, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 7, 11);
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
 
         // Assert
         result.Should().NotContain(x => x.Type == InstalmentType.Balancing);
@@ -102,15 +103,15 @@ public class BalancingInstalmentsTests
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var priceKey = Guid.NewGuid();
 
-        var instalments = new List<Instalment>
+        var instalments = new List<ApprenticeshipInstalment>
         {
-            new Instalment(completionYear, 11, 100, priceKey), //existing regular instalment for R11
-            new Instalment(completionYear, 10, 200, priceKey)
+            new ApprenticeshipInstalment(completionYear, 11, 100, priceKey), //existing regular instalment for R11
+            new ApprenticeshipInstalment(completionYear, 10, 200, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 6, 30); //census date for R11
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<Instalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
 
         // Assert
         result.Should().Contain(x => x.DeliveryPeriod == completionPeriod && x.Type == InstalmentType.Balancing);

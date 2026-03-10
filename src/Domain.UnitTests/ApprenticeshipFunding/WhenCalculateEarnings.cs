@@ -1,12 +1,14 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using System;
+using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
@@ -14,7 +16,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenCalculateEarnings
 {
     private Fixture _fixture;
-    private Apprenticeship.Apprenticeship _sut;
+    private ApprenticeshipLearning _sut;
     private Mock<ISystemClockService> _mockSystemClock;
 
     public WhenCalculateEarnings()
@@ -31,7 +33,7 @@ public class WhenCalculateEarnings
         var agreedPrice = _fixture.Create<decimal>();
         var actualStartDate = new DateTime(2021, 1, 15);
         var plannedEndDate = new DateTime(2021, 12, 31);
-        _sut = _fixture.CreateApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
+        _sut = _fixture.CreateLearningWithApprenticeship(actualStartDate, plannedEndDate, agreedPrice);
     }
 
     [Test]
@@ -39,7 +41,7 @@ public class WhenCalculateEarnings
     {
         _sut.Calculate(_mockSystemClock.Object, string.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .8m);
+        currentEpisode.EarningsProfile.OnProgramTotal.Should().Be(_sut.Episodes.Single().Prices.Single().AgreedPrice * .8m);
     }
 
     [Test]
@@ -47,7 +49,7 @@ public class WhenCalculateEarnings
     {
         _sut.Calculate(_mockSystemClock.Object, string.Empty);
         var currentEpisode = _sut.GetCurrentEpisode(_mockSystemClock.Object);
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_sut.ApprenticeshipEpisodes.Single().Prices.Single().AgreedPrice * .2m);
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(_sut.Episodes.Single().Prices.Single().AgreedPrice * .2m);
     }
 
     [Test]

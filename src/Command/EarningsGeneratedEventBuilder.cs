@@ -1,5 +1,5 @@
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public interface IEarningsGeneratedEventBuilder
 {
-    EarningsGeneratedEvent Build(Apprenticeship apprenticeship);
+    EarningsGeneratedEvent Build(ApprenticeshipLearning learning);
 }
 
 public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
@@ -19,14 +19,14 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
         _systemClock = systemClock;
     }
 
-    public EarningsGeneratedEvent Build(Apprenticeship apprenticeship)
+    public EarningsGeneratedEvent Build(ApprenticeshipLearning learning)
     {
-        var currentEpisode = apprenticeship.GetCurrentEpisode(_systemClock);
+        var currentEpisode = learning.GetCurrentEpisode(_systemClock);
 
         var result = new EarningsGeneratedEvent
         {
-            ApprenticeshipKey = apprenticeship.ApprenticeshipKey,
-            Uln = apprenticeship.Uln,
+            ApprenticeshipKey = learning.LearningKey,
+            Uln = learning.Uln,
             EmployerId = currentEpisode.EmployerAccountId,
             ProviderId = currentEpisode.UKPRN,
             TransferSenderEmployerId = currentEpisode.FundingEmployerAccountId,
@@ -37,7 +37,7 @@ public class EarningsGeneratedEventBuilder : IEarningsGeneratedEventBuilder
             DeliveryPeriods = currentEpisode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EmployerAccountId = currentEpisode.EmployerAccountId,
             PlannedEndDate = currentEpisode.Prices!.First().EndDate,
-            ApprovalsApprenticeshipId = apprenticeship.ApprovalsApprenticeshipId,
+            ApprovalsApprenticeshipId = learning.ApprovalsApprenticeshipId,
             EarningsProfileId = currentEpisode.EarningsProfile!.EarningsProfileId,
             AgeAtStartOfLearning = currentEpisode.AgeAtStartOfApprenticeship
         };

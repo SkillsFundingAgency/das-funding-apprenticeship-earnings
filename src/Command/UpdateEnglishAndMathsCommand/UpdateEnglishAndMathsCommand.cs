@@ -2,13 +2,13 @@
 
 public class UpdateEnglishAndMathsCommand : ICommand
 {
-    public UpdateEnglishAndMathsCommand(Guid apprenticeshipKey, UpdateEnglishAndMathsRequest updateMathsAndEnglishRequest)
+    public UpdateEnglishAndMathsCommand(Guid learningKey, UpdateEnglishAndMathsRequest updateMathsAndEnglishRequest)
     {
-        ApprenticeshipKey = apprenticeshipKey;
+        LearningKey = learningKey;
         EnglishAndMathsDetails = updateMathsAndEnglishRequest.EnglishAndMaths;
     }
 
-    public Guid ApprenticeshipKey { get; }
+    public Guid LearningKey { get; }
 
     public List<EnglishAndMathsItem> EnglishAndMathsDetails { get; set; }
 }
