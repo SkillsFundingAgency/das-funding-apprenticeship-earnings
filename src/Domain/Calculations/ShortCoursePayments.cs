@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
@@ -33,5 +34,18 @@ public static class ShortCoursePayments
         ));
 
         return payments;
+    }
+
+    public static void RemoveWithdrawnPayments(List<ShortCourseInstalment> payments, MilestoneFlags milestoneFlags)
+    {
+        if(!milestoneFlags.HasFlag(MilestoneFlags.ThirtyPercentLearningComplete))
+        {
+            payments.RemoveAll(p => p.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete);
+        }
+
+        if(!milestoneFlags.HasFlag(MilestoneFlags.LearningComplete))
+        {
+            payments.RemoveAll(p => p.Type == ShortCourseInstalmentType.LearningComplete);
+        }
     }
 }

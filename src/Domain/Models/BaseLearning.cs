@@ -1,4 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
@@ -75,5 +76,6 @@ public class ShortCourseUpdateModel
     public DateTime? CompletionDate { get; set; }
     public DateTime ExpectedEndDate { get; set; }
     public decimal TotalPrice { get; set; }
+    public List<Milestone> Milestones { get; set; }
 }
 #pragma warning restore CS8618

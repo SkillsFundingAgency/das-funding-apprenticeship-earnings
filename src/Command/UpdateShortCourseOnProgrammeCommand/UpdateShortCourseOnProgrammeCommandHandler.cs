@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 
@@ -20,12 +21,18 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
     {
         _logger.LogInformation("Handling UpdateShortCourseOnProgrammeCommand for LearningKey: {LearningKey}", command.LearningKey);
 
-        var learning = _learningRepository.GetShortCourseLearning(command.LearningKey);
+        var learning = await _learningRepository.GetShortCourseLearning(command.LearningKey);
 
         if (learning == null)
             throw new InvalidOperationException($"Short course learning not found for LearningKey {command.LearningKey}");
 
+        var episode = learning.GetEpisode();
 
+        episode.UpdateWithdrawalDate(command.Request.WithdrawalDate);
+        episode.UpdateMilestones(command.Request.Milestones);
 
+        episode.CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
+
+        await _learningRepository.Update(learning);
     }
 }

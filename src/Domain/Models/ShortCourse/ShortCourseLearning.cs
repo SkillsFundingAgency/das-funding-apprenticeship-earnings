@@ -40,6 +40,7 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         episode.CompletionDate = updateModel.CompletionDate;
         episode.EndDate = updateModel.ExpectedEndDate;
         episode.CoursePrice = updateModel.TotalPrice;
+        episode.Milestones = updateModel.Milestones.ToMilestoneFlags();
     }
 
     public override void UpdateDateOfBirth(DateTime dateOfBirth)

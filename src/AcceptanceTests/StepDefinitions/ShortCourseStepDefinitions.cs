@@ -130,6 +130,10 @@ public class ShortCourseStepDefinitions
                 case nameof(UpdateShortCourseOnProgrammeModel.Milestones):
                     model.Milestones.SetValue(item.Value.ToEnumList<Milestone>());
                     break;
+
+                case nameof(UpdateShortCourseOnProgrammeModel.WithdrawalDate):
+                    model.WithdrawalDate.SetValue(item.ToNullableDateTime());
+                    break;
             }
         }
 

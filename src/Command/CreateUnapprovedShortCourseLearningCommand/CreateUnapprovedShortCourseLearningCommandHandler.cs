@@ -2,7 +2,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
@@ -11,16 +10,14 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
     : ICommandHandler<CreateUnapprovedShortCourseLearningCommand>
 {
     private readonly ILogger<CreateUnapprovedShortCourseLearningCommandHandler> _logger;
-    private readonly ISystemClockService _systemClockService;
     private ILearningFactory _learningFactory;
     private ILearningRepository _learningRepository;
 
     public CreateUnapprovedShortCourseLearningCommandHandler(
         ILogger<CreateUnapprovedShortCourseLearningCommandHandler> logger,
-        ISystemClockService systemClockService, ILearningFactory learningFactory, ILearningRepository learningRepository)
+        ILearningFactory learningFactory, ILearningRepository learningRepository)
     {
         _logger = logger;
-        _systemClockService = systemClockService;
         _learningFactory = learningFactory;
         _learningRepository = learningRepository;
     }
@@ -48,10 +45,11 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 TotalPrice = command.Request.OnProgramme.TotalPrice,
                 Ukprn = command.Request.OnProgramme.Ukprn,
                 Uln = command.Request.Learner.Uln,
-                WithdrawalDate = command.Request.OnProgramme.WithdrawalDate
+                WithdrawalDate = command.Request.OnProgramme.WithdrawalDate,
+                Milestones = command.Request.OnProgramme.Milestones
             });
 
-            existingShortCourse.Episodes.Single().CalculateShortCourseOnProgram(existingShortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            existingShortCourse.GetEpisode().CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Update(existingShortCourse);
         }
@@ -59,7 +57,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
         {
             var shortCourse = _learningFactory.CreateNewShortCourse(command.Request);
 
-            shortCourse.Episodes.Single().CalculateShortCourseOnProgram(shortCourse, _systemClockService, false, JsonSerializer.Serialize(command.Request));
+            shortCourse.GetEpisode().CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Add(shortCourse);
         }

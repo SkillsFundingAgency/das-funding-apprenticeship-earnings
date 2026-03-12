@@ -80,6 +80,7 @@ public class ShortCoursesController : ControllerBase
         }
     }
 
+    [HttpPut("/{learningKey}/shortCourses/on-programme")]
     public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateShortCourseOnProgrammeRequest request)
     {
         _logger.LogInformation("Received request to update ShortCourse on programme for LearningKey {LearningKey}", learningKey);

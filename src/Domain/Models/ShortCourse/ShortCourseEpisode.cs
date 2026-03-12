@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
@@ -27,15 +27,16 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         return episode;
     }
 
-    public void CalculateShortCourseOnProgram(ShortCourseLearning learning, ISystemClockService systemClock, bool isApproved, string calculationData)
+    public void CalculateShortCourseOnProgram(string calculationData)
     {
-        var currentEpisode = learning.Episodes.Single();
-
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             CoursePrice,
             StartDate,
             EndDate,
-            currentEpisode.CompletionDate);
+            CompletionDate);
+
+        if(WithdrawalDate.HasValue)
+            ShortCoursePayments.RemoveWithdrawnPayments(onProgramPayments, _entity.Milestones);
 
         if (_earningsProfile == null)
         {
@@ -44,7 +45,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
                 onProgramPayments,
                 onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.LearningComplete).Sum(x => x.Amount),
                 EpisodeKey, 
-                isApproved, 
+                false, // Initialize as unapproved
                 this.AddChildToRoot, 
                 calculationData);
 
@@ -52,7 +53,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         }
         else
         {
-            _earningsProfile.Update(systemClock,
+            _earningsProfile.Update(
                 instalments: onProgramPayments,
                 calculationData: calculationData,
                 onProgramTotal: onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).Sum(x => x.Amount),
@@ -71,6 +72,11 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
     {
-        throw new NotImplementedException();
+        _entity.WithdrawalDate = withdrawalDate;
+    }
+
+    public void UpdateMilestones(List<Milestone> milestones)
+    {
+        _entity.Milestones = milestones.ToMilestoneFlags();
     }
 }

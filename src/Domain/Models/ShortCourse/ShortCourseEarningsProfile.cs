@@ -36,7 +36,6 @@ public class ShortCourseEarningsProfile : BaseEarningsProfile<ShortCourseEarning
     }
 
     public void Update(
-        ISystemClockService systemClock,
         decimal? onProgramTotal = null,
         List<ShortCourseInstalment>? instalments = null,
         decimal? completionPayment = null,

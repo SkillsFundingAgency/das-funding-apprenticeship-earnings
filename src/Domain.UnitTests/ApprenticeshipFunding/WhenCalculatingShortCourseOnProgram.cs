@@ -40,11 +40,7 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenEarningsProfileIsCreatedIfNoneExists()
     {
         // Act
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: true,
-            calculationData: "test-data");
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Assert
         _episode.EarningsProfile.Should().NotBeNull();
@@ -55,11 +51,7 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenInstalmentsAreGenerated()
     {
         // Act
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: true,
-            calculationData: "test-data");
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Assert
         _episode.EarningsProfile.Instalments.Should().NotBeEmpty();
@@ -69,11 +61,7 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenCompletionPaymentIsCalculated()
     {
         // Act
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: true,
-            calculationData: "test-data");
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Assert
         _episode.EarningsProfile.CompletionPayment.Should().Be(_agreedPrice*0.7m);
@@ -83,11 +71,7 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenOnProgramTotalIsCalculated()
     {
         // Act
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: true,
-            calculationData: "test-data");
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Assert
         _episode.EarningsProfile.OnProgramTotal.Should().Be(_agreedPrice * 0.3m);
@@ -97,20 +81,12 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenEarningsProfileIsUpdatedIfItAlreadyExists()
     {
         // Arrange
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: false,
-            calculationData: "initial");
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
 
         var originalProfileId = _episode.EarningsProfile.EarningsProfileId;
 
         // Act
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: true,
-            calculationData: "updated");
+        _episode.CalculateShortCourseOnProgram(calculationData: "updated");
 
         // Assert
         _episode.EarningsProfile.EarningsProfileId.Should().Be(originalProfileId);
@@ -120,18 +96,10 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenCalculationDataIsUpdatedWhenRecalculated()
     {
         // Arrange
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: false,
-            calculationData: "initial");
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
 
         // Act
-        _episode.CalculateShortCourseOnProgram(
-            _learning,
-            _mockSystemClock.Object,
-            isApproved: true,
-            calculationData: "updated");
+        _episode.CalculateShortCourseOnProgram(calculationData: "updated");
 
         // Assert
         _episode.EarningsProfile.CalculationData.Should().Be("updated");

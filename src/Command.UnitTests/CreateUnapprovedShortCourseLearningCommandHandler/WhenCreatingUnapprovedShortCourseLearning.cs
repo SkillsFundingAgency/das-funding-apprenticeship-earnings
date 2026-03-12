@@ -19,7 +19,6 @@ public class WhenCreatingUnapprovedShortCourseLearning
 {
     private readonly Fixture _fixture = new();
     private Mock<ILogger<CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler>> _mockLogger;
-    private Mock<ISystemClockService> _mockSystemClock;
     private Mock<ILearningFactory> _mockFactory;
     private Mock<ILearningRepository> _mockRepository;
 
@@ -27,11 +26,8 @@ public class WhenCreatingUnapprovedShortCourseLearning
     public void Setup()
     {
         _mockLogger = new Mock<ILogger<CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler>>();
-        _mockSystemClock = new Mock<ISystemClockService>();
         _mockFactory = new Mock<ILearningFactory>();
         _mockRepository = new Mock<ILearningRepository>();
-
-        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2026, 02, 17));
     }
 
     [Test]
@@ -54,7 +50,6 @@ public class WhenCreatingUnapprovedShortCourseLearning
 
         var sut = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler(
             _mockLogger.Object,
-            _mockSystemClock.Object,
             _mockFactory.Object,
             _mockRepository.Object
         );
@@ -89,7 +84,6 @@ public class WhenCreatingUnapprovedShortCourseLearning
 
         var sut = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler(
             _mockLogger.Object,
-            _mockSystemClock.Object,
             _mockFactory.Object,
             _mockRepository.Object
         );

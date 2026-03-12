@@ -1,4 +1,8 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using static Dapper.SqlMapper;
+
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 internal static class ListExtensions
 {
@@ -61,5 +65,18 @@ internal static class ListExtensions
                     return model;
                 })
                 .ToList();
+    }
+
+    public static MilestoneFlags ToMilestoneFlags(this List<Milestone> milestones)
+    {
+        MilestoneFlags milestoneFlags = MilestoneFlags.None;
+
+        if (milestones.Contains(Milestone.ThirtyPercentLearningComplete))
+            milestoneFlags |= MilestoneFlags.ThirtyPercentLearningComplete;
+
+        if (milestones.Contains(Milestone.LearningComplete))
+            milestoneFlags |= MilestoneFlags.LearningComplete;
+
+        return milestoneFlags;
     }
 }
