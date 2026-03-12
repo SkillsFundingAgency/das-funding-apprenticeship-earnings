@@ -1,8 +1,7 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
@@ -14,11 +13,11 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
     public UpdateOnProgrammeCommandHandler(
         ILogger<UpdateOnProgrammeCommandHandler> logger,
-        ILearningRepository apprenticeshipRepository,
+        ILearningRepository learningRepository,
         ISystemClockService systemClock)
     {
         _logger = logger;
-        _learningRepository = apprenticeshipRepository;
+        _learningRepository = learningRepository;
         _systemClock = systemClock;
     }
 

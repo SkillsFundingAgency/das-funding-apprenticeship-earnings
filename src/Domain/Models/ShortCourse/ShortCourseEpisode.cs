@@ -17,7 +17,6 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         {
             _earningsProfile = ShortCourseEarningsProfile.Get(this, _entity.EarningsProfile);
         }
-            _earningsProfile = new ShortCourseEarningsProfile(_entity.EarningsProfile, addChildToRoot);
 
         UpdateAgeAtStart(dateOfBirth);
     }
@@ -69,4 +68,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     }
 
     public override void Approve() => _earningsProfile!.Approve();
+
+    public void UpdateWithdrawalDate(DateTime? withdrawalDate)
+    {
+        throw new NotImplementedException();
+    }
 }

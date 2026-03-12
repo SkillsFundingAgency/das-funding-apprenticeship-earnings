@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
@@ -9,6 +10,7 @@ public class UnapprovedShortCourseSetupModel
     public DateTime? ExpectedEndDate { get; set; }
     public decimal? TotalPrice { get; set; }
     public DateTime? CompletionDate { get; set; }
+    public string Milestones { get; set; }
 }
 
 public static class UnapprovedShortCourseSetupModelExtensions
@@ -19,6 +21,7 @@ public static class UnapprovedShortCourseSetupModelExtensions
         var startDate = model.StartDate ?? new DateTime(2022, 01, 01);
         var expectedEndDate = model.ExpectedEndDate ?? new DateTime(2022, 06, 30);
         var totalPrice = model.TotalPrice ?? 1000;
+        var milestones = model.Milestones.ToEnumList<Milestone>();
 
         return new CreateUnapprovedShortCourseLearningRequest
         {
@@ -34,7 +37,7 @@ public static class UnapprovedShortCourseSetupModelExtensions
                 CourseCode = "UX1",
                 EmployerId = 100112,
                 ExpectedEndDate = expectedEndDate,
-                Milestones = new List<Milestone>(),
+                Milestones = milestones,
                 StartDate = startDate,
                 TotalPrice = totalPrice,
                 Ukprn = 10000114,

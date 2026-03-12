@@ -15,6 +15,7 @@ public class ApproveLearningStepDefinitions
         _testContext = testContext;
     }
 
+    [Given("a LearningApproved event is received for the short course")]
     [When("a LearningApproved event is received for the short course")]
     public async Task WhenLearningApprovedEventReceived()
     {
