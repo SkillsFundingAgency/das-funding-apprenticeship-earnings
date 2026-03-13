@@ -98,6 +98,15 @@ public class TestInnerApi : IDisposable
         var response = await _httpClient.PostAsync(route, content);
     }
 
+    public async Task<T?> Get<T>(string route)
+    {
+        var response = await _httpClient.GetAsync(route);
+        if (!response.IsSuccessStatusCode)
+            return default;
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(json);
+    }
+
     public async Task PublishEvent<T>(T eventObject)
     {
         var response = await _httpClient.GetAsync("/home");

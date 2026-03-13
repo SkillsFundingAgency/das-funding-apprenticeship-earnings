@@ -3,8 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Calculations;
 
@@ -130,7 +129,7 @@ public class ShortCoursePaymentsTests
         var result = ShortCoursePayments.GenerateShortCoursePayments(totalPrice, startDate, endDate, completionDate);
 
         // Assert
-        result[0].Type.Should().Be(InstalmentType.Regular);
-        result[1].Type.Should().Be(InstalmentType.Completion);
+        result[0].Type.Should().Be(ShortCourseInstalmentType.ThirtyPercentLearningComplete);
+        result[1].Type.Should().Be(ShortCourseInstalmentType.LearningComplete);
     }
 }

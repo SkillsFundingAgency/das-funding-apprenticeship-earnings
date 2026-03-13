@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using System.Diagnostics.CodeAnalysis;
 
@@ -26,7 +27,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<ILearningFactory, LearningFactory>()
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
             .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>()
-            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>();
+            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
+            .AddTransient<ISystemClockService, SystemClockService>();
         return serviceCollection;
     }
 
@@ -34,7 +36,6 @@ public static class ServiceCollectionExtensions
     {
 
         serviceCollection.AddScoped<ILearningRepository, LearningRepository>();
-        serviceCollection.AddScoped<IEarningsQueryRepository, EarningsQueryRepository>();
         serviceCollection.AddScoped<IEarningsProfileHistoryRepository, EarningsProfileHistoryRepository>();
         return serviceCollection;
     }

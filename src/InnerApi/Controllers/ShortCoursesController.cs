@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
@@ -11,13 +13,16 @@ public class ShortCoursesController : ControllerBase
 {
     private readonly ILogger<ShortCoursesController> _logger;
     private readonly ICommandDispatcher _commandDispatcher;
+    private readonly IQueryDispatcher _queryDispatcher;
 
     public ShortCoursesController(
         ILogger<ShortCoursesController> logger,
-        ICommandDispatcher commandDispatcher)
+        ICommandDispatcher commandDispatcher,
+        IQueryDispatcher queryDispatcher)
     {
         _logger = logger;
         _commandDispatcher = commandDispatcher;
+        _queryDispatcher = queryDispatcher;
     }
 
     [HttpPost]
@@ -48,5 +53,29 @@ public class ShortCoursesController : ControllerBase
             request?.LearningKey);
 
         return Ok();
+    }
+
+    [HttpGet("/{learningKey}/shortCourses")]
+    public async Task<IActionResult> GetShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn)
+    {
+        _logger.LogInformation(
+            "Received request to get short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
+            learningKey, ukprn);
+
+        try
+        {
+            var request = new GetShortCourseEarningsRequest(learningKey, ukprn);
+            var response = await _queryDispatcher.Send<GetShortCourseEarningsRequest, GetShortCourseEarningsResponse>(request);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error getting short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
+                learningKey, ukprn);
+
+            return StatusCode(500);
+        }
     }
 }

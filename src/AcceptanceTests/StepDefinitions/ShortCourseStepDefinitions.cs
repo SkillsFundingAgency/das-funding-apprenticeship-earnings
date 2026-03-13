@@ -2,6 +2,7 @@ using System.Text.Json;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
@@ -43,6 +44,37 @@ public class ShortCourseStepDefinitions
         JsonSerializer
             .Deserialize<CreateUnapprovedShortCourseLearningRequest>(updatedEntity.Episodes.First().EarningsProfile.CalculationData)
             .Should().BeEquivalentTo(request);
+    }
+
+    [When("I request the short course earnings")]
+    public async Task WhenIRequestTheShortCourseEarnings()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var learningKey = request.LearningKey;
+        var ukprn = request.OnProgramme.Ukprn;
+
+        var response = await _testContext.TestInnerApi.Get<GetShortCourseEarningsResponse>(
+            $"/{learningKey}/shortCourses?ukprn={ukprn}");
+
+        _scenarioContext.Set(response);
+    }
+
+    [Then("the earnings response contains")]
+    public void ThenTheEarningsResponseContains(Table table)
+    {
+        var response = _scenarioContext.Get<GetShortCourseEarningsResponse>();
+        var expectedEarnings = table.CreateSet<EarningsAssertionModel>().ToList();
+
+        response.Earnings.Should().HaveCount(expectedEarnings.Count);
+
+        foreach (var expected in expectedEarnings)
+        {
+            response.Earnings.Should().ContainSingle(e =>
+                e.CollectionYear == expected.CollectionYear &&
+                e.CollectionPeriod == expected.CollectionPeriod &&
+                e.Amount == expected.Amount &&
+                e.Type == expected.Type);
+        }
     }
 
     [Then("the short course earnings history is maintained")]

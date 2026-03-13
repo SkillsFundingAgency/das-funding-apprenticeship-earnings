@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
@@ -22,7 +21,7 @@ public static class ShortCoursePayments
             firstPaymentDate.ToAcademicYear(),
             firstPaymentDate.ToDeliveryPeriod(),
             totalPrice * FirstPaymentPortionPercentage,
-            InstalmentType.Regular
+            ShortCourseInstalmentType.ThirtyPercentLearningComplete
         ));
 
         payments.Add(new ShortCourseInstalment
@@ -30,7 +29,7 @@ public static class ShortCoursePayments
             completionDate?.ToAcademicYear() ?? endDate.ToAcademicYear(),
             completionDate?.ToDeliveryPeriod() ?? endDate.ToDeliveryPeriod(),
             totalPrice * SecondPaymentPortionPercentage,
-            InstalmentType.Completion
+            ShortCourseInstalmentType.LearningComplete
         ));
 
         return payments;
