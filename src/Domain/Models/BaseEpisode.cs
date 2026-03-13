@@ -5,20 +5,30 @@ using FundingType = SFA.DAS.Learning.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
+public abstract class BaseEpisode : AggregateComponent
+{
+    protected BaseEpisode(Action<AggregateComponent> addChildToRoot) : base(addChildToRoot) { }
 
-public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel>: AggregateComponent where TEpisodeEntity : BaseEpisodeEntity
+    public abstract Guid EpisodeKey { get; }
+    public abstract BaseEarningsProfile? EarningsProfile { get; }
+    public abstract void Approve();
+}
+
+public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : BaseEpisode
+    where TEpisodeEntity : BaseEpisodeEntity
+    where TEarningProfileDomainModel : BaseEarningsProfile
 {
     protected readonly TEpisodeEntity _entity;
     protected int _ageAtStartOfApprenticeship;
     protected TEarningProfileDomainModel? _earningsProfile;
-    public Guid EpisodeKey => _entity.Key;
+    public override Guid EpisodeKey => _entity.Key;
     public long UKPRN => _entity.Ukprn;
     public long EmployerAccountId => _entity.EmployerAccountId;
     public string TrainingCode => _entity.TrainingCode;
     public FundingType FundingType => _entity.FundingType;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
-    public TEarningProfileDomainModel? EarningsProfile => _earningsProfile;
+    public override TEarningProfileDomainModel? EarningsProfile => _earningsProfile;
     public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;
     public DateTime? CompletionDate => _entity.CompletionDate;
     public DateTime? WithdrawalDate => _entity.WithdrawalDate;

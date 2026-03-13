@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection.AddScoped<IAcademicYearService, AcademicYearService>();
         serviceCollection.AddScoped<IDateService, DateService>();
+        serviceCollection.AddScoped<ILearningDomainService, LearningDomainService>();
         return serviceCollection;
     }
 }

@@ -1,5 +1,6 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -16,13 +17,21 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         return new ApprenticeshipLearning(entity);
     }
 
+    public override ApprenticeshipEpisode GetEpisode(Guid episodeKey)
+    {
+        var episode = _episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey);
+        if (episode == null)
+            throw new InvalidOperationException($"No episode found for key {episodeKey}");
+        return episode;
+    }
+
     public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null)
     {
         ApprenticeshipEpisode episode;
 
         if (episodeKey.HasValue)
         {
-            episode = this.GetEpisode(episodeKey.Value);
+            episode = GetEpisode(episodeKey.Value);
         }
         else
         {
@@ -68,7 +77,7 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         currentEpisode.UpdateEnglishAndMaths(englishAndMathsCourses, systemClock);
     }
 
-    public void UpdateDateOfBirth(DateTime dateOfBirth)
+    public override void UpdateDateOfBirth(DateTime dateOfBirth)
     {
         _entity.DateOfBirth = dateOfBirth;
         foreach (var episode in Episodes)

@@ -243,4 +243,6 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         _entity.FundingBandMaximum = fundingBandMaximum;
     }
+
+    public override void Approve() => _earningsProfile!.Approve();
 }

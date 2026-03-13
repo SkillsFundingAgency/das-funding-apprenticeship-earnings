@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
@@ -16,7 +16,7 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return new ShortCourseLearning(entity);
     }
 
-    public ShortCourseLearningEntity GetModel()
+    public new ShortCourseLearningEntity GetModel()
     {
         return _entity;
     }
@@ -35,7 +35,7 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         episode.CoursePrice = updateModel.TotalPrice;
     }
 
-    public void UpdateDateOfBirth(DateTime dateOfBirth)
+    public override void UpdateDateOfBirth(DateTime dateOfBirth)
     {
         _entity.DateOfBirth = dateOfBirth;
     }
