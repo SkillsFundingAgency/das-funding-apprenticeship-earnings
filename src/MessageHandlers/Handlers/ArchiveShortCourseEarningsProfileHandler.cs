@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveShortCourseEarningsProfileCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Threading.Tasks;
+using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 

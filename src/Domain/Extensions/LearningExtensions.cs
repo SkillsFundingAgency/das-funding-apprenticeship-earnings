@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -34,14 +34,6 @@ public static class LearningExtensions
     public static ApprenticeshipEpisode GetCurrentEpisode(this ApprenticeshipLearning learning, ISystemClockService systemClock)
     {
         return learning.GetCurrentEpisode(systemClock.UtcNow.DateTime);
-    }
-
-    public static ApprenticeshipEpisode GetEpisode(this ApprenticeshipLearning learning,  Guid episodeKey)
-    {
-        var episode = learning.Episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey);
-        if (episode == null)
-            throw new InvalidOperationException($"No episode found for key {episodeKey}");
-        return episode!;
     }
 
     public static ApprenticeshipEpisode GetApprenticeshipEpisodeFromEntity(this ApprenticeshipLearning learning, ApprenticeshipEpisodeEntity entity)

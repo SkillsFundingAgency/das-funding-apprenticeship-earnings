@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
@@ -23,7 +23,7 @@ public class LearningRepository : ILearningRepository
         _messageSession = messageSession;
     }
 
-    public async Task Add<TEntity, TEpisode>(BaseLearning<TEntity, TEpisode> learning) where TEntity : BaseLearningEntity
+    public async Task Add<TEntity, TEpisode>(BaseLearning<TEntity, TEpisode> learning) where TEntity : BaseLearningEntity where TEpisode : BaseEpisode
     {
         var entity = learning.GetModel();
         await DbContext.AddAsync(entity);
@@ -86,7 +86,7 @@ public class LearningRepository : ILearningRepository
     {
         foreach (var @event in learning.FlushEvents())
         {
-            await _messageSession.Publish(@event); 
+            await _messageSession.Publish(@event);
         }
     }
 }

@@ -120,7 +120,6 @@ internal static class FixtureExtensions
             Key = Guid.NewGuid(),
             Ukprn = 10000001,
             EmployerAccountId = 10000001,
-            FundingBandMaximum = int.MaxValue,
             Prices = new List<LearningEpisodePrice>{ new()
                 {
                     Key = Guid.NewGuid(),
