@@ -37,14 +37,14 @@ public class LearningFactory : ILearningFactory
 
     public ShortCourseLearning CreateNewShortCourse(CreateUnapprovedShortCourseLearningRequest commandRequest)
     {
-        var model = new DataAccess.Entities.ShortCourse.ShortCourseLearningEntity
+        var model = new ShortCourseLearningEntity
         {
             LearningKey = commandRequest.LearningKey,
             DateOfBirth = commandRequest.Learner.DateOfBirth,
             Uln = commandRequest.Learner.Uln,
             Episodes = new List<ShortCourseEpisodeEntity> {  new ShortCourseEpisodeEntity
             {
-                Key = Guid.NewGuid(),
+                Key = commandRequest.EpisodeKey,
                 LearningKey = commandRequest.LearningKey,
                 Ukprn = commandRequest.OnProgramme.Ukprn,
                 EmployerAccountId = commandRequest.OnProgramme.EmployerId,
