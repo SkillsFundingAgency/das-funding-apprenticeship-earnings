@@ -135,6 +135,10 @@ public class ShortCourseStepDefinitions
                 case nameof(UpdateShortCourseOnProgrammeModel.WithdrawalDate):
                     model.WithdrawalDate.SetValue(item.ToNullableDateTime());
                     break;
+
+                case nameof(UpdateShortCourseOnProgrammeModel.CompletionDate):
+                    model.CompletionDate.SetValue(item.ToNullableDateTime());
+                    break;
             }
         }
 
