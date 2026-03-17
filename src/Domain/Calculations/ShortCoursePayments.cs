@@ -48,4 +48,16 @@ public static class ShortCoursePayments
             payments.RemoveAll(p => p.Type == ShortCourseInstalmentType.LearningComplete);
         }
     }
+
+    public static void SetPayability(List<ShortCourseInstalment> payments, bool isApproved, MilestoneFlags milestones)
+    {
+        foreach (var payment in payments)
+        {
+            var relevantMilestone = payment.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete
+                ? MilestoneFlags.ThirtyPercentLearningComplete
+                : MilestoneFlags.LearningComplete;
+
+            payment.SetIsPayable(isApproved && milestones.HasFlag(relevantMilestone));
+        }
+    }
 }

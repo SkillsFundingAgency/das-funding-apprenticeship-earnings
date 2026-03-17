@@ -38,6 +38,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         if(WithdrawalDate.HasValue)
             ShortCoursePayments.RemoveWithdrawnPayments(onProgramPayments, _entity.Milestones);
 
+        ShortCoursePayments.SetPayability(onProgramPayments, _earningsProfile?.IsApproved ?? false, _entity.Milestones);
+
         if (_earningsProfile == null)
         {
             _earningsProfile = new ShortCourseEarningsProfile(

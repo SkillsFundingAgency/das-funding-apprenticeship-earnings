@@ -6,5 +6,5 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse
 [Table("ShortCourseInstalment", Schema = "Domain")]
 public class ShortCourseInstalmentEntity : BaseInstalmentEntity
 {
-
+    public bool IsPayable { get; set; }
 }

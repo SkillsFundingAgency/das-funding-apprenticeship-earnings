@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -140,9 +141,30 @@ public class ShortCourseStepDefinitions
         return model;
     }
 
+    [Then(@"the short course instalment payability is")]
+    public async Task ThenTheShortCourseInstalmentPayabilityIs(Table table)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        var instalments = entity!.Episodes.First().EarningsProfile.Instalments;
+
+        var expected = table.CreateSet<InstalmentPayabilityExpectation>().ToList();
+
+        foreach (var exp in expected)
+        {
+            var instalment = instalments.Single(i => Enum.Parse<ShortCourseInstalmentType>(i.Type) == exp.Type);
+            instalment.IsPayable.Should().Be(exp.IsPayable, $"{exp.Type} instalment should have IsPayable={exp.IsPayable}");
+        }
+    }
+
     private async Task<ShortCourseLearningEntity> GetLearningEntity(Guid learningKey)
     {
         return await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
     }
 
+    private class InstalmentPayabilityExpectation
+    {
+        public ShortCourseInstalmentType Type { get; set; }
+        public bool IsPayable { get; set; }
+    }
 }
