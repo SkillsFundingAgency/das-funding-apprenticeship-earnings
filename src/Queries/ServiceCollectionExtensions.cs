@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
 using System.Diagnostics.CodeAnalysis;
@@ -20,9 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries
                         .AsImplementedInterfaces()
                         .WithTransientLifetime();
                 })
-                .AddTransient<IEarningsQueryRepository, EarningsQueryRepository>()
-                .AddScoped<IQueryDispatcher, QueryDispatcher>()
-                .AddTransient<ISystemClockService, SystemClockService>();
+                .AddScoped<IQueryDispatcher, QueryDispatcher>();
 
             return serviceCollection;
         }

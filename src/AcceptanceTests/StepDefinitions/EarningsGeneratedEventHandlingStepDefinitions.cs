@@ -7,6 +7,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -101,7 +102,7 @@ public class EarningsGeneratedEventHandlingStepDefinitions
                 .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
                               && x.AcademicYear == expectedEarning.AcademicYear
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
-                              && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
+                              && (expectedEarning.Type == null || Enum.Parse<ShortCourseInstalmentType>(expectedEarning.Type) == Enum.Parse<ShortCourseInstalmentType>(x.Type))
                     , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
         }
     }

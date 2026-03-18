@@ -19,6 +19,11 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
     public InstalmentType Type => Enum.Parse<InstalmentType>(_entity.Type);
 
     public BaseInstalment(short academicYear, byte deliveryPeriod, decimal amount, InstalmentType instalmentType = InstalmentType.Regular)
+        : this(academicYear, deliveryPeriod, amount, instalmentType.ToString())
+    {
+    }
+
+    protected BaseInstalment(short academicYear, byte deliveryPeriod, decimal amount, string instalmentType)
     {
         _entity = new TEntity
         {
@@ -26,7 +31,7 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
             AcademicYear = academicYear,
             DeliveryPeriod = deliveryPeriod,
             Amount = amount,
-            Type = instalmentType.ToString()
+            Type = instalmentType
         };
     }
 

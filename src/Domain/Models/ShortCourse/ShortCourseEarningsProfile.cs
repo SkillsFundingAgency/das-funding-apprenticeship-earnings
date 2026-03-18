@@ -16,6 +16,11 @@ public class ShortCourseEarningsProfile : BaseEarningsProfile<ShortCourseEarning
         _instalments = model.Instalments?.Select(ShortCourseInstalment.Get).ToList() ?? new List<ShortCourseInstalment>();
     }
 
+    public static ShortCourseEarningsProfile Get(ShortCourseEpisode episode, ShortCourseEarningsProfileEntity model)
+    {
+        return new ShortCourseEarningsProfile(model, episode.AddChildToRoot);
+    }
+
     public ShortCourseEarningsProfile(decimal onProgramTotal,
         List<ShortCourseInstalment> instalments,
         decimal completionPayment,
