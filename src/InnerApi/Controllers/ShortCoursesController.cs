@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -77,5 +78,25 @@ public class ShortCoursesController : ControllerBase
 
             return StatusCode(500);
         }
+    }
+
+    [HttpPut("/{learningKey}/shortCourses/on-programme")]
+    public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateShortCourseOnProgrammeRequest request)
+    {
+        _logger.LogInformation("Received request to update ShortCourse on programme for LearningKey {LearningKey}", learningKey);
+
+        try
+        {
+            var command = new UpdateShortCourseOnProgrammeCommand(learningKey, request);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating ShortCourse on programme for LearningKey {LearningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully updated ShortCourse on programme for LearningKey {LearningKey}", learningKey);
+        return Ok();
     }
 }

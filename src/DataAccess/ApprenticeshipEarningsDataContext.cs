@@ -172,6 +172,11 @@ internal static class ModelBuilderExtensions
                 v => v.ToString(),
                 v => (FundingType)Enum.Parse(typeof(FundingType), v));
 
+        builder
+            .Property(x => x.Milestones)
+            .HasConversion<int>()
+            .HasDefaultValue(MilestoneFlags.None);
+
         return builder;
     }
 

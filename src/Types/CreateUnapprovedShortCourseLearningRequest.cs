@@ -1,5 +1,6 @@
 ﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
+#pragma warning disable CS8618
 public class CreateUnapprovedShortCourseLearningRequest
 {
     public Guid LearningKey { get; set; }
@@ -46,3 +47,4 @@ public class LearningSupportItem
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
+#pragma warning restore CS8618

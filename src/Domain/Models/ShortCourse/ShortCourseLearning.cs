@@ -21,6 +21,13 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _entity;
     }
 
+    public ShortCourseEpisode GetEpisode()
+    {
+        // Intentionally fail if there are more as at the time of writing there should only ever be one episode for short course learning
+        // if this changes in the future this method will need to be rethought
+        return _episodes.Single();
+    }
+
     public void UpdateUnapprovedShortCourseInformation(ShortCourseUpdateModel updateModel)
     {
         _entity.Uln = updateModel.Uln;
@@ -33,6 +40,7 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         episode.CompletionDate = updateModel.CompletionDate;
         episode.EndDate = updateModel.ExpectedEndDate;
         episode.CoursePrice = updateModel.TotalPrice;
+        episode.Milestones = updateModel.Milestones.ToMilestoneFlags();
     }
 
     public override void UpdateDateOfBirth(DateTime dateOfBirth)

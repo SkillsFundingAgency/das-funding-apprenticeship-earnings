@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -55,7 +56,8 @@ public class LearningFactory : ILearningFactory
                 WithdrawalDate = commandRequest.OnProgramme.WithdrawalDate,
                 StartDate = commandRequest.OnProgramme.StartDate,
                 EndDate = commandRequest.OnProgramme.ExpectedEndDate,
-                CoursePrice = commandRequest.OnProgramme.TotalPrice                 
+                CoursePrice = commandRequest.OnProgramme.TotalPrice,
+                Milestones = commandRequest.OnProgramme.Milestones.ToMilestoneFlags()
             } },
         };
 

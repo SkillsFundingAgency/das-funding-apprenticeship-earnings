@@ -23,11 +23,11 @@ public static class ScenarioContextExtensions
         return builder;
     }
 
-    public static LearningWithdrawnEventBuilder GetLearningWithdrawnEventBuilder(this ScenarioContext context)
+    public static UpdateShortCourseOnProgrammeRequestBuilder GetShortCourseUpdateOnProgrammeRequestBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out LearningWithdrawnEventBuilder builder)) return builder;
+        if (context.TryGetValue(out UpdateShortCourseOnProgrammeRequestBuilder builder)) return builder;
 
-        builder = new LearningWithdrawnEventBuilder();
+        builder = new UpdateShortCourseOnProgrammeRequestBuilder();
         context.Set(builder);
         return builder;
     }

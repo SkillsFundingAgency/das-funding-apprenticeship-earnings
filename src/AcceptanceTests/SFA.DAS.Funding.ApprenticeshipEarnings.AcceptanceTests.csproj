@@ -55,5 +55,9 @@
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\UpdateShortCourseOnProgramme\" />
+  </ItemGroup>
+
 
 </Project>

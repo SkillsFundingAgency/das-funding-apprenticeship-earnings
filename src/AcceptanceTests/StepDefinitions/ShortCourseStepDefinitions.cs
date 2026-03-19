@@ -1,10 +1,14 @@
-using System.Text.Json;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
+using System.Text.Json;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -93,4 +97,52 @@ public class ShortCourseStepDefinitions
 
         history.First().Version.Should().Be(episode.EarningsProfile.Version);
     }
+
+    [When(@"Short Course Update OnProgramme is triggered with")]
+    public async Task WhenShortCourseUpdateOnProgrammeIsTriggeredWith(Table table)
+    {
+        var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+
+        var data = GetUpdateOnProgrammeModel(table);
+
+        var updateOnProgrammeRequest = _scenarioContext.GetShortCourseUpdateOnProgrammeRequestBuilder()
+            .WithExistingData(shortCourseCreateRequest)
+            .WithDataFromSetupModel(data)
+            .Build();
+
+        await _testContext.TestInnerApi.Put($"/{shortCourseCreateRequest.LearningKey}/shortCourses/on-programme", updateOnProgrammeRequest);
+
+        var shortCourseEntity = await GetLearningEntity(shortCourseCreateRequest.LearningKey);
+
+        _scenarioContext.Set(shortCourseEntity);
+        _scenarioContext.Set(updateOnProgrammeRequest);
+    }
+
+    private UpdateShortCourseOnProgrammeModel GetUpdateOnProgrammeModel(Table table)
+    {
+        var data = table.CreateSet<KeyValueModel>().ToList();
+        var model = new UpdateShortCourseOnProgrammeModel();
+
+        foreach (var item in data)
+        {
+            switch (item.Key)
+            {
+                case nameof(UpdateShortCourseOnProgrammeModel.Milestones):
+                    model.Milestones.SetValue(item.Value.ToEnumList<Milestone>());
+                    break;
+
+                case nameof(UpdateShortCourseOnProgrammeModel.WithdrawalDate):
+                    model.WithdrawalDate.SetValue(item.ToNullableDateTime());
+                    break;
+            }
+        }
+
+        return model;
+    }
+
+    private async Task<ShortCourseLearningEntity> GetLearningEntity(Guid learningKey)
+    {
+        return await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
+    }
+
 }
