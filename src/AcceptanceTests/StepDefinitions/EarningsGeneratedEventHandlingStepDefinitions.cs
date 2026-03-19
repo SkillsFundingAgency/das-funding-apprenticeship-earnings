@@ -52,12 +52,6 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<LearningCreatedEvent>().Uln, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
     }
 
-    [Then(@"On programme short course earnings are persisted as follows")]
-    public async Task ThenOnProgrammeShortCourseEarningsArePersistedAsFollows(Table table)
-    {
-        await AssertShortCourseOnProgrammeEarnings(table, _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey);
-    }
-
     [Then(@"On programme earnings are persisted as follows")]
     [Then(@"the instalments are balanced as follows")]
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
@@ -82,27 +76,6 @@ public class EarningsGeneratedEventHandlingStepDefinitions
                               && x.AcademicYear == expectedEarning.AcademicYear
                               && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
                               && (expectedEarning.Type == null || Enum.Parse<InstalmentType>(expectedEarning.Type) == Enum.Parse<InstalmentType>(x.Type))
-                    , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
-        }
-    }
-
-    private async Task AssertShortCourseOnProgrammeEarnings(Table table, Guid learningKey)
-    {
-        var data = table.CreateSet<EarningDbExpectationModel>().ToList();
-        ShortCourseLearningEntity? updatedEntity;
-
-        updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
-        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
-
-        earningsInDb.Should().HaveCount(data.Count);
-
-        foreach (var expectedEarning in data)
-        {
-            earningsInDb.Should()
-                .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
-                              && x.AcademicYear == expectedEarning.AcademicYear
-                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
-                              && (expectedEarning.Type == null || Enum.Parse<ShortCourseInstalmentType>(expectedEarning.Type) == Enum.Parse<ShortCourseInstalmentType>(x.Type))
                     , $"Expected earning not found: {JsonConvert.SerializeObject(expectedEarning)}");
         }
     }

@@ -3,7 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
@@ -56,8 +56,8 @@ public class ShortCoursesController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("/{learningKey}/shortCourses")]
-    public async Task<IActionResult> GetShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn)
+    [HttpGet("/fm99/{learningKey}/shortCourses")]
+    public async Task<IActionResult> GetFm99ShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn)
     {
         _logger.LogInformation(
             "Received request to get short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
@@ -65,8 +65,8 @@ public class ShortCoursesController : ControllerBase
 
         try
         {
-            var request = new GetShortCourseEarningsRequest(learningKey, ukprn);
-            var response = await _queryDispatcher.Send<GetShortCourseEarningsRequest, GetShortCourseEarningsResponse>(request);
+            var request = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn);
+            var response = await _queryDispatcher.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(request);
             return Ok(response);
         }
         catch (Exception ex)
@@ -85,10 +85,12 @@ public class ShortCoursesController : ControllerBase
     {
         _logger.LogInformation("Received request to update ShortCourse on programme for LearningKey {LearningKey}", learningKey);
 
+        UpdateShortCourseOnProgrammeResponse? response = null;
+
         try
         {
             var command = new UpdateShortCourseOnProgrammeCommand(learningKey, request);
-            await _commandDispatcher.Send(command);
+            response = await _commandDispatcher.Send<UpdateShortCourseOnProgrammeCommand, UpdateShortCourseOnProgrammeResponse>(command);
         }
         catch (Exception ex)
         {
@@ -97,6 +99,8 @@ public class ShortCoursesController : ControllerBase
         }
 
         _logger.LogInformation("Successfully updated ShortCourse on programme for LearningKey {LearningKey}", learningKey);
-        return Ok();
+        return Ok(response);
     }
+
+    // TODO Get short course endpoint
 }

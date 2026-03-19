@@ -1,10 +1,12 @@
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -57,8 +59,8 @@ public class ShortCourseStepDefinitions
         var learningKey = request.LearningKey;
         var ukprn = request.OnProgramme.Ukprn;
 
-        var response = await _testContext.TestInnerApi.Get<GetShortCourseEarningsResponse>(
-            $"/{learningKey}/shortCourses?ukprn={ukprn}");
+        var response = await _testContext.TestInnerApi.Get<GetFm99ShortCourseEarningsResponse>(
+            $"/fm99/{learningKey}/shortCourses?ukprn={ukprn}");
 
         _scenarioContext.Set(response);
     }
@@ -66,7 +68,7 @@ public class ShortCourseStepDefinitions
     [Then("the earnings response contains")]
     public void ThenTheEarningsResponseContains(Table table)
     {
-        var response = _scenarioContext.Get<GetShortCourseEarningsResponse>();
+        var response = _scenarioContext.Get<GetFm99ShortCourseEarningsResponse>();
         var expectedEarnings = table.CreateSet<EarningsAssertionModel>().ToList();
 
         response.Earnings.Should().HaveCount(expectedEarnings.Count);
@@ -110,12 +112,56 @@ public class ShortCourseStepDefinitions
             .WithDataFromSetupModel(data)
             .Build();
 
-        await _testContext.TestInnerApi.Put($"/{shortCourseCreateRequest.LearningKey}/shortCourses/on-programme", updateOnProgrammeRequest);
+        var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/on-programme", updateOnProgrammeRequest);
 
         var shortCourseEntity = await GetLearningEntity(shortCourseCreateRequest.LearningKey);
 
         _scenarioContext.Set(shortCourseEntity);
         _scenarioContext.Set(updateOnProgrammeRequest);
+        _scenarioContext.Set(response);
+    }
+
+    [Then(@"the following data is returned from the put request")]
+    public void ThenTheFollowingDataIsReturnedFromThePutRequest(Table table)
+    {
+        var learningKey = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey;
+
+        var data = table.CreateSet<ShortCourseUpdateResponseExpectationModel>().ToList();
+
+        var response = _scenarioContext.Get<UpdateShortCourseOnProgrammeResponse>();
+        foreach(var expected in data)
+        {
+            response.Instalments.Should().ContainSingle(e =>
+                e.CollectionYear == expected.CollectionYear &&
+                e.CollectionPeriod == expected.CollectionPeriod &&
+                e.Amount == expected.Amount &&
+                e.Type == expected.Type &&
+                e.IsPayable == expected.IsPayable);
+        }
+    }
+
+    [Then(@"On programme short course earnings are persisted as follows")]
+    public async Task ThenOnProgrammeShortCourseEarningsArePersistedAsFollows(Table table)
+    {
+        var learningKey = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey;
+
+        var data = table.CreateSet<EarningDbExpectationModel>().ToList();
+        ShortCourseLearningEntity? updatedEntity;
+
+        updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+
+        earningsInDb.Should().HaveCount(data.Count);
+
+        foreach (var expectedEarning in data)
+        {
+            earningsInDb.Should()
+                .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                              && (expectedEarning.Type == null || Enum.Parse<ShortCourseInstalmentType>(expectedEarning.Type) == Enum.Parse<ShortCourseInstalmentType>(x.Type))
+                    , $"Expected earning not found: {Newtonsoft.Json.JsonConvert.SerializeObject(expectedEarning)}");
+        }
     }
 
     private UpdateShortCourseOnProgrammeModel GetUpdateOnProgrammeModel(Table table)
