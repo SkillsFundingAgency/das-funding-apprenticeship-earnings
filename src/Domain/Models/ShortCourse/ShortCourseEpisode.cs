@@ -41,9 +41,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         if (_earningsProfile == null)
         {
             _earningsProfile = new ShortCourseEarningsProfile(
-                onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).Sum(x => x.Amount),
+                ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
                 onProgramPayments,
-                onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.LearningComplete).Sum(x => x.Amount),
+                ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice),
                 EpisodeKey, 
                 false, // Initialize as unapproved
                 this.AddChildToRoot, 
@@ -56,8 +56,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             _earningsProfile.Update(
                 instalments: onProgramPayments,
                 calculationData: calculationData,
-                onProgramTotal: onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).Sum(x => x.Amount),
-                completionPayment: onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.LearningComplete).Sum(x => x.Amount));
+                onProgramTotal: ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
+                completionPayment: ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice));
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
         }
