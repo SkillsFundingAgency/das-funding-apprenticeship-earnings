@@ -21,7 +21,7 @@ public static class ShortCoursePayments
         (
             firstPaymentDate.ToAcademicYear(),
             firstPaymentDate.ToDeliveryPeriod(),
-            totalPrice * FirstPaymentPortionPercentage,
+            CalculateThirtyPercentInstalmentAmount(totalPrice),
             ShortCourseInstalmentType.ThirtyPercentLearningComplete
         ));
 
@@ -29,7 +29,7 @@ public static class ShortCoursePayments
         (
             completionDate?.ToAcademicYear() ?? endDate.ToAcademicYear(),
             completionDate?.ToDeliveryPeriod() ?? endDate.ToDeliveryPeriod(),
-            totalPrice * SecondPaymentPortionPercentage,
+            CalculateCompletionInstalmentAmount(totalPrice),
             ShortCourseInstalmentType.LearningComplete
         ));
 
@@ -47,5 +47,27 @@ public static class ShortCoursePayments
         {
             payments.RemoveAll(p => p.Type == ShortCourseInstalmentType.LearningComplete);
         }
+    }
+
+    public static void SetPayability(List<ShortCourseInstalment> payments, bool isApproved, MilestoneFlags milestones)
+    {
+        foreach (var payment in payments)
+        {
+            var relevantMilestone = payment.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete
+                ? MilestoneFlags.ThirtyPercentLearningComplete
+                : MilestoneFlags.LearningComplete;
+
+            payment.SetIsPayable(isApproved && milestones.HasFlag(relevantMilestone));
+        }
+    }
+
+    public static decimal CalculateThirtyPercentInstalmentAmount(decimal total)
+    {
+        return total * FirstPaymentPortionPercentage;
+    }
+
+    public static decimal CalculateCompletionInstalmentAmount(decimal total)
+    {
+        return total * SecondPaymentPortionPercentage;
     }
 }

@@ -12,11 +12,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 public class UpdateShortCourseOnProgrammeRequestBuilder
 {
     private DateTime? _withdrawalDate;
+    private DateTime? _completionDate;
     private List<Milestone> _milestones = new List<Milestone>();
 
     internal UpdateShortCourseOnProgrammeRequestBuilder WithExistingData(CreateUnapprovedShortCourseLearningRequest createUnapprovedShortCourseLearningRequest)
     {
         _withdrawalDate = createUnapprovedShortCourseLearningRequest.OnProgramme.WithdrawalDate;
+        _completionDate = createUnapprovedShortCourseLearningRequest.OnProgramme.CompletionDate;
         _milestones = createUnapprovedShortCourseLearningRequest.OnProgramme.Milestones;
         return this;
     }
@@ -24,6 +26,7 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
     internal UpdateShortCourseOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateShortCourseOnProgrammeModel data)
     {
         if(data.WithdrawalDate.HasChanged) _withdrawalDate = data.WithdrawalDate.Value;
+        if(data.CompletionDate.HasChanged) _completionDate = data.CompletionDate.Value;
         if(data.Milestones.HasChanged) _milestones = data.Milestones.Value;
         return this;
     }
@@ -33,6 +36,7 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
         return new UpdateShortCourseOnProgrammeRequest
         {
             WithdrawalDate = _withdrawalDate,
+            CompletionDate = _completionDate,
             Milestones = _milestones
         };
     }

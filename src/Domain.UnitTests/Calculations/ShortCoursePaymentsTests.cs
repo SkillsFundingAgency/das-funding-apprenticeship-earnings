@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
@@ -131,5 +133,24 @@ public class ShortCoursePaymentsTests
         // Assert
         result[0].Type.Should().Be(ShortCourseInstalmentType.ThirtyPercentLearningComplete);
         result[1].Type.Should().Be(ShortCourseInstalmentType.LearningComplete);
+    }
+
+    [TestCase(true, MilestoneFlags.ThirtyPercentLearningComplete | MilestoneFlags.LearningComplete, true, true)]
+    [TestCase(true, MilestoneFlags.ThirtyPercentLearningComplete, true, false)]
+    [TestCase(true, MilestoneFlags.LearningComplete, false, true)]
+    [TestCase(true, MilestoneFlags.None, false, false)]
+    [TestCase(false, MilestoneFlags.ThirtyPercentLearningComplete | MilestoneFlags.LearningComplete, false, false)]
+    [TestCase(false, MilestoneFlags.None, false, false)]
+    public void SetPayability_SetsIsPayableCorrectly(bool isApproved, MilestoneFlags milestones, bool expectedFirstPayable, bool expectedSecondPayable)
+    {
+        // Arrange
+        var payments = ShortCoursePayments.GenerateShortCoursePayments(1000m, new DateTime(2023, 11, 1), new DateTime(2023, 11, 30), null);
+
+        // Act
+        ShortCoursePayments.SetPayability(payments, isApproved, milestones);
+
+        // Assert
+        payments.Single(p => p.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).IsPayable.Should().Be(expectedFirstPayable);
+        payments.Single(p => p.Type == ShortCourseInstalmentType.LearningComplete).IsPayable.Should().Be(expectedSecondPayable);
     }
 }
