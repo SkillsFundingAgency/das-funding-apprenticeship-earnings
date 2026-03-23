@@ -4,6 +4,7 @@
 public class CreateUnapprovedShortCourseLearningRequest
 {
     public Guid LearningKey { get; set; }
+    public Guid EpisodeKey { get; set; }
     public Learner Learner { get; set; }
     public List<LearningSupportItem> LearningSupport { get; set; }
     public OnProgramme OnProgramme { get; set; }
