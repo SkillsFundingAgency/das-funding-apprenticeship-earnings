@@ -7,6 +7,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
@@ -124,20 +125,10 @@ public class ShortCourseStepDefinitions
     [Then(@"the following data is returned from the put request")]
     public void ThenTheFollowingDataIsReturnedFromThePutRequest(Table table)
     {
-        var learningKey = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>().LearningKey;
-
         var data = table.CreateSet<ShortCourseUpdateResponseExpectationModel>().ToList();
 
         var response = _scenarioContext.Get<UpdateShortCourseOnProgrammeResponse>();
-        foreach(var expected in data)
-        {
-            response.Instalments.Should().ContainSingle(e =>
-                e.CollectionYear == expected.CollectionYear &&
-                e.CollectionPeriod == expected.CollectionPeriod &&
-                e.Amount == expected.Amount &&
-                e.Type == expected.Type &&
-                e.IsPayable == expected.IsPayable);
-        }
+        AssertShortCourseResponse(data, response);
     }
 
     [Then(@"On programme short course earnings are persisted as follows")]
@@ -162,6 +153,25 @@ public class ShortCourseStepDefinitions
                               && (expectedEarning.Type == null || Enum.Parse<ShortCourseInstalmentType>(expectedEarning.Type) == Enum.Parse<ShortCourseInstalmentType>(x.Type))
                     , $"Expected earning not found: {Newtonsoft.Json.JsonConvert.SerializeObject(expectedEarning)}");
         }
+    }
+
+    [When(@"a Get Short Course request is made for the short course")]
+    public async Task WhenAGetShortCourseRequestIsMadeForTheShortCourse()
+    {
+        var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(shortCourseCreateRequest.LearningKey);
+        var response = await _testContext.TestInnerApi.Get<GetShortCourseResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses?ukprn={entity.Episodes.Single().Ukprn}");
+
+        _scenarioContext.Set(response);
+    }
+
+    [Then(@"the following data is returned from the get request")]
+    public void ThenTheFollowingDataIsReturnedFromTheGetRequest(Table table)
+    {
+        var data = table.CreateSet<ShortCourseUpdateResponseExpectationModel>().ToList();
+        var response = _scenarioContext.Get<GetShortCourseResponse>();
+        AssertShortCourseResponse(data, response);
     }
 
     private UpdateShortCourseOnProgrammeModel GetUpdateOnProgrammeModel(Table table)
@@ -189,6 +199,21 @@ public class ShortCourseStepDefinitions
     private async Task<ShortCourseLearningEntity> GetLearningEntity(Guid learningKey)
     {
         return await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);
+    }
+
+    private void AssertShortCourseResponse(
+        List<ShortCourseUpdateResponseExpectationModel> expectations,
+        SFA.DAS.Funding.ApprenticeshipEarnings.DataTransferObjects.ShortCourseEarnings response)
+    {
+        foreach (var expected in expectations)
+        {
+            response.Instalments.Should().ContainSingle(e =>
+                e.CollectionYear == expected.CollectionYear &&
+                e.CollectionPeriod == expected.CollectionPeriod &&
+                e.Amount == expected.Amount &&
+                e.Type == expected.Type &&
+                e.IsPayable == expected.IsPayable);
+        }
     }
 
 }

@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourse
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
@@ -60,7 +61,7 @@ public class ShortCoursesController : ControllerBase
     public async Task<IActionResult> GetFm99ShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn)
     {
         _logger.LogInformation(
-            "Received request to get short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
+            "Received request to get fm99 short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
             learningKey, ukprn);
 
         try
@@ -102,5 +103,27 @@ public class ShortCoursesController : ControllerBase
         return Ok(response);
     }
 
-    // TODO Get short course endpoint
+    [HttpGet("/{learningKey}/shortCourses")]
+    public async Task<IActionResult> GetShortCourse(Guid learningKey, [FromQuery] long ukprn)
+    {
+        _logger.LogInformation(
+            "Received request to get short course for LearningKey {LearningKey} and Ukprn {Ukprn}",
+            learningKey, ukprn);
+
+        try
+        {
+            var request = new GetShortCourseRequest(learningKey, ukprn);
+            var response = await _queryDispatcher.Send<GetShortCourseRequest, GetShortCourseResponse>(request);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error getting short course for LearningKey {LearningKey} and Ukprn {Ukprn}",
+                learningKey, ukprn);
+
+            return StatusCode(500);
+        }
+    }
 }
