@@ -49,3 +49,23 @@ Scenario: Approved short course with both milestones - all instalments payable
 		| Type                          | IsPayable |
 		| ThirtyPercentLearningComplete | true      |
 		| LearningComplete              | true      |
+
+Scenario: Approval following 30% milestone - first instalment becomes payable
+	Given a short course has been created with the following information
+		| StartDate  | ExpectedEndDate | TotalPrice | Milestones                    |
+		| 2021-01-01 | 2021-06-25      | 2000       | ThirtyPercentLearningComplete |
+	When a LearningApproved event is received for the short course
+	Then the short course instalment payability is
+		| Type                          | IsPayable |
+		| ThirtyPercentLearningComplete | true      |
+		| LearningComplete              | false     |
+
+Scenario: Approval following both milestones - all instalments become payable
+	Given a short course has been created with the following information
+		| StartDate  | ExpectedEndDate | TotalPrice | Milestones                                      |
+		| 2021-01-01 | 2021-06-25      | 2000       | ThirtyPercentLearningComplete, LearningComplete |
+	When a LearningApproved event is received for the short course
+	Then the short course instalment payability is
+		| Type                          | IsPayable |
+		| ThirtyPercentLearningComplete | true      |
+		| LearningComplete              | true      |
