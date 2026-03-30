@@ -36,7 +36,7 @@ public static class UpdateShortCourseOnProgrammeResponseMapper
             CollectionYear = instalment.AcademicYear,
             CollectionPeriod = instalment.DeliveryPeriod,
             Type = instalmentType,
-            IsPayable = (episode.MilestoneFlags.HasFlag(milestoneFlag) && episode.IsApproved)
+            IsPayable = instalment.IsPayable
         };
     }
 }
