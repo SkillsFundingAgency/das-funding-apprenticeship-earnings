@@ -16,9 +16,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
         if (_entity.EarningsProfile != null)
-        {
-            _earningsProfile = ShortCourseEarningsProfile.Get(this, _entity.EarningsProfile);
-        }
+            _earningsProfile = new ShortCourseEarningsProfile(_entity.EarningsProfile, addChildToRoot);
 
         UpdateAgeAtStart(dateOfBirth);
     }
@@ -40,12 +38,14 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         if(WithdrawalDate.HasValue)
             ShortCoursePayments.RemoveWithdrawnPayments(onProgramPayments, _entity.Milestones);
 
+        ShortCoursePayments.SetPayability(onProgramPayments, _earningsProfile?.IsApproved ?? false, _entity.Milestones);
+
         if (_earningsProfile == null)
         {
             _earningsProfile = new ShortCourseEarningsProfile(
-                onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).Sum(x => x.Amount),
+                ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
                 onProgramPayments,
-                onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.LearningComplete).Sum(x => x.Amount),
+                ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice),
                 EpisodeKey, 
                 false, // Initialize as unapproved
                 this.AddChildToRoot, 
@@ -58,8 +58,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             _earningsProfile.Update(
                 instalments: onProgramPayments,
                 calculationData: calculationData,
-                onProgramTotal: onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).Sum(x => x.Amount),
-                completionPayment: onProgramPayments.Where(x => x.Type == ShortCourseInstalmentType.LearningComplete).Sum(x => x.Amount));
+                onProgramTotal: ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
+                completionPayment: ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice));
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
         }

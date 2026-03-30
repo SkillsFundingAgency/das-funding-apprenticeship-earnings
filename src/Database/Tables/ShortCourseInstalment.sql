@@ -2,10 +2,11 @@
 (
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
     [EarningsProfileId] UNIQUEIDENTIFIER NOT NULL,
-    [AcademicYear] SMALLINT NOT NULL, 
+    [AcademicYear] SMALLINT NOT NULL,
     [DeliveryPeriod] TINYINT NOT NULL,
-    [Amount] DECIMAL(15,5) NOT NULL, 
-    [Type] NVARCHAR(50) NULL
+    [Amount] DECIMAL(15,5) NOT NULL,
+    [Type] NVARCHAR(50) NULL,
+    [IsPayable] BIT NOT NULL DEFAULT 0
 )
 GO
 ALTER TABLE Domain.[ShortCourseInstalment]

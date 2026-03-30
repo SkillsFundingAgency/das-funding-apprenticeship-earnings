@@ -28,6 +28,7 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
 
         var episode = learning.GetEpisode();
 
+        episode.UpdateCompletion(command.Request.CompletionDate);
         episode.UpdateWithdrawalDate(command.Request.WithdrawalDate);
         episode.UpdateMilestones(command.Request.Milestones);
 
