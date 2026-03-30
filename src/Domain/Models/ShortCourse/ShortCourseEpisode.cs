@@ -74,6 +74,14 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
     }
 
+    public void Delete()
+    {
+        UpdateWithdrawalDate(StartDate);
+        UpdateCompletion(null);
+        _entity.Milestones = MilestoneFlags.None;
+        CalculateShortCourseOnProgram("{}");
+    }
+
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
     {
         _entity.WithdrawalDate = withdrawalDate;
