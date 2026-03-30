@@ -7,7 +7,9 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
@@ -103,5 +105,36 @@ internal class WhenCalculatingShortCourseOnProgram
 
         // Assert
         _episode.EarningsProfile.CalculationData.Should().Be("updated");
+    }
+
+    [Test]
+    public void WhenApproved_ThenBothMilestonesAreMarkedPayableIfRecorded()
+    {
+        // Arrange - milestones set, earnings calculated while unapproved
+        _episode.UpdateMilestones(new List<Milestone> { Milestone.ThirtyPercentLearningComplete, Milestone.LearningComplete });
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
+        _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
+
+        // Act
+        _episode.Approve();
+
+        // Assert
+        _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeTrue());
+    }
+
+    [Test]
+    public void WhenApproved_MilestonesIsMarkedPayableIfRecorded()
+    {
+        // Arrange - only the 30% milestone achieved; clear withdrawal date so both instalments are generated
+        _episode.UpdateWithdrawalDate(null);
+        _episode.UpdateMilestones(new List<Milestone> { Milestone.ThirtyPercentLearningComplete });
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
+
+        // Act
+        _episode.Approve();
+
+        // Assert
+        _episode.EarningsProfile.Instalments.Single(i => i.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).IsPayable.Should().BeTrue();
+        _episode.EarningsProfile.Instalments.Single(i => i.Type == ShortCourseInstalmentType.LearningComplete).IsPayable.Should().BeFalse();
     }
 }

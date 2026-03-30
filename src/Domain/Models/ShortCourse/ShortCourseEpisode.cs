@@ -68,7 +68,11 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
 
-    public override void Approve() => _earningsProfile!.Approve();
+    public override void Approve()
+    {
+        _earningsProfile!.Approve();
+        ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
+    }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
     {
