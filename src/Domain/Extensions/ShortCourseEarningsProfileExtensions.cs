@@ -35,6 +35,7 @@ internal static class ShortCourseEarningsProfileExtensions
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
+            EpisodePriceKey = earningsProfile.EpisodeKey,
             Type = i.Type
         }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod).ToList();
     }

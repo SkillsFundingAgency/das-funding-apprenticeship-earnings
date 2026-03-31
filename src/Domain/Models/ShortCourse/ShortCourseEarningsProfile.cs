@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
@@ -72,13 +73,10 @@ public class ShortCourseEarningsProfile : BaseEarningsProfile<ShortCourseEarning
 
         if (versionChanged)
         {
-            //TODO Add SC event for this
-
-
-            //Entity.Version = Guid.NewGuid();
-            //PurgeEventsOfType<EarningsProfileUpdatedEvent>();// Remove previous update events so only the latest is kept
-            //var archiveEvent = Entity.CreatedEarningsProfileUpdatedEvent();
-            //AddEvent(archiveEvent);
+            Entity.Version = Guid.NewGuid();
+            PurgeEventsOfType<ShortCourseEarningsProfileUpdatedEvent>();
+            var archiveEvent = Entity.CreatedEarningsProfileUpdatedEvent();
+            AddEvent(archiveEvent);
         }
     }
 }
