@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using static Dapper.SqlMapper;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 

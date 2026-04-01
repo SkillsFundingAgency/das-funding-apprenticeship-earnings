@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 
-public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<UpdateShortCourseOnProgrammeCommand>
+public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<UpdateShortCourseOnProgrammeCommand, UpdateShortCourseOnProgrammeResponse>
 {
     private readonly ILogger<UpdateShortCourseOnProgrammeCommandHandler> _logger;
     private readonly ILearningRepository _learningRepository;
@@ -17,7 +17,7 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
         _learningRepository = learningRepository;
     }
 
-    public async Task Handle(UpdateShortCourseOnProgrammeCommand command, CancellationToken cancellationToken = default)
+    public async Task<UpdateShortCourseOnProgrammeResponse> Handle(UpdateShortCourseOnProgrammeCommand command, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Handling UpdateShortCourseOnProgrammeCommand for LearningKey: {LearningKey}", command.LearningKey);
 
@@ -35,5 +35,8 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
         episode.CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
 
         await _learningRepository.Update(learning);
+
+        return UpdateShortCourseOnProgrammeResponseMapper.ToResponse(learning);
     }
+
 }

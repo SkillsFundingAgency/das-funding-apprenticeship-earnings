@@ -3,20 +3,20 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 
-public class GetShortCourseEarningsQueryHandler : IQueryHandler<GetShortCourseEarningsRequest, GetShortCourseEarningsResponse>
+public class GetFm99ShortCourseEarningsQueryHandler : IQueryHandler<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>
 {
     private readonly ApprenticeshipEarningsDataContext _dbContext;
-    private readonly ILogger<GetShortCourseEarningsQueryHandler> _logger;
+    private readonly ILogger<GetFm99ShortCourseEarningsQueryHandler> _logger;
 
-    public GetShortCourseEarningsQueryHandler(ApprenticeshipEarningsDataContext dbContext, ILogger<GetShortCourseEarningsQueryHandler> logger)
+    public GetFm99ShortCourseEarningsQueryHandler(ApprenticeshipEarningsDataContext dbContext, ILogger<GetFm99ShortCourseEarningsQueryHandler> logger)
     {
         _dbContext = dbContext;
         _logger = logger;
     }
 
-    public async Task<GetShortCourseEarningsResponse> Handle(GetShortCourseEarningsRequest query, CancellationToken cancellationToken = default)
+    public async Task<GetFm99ShortCourseEarningsResponse> Handle(GetFm99ShortCourseEarningsRequest query, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Handling GetShortCourseEarningsRequest for LearningKey: {learningKey} Ukprn: {ukprn}", query.LearningKey, query.Ukprn);
 
@@ -24,7 +24,7 @@ public class GetShortCourseEarningsQueryHandler : IQueryHandler<GetShortCourseEa
             .Where(e => e.LearningKey == query.LearningKey && e.Ukprn == query.Ukprn)
             .Where(e => e.EarningsProfile != null)
             .SelectMany(e => e.EarningsProfile!.Instalments)
-            .Select(i => new GetShortCourseEarningsResponse.Earning
+            .Select(i => new GetFm99ShortCourseEarningsResponse.Earning
             {
                 CollectionYear = i.AcademicYear,
                 CollectionPeriod = i.DeliveryPeriod,
@@ -33,6 +33,6 @@ public class GetShortCourseEarningsQueryHandler : IQueryHandler<GetShortCourseEa
             })
             .ToListAsync(cancellationToken);
 
-        return new GetShortCourseEarningsResponse { Earnings = earnings };
+        return new GetFm99ShortCourseEarningsResponse { Earnings = earnings };
     }
 }
