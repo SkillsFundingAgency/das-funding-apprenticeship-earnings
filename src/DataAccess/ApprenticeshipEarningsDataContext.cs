@@ -21,6 +21,7 @@ public class ApprenticeshipEarningsDataContext : DbContext
     public virtual DbSet<ApprenticeshipEpisodePriceEntity> EpisodePrices { get; set; }
     public virtual DbSet<ApprenticeshipEarningsProfileEntity> EarningsProfiles { get; set; }
     public virtual DbSet<ApprenticeshipInstalmentEntity> Instalments { get; set; }
+    public virtual DbSet<ShortCourseInstalmentEntity> ShortCourseInstalments { get; set; }
     public virtual DbSet<ApprenticeshipAdditionalPaymentEntity> AdditionalPayments { get; set; }
     public virtual DbSet<ApprenticeshipPeriodInLearningEntity> EpisodePeriodsInLearnings { get; set; }
     public virtual DbSet<ApprenticeshipEarningsProfileHistoryEntity> EarningsProfileHistories2 { get; set; }

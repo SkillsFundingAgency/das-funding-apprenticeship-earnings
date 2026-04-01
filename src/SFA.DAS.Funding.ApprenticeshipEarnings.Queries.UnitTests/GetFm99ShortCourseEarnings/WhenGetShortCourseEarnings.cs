@@ -5,7 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,7 +17,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetShortCours
 public class WhenGetShortCourseEarnings
 {
     private ApprenticeshipEarningsDataContext _dbContext;
-    private GetShortCourseEarningsQueryHandler _queryHandler;
+    private GetFm99ShortCourseEarningsQueryHandler _queryHandler;
 
     [SetUp]
     public void Setup()
@@ -27,9 +27,9 @@ public class WhenGetShortCourseEarnings
             .Options;
 
         _dbContext = new ApprenticeshipEarningsDataContext(options);
-        _queryHandler = new GetShortCourseEarningsQueryHandler(
+        _queryHandler = new GetFm99ShortCourseEarningsQueryHandler(
             _dbContext,
-            Mock.Of<ILogger<GetShortCourseEarningsQueryHandler>>());
+            Mock.Of<ILogger<GetFm99ShortCourseEarningsQueryHandler>>());
     }
 
     [TearDown]
@@ -38,7 +38,7 @@ public class WhenGetShortCourseEarnings
     [Test]
     public async Task Handle_LearningNotFound_ReturnsEmptyEarnings()
     {
-        var query = new GetShortCourseEarningsRequest(Guid.NewGuid(), 10005077);
+        var query = new GetFm99ShortCourseEarningsRequest(Guid.NewGuid(), 10005077);
 
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
@@ -50,7 +50,7 @@ public class WhenGetShortCourseEarnings
     {
         var learningKey = Guid.NewGuid();
         const long ukprn = 10005077;
-        var query = new GetShortCourseEarningsRequest(learningKey, ukprn);
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn);
 
         await SeedEpisodeWithInstalments(learningKey, ukprn, new List<ShortCourseInstalmentEntity>
         {
@@ -77,7 +77,7 @@ public class WhenGetShortCourseEarnings
     public async Task Handle_UkprnDoesNotMatchEpisode_ReturnsEmptyEarnings()
     {
         var learningKey = Guid.NewGuid();
-        var query = new GetShortCourseEarningsRequest(learningKey, 10005077);
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, 10005077);
 
         await SeedEpisodeWithInstalments(learningKey, ukprn: 99999999, new List<ShortCourseInstalmentEntity>());
 
