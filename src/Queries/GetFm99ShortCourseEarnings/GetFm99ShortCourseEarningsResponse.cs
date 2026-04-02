@@ -1,6 +1,6 @@
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 
-public class GetShortCourseEarningsResponse
+public class GetFm99ShortCourseEarningsResponse
 {
     public List<Earning> Earnings { get; set; } = new();
 

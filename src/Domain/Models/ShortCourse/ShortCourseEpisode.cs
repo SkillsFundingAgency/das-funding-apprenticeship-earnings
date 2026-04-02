@@ -10,6 +10,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public DateTime StartDate => _entity.StartDate;
     public DateTime EndDate => _entity.EndDate;
     public decimal CoursePrice => _entity.CoursePrice;
+    public MilestoneFlags MilestoneFlags => _entity.Milestones;
+    public bool IsApproved => _earningsProfile?.IsApproved ?? false;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {

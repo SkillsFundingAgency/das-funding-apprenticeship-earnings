@@ -86,10 +86,21 @@ public class TestInnerApi : IDisposable
         var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
         var response = await _httpClient.PatchAsync(route, content);
     }
+
     public async Task Put<T>(string route, T body)
     {
         var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
         var response = await _httpClient.PutAsync(route, content);
+    }
+
+    public async Task<TResponse> Put<TRequest, TResponse>(string route, TRequest body)
+    {
+        var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+        var response = await _httpClient.PutAsync(route, content);
+        if (!response.IsSuccessStatusCode)
+            return default;
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<TResponse>(json);
     }
 
     public async Task Post<T>(string route, T body)

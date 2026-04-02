@@ -6,14 +6,14 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourseEarnings;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.ShortCoursesController;
 
-public class WhenGetShortCourseEarnings
+public class WhenGetFm99ShortCourseEarnings
 {
     private Mock<ILogger<InnerApi.Controllers.ShortCoursesController>> _loggerMock;
     private Mock<ICommandDispatcher> _commandDispatcherMock;
@@ -37,9 +37,9 @@ public class WhenGetShortCourseEarnings
         // Arrange
         var learningKey = _fixture.Create<Guid>();
         var ukprn = _fixture.Create<long>();
-        var expectedResponse = new GetShortCourseEarningsResponse
+        var expectedResponse = new GetFm99ShortCourseEarningsResponse
         {
-            Earnings = new List<GetShortCourseEarningsResponse.Earning>
+            Earnings = new List<GetFm99ShortCourseEarningsResponse.Earning>
             {
                 new() { CollectionYear = 2021, CollectionPeriod = 7, Amount = 600, Type = "Regular" },
                 new() { CollectionYear = 2021, CollectionPeriod = 11, Amount = 1400, Type = "Completion" }
@@ -47,12 +47,12 @@ public class WhenGetShortCourseEarnings
         };
 
         _queryDispatcherMock
-            .Setup(x => x.Send<GetShortCourseEarningsRequest, GetShortCourseEarningsResponse>(
-                It.Is<GetShortCourseEarningsRequest>(r => r.LearningKey == learningKey && r.Ukprn == ukprn)))
+            .Setup(x => x.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(
+                It.Is<GetFm99ShortCourseEarningsRequest>(r => r.LearningKey == learningKey && r.Ukprn == ukprn)))
             .ReturnsAsync(expectedResponse);
 
         // Act
-        var result = await _controller.GetShortCourseEarnings(learningKey, ukprn);
+        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
@@ -68,12 +68,12 @@ public class WhenGetShortCourseEarnings
         var ukprn = _fixture.Create<long>();
 
         _queryDispatcherMock
-            .Setup(x => x.Send<GetShortCourseEarningsRequest, GetShortCourseEarningsResponse>(
-                It.IsAny<GetShortCourseEarningsRequest>()))
+            .Setup(x => x.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(
+                It.IsAny<GetFm99ShortCourseEarningsRequest>()))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.GetShortCourseEarnings(learningKey, ukprn);
+        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>();
