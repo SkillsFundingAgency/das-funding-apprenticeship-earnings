@@ -216,6 +216,21 @@ public class ShortCourseStepDefinitions
         }
     }
 
+    [When(@"the short course learning is deleted")]
+    public async Task WhenTheShortCourseLearningIsDeleted()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses");
+    }
+
+    [Then(@"the short course has no instalments")]
+    public async Task ThenTheShortCourseHasNoInstalments()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        entity!.Episodes.First().EarningsProfile.Instalments.Should().BeEmpty();
+    }
+
     private async Task<ShortCourseLearningEntity> GetLearningEntity(Guid learningKey)
     {
         return await _testContext.SqlDatabase.GetShortCourseLearning(learningKey);

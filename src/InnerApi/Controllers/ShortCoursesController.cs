@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.DeleteShortCourseLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
@@ -125,5 +126,25 @@ public class ShortCoursesController : ControllerBase
 
             return StatusCode(500);
         }
+    }
+
+    [HttpDelete("/{learningKey}/shortCourses")]
+    public async Task<IActionResult> DeleteShortCourseLearning(Guid learningKey)
+    {
+        _logger.LogInformation("Received request to delete ShortCourse learning for LearningKey {LearningKey}", learningKey);
+
+        try
+        {
+            var command = new DeleteShortCourseLearningCommand(learningKey);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting ShortCourse learning for LearningKey {LearningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully deleted ShortCourse learning for LearningKey {LearningKey}", learningKey);
+        return Ok();
     }
 }
