@@ -133,10 +133,12 @@ public class ShortCoursesController : ControllerBase
     {
         _logger.LogInformation("Received request to delete ShortCourse learning for LearningKey {LearningKey}", learningKey);
 
+        DeleteShortCourseLearningResponse? response = null;
+
         try
         {
             var command = new DeleteShortCourseLearningCommand(learningKey);
-            await _commandDispatcher.Send(command);
+            response = await _commandDispatcher.Send<DeleteShortCourseLearningCommand, DeleteShortCourseLearningResponse>(command);
         }
         catch (Exception ex)
         {
@@ -145,6 +147,6 @@ public class ShortCoursesController : ControllerBase
         }
 
         _logger.LogInformation("Successfully deleted ShortCourse learning for LearningKey {LearningKey}", learningKey);
-        return Ok();
+        return Ok(response);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using System.Text.Json;
 
@@ -36,7 +37,7 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
 
         await _learningRepository.Update(learning);
 
-        return UpdateShortCourseOnProgrammeResponseMapper.ToResponse(learning);
+        return learning.ToDtoResponse<UpdateShortCourseOnProgrammeResponse>();
     }
 
 }
