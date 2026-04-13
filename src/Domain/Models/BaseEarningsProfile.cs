@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using UUIDNext;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
@@ -40,7 +41,7 @@ public class BaseEarningsProfile<T> : BaseEarningsProfile where T : BaseEarnings
         Entity.OnProgramTotal = onProgramTotal;
         Entity.CompletionPayment = completionPayment;
         Entity.EpisodeKey = episodeKey;
-        Entity.Version = Guid.NewGuid();
+        Entity.Version = Uuid.NewDatabaseFriendly(Database.SqlServer);
         Entity.IsApproved = isApproved;
         Entity.CalculationData = calculationData;
 
