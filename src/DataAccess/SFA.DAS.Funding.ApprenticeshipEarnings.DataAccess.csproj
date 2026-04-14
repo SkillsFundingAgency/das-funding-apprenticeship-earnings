@@ -8,11 +8,9 @@
 
   <ItemGroup>
 	<PackageReference Include="Dapper.Contrib" Version="2.0.78" />
-	<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.12" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.3.1" />
     <PackageReference Include="SFA.DAS.Learning.Types" Version="6.8.74-prerelease-7" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.6" />

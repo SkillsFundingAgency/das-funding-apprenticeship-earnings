@@ -18,7 +18,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoFixture" Version="4.18.1" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.67.2" />
 		<PackageReference Include="coverlet.msbuild" Version="6.0.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
