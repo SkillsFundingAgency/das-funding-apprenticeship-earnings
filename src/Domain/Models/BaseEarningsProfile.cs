@@ -34,7 +34,7 @@ public class BaseEarningsProfile<T> : BaseEarningsProfile where T : BaseEarnings
         string calculationData,
         Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
     {
-        var earningProfileId = Guid.NewGuid();
+        var earningProfileId = Uuid.NewDatabaseFriendly(Database.SqlServer);
 
         Entity = new T();
         Entity.EarningsProfileId = earningProfileId;
