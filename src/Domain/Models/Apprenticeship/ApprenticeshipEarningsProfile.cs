@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using UUIDNext;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -89,7 +90,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
 
         if (versionChanged)
         {
-            Entity.Version = Guid.NewGuid();
+            Entity.Version = Uuid.NewDatabaseFriendly(Database.SqlServer);
             PurgeEventsOfType<EarningsProfileUpdatedEvent>();// Remove previous update events so only the latest is kept
             var archiveEvent = Entity.CreatedEarningsProfileUpdatedEvent();
             AddEvent(archiveEvent);

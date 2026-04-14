@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using UUIDNext;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -73,7 +74,7 @@ public class ShortCourseEarningsProfile : BaseEarningsProfile<ShortCourseEarning
 
         if (versionChanged)
         {
-            Entity.Version = Guid.NewGuid();
+            Entity.Version = Uuid.NewDatabaseFriendly(Database.SqlServer);
             PurgeEventsOfType<ShortCourseEarningsProfileUpdatedEvent>();
             var archiveEvent = Entity.CreatedEarningsProfileUpdatedEvent();
             AddEvent(archiveEvent);
