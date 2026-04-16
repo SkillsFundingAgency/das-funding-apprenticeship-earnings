@@ -1,6 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -44,5 +43,34 @@ public static class LearningExtensions
     public static ShortCourseEpisode GetShortCourseEpisodeFromEntity(this ShortCourseLearning learning, ShortCourseEpisodeEntity entity)
     {
         return ShortCourseEpisode.Get(learning, entity);
+    }
+
+    public static T ToDtoResponse<T>(this ShortCourseLearning learning) where T : DataTransferObjects.ShortCourseEarnings, new()
+    {
+        var episode = learning.GetEpisode();
+        var earningsProfile = episode.EarningsProfile!;
+
+        var response = new T
+        {
+            EarningProfileVersion = earningsProfile.Version,
+            Instalments = earningsProfile.Instalments.Select(i => MapToInstalment(episode, i)).ToList()
+        };
+
+        return response;
+    }
+
+    private static DataTransferObjects.ShortCourseInstalment MapToInstalment(ShortCourseEpisode episode, ShortCourseInstalment instalment)
+    {
+        var instalmentType = instalment.Type.ToString();
+        var milestoneFlag = Enum.Parse<MilestoneFlags>(instalmentType);
+
+        return new DataTransferObjects.ShortCourseInstalment
+        {
+            Amount = instalment.Amount,
+            CollectionYear = instalment.AcademicYear,
+            CollectionPeriod = instalment.DeliveryPeriod,
+            Type = instalmentType,
+            IsPayable = instalment.IsPayable
+        };
     }
 }
