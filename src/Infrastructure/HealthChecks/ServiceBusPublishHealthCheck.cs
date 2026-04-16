@@ -21,11 +21,11 @@ public class ServiceBusPublishHealthCheck : BaseHealthCheck<ServiceBusPublishHea
     {
         try
         {
-            //var message = new ServiceBusMessage("Hello, world!")
-            //{
-            //    TimeToLive = TimeSpan.FromMinutes(5) // Message expires in 5 minutes
-            //};
-            //await _messageSession.Publish(message, cancellationToken);
+            var message = new ServiceBusMessage("Hello, world!")
+            {
+                TimeToLive = TimeSpan.FromMinutes(5) // Message expires in 5 minutes
+            };
+            await _messageSession.Publish(message, cancellationToken);
 
             return HealthCheckResult.Healthy("Service bus publish ok");
         }
