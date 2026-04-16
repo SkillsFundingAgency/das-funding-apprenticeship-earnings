@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Azure.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using System;
 using System.Net;
 using System.Security.Cryptography;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
@@ -12,9 +15,24 @@ internal static class NServiceBusConfiguration
 {
     internal static IHostBuilder ConfigureNServiceBusForSubscribe(this IHostBuilder hostBuilder)
     {
+
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
+            var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            var fullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace();
             endpointConfiguration.LogDiagnostics();
+
+
+            //var topology = TopicTopology.MigrateFromSingleDefaultTopic();
+            //var transport = new AzureServiceBusTransport(
+            //    fullyQualifiedNamespace,
+            //    new DefaultAzureCredential(), topology);
+
+            //endpointConfiguration.AdvancedConfiguration.UseTransport(transport);
+
+            var transport = endpointConfiguration.Transport;
+            var topology = transport.Topology;
+
 
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
             endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
@@ -33,6 +51,7 @@ internal static class NServiceBusConfiguration
                 var decodedLicence = WebUtility.HtmlDecode(value);
                 endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             }
+
         });
 
         return hostBuilder;
