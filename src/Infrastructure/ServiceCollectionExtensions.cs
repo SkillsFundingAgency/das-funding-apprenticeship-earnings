@@ -5,7 +5,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.EarningsOuterApiClient;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
@@ -38,18 +37,12 @@ public static class ServiceCollectionExtensions
     public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
     {
         var endpointConfiguration = new EndpointConfiguration(Constants.EndpointName);
-
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         endpointConfiguration.SendOnly();
 
-        var topology = TopicTopology.MigrateFromSingleDefaultTopic();
-        //topology.PublishTo<EarningsProfileUpdatedEvent>("bundle-1");
-
-
-
         var transport = new AzureServiceBusTransport(
-            fullyQualifiedNamespace,
-            new DefaultAzureCredential(), topology);
+           fullyQualifiedNamespace,
+           new DefaultAzureCredential());
 
         endpointConfiguration.UseTransport(transport);
 
@@ -59,10 +52,7 @@ public static class ServiceCollectionExtensions
             behavior: typeof(OutgoingCorrelationIdBehavior),
             description: "Populates Correlation ID for outgoing messages");
 
-        var endpointInstance = NServiceBus.Endpoint.Start(endpointConfiguration)
-            .GetAwaiter()
-            .GetResult();
-
+        var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
         services.AddSingleton<IMessageSession>(endpointInstance);
     }
 
