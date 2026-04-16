@@ -22,14 +22,6 @@ internal static class NServiceBusConfiguration
             var fullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace();
             endpointConfiguration.LogDiagnostics();
 
-
-            //var topology = TopicTopology.MigrateFromSingleDefaultTopic();
-            //var transport = new AzureServiceBusTransport(
-            //    fullyQualifiedNamespace,
-            //    new DefaultAzureCredential(), topology);
-
-            //endpointConfiguration.AdvancedConfiguration.UseTransport(transport);
-
             var transport = endpointConfiguration.Transport;
             var topology = transport.Topology;
 
