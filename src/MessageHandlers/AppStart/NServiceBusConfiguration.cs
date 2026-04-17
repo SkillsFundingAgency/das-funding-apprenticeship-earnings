@@ -22,9 +22,7 @@ internal static class NServiceBusConfiguration
             var fullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace();
             endpointConfiguration.LogDiagnostics();
 
-            var transport = endpointConfiguration.Transport;
-            var topology = transport.Topology;
-
+            endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
 
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
             endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
