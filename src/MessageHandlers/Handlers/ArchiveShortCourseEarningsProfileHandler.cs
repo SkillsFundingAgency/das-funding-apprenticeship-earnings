@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveShortCourseEarningsProfileCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Threading.Tasks;
 using SFA.DAS.Learning.Types;
+using SFA.DAS.ServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 

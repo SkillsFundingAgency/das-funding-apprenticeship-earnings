@@ -1,7 +1,6 @@
 ﻿using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
@@ -16,33 +15,33 @@ internal static class NServiceBusConfiguration
     internal static IHostBuilder ConfigureNServiceBusForSubscribe(this IHostBuilder hostBuilder)
     {
 
-        hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
-        {
-            var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-            var fullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace();
-            endpointConfiguration.LogDiagnostics();
+        //hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
+        //{
+        //    var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+        //    var fullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace();
+        //    endpointConfiguration.LogDiagnostics();
 
-            endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
+        //    endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
 
-            endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
-            endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
+        //    endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
+        //    endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
 
-            endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+        //    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
-            endpointConfiguration.AdvancedConfiguration.EnableInstallers();
+        //    endpointConfiguration.AdvancedConfiguration.EnableInstallers();
 
-            endpointConfiguration.AdvancedConfiguration.Pipeline.Register(
-                behavior: typeof(IncomingCorrelationIdBehavior),
-                description: "Populates Correlation ID from incoming message");
+        //    endpointConfiguration.AdvancedConfiguration.Pipeline.Register(
+        //        behavior: typeof(IncomingCorrelationIdBehavior),
+        //        description: "Populates Correlation ID from incoming message");
 
-            var value = config["ApplicationSettings:NServiceBusLicense"];
-            if (!string.IsNullOrEmpty(value))
-            {
-                var decodedLicence = WebUtility.HtmlDecode(value);
-                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
-            }
+        //    var value = config["ApplicationSettings:NServiceBusLicense"];
+        //    if (!string.IsNullOrEmpty(value))
+        //    {
+        //        var decodedLicence = WebUtility.HtmlDecode(value);
+        //        endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
+        //    }
 
-        });
+        //});
 
         return hostBuilder;
     }

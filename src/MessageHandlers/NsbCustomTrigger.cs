@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
-using NServiceBus;
+using SFA.DAS.ServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers
 {
@@ -18,7 +18,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers
             ServiceBusReceivedMessage message, ServiceBusMessageActions messageActions, FunctionContext context,
             CancellationToken cancellationToken = default)
         {
-            await functionEndpoint.Process(message, messageActions, context, cancellationToken);
+            await functionEndpoint.Process(message, cancellationToken);
         }
     }
 }

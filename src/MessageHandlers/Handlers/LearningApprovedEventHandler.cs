@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveLearningCommand;
 using SFA.DAS.Learning.Types;
+using SFA.DAS.ServiceBus;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;

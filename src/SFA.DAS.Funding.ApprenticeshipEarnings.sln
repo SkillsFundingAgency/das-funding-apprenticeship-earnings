@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.32014.148
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11626.88 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Command", "Command\SFA.DAS.Funding.ApprenticeshipEarnings.Command.csproj", "{162AD74E-6760-458B-9C9A-293EDDD21003}"
 EndProject
@@ -40,6 +40,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests", "Command.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.csproj", "{A4317C7D-7A70-488B-9625-9C22850B207B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.UnitTests", "SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.UnitTests\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.UnitTests.csproj", "{B251A1EB-9919-4A15-9B67-CE749ABB2131}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ServiceBus", "SFA.DAS.ServiceBus\SFA.DAS.ServiceBus.csproj", "{DD6CB49A-6FE3-4707-84B4-A2318026D515}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +123,10 @@ Global
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B251A1EB-9919-4A15-9B67-CE749ABB2131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD6CB49A-6FE3-4707-84B4-A2318026D515}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD6CB49A-6FE3-4707-84B4-A2318026D515}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD6CB49A-6FE3-4707-84B4-A2318026D515}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD6CB49A-6FE3-4707-84B4-A2318026D515}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccess\SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.csproj" />
+    <ProjectReference Include="..\SFA.DAS.ServiceBus\SFA.DAS.ServiceBus.csproj" />
     <ProjectReference Include="..\Types\SFA.DAS.Funding.ApprenticeshipEarnings.Types.csproj" />
   </ItemGroup>
 
