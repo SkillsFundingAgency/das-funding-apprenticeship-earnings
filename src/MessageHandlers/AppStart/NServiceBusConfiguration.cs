@@ -12,8 +12,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
 internal static class NServiceBusConfiguration
 {
-    internal static IHostBuilder ConfigureNServiceBusForSubscribe(this IHostBuilder hostBuilder)
-    {
+    //internal static IHostBuilder ConfigureNServiceBusForSubscribe(this IHostBuilder hostBuilder)
+    //{
 
         //hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         //{
@@ -43,8 +43,8 @@ internal static class NServiceBusConfiguration
 
         //});
 
-        return hostBuilder;
-    }
+        //return hostBuilder;
+   // }
 
     internal static class AzureRuleNameShortener
     {

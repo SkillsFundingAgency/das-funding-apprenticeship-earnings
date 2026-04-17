@@ -13,6 +13,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
+using SFA.DAS.ServiceBus;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -44,10 +45,14 @@ public class Startup
         builder
             .ConfigureFunctionsWebApplication()
             .ConfigureAppConfiguration(PopulateConfig)
-            .ConfigureNServiceBusForSubscribe()
             .ConfigureServices((c, s) =>
             {
                 SetupServices(s);
+                s.AddServiceBus(new SFA.DAS.ServiceBus.ServiceBusConfig
+                {
+                    FullyQualifiedNamespace = ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace(),
+                    QueueName = Infrastructure.Constants.EndpointName
+                });
                 s.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
             });
     }

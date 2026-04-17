@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.ServiceBus;
 
-public class IMessageHandlerContext
+public interface IMessageHandlerContext
 {
     public CancellationToken CancellationToken { get; set; }
 }
