@@ -18,8 +18,6 @@ internal static class NServiceBusConfiguration
 
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
-            var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-            var fullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace();
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
