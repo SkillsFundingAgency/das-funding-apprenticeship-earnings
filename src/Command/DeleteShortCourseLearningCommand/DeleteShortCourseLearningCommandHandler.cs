@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.DeleteShortCourseLearningCommand;
 
-public class DeleteShortCourseLearningCommandHandler : ICommandHandler<DeleteShortCourseLearningCommand>
+public class DeleteShortCourseLearningCommandHandler : ICommandHandler<DeleteShortCourseLearningCommand, DeleteShortCourseLearningResponse>
 {
     private readonly ILogger<DeleteShortCourseLearningCommandHandler> _logger;
     private readonly ILearningRepository _learningRepository;
@@ -16,7 +17,7 @@ public class DeleteShortCourseLearningCommandHandler : ICommandHandler<DeleteSho
         _learningRepository = learningRepository;
     }
 
-    public async Task Handle(DeleteShortCourseLearningCommand command, CancellationToken cancellationToken = default)
+    public async Task<DeleteShortCourseLearningResponse> Handle(DeleteShortCourseLearningCommand command, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Handling DeleteShortCourseLearningCommand for LearningKey: {LearningKey}", command.LearningKey);
 
@@ -30,5 +31,7 @@ public class DeleteShortCourseLearningCommandHandler : ICommandHandler<DeleteSho
         episode.Delete();
 
         await _learningRepository.Update(learning);
+
+        return learning.ToDtoResponse<DeleteShortCourseLearningResponse>();
     }
 }
