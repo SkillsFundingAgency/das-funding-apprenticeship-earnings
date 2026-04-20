@@ -2,7 +2,7 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using NServiceBus;
+using SFA.DAS.ServiceBus;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;

@@ -11,7 +11,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 using SFA.DAS.ServiceBus;
 using System;
@@ -51,9 +50,10 @@ public class Startup
                 s.AddServiceBus(new SFA.DAS.ServiceBus.ServiceBusConfig
                 {
                     FullyQualifiedNamespace = ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace(),
-                    QueueName = Infrastructure.Constants.EndpointName
+                    QueueName = Infrastructure.Constants.EndpointName,
+                    TopicName = "bundle-1",
+                    CommunicationDirection = CommunicationDirection.Both
                 });
-                s.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
             });
     }
 
@@ -95,7 +95,7 @@ public class Startup
         services
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
-        services.AddSingleton<ITelemetryInitializer, CorrelationTelemetryInitializer>();
+        //services.AddSingleton<ITelemetryInitializer, CorrelationTelemetryInitializer>();
 
         services.AddEntityFrameworkForApprenticeships(ApplicationSettings);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();

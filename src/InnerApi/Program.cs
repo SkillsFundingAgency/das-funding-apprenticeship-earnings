@@ -8,6 +8,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Health;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries;
+using SFA.DAS.ServiceBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,13 @@ var applicationSettings = new ApplicationSettings();
 builder.Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
 builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings);
 builder.Services.AddSingleton(x => applicationSettings);
-builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
+builder.Services.AddServiceBus(new SFA.DAS.ServiceBus.ServiceBusConfig
+{
+    FullyQualifiedNamespace = applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace(),
+    TopicName = "bundle-1",
+    CommunicationDirection = CommunicationDirection.Send
+});
+
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
 builder.Services.AddApplicationHealthChecks(applicationSettings);
 if(builder.Configuration.NotAcceptanceTests())

@@ -2,12 +2,12 @@
 
 public static class NServiceBusExtensions
 {
-    public static void SetConventions(this ConventionsBuilder conventions)
-    {
-        conventions.DefiningEventsAs(IsEvent);
-        conventions.DefiningCommandsAs(IsCommand);
-        conventions.DefiningMessagesAs(IsMessage);
-    }
+    //public static void SetConventions(this ConventionsBuilder conventions)
+    //{
+    //    conventions.DefiningEventsAs(IsEvent);
+    //    conventions.DefiningCommandsAs(IsCommand);
+    //    conventions.DefiningMessagesAs(IsMessage);
+    //}
 
     public static string GetFullyQualifiedNamespace(this string serviceBusConnectionString)
     {

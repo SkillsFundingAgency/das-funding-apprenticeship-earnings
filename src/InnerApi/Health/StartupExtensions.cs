@@ -14,7 +14,7 @@ public static class StartupExtensions
             applicationSettings.DbConnectionString, 
             sp.GetService<ILogger<DbHealthCheck>>()!));
         
-        services.AddSingleton(sp => new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!));
+        //services.AddSingleton(sp => new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!));
 
         services.AddHealthChecks()
             .AddCheck<DbHealthCheck>("Database")

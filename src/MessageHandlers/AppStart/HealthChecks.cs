@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.HealthChecks;
@@ -17,8 +16,8 @@ public static class HealthChecks
     {
         services.AddSingleton(sp => new FunctionHealthChecker(
             new DbHealthCheck(applicationSettings.DbConnectionString, sp.GetService<ILogger<DbHealthCheck>>()!),
-            new ServiceBusReceiveHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusReceiveHealthCheck>>()!),
-            new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!)
+            new ServiceBusReceiveHealthCheck(applicationSettings.NServiceBusConnectionString, sp.GetService<ILogger<ServiceBusReceiveHealthCheck>>()!)//,
+            //new ServiceBusPublishHealthCheck(sp.GetService<IMessageSession>()!, sp.GetService<ILogger<ServiceBusPublishHealthCheck>>()!)
             ));
 
 
@@ -36,13 +35,13 @@ public class FunctionHealthChecker
     private static ServiceBusReceiveHealthCheck? _serviceBusHealthCheck;
     private static ServiceBusPublishHealthCheck? _serviceBusSendHealthCheck;
 
-    public FunctionHealthChecker(DbHealthCheck dbHealthCheck, ServiceBusReceiveHealthCheck serviceBusHealthCheck, ServiceBusPublishHealthCheck serviceBusSendHealthCheck)
+    public FunctionHealthChecker(DbHealthCheck dbHealthCheck, ServiceBusReceiveHealthCheck serviceBusHealthCheck)//, ServiceBusPublishHealthCheck serviceBusSendHealthCheck)
     {
         if (_dbHealthCheck == null && _serviceBusHealthCheck == null)
         {
             _dbHealthCheck = dbHealthCheck;
-            _serviceBusHealthCheck = serviceBusHealthCheck;
-            _serviceBusSendHealthCheck = serviceBusSendHealthCheck;
+            //_serviceBusHealthCheck = serviceBusHealthCheck;
+            //_serviceBusSendHealthCheck = serviceBusSendHealthCheck;
         }
     }
 
@@ -56,17 +55,17 @@ public class FunctionHealthChecker
             return false;
         }
 
-        var serviceBusResult = await _serviceBusHealthCheck.CheckHealthAsync(healthCheckContext, cancellationToken);
-        if (serviceBusResult.Status != HealthStatus.Healthy)
-        {
-            return false;
-        }
+        //var serviceBusResult = await _serviceBusHealthCheck.CheckHealthAsync(healthCheckContext, cancellationToken);
+        //if (serviceBusResult.Status != HealthStatus.Healthy)
+        //{
+        //    return false;
+        //}
 
-        var serviceBusSendResult = await _serviceBusSendHealthCheck.CheckHealthAsync(healthCheckContext, cancellationToken);
-        if (serviceBusSendResult.Status != HealthStatus.Healthy)
-        {
-            return false;
-        }
+        //var serviceBusSendResult = await _serviceBusSendHealthCheck.CheckHealthAsync(healthCheckContext, cancellationToken);
+        //if (serviceBusSendResult.Status != HealthStatus.Healthy)
+        //{
+        //    return false;
+        //}
 
         return true;
     }

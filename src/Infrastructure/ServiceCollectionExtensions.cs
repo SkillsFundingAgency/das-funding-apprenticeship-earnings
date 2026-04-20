@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.EarningsOuterApiClient;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
@@ -34,27 +33,27 @@ public static class ServiceCollectionExtensions
     }
 
 
-    public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
-    {
-        var endpointConfiguration = new EndpointConfiguration(Constants.EndpointName);
-        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
-        endpointConfiguration.SendOnly();
+    //public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
+    //{
+    //    var endpointConfiguration = new EndpointConfiguration(Constants.EndpointName);
+    //    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+    //    endpointConfiguration.SendOnly();
 
-        var transport = new AzureServiceBusTransport(
-           fullyQualifiedNamespace,
-           new DefaultAzureCredential());
+    //    var transport = new AzureServiceBusTransport(
+    //       fullyQualifiedNamespace,
+    //       new DefaultAzureCredential());
 
-        endpointConfiguration.UseTransport(transport);
+    //    endpointConfiguration.UseTransport(transport);
 
-        endpointConfiguration.Conventions().SetConventions();
+    //    endpointConfiguration.Conventions().SetConventions();
 
-        endpointConfiguration.Pipeline.Register(
-            behavior: typeof(OutgoingCorrelationIdBehavior),
-            description: "Populates Correlation ID for outgoing messages");
+    //    endpointConfiguration.Pipeline.Register(
+    //        behavior: typeof(OutgoingCorrelationIdBehavior),
+    //        description: "Populates Correlation ID for outgoing messages");
 
-        var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
-        services.AddSingleton<IMessageSession>(endpointInstance);
-    }
+    //    var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+    //    services.AddSingleton<IMessageSession>(endpointInstance);
+    //}
 
     public static IServiceCollection AddEarningsOuterApiClient(this IServiceCollection serviceCollection, EarningOuterApiConfiguration outerConfig)
     {

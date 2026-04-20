@@ -5,6 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
+using SFA.DAS.ServiceBus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 

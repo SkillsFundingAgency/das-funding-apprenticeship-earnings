@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Learning.Types;
+using SFA.DAS.ServiceBus;
 using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCommand

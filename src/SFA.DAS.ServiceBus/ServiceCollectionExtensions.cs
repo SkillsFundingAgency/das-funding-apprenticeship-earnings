@@ -1,5 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.ServiceBus.Implementation;
 
@@ -9,8 +11,62 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServiceBus(this IServiceCollection services, ServiceBusConfig configuration)
     {
-        services.AddSingleton<IMessageHandlerRegistry, MessageHandlerRegistry>();
-        services.AddSingleton<IFunctionEndpoint, FunctionEndpoint>();
+        services.AddSingleton(configuration);
+
+        if (configuration.CommunicationDirection == CommunicationDirection.NotSet)
+            throw new ServiceBusException("CommunicationDirection must be set to Send, Receive or Both.");
+
+        if (configuration.UseInstallers)
+            BuildInfractructure(services, configuration);
+
+        if (ShouldReceive(configuration))
+        {
+            services.AddSingleton<IMessageHandlerRegistry, MessageHandlerRegistry>();
+            services.AddSingleton<IFunctionEndpoint, FunctionEndpoint>();
+        }
+
+        if(ShouldSend(configuration))
+        {
+            ConfigureSend(services, configuration);
+        }
+
         return services;
+    }
+
+    private static void BuildInfractructure(IServiceCollection services, ServiceBusConfig configuration)
+    {
+        services.AddSingleton(sp =>
+            new ServiceBusAdministrationClient(
+                configuration.FullyQualifiedNamespace,
+                new DefaultAzureCredential()));
+
+        // build stuff here
+    }
+
+    private static void ConfigureSend(IServiceCollection services, ServiceBusConfig configuration)
+    {
+        if (string.IsNullOrEmpty(configuration.TopicName))
+            throw new ServiceBusException("TopicName must be set when CommunicationDirection is Send or Both.");
+
+        if(string.IsNullOrEmpty(configuration.FullyQualifiedNamespace))
+            throw new ServiceBusException("FullyQualifiedNamespace must be set when CommunicationDirection is Send or Both.");
+
+        services.AddSingleton(new ServiceBusClient(
+            configuration.FullyQualifiedNamespace,
+            new DefaultAzureCredential()));
+
+        services.AddSingleton<IMessageSession, MessageSession>();
+    }
+
+    private static bool ShouldReceive(ServiceBusConfig config)
+    {
+        return config.CommunicationDirection == CommunicationDirection.Receive ||
+            config.CommunicationDirection == CommunicationDirection.Both;
+    }
+
+    private static bool ShouldSend(ServiceBusConfig config)
+    {
+        return config.CommunicationDirection == CommunicationDirection.Send ||
+            config.CommunicationDirection == CommunicationDirection.Both;
     }
 }
