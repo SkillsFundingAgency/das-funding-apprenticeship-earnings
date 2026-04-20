@@ -11,24 +11,20 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServiceBus(this IServiceCollection services, ServiceBusConfig configuration)
     {
-        services.AddSingleton(configuration);
-
         if (configuration.CommunicationDirection == CommunicationDirection.NotSet)
             throw new ServiceBusException("CommunicationDirection must be set to Send, Receive or Both.");
+
+        services.AddSingleton(configuration);
+        services.AddSingleton<IMessageHandlerRegistry, MessageHandlerRegistry>();
 
         if (configuration.UseInstallers)
             BuildInfractructure(services, configuration);
 
         if (ShouldReceive(configuration))
-        {
-            services.AddSingleton<IMessageHandlerRegistry, MessageHandlerRegistry>();
             services.AddSingleton<IFunctionEndpoint, FunctionEndpoint>();
-        }
 
         if(ShouldSend(configuration))
-        {
             ConfigureSend(services, configuration);
-        }
 
         return services;
     }
@@ -40,7 +36,10 @@ public static class ServiceCollectionExtensions
                 configuration.FullyQualifiedNamespace,
                 new DefaultAzureCredential()));
 
-        // build stuff here
+        services.AddSingleton<IServiceBusInfrastructureBuilder, ServiceBusInfrastructureBuilder>();
+
+        services.AddHostedService<ServiceBusStartupHostedService>();
+
     }
 
     private static void ConfigureSend(IServiceCollection services, ServiceBusConfig configuration)

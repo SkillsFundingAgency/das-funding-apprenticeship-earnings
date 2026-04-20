@@ -1,5 +1,8 @@
 ﻿namespace SFA.DAS.ServiceBus.Implementation;
 
+/// <summary>
+/// Contains a list of message handlers
+/// </summary>
 internal class MessageHandlerRegistry : IMessageHandlerRegistry
 {
 
@@ -16,6 +19,11 @@ internal class MessageHandlerRegistry : IMessageHandlerRegistry
             .FirstOrDefault(x => typeName.Contains(x.HandledEventType.FullName!));
 
         return handlerMeta;
+    }
+
+    public IEnumerable<MessageHandler> GetAll()
+    {
+        return _messageHandlers;
     }
 
     internal static IEnumerable<MessageHandler> GetMessageHandlerTypes()

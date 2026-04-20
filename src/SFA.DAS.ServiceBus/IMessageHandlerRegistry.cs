@@ -2,5 +2,6 @@
 
 internal interface IMessageHandlerRegistry
 {
-    MessageHandler Resolve(string typeName);
+    public IEnumerable<MessageHandler> GetAll();
+    public MessageHandler Resolve(string typeName);
 }

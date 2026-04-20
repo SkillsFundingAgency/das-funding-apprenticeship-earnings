@@ -50,9 +50,10 @@ public class Startup
                 s.AddServiceBus(new SFA.DAS.ServiceBus.ServiceBusConfig
                 {
                     FullyQualifiedNamespace = ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace(),
-                    QueueName = Infrastructure.Constants.EndpointName,
-                    TopicName = "bundle-1",
-                    CommunicationDirection = CommunicationDirection.Both
+                    QueueName = "Infrastructure.Constants.EndpointName",
+                    TopicName = "bundle-2",
+                    CommunicationDirection = CommunicationDirection.Both,
+                    UseInstallers = true
                 });
             });
     }

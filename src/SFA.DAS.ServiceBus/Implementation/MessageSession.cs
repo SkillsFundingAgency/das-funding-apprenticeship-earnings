@@ -3,6 +3,9 @@ using System.Text.Json;
 
 namespace SFA.DAS.ServiceBus.Implementation;
 
+/// <summary>
+/// Handles sending messages to the service bus
+/// </summary>
 internal class MessageSession : IMessageSession
 {
 
@@ -24,7 +27,7 @@ internal class MessageSession : IMessageSession
             MessageId = Guid.NewGuid().ToString()
         };
 
-        sbMessage.ApplicationProperties["NServiceBus.EnclosedMessageTypes"] = messageType.FullName;
+        sbMessage.ApplicationProperties["NServiceBus.EnclosedMessageTypes"] = messageType.AssemblyQualifiedName;
 
         await _sender.SendMessageAsync(sbMessage, cancellationToken);
     }
