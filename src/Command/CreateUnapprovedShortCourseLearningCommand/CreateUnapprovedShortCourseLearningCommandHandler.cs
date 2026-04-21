@@ -39,7 +39,6 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
             {
                 CompletionDate = command.Request.OnProgramme.CompletionDate,
                 CourseCode = command.Request.OnProgramme.CourseCode,
-                EmployerId = command.Request.OnProgramme.EmployerId,
                 ExpectedEndDate = command.Request.OnProgramme.ExpectedEndDate,
                 StartDate = command.Request.OnProgramme.StartDate,
                 TotalPrice = command.Request.OnProgramme.TotalPrice,
