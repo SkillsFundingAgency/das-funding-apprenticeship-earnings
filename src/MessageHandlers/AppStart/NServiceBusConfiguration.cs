@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Azure.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using System;
 using System.Net;
 using System.Security.Cryptography;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
@@ -12,11 +15,13 @@ internal static class NServiceBusConfiguration
 {
     internal static IHostBuilder ConfigureNServiceBusForSubscribe(this IHostBuilder hostBuilder)
     {
+
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
+
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{Constants.EndpointName}-error");
             endpointConfiguration.AdvancedConfiguration.Conventions().SetConventions();
 
@@ -34,6 +39,7 @@ internal static class NServiceBusConfiguration
                 var decodedLicence = WebUtility.HtmlDecode(value);
                 endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             }
+
         });
 
         return hostBuilder;

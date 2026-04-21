@@ -40,8 +40,12 @@ public static class ServiceCollectionExtensions
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         endpointConfiguration.SendOnly();
 
-        var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
-        transport.CustomTokenCredential(fullyQualifiedNamespace, new DefaultAzureCredential());
+        var transport = new AzureServiceBusTransport(
+           fullyQualifiedNamespace,
+           new DefaultAzureCredential());
+
+        endpointConfiguration.UseTransport(transport);
+
         endpointConfiguration.Conventions().SetConventions();
 
         endpointConfiguration.Pipeline.Register(
