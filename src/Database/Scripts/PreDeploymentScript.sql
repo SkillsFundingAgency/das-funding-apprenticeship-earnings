@@ -1,40 +1,37 @@
 ﻿/*
 Pre-Deployment Script
 */
-
-
 -- FLP-1645 (delete this script after 1645 deployed to prod)
 IF OBJECT_ID('[Domain].[ShortCourseEpisode]', 'U') IS NOT NULL
 BEGIN
 
-    -- Make columns nullable first (if they exist and aren't already nullable)
-    
+    -- EmployerAccountId
     IF COL_LENGTH('[Domain].[ShortCourseEpisode]', 'EmployerAccountId') IS NOT NULL
     BEGIN
-        ALTER TABLE [Domain].[ShortCourseEpisode]
-        ALTER COLUMN [EmployerAccountId] BIGINT NULL;
+        EXEC('ALTER TABLE [Domain].[ShortCourseEpisode] ALTER COLUMN [EmployerAccountId] BIGINT NULL');
+    
+        EXEC('UPDATE [Domain].[ShortCourseEpisode]
+              SET [EmployerAccountId] = NULL
+              WHERE [EmployerAccountId] IS NOT NULL');
     END
 
+    -- FundingEmployerAccountId
     IF COL_LENGTH('[Domain].[ShortCourseEpisode]', 'FundingEmployerAccountId') IS NOT NULL
     BEGIN
-        ALTER TABLE [Domain].[ShortCourseEpisode]
-        ALTER COLUMN [FundingEmployerAccountId] BIGINT NULL;
+        EXEC('ALTER TABLE [Domain].[ShortCourseEpisode] ALTER COLUMN [FundingEmployerAccountId] BIGINT NULL');
+    
+        EXEC('UPDATE [Domain].[ShortCourseEpisode]
+              SET [FundingEmployerAccountId] = NULL
+              WHERE [FundingEmployerAccountId] IS NOT NULL');
     END
 
+    -- LegalEntityName
     IF COL_LENGTH('[Domain].[ShortCourseEpisode]', 'LegalEntityName') IS NOT NULL
     BEGIN
-        ALTER TABLE [Domain].[ShortCourseEpisode]
-        ALTER COLUMN [LegalEntityName] NVARCHAR(255) NULL;
+        EXEC('ALTER TABLE [Domain].[ShortCourseEpisode] ALTER COLUMN [LegalEntityName] NVARCHAR(255) NULL');
+    
+        EXEC('UPDATE [Domain].[ShortCourseEpisode]
+              SET [LegalEntityName] = NULL
+              WHERE [LegalEntityName] IS NOT NULL');
     END
-
-    -- Clear data
-    UPDATE [Domain].[ShortCourseEpisode]
-    SET 
-        EmployerAccountId = NULL,
-        FundingEmployerAccountId = NULL,
-        LegalEntityName = NULL
-    WHERE
-        EmployerAccountId IS NOT NULL
-        OR FundingEmployerAccountId IS NOT NULL
-        OR LegalEntityName IS NOT NULL;
 END
