@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -26,20 +26,24 @@ public static class OnProgramPayments
         return onProgramPayments;
     }
 
-    public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, List<ApprenticeshipPrice> prices, DateTime lastDayOfLearning)
+    public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning, DateTime lastDayOfLearning)
     {
         List<ApprenticeshipInstalment> result;
 
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
-        var startDate = prices.Min(x => x.StartDate);
-        var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, prices.Max(x => x.EndDate));
+        var lastPeriod = periodsInLearning.SingleOrDefault(x => x.EndDate == lastDayOfLearning) ?? periodsInLearning.OrderBy(x => x.EndDate).Last();
+
+        var startDate = lastPeriod.StartDate;
+        var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, lastPeriod.OriginalExpectedEndDate);
         var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
+        var lastPeriodStartMonth = new DateTime(lastPeriod.StartDate.Year, lastPeriod.StartDate.Month, 1);
         if (lastDayOfLearning < qualifyingDate)
         {
             result = instalments.Where(x =>
-                    x.AcademicYear < academicYear) //keep earnings from previous academic years
+                    x.AcademicYear < academicYear //keep earnings from previous academic years
+                 || new DateTime(x.AcademicYear.ToCalendarYear(x.DeliveryPeriod), x.DeliveryPeriod.ToCalendarMonth(), 1) < lastPeriodStartMonth) //keep earnings from previous periods in the same academic year
                 .ToList();
         }
         else
@@ -89,6 +93,12 @@ public static class OnProgramPayments
     {
         var periodInstalmentCount = CalculateInstalmentCount(priceInPeriod.StartDate, priceInPeriod.EndDate);
         var remainingInstalmentCount = CalculateInstalmentCount(priceInPeriod.StartDate, apprenticeshipEndDate);
+
+        if (remainingInstalmentCount == 0 || periodInstalmentCount == 0)
+        {
+            return new List<OnProgramPayment>();
+        }
+
         var instalmentAmount = decimal.Round(total / remainingInstalmentCount, 5);
 
         var onProgramPayments = new List<OnProgramPayment>();
