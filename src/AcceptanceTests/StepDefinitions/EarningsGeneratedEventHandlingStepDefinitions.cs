@@ -99,4 +99,14 @@ public class EarningsGeneratedEventHandlingStepDefinitions
 
         earningsInDb.Should().HaveCount(expectedEarningsCount);
     }
+
+    [Then(@"the total amount of on programme earnings is (.*)")]
+    public async Task ThenTheTotalAmountOfOnProgrammeEarningsIs(decimal expectedTotalAmount)
+    {
+        var learningKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
+
+        decimal.Round(earningsInDb.Sum(x => x.Amount), 2).Should().Be(expectedTotalAmount);
+    }
 }

@@ -2,6 +2,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
@@ -31,20 +32,35 @@ public static class OnProgramPayments
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
-        instalments.RemoveAll(x =>
+        var nonQualifyingInstalments = instalments.Where(x =>
+            periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning))
+        ).ToList();
+
+        var postWithdrawalInstalments = instalments.Where(x =>
+            !nonQualifyingInstalments.Contains(x) &&
+            (x.AcademicYear > academicYear
+            || (x.AcademicYear == academicYear && x.DeliveryPeriod > deliveryPeriod)
+            || (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
+                && lastDayOfLearning.Day < DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)
+                && x.Type != InstalmentType.Balancing && x.Type != InstalmentType.Completion))
+        ).ToList();
+
+        var survivingInstalments = instalments.Where(x => !nonQualifyingInstalments.Contains(x) && !postWithdrawalInstalments.Contains(x)).ToList();
+
+        if (survivingInstalments.Any() && nonQualifyingInstalments.Any())
         {
-            //remove all on program instalments after the last day of learning
-            var isAfterLastDayOfLearning = x.AcademicYear > academicYear
-                || (x.AcademicYear == academicYear && x.DeliveryPeriod > deliveryPeriod)
-                || (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
-                    && lastDayOfLearning.Day < DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)
-                    && x.Type != InstalmentType.Balancing && x.Type != InstalmentType.Completion);
+            var amountToRedistribute = nonQualifyingInstalments.Sum(x => x.Amount);
+            var amountPerInstalment = decimal.Round(amountToRedistribute / survivingInstalments.Count, 5);
+            foreach (var instalment in survivingInstalments)
+            {
+                instalment.UpdateAmount(instalment.Amount + amountPerInstalment);
+            }
 
-            if (isAfterLastDayOfLearning) return true;
+            var remainder = amountToRedistribute - (amountPerInstalment * survivingInstalments.Count);
+            survivingInstalments.Last().UpdateAmount(survivingInstalments.Last().Amount + remainder);
+        }
 
-            //remove all on program instalments that fall in periods in learning whose qualifying periods have not been met
-            return periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning));
-        });
+        instalments.RemoveAll(x => nonQualifyingInstalments.Contains(x) || postWithdrawalInstalments.Contains(x));
 
         return instalments;
     }

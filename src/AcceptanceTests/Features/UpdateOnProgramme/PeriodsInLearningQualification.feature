@@ -42,14 +42,15 @@ Scenario Outline: Un-qualifying first period, break, returning in second period 
 		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-02-01, OriginalExpectedEndDate:2023-12-31                           |
 		| PeriodsInLearning | StartDate:<ReturnStartDate>, EndDate:<WithdrawalDate>, OriginalExpectedEndDate:<ReturnPlannedEndDate>  |
     Then <EarningsCount> on programme earnings are persisted
+	And the total amount of on programme earnings is <ExpectedOnProgramTotal>
 
 Examples:
-    | ReturnStartDate | WithdrawalDate | ReturnPlannedEndDate | EarningsCount | Description                                                              |
-    | 2023-04-20      | 2023-05-31     | 2023-10-04           | 2             | Planned duration >= 168 days, withdraws after 42 days (Qualifies)        |
-    | 2023-04-20      | 2023-05-30     | 2023-10-04           | 0             | Planned duration >= 168 days, withdraws after 41 days (Fails to qualify) |
-    | 2023-04-20      | 2023-05-03     | 2023-10-03           | 1             | Planned duration < 168 days, withdraws after 14 days (Qualifies)         |
-    | 2023-04-20      | 2023-05-02     | 2023-10-03           | 0             | Planned duration < 168 days, withdraws after 13 days (Fails to qualify)  |
-    | 2023-04-20      | 2023-05-03     | 2023-05-03           | 1             | Planned duration = 14 days, withdraws after 14 days (Qualifies)          |
-    | 2023-04-20      | 2023-05-02     | 2023-05-03           | 0             | Planned duration = 14 days, withdraws after 13 days (Fails to qualify)   |
-    | 2023-04-30      | 2023-04-30     | 2023-05-12           | 1             | Planned duration < 14 days, withdraws after 1 day (Qualifies)            |
-    | 2023-04-30      | 2023-04-30     | 2023-04-30           | 1             | Planned duration = 1 day, withdraws after 1 day (Qualifies)              |
+    | ReturnStartDate | WithdrawalDate | ReturnPlannedEndDate | EarningsCount | ExpectedOnProgramTotal | Description                                                              |
+    | 2023-04-20      | 2023-05-31     | 2023-10-04           |             2 |                2177.78 | Planned duration >= 168 days, withdraws after 42 days (Qualifies)        |
+    | 2023-04-20      | 2023-05-30     | 2023-10-04           |             0 |                      0 | Planned duration >= 168 days, withdraws after 41 days (Fails to qualify) |
+    | 2023-04-20      | 2023-05-03     | 2023-10-03           |             1 |                1322.22 | Planned duration < 168 days, withdraws after 14 days (Qualifies)         |
+    | 2023-04-20      | 2023-05-02     | 2023-10-03           |             0 |                      0 | Planned duration < 168 days, withdraws after 13 days (Fails to qualify)  |
+    | 2023-04-20      | 2023-05-03     | 2023-05-03           |             1 |                   5600 | Planned duration = 14 days, withdraws after 14 days (Qualifies)          |
+    | 2023-04-20      | 2023-05-02     | 2023-05-03           |             0 |                      0 | Planned duration = 14 days, withdraws after 13 days (Fails to qualify)   |
+    | 2023-04-30      | 2023-04-30     | 2023-05-12           |             1 |                   5600 | Planned duration < 14 days, withdraws after 1 day (Qualifies)            |
+    | 2023-04-30      | 2023-04-30     | 2023-04-30           |             1 |                   5600 | Planned duration = 1 day, withdraws after 1 day (Qualifies)              |
