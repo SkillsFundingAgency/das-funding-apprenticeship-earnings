@@ -42,7 +42,7 @@ public static class OnProgramPayments
 
             if (isAfterLastDayOfLearning) return true;
 
-            //remove all on program instalments that fall in periods whose qualifying periods have not been met
+            //remove all on program instalments that fall in periods in learning whose qualifying periods have not been met
             return periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning));
         });
 
