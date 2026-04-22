@@ -57,7 +57,7 @@ public class WhenRemovingEarnings_WithdrawalWithMultiplePeriodsInLearningAndQual
         var returnPlannedEndDate = returnStartDate.AddDays(returnPlannedDuration - 1);
         var withdrawalDate = returnStartDate.AddDays(returnWithdrawalAfterDays - 1);
 
-        currentEpisode.UpdatePause(null); //todo do we need to do this?
+        currentEpisode.UpdatePause(null);
         currentEpisode.UpdatePeriodsInLearning(new System.Collections.Generic.List<ApprenticeshipPeriodInLearning>
         {
             new ApprenticeshipPeriodInLearning(currentEpisode.EpisodeKey, originalStartDate, pauseDate, originalPlannedEndDate),
