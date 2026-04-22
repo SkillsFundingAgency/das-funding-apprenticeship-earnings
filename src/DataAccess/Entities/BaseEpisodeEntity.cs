@@ -14,10 +14,7 @@ public abstract class BaseEpisodeEntity
     public Guid Key { get; set; }
 	public Guid LearningKey { get; set; }
     public long Ukprn { get; set; }
-    public long EmployerAccountId { get; set; }
 	public FundingType FundingType { get; set; }
-	public long? FundingEmployerAccountId { get; set; }
-    public string LegalEntityName { get; set; } = null!;
     public string TrainingCode { get; set; } = null!;
     public DateTime? CompletionDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }

@@ -35,7 +35,6 @@ public class WhenCreatingANewShortCourse
             },
             OnProgramme = new OnProgramme
             {
-                EmployerId = 987654,
                 CourseCode = "SC101",
                 StartDate = new DateTime(2025, 01, 01),
                 ExpectedEndDate = new DateTime(2025, 06, 30),
@@ -54,7 +53,6 @@ public class WhenCreatingANewShortCourse
 
         var episode = learning.Episodes.SingleOrDefault();
         episode.Should().NotBeNull();
-        episode.EmployerAccountId.Should().Be(request.OnProgramme.EmployerId);
         episode.TrainingCode.Should().Be(request.OnProgramme.CourseCode);
         episode.AgeAtStartOfApprenticeship.Should().Be(25); // 2025 - 2000
         episode.FundingType.Should().Be(FundingType.Levy);

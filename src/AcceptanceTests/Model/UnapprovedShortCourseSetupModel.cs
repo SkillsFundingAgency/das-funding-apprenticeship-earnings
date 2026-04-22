@@ -35,7 +35,6 @@ public static class UnapprovedShortCourseSetupModelExtensions
             OnProgramme = new OnProgramme
             {
                 CourseCode = "UX1",
-                EmployerId = 100112,
                 ExpectedEndDate = expectedEndDate,
                 Milestones = milestones,
                 StartDate = startDate,
