@@ -46,9 +46,9 @@ Scenario Outline: Un-qualifying first period, break, returning in second period 
 
 Examples:
     | ReturnStartDate | WithdrawalDate | ReturnPlannedEndDate | EarningsCount | ExpectedOnProgramTotal | Description                                                              |
-    | 2023-04-20      | 2023-05-31     | 2023-10-04           |             2 |                2177.78 | Planned duration >= 168 days, withdraws after 42 days (Qualifies)        |
+    | 2023-04-20      | 2023-05-31     | 2023-10-04           |             2 |             2177.77779 | Planned duration >= 168 days, withdraws after 42 days (Qualifies)        |
     | 2023-04-20      | 2023-05-30     | 2023-10-04           |             0 |                      0 | Planned duration >= 168 days, withdraws after 41 days (Fails to qualify) |
-    | 2023-04-20      | 2023-05-03     | 2023-10-03           |             1 |                1322.22 | Planned duration < 168 days, withdraws after 14 days (Qualifies)         |
+    | 2023-04-20      | 2023-05-03     | 2023-10-03           |             1 |             1322.22223 | Planned duration < 168 days, withdraws after 14 days (Qualifies)         |
     | 2023-04-20      | 2023-05-02     | 2023-10-03           |             0 |                      0 | Planned duration < 168 days, withdraws after 13 days (Fails to qualify)  |
     | 2023-04-20      | 2023-05-03     | 2023-05-03           |             1 |                   5600 | Planned duration = 14 days, withdraws after 14 days (Qualifies)          |
     | 2023-04-20      | 2023-05-02     | 2023-05-03           |             0 |                      0 | Planned duration = 14 days, withdraws after 13 days (Fails to qualify)   |

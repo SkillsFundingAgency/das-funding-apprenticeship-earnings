@@ -107,6 +107,6 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
-        decimal.Round(earningsInDb.Sum(x => x.Amount), 2).Should().Be(expectedTotalAmount);
+        decimal.Round(earningsInDb.Sum(x => x.Amount), 5).Should().Be(expectedTotalAmount);
     }
 }
