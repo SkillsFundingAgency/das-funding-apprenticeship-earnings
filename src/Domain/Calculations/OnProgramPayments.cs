@@ -42,25 +42,8 @@ public static class OnProgramPayments
 
             if (isAfterLastDayOfLearning) return true;
 
-            var instalmentMonth = new DateTime(x.AcademicYear.ToCalendarYear(x.DeliveryPeriod), x.DeliveryPeriod.ToCalendarMonth(), 1);
-
-            return periodsInLearning.Any(p =>
-            {
-                var qDays = QualifyingPeriod.GetQualifyingPeriodDays(p.StartDate, p.OriginalExpectedEndDate);
-                //effective end date for this PIL is either it's end date if before the last day of learning (indicating a break after this period), or the last day of learning
-                var effectiveEndDate = p.EndDate < lastDayOfLearning ? p.EndDate : lastDayOfLearning;
-
-                //if this period qualifies
-                if (effectiveEndDate < p.StartDate.AddDays(qDays - 1))
-                {
-                    var pStartMonth = new DateTime(p.StartDate.Year, p.StartDate.Month, 1);
-                    var pEndMonth = new DateTime(effectiveEndDate.Year, effectiveEndDate.Month, 1);
-                    //and this period includes the month of the instalment, then keep the instalment
-                    return instalmentMonth >= pStartMonth && instalmentMonth <= pEndMonth;
-                }
-
-                return false;
-            });
+            //remove all on program instalments that fall in periods whose qualifying periods have not been met
+            return periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning));
         });
 
         return instalments;
