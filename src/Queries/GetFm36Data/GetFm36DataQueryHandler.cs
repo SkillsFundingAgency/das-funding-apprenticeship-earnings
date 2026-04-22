@@ -29,8 +29,9 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         var dbQuery = _dbContext.ApprenticeshipLearnings
             .Where(x => x.Episodes.Any(e => e.Ukprn == query.Ukprn))
             .Where(x => x.Episodes.Any(e =>
-                e.Prices.Any(p => p.EndDate >= academicYearStart) &&
-                e.Prices.Any(p => p.StartDate <= academicYearEnd)))
+                e.Prices.Any(p => p.StartDate <= academicYearEnd) &&
+                !(e.WithdrawalDate.HasValue && e.WithdrawalDate.Value < academicYearStart) &&
+                !(e.CompletionDate.HasValue && e.CompletionDate.Value < academicYearStart)))
             .Include(x => x.Episodes)
                 .ThenInclude(x => x.Prices)
             .Include(x => x.Episodes)
