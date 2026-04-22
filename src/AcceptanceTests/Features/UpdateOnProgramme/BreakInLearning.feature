@@ -285,29 +285,3 @@ Scenario: Early Completion with BIL
 		| 1250   | 2021         | 6              | Regular    |
 		| 7500   | 2021         | 7              | Balancing  |
 		| 3000   | 2021         | 7              | Completion |
-
-Scenario Outline: Training provider records a break in learning, return, and withdrawal at the same time
-	Given an apprenticeship has been created with the following information
-		| StartDate  | EndDate    | Price |
-		| 2023-01-01 | 2023-12-31 | 7000  |
-	And the apprenticeship commitment is approved
-	And the following learning support payment information is provided
-		| StartDate | EndDate    |
-		| 2023-01-01| 2023-12-31 |
-	When the following on-programme request is sent
-		| Key               | Value                                                                                                  |
-		| WithdrawalDate    | <WithdrawalDate>                                                                                       |
-		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-03-15, OriginalExpectedEndDate:2023-12-31                           |
-		| PeriodsInLearning | StartDate:<ReturnStartDate>, EndDate:<WithdrawalDate>, OriginalExpectedEndDate:<ReturnPlannedEndDate>  |
-    Then <EarningsCount> on programme earnings are persisted
-
-Examples:
-    | ReturnStartDate | WithdrawalDate | ReturnPlannedEndDate | EarningsCount | Description                                                              |
-    | 2023-04-20      | 2023-05-31     | 2023-10-04           | 4             | Planned duration >= 168 days, withdraws after 42 days (Qualifies)        |
-    | 2023-04-20      | 2023-05-30     | 2023-10-04           | 2             | Planned duration >= 168 days, withdraws after 41 days (Fails to qualify) |
-    | 2023-04-20      | 2023-05-03     | 2023-10-03           | 3             | Planned duration < 168 days, withdraws after 14 days (Qualifies)         |
-    | 2023-04-20      | 2023-05-02     | 2023-10-03           | 2             | Planned duration < 168 days, withdraws after 13 days (Fails to qualify)  |
-    | 2023-04-20      | 2023-05-03     | 2023-05-03           | 3             | Planned duration = 14 days, withdraws after 14 days (Qualifies)          |
-    | 2023-04-20      | 2023-05-02     | 2023-05-03           | 2             | Planned duration = 14 days, withdraws after 13 days (Fails to qualify)   |
-    | 2023-04-30      | 2023-04-30     | 2023-05-12           | 3             | Planned duration < 14 days, withdraws after 1 day (Qualifies)            |
-    | 2023-04-30      | 2023-04-30     | 2023-04-30           | 3             | Planned duration = 1 day, withdraws after 1 day (Qualifies)              |

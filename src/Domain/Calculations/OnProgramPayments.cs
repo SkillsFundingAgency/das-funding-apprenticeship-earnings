@@ -28,35 +28,41 @@ public static class OnProgramPayments
 
     public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning, DateTime lastDayOfLearning)
     {
-        List<ApprenticeshipInstalment> result;
-
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
-        var lastPeriod = periodsInLearning.SingleOrDefault(x => x.EndDate == lastDayOfLearning) ?? periodsInLearning.OrderBy(x => x.EndDate).Last();
-
-        var startDate = lastPeriod.StartDate;
-        var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, lastPeriod.OriginalExpectedEndDate);
-        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
-        var lastPeriodStartMonth = new DateTime(lastPeriod.StartDate.Year, lastPeriod.StartDate.Month, 1);
-        if (lastDayOfLearning < qualifyingDate)
+        instalments.RemoveAll(x =>
         {
-            result = instalments.Where(x =>
-                    x.AcademicYear < academicYear //keep earnings from previous academic years
-                 || new DateTime(x.AcademicYear.ToCalendarYear(x.DeliveryPeriod), x.DeliveryPeriod.ToCalendarMonth(), 1) < lastPeriodStartMonth) //keep earnings from previous periods in the same academic year
-                .ToList();
-        }
-        else
-        {
-            result = instalments.Where(x =>
-                    x.AcademicYear < academicYear //keep earnings from previous academic years
-            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing || x.Type == InstalmentType.Completion)) //keep earnings in the last delivery period of learning if they are balancing or completion payments
-                .ToList();
-        }
+            //remove all on program instalments after the last day of learning
+            var isAfterLastDayOfLearning = x.AcademicYear > academicYear
+                || (x.AcademicYear == academicYear && x.DeliveryPeriod > deliveryPeriod)
+                || (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
+                    && lastDayOfLearning.Day < DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)
+                    && x.Type != InstalmentType.Balancing && x.Type != InstalmentType.Completion);
 
-        instalments.RemoveAll(i => !result.Contains(i));
+            if (isAfterLastDayOfLearning) return true;
+
+            var instalmentMonth = new DateTime(x.AcademicYear.ToCalendarYear(x.DeliveryPeriod), x.DeliveryPeriod.ToCalendarMonth(), 1);
+
+            return periodsInLearning.Any(p =>
+            {
+                var qDays = QualifyingPeriod.GetQualifyingPeriodDays(p.StartDate, p.OriginalExpectedEndDate);
+                //effective end date for this PIL is either it's end date if before the last day of learning (indicating a break after this period), or the last day of learning
+                var effectiveEndDate = p.EndDate < lastDayOfLearning ? p.EndDate : lastDayOfLearning;
+
+                //if this period qualifies
+                if (effectiveEndDate < p.StartDate.AddDays(qDays - 1))
+                {
+                    var pStartMonth = new DateTime(p.StartDate.Year, p.StartDate.Month, 1);
+                    var pEndMonth = new DateTime(effectiveEndDate.Year, effectiveEndDate.Month, 1);
+                    //and this period includes the month of the instalment, then keep the instalment
+                    return instalmentMonth >= pStartMonth && instalmentMonth <= pEndMonth;
+                }
+
+                return false;
+            });
+        });
+
         return instalments;
     }
 
