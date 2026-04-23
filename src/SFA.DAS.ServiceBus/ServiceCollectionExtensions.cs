@@ -14,8 +14,12 @@ public static class ServiceCollectionExtensions
         if (configuration.CommunicationDirection == CommunicationDirection.NotSet)
             throw new ServiceBusException("CommunicationDirection must be set to Send, Receive or Both.");
 
+        if (string.IsNullOrEmpty(configuration.FullyQualifiedNamespace))
+            throw new ServiceBusException("FullyQualifiedNamespace must be set");
+
         services.AddSingleton(configuration);
         services.AddSingleton<IMessageHandlerRegistry, MessageHandlerRegistry>();
+        services.AddSingleton(new ServiceBusClient(configuration.FullyQualifiedNamespace, new DefaultAzureCredential()));
 
         if (configuration.UseInstallers)
             BuildInfractructure(services, configuration);
@@ -46,13 +50,6 @@ public static class ServiceCollectionExtensions
     {
         if (string.IsNullOrEmpty(configuration.TopicName))
             throw new ServiceBusException("TopicName must be set when CommunicationDirection is Send or Both.");
-
-        if(string.IsNullOrEmpty(configuration.FullyQualifiedNamespace))
-            throw new ServiceBusException("FullyQualifiedNamespace must be set when CommunicationDirection is Send or Both.");
-
-        services.AddSingleton(new ServiceBusClient(
-            configuration.FullyQualifiedNamespace,
-            new DefaultAzureCredential()));
 
         services.AddSingleton<IMessageSession, MessageSession>();
     }

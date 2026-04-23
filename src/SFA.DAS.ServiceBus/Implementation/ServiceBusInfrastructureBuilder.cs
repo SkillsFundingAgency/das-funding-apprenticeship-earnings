@@ -34,14 +34,33 @@ internal class ServiceBusInfrastructureBuilder : IServiceBusInfrastructureBuilde
         // 2. Queue
         if (!await _admin.QueueExistsAsync(_config.QueueName, cancellationToken))
         {
-            await _admin.CreateQueueAsync(_config.QueueName, cancellationToken);
+            await _admin.CreateQueueAsync(new CreateQueueOptions(_config.QueueName)
+            {
+                MaxDeliveryCount = _config.MaxDeliveryCount,
+            }, cancellationToken);
         }
 
-        // 3. Subscription
+        // 3. Error Queue
+        if (_config.ForwardToErrorQueue)
+        {
+            await EnsureErrorQueue(cancellationToken);
+        }
+
+        // 4. Subscription
         var subscription = await ResolveSubscription(cancellationToken);
 
-        // 4. Filters
+        // 5. Filters
         await EnsureFilters(subscription, cancellationToken);
+    }
+
+    private async Task EnsureErrorQueue(CancellationToken cancellationToken)
+    {
+        var queueName = _config.GetErrorQueueName();
+
+        if (!await _admin.QueueExistsAsync(queueName, cancellationToken))
+        {
+            await _admin.CreateQueueAsync(queueName, cancellationToken);
+        }
     }
 
     private async Task<SubscriptionProperties> ResolveSubscription(CancellationToken cancellationToken)  
@@ -100,7 +119,7 @@ internal class ServiceBusInfrastructureBuilder : IServiceBusInfrastructureBuilde
         foreach (var handler in _registry.GetAll())
         {
             var filter = new SqlRuleFilter(
-                $"[NServiceBus.EnclosedMessageTypes] LIKE '%{handler.HandledEventType.Name}%'");
+                $"[NServiceBus.EnclosedMessageTypes] LIKE '%{handler.HandledEventType.FullName}%'");
 
             var ruleName = AzureRuleNameShortener.Shorten(handler.HandledEventType);
 

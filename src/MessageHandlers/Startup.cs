@@ -53,7 +53,8 @@ public class Startup
                     QueueName = Infrastructure.Constants.EndpointName,
                     TopicName = "bundle-1",
                     CommunicationDirection = CommunicationDirection.Both,
-                    UseInstallers = true
+                    UseInstallers = true,
+                    ForwardToErrorQueue = false
                 });
             });
     }
