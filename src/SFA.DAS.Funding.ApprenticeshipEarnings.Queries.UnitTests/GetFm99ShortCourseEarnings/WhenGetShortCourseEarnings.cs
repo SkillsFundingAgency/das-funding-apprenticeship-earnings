@@ -100,7 +100,6 @@ public class WhenGetShortCourseEarnings
             Key = Guid.NewGuid(),
             LearningKey = learningKey,
             Ukprn = ukprn,
-            LegalEntityName = "Test Employer",
             TrainingCode = "SC001",
             StartDate = new DateTime(2021, 1, 1),
             EndDate = new DateTime(2021, 6, 25),

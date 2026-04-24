@@ -33,7 +33,6 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         _entity.Uln = updateModel.Uln;
         var episode = _entity.Episodes.Single();
         episode.TrainingCode = updateModel.CourseCode;
-        episode.EmployerAccountId = updateModel.EmployerId;
         episode.Ukprn = updateModel.Ukprn;
         episode.StartDate = updateModel.StartDate;
         episode.WithdrawalDate = updateModel.WithdrawalDate;

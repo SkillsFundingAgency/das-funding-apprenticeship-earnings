@@ -7,6 +7,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprentices
 [Table("ApprenticeshipEpisode", Schema = "Domain")]
 public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
 {
+    public long EmployerAccountId { get; set; }
+    public long? FundingEmployerAccountId { get; set; }
+    public string LegalEntityName { get; set; } = null!;
     public ApprenticeshipEarningsProfileEntity EarningsProfile { get; set; }
     public List<ApprenticeshipEpisodePriceEntity> Prices { get; set; } = new();
     public List<ApprenticeshipPeriodInLearningEntity> PeriodsInLearning { get; set; } = new();

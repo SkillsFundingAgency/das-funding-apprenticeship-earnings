@@ -16,6 +16,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
+    public long EmployerAccountId => _entity.EmployerAccountId;
+    public string LegalEntityName => _entity.LegalEntityName;
+    public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
 
     public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
     public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
