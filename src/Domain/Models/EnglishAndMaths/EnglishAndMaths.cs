@@ -21,7 +21,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
     public DateTime? CompletionDate => _entity.CompletionDate;
     public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
     public DateTime? PauseDate => _entity.PauseDate;
-    public int? PriorLearningAdjustmentPercentage => _entity.PriorLearningAdjustmentPercentage;
+    public int? CombinedFundingAdjustmentPercentage => _entity.CombinedFundingAdjustmentPercentage;
     public IReadOnlyCollection<EnglishAndMathsInstalment> Instalments => new ReadOnlyCollection<EnglishAndMathsInstalment>(_instalments);
     public IReadOnlyCollection<EnglishAndMathsPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<EnglishAndMathsPeriodInLearning>(_entity.PeriodsInLearning.Select(EnglishAndMathsPeriodInLearning.Get).ToList());
 
@@ -40,7 +40,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
         DateTime? withdrawalDate, 
         DateTime? completionDate,
         DateTime? pauseDate, 
-        int? priorLearningAdjustmentPercentage,
+        int? combinedFundingAdjustmentPercentage,
         IEnumerable<IPeriodInLearning> periodsInLearning)
     {
         _entity = new EnglishAndMathsEntity();
@@ -53,7 +53,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
         _entity.CompletionDate = completionDate;
         _entity.WithdrawalDate = withdrawalDate;
         _entity.PauseDate = pauseDate;
-        _entity.PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage;
+        _entity.CombinedFundingAdjustmentPercentage = combinedFundingAdjustmentPercentage;
         _entity.PeriodsInLearning = periodsInLearning.Select(pil => new EnglishAndMathsPeriodInLearningEntity
         {
             Key = Guid.NewGuid(),
@@ -90,7 +90,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
                CompletionDate == compare.CompletionDate &&
                WithdrawalDate == compare.WithdrawalDate &&
                PauseDate == compare.PauseDate &&
-               PriorLearningAdjustmentPercentage == compare.PriorLearningAdjustmentPercentage &&
+               CombinedFundingAdjustmentPercentage == compare.CombinedFundingAdjustmentPercentage &&
                Instalments.AreSame(compare.Instalments);
     }
 }

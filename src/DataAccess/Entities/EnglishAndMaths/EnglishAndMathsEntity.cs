@@ -24,7 +24,7 @@ public class EnglishAndMathsEntity
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? PauseDate { get; set; }
     public DateTime? CompletionDate { get; set; }
-    public int? PriorLearningAdjustmentPercentage { get; set; }
+    public int? CombinedFundingAdjustmentPercentage { get; set; }
 
     public List<EnglishAndMathsInstalmentEntity> Instalments { get; set; } = [];
     public List<EnglishAndMathsPeriodInLearningEntity> PeriodsInLearning { get; set; } = [];

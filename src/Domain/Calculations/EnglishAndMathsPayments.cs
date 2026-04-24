@@ -41,8 +41,8 @@ public static class EnglishAndMathsPayments
         var paymentDate = mathsAndEnglish.StartDate.LastDayOfMonth();
 
         var adjustedAmount =
-            mathsAndEnglish.PriorLearningAdjustmentPercentage is > 0
-                ? mathsAndEnglish.Amount * mathsAndEnglish.PriorLearningAdjustmentPercentage.Value / 100m
+            mathsAndEnglish.CombinedFundingAdjustmentPercentage is > 0
+                ? mathsAndEnglish.Amount * mathsAndEnglish.CombinedFundingAdjustmentPercentage.Value / 100m
                 : mathsAndEnglish.Amount;
 
         return new InstalmentCalculationContext(
