@@ -1,4 +1,4 @@
-﻿Feature: Completion
+Feature: Completion
 
 Scenario: Early Completion
 	Given an apprenticeship has been created with the following information
@@ -12,6 +12,7 @@ Scenario: Early Completion
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-02-15 |
+		| AchievementDate| 2021-02-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -36,6 +37,7 @@ Scenario: Late Completion
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-09-15 |
+		| AchievementDate| 2021-09-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -65,6 +67,7 @@ Scenario: On Time Completion
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-07-31 |
+		| AchievementDate| 2021-07-31 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -94,9 +97,11 @@ Scenario: Existing Completion is updated to be later
 	And the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-02-15 |
+		| AchievementDate| 2021-02-15 |
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-03-15 |
+		| AchievementDate| 2021-03-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -122,9 +127,11 @@ Scenario: Existing Completion is updated to be earlier
 	And the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-02-15 |
+		| AchievementDate| 2021-02-15 |
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-01-15 |
+		| AchievementDate| 2021-01-15 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -148,9 +155,11 @@ Scenario: Existing Completion is removed
 	And the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-02-15 |
+		| AchievementDate| 2021-02-15 |
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | null |
+		| AchievementDate| null |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
@@ -179,6 +188,7 @@ Scenario: Early Completion within last month
 	When the following on-programme request is sent
 		| Key            | Value      |
 		| CompletionDate | 2021-07-30 |
+		| AchievementDate| 2021-07-30 |
 	Then the instalments are balanced as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type       |
 		| 1000   | 2021         | 1              | Regular    |
