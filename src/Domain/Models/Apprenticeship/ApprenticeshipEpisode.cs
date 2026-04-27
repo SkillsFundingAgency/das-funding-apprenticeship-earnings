@@ -53,6 +53,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
 
+        // Completion date drives balancing instalments, achievement date drives completion instalments. This may be updated in FLP-1515 to reduce this confusion.
         if (_entity.CompletionDate != null)
         {
             instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.Max(x => x.EndDate));
