@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -48,7 +48,8 @@ public static class OnProgramPayments
                     x.AcademicYear < academicYear //keep earnings from previous academic years
             || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
             || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing || x.Type == InstalmentType.Completion)) //keep earnings in the last delivery period of learning if they are balancing or completion payments
+            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && x.Type == InstalmentType.Balancing //keep balancing earnings in the last delivery period of learning
+            || x.Type == InstalmentType.Completion) //keep completion payments whenever they occur as they are now driven by achievement date
                 .ToList();
         }
 
