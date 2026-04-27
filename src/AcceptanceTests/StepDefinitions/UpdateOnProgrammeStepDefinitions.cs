@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -87,6 +87,10 @@ public class UpdateOnProgrammeStepDefinitions
 
                 case nameof(UpdateOnProgrammeModel.CompletionDate):
                     model.CompletionDate.SetValue(item.ToNullableDateTime());
+                    break;
+
+                case nameof(UpdateOnProgrammeModel.AchievementDate):
+                    model.AchievementDate.SetValue(item.ToNullableDateTime());
                     break;
 
                 case nameof(UpdateOnProgrammeModel.WithdrawalDate):
