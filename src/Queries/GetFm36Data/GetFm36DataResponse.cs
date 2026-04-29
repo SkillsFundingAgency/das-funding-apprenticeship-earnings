@@ -20,6 +20,8 @@ public class Episode
     public int NumberOfInstalments { get; set; }
     public List<Instalment> Instalments { get; set; }
     public List<AdditionalPayment> AdditionalPayments { get; set; }
+
+    public List<EnglishAndMaths> EnglishAndMaths { get; set; }
     public decimal CompletionPayment { get; set; }
     public decimal OnProgramTotal { get; set; }
 }
@@ -42,4 +44,20 @@ public class Instalment
     public string InstalmentType { get; set; }
 }
 
+public class EnglishAndMaths
+{
+    public string LearnAimRef { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public string Course { get; set; }
+    public List<EnglishAndMathsInstalment> Instalments { get; set; }
+}
+
+public class EnglishAndMathsInstalment
+{
+    public short AcademicYear { get; set; }
+    public byte DeliveryPeriod { get; set; }
+    public decimal Amount { get; set; }
+    public string InstalmentType { get; set; }
+}
 #pragma warning restore CS8618
