@@ -40,6 +40,10 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             .Include(x => x.Episodes)
                 .ThenInclude(x => x.EarningsProfile)
                     .ThenInclude(x => x.ApprenticeshipAdditionalPayments)
+            .Include(x => x.Episodes)
+                .ThenInclude(x=> x.EarningsProfile)
+                    .ThenInclude(x => x.EnglishAndMathsCourses)
+                        .ThenInclude(x => x.Instalments)
             .AsNoTracking()
             .AsSplitQuery();
 
