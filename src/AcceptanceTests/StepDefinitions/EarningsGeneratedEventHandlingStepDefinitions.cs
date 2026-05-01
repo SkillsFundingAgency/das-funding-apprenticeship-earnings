@@ -90,12 +90,12 @@ public class EarningsGeneratedEventHandlingStepDefinitions
         earningsInDb.Should().BeEmpty();
     }
 
-    [Then(@"(\d+) on programme earnings are persisted")]
+    [Then(@"(\d+) regular on programme earnings are persisted")]
     public async Task ThenXOnProgrammeEarningsArePersisted(int expectedEarningsCount)
     {
         var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
-        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => string.Equals(x.Type, nameof(InstalmentType.Regular), StringComparison.CurrentCultureIgnoreCase));
 
         earningsInDb.Should().HaveCount(expectedEarningsCount);
     }

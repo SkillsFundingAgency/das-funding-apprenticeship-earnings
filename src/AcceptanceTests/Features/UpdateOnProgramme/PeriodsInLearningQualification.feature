@@ -15,7 +15,7 @@ Scenario Outline: Qualifying first period, break, returning in second period wit
 		| WithdrawalDate    | <WithdrawalDate>                                                                                       |
 		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-03-15, OriginalExpectedEndDate:2023-12-31                           |
 		| PeriodsInLearning | StartDate:<ReturnStartDate>, EndDate:<WithdrawalDate>, OriginalExpectedEndDate:<ReturnPlannedEndDate>  |
-    Then <EarningsCount> on programme earnings are persisted
+    Then <EarningsCount> regular on programme earnings are persisted
 
 Examples:
     | ReturnStartDate | WithdrawalDate | ReturnPlannedEndDate | EarningsCount | Description                                                              |
@@ -41,7 +41,7 @@ Scenario Outline: Un-qualifying first period, break, returning in second period 
 		| WithdrawalDate    | <WithdrawalDate>                                                                                       |
 		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-02-01, OriginalExpectedEndDate:2023-12-31                           |
 		| PeriodsInLearning | StartDate:<ReturnStartDate>, EndDate:<WithdrawalDate>, OriginalExpectedEndDate:<ReturnPlannedEndDate>  |
-    Then <EarningsCount> on programme earnings are persisted
+    Then <EarningsCount> regular on programme earnings are persisted
 	And the total amount of on programme earnings is <ExpectedOnProgramTotal>
 
 Examples:
@@ -54,3 +54,43 @@ Examples:
     | 2023-04-20      | 2023-05-02     | 2023-05-03           |             0 |                      0 | Planned duration = 14 days, withdraws after 13 days (Fails to qualify)   |
     | 2023-04-30      | 2023-04-30     | 2023-05-12           |             1 |                   5600 | Planned duration < 14 days, withdraws after 1 day (Qualifies)            |
     | 2023-04-30      | 2023-04-30     | 2023-04-30           |             1 |                   5600 | Planned duration = 1 day, withdraws after 1 day (Qualifies)              |
+
+Scenario: Qualifying first period, break, returning in second period with completion - fails to qualify
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2023-01-01 | 2023-12-31 | 15000 |
+	And the apprenticeship commitment is approved
+	And the following learning support payment information is provided
+		| StartDate | EndDate    |
+		| 2023-01-01| 2023-12-31 |
+	When the following on-programme request is sent
+		| Key               | Value                                                                                                  |
+		| CompletionDate    | 2023-04-30                                                                                             |
+		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-03-15, OriginalExpectedEndDate:2023-12-31                           |
+		| PeriodsInLearning | StartDate:2023-04-20, EndDate:2023-04-30, OriginalExpectedEndDate:2023-05-03                           |
+	Then the instalments are balanced as follows
+		| AcademicYear | DeliveryPeriod | Amount | Type       |
+		| 2223         | 6              | 1000   | Regular    |
+		| 2223         | 7              | 1000   | Regular    |
+		| 2223         | 9              | 10000  | Balancing  |
+		| 2223         | 9              | 3000   | Completion |
+
+Scenario: Qualifying first period, break, returning in second period with completion - qualifies
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2023-01-01 | 2023-12-31 | 15000 |
+	And the apprenticeship commitment is approved
+	And the following learning support payment information is provided
+		| StartDate | EndDate    |
+		| 2023-01-01| 2023-12-31 |
+	When the following on-programme request is sent
+		| Key               | Value                                                                                                  |
+		| CompletionDate    | 2023-04-30                                                                                             |
+		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-03-15, OriginalExpectedEndDate:2023-12-31                           |
+		| PeriodsInLearning | StartDate:2023-04-30, EndDate:2023-04-30, OriginalExpectedEndDate:2023-05-12                           |
+	Then the instalments are balanced as follows
+		| AcademicYear | DeliveryPeriod | Amount | Type       |
+		| 2223         | 6              | 1000   | Regular    |
+		| 2223         | 7              | 1000   | Regular    |
+		| 2223         | 9              | 10000   | Balancing  |
+		| 2223         | 9              | 3000   | Completion |

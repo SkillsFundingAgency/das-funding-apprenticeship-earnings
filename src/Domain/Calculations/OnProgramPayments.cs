@@ -33,6 +33,7 @@ public static class OnProgramPayments
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
         var nonQualifyingInstalments = instalments.Where(x =>
+            x.Type == InstalmentType.Regular &&
             periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning))
         ).ToList();
 
@@ -45,7 +46,7 @@ public static class OnProgramPayments
                 && x.Type != InstalmentType.Balancing && x.Type != InstalmentType.Completion))
         ).ToList();
 
-        var survivingInstalments = instalments.Where(x => !nonQualifyingInstalments.Contains(x) && !postWithdrawalInstalments.Contains(x)).ToList();
+        var survivingInstalments = instalments.Where(x => x.Type == InstalmentType.Regular && !nonQualifyingInstalments.Contains(x) && !postWithdrawalInstalments.Contains(x)).ToList();
 
         if (survivingInstalments.Any() && nonQualifyingInstalments.Any())
         {
