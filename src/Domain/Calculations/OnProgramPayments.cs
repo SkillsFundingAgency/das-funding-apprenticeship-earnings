@@ -1,7 +1,8 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
@@ -26,33 +27,42 @@ public static class OnProgramPayments
         return onProgramPayments;
     }
 
-    public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, List<ApprenticeshipPrice> prices, DateTime lastDayOfLearning)
+    public static List<ApprenticeshipInstalment> RemoveAfterLastDayOfLearning(List<ApprenticeshipInstalment> instalments, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning, DateTime lastDayOfLearning)
     {
-        List<ApprenticeshipInstalment> result;
-
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
-        var startDate = prices.Min(x => x.StartDate);
-        var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, prices.Max(x => x.EndDate));
-        var qualifyingDate = startDate.AddDays(qualifyingPeriodDays - 1); //With shorter apprenticeships, this qualifying period will change
-        if (lastDayOfLearning < qualifyingDate)
+        var nonQualifyingInstalments = instalments.Where(x =>
+            x.Type == InstalmentType.Regular &&
+            periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning))
+        ).ToList();
+
+        var postWithdrawalInstalments = instalments.Where(x =>
+            !nonQualifyingInstalments.Contains(x) &&
+            (x.AcademicYear > academicYear
+            || (x.AcademicYear == academicYear && x.DeliveryPeriod > deliveryPeriod)
+            || (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
+                && lastDayOfLearning.Day < DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)
+                && x.Type != InstalmentType.Balancing && x.Type != InstalmentType.Completion))
+        ).ToList();
+
+        var survivingInstalments = instalments.Where(x => x.Type == InstalmentType.Regular && !nonQualifyingInstalments.Contains(x) && !postWithdrawalInstalments.Contains(x)).ToList();
+
+        if (survivingInstalments.Any() && nonQualifyingInstalments.Any())
         {
-            result = instalments.Where(x =>
-                    x.AcademicYear < academicYear) //keep earnings from previous academic years
-                .ToList();
-        }
-        else
-        {
-            result = instalments.Where(x =>
-                    x.AcademicYear < academicYear //keep earnings from previous academic years
-            || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && lastDayOfLearning.Day == DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-            || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod && (x.Type == InstalmentType.Balancing || x.Type == InstalmentType.Completion)) //keep earnings in the last delivery period of learning if they are balancing or completion payments
-                .ToList();
+            var amountToRedistribute = nonQualifyingInstalments.Sum(x => x.Amount);
+            var amountPerInstalment = decimal.Round(amountToRedistribute / survivingInstalments.Count, 5);
+            foreach (var instalment in survivingInstalments)
+            {
+                instalment.UpdateAmount(instalment.Amount + amountPerInstalment);
+            }
+
+            var remainder = amountToRedistribute - (amountPerInstalment * survivingInstalments.Count);
+            survivingInstalments.Last().UpdateAmount(survivingInstalments.Last().Amount + remainder);
         }
 
-        instalments.RemoveAll(i => !result.Contains(i));
+        instalments.RemoveAll(x => nonQualifyingInstalments.Contains(x) || postWithdrawalInstalments.Contains(x));
+
         return instalments;
     }
 
@@ -89,6 +99,12 @@ public static class OnProgramPayments
     {
         var periodInstalmentCount = CalculateInstalmentCount(priceInPeriod.StartDate, priceInPeriod.EndDate);
         var remainingInstalmentCount = CalculateInstalmentCount(priceInPeriod.StartDate, apprenticeshipEndDate);
+
+        if (remainingInstalmentCount == 0 || periodInstalmentCount == 0)
+        {
+            return new List<OnProgramPayment>();
+        }
+
         var instalmentAmount = decimal.Round(total / remainingInstalmentCount, 5);
 
         var onProgramPayments = new List<OnProgramPayment>();
