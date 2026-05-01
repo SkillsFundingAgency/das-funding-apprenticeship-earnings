@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Learning.Types;
+using SFA.DAS.Learning.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -17,5 +17,6 @@ public abstract class BaseEpisodeEntity
 	public FundingType FundingType { get; set; }
     public string TrainingCode { get; set; } = null!;
     public DateTime? CompletionDate { get; set; }
+    public DateTime? AchievementDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
 }

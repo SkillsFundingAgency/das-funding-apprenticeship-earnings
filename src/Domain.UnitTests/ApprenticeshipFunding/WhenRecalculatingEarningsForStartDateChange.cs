@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -46,8 +46,17 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.Prices = prices;
         learningEpisode.WithdrawalDate = null;
         learningEpisode.CompletionDate = null;
+        learningEpisode.AchievementDate = null;
         learningEpisode.FundingBandMaximum = int.MaxValue;
-        learningEpisode.PeriodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>();
+        learningEpisode.PeriodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
+        {
+            new ApprenticeshipPeriodInLearningEntity
+            {
+                StartDate = new DateTime(2023, 2, 1),
+                EndDate = new DateTime(2024, 2, 1),
+                OriginalExpectedEndDate = new DateTime(2024, 2, 1)
+            }
+        };
         learningEpisode.EarningsProfile.EnglishAndMathsCourses = new List<EnglishAndMathsEntity>();
 
         var learningEntityModel = _fixture

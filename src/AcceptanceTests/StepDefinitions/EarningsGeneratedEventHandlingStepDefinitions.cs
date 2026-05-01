@@ -89,4 +89,24 @@ public class EarningsGeneratedEventHandlingStepDefinitions
 
         earningsInDb.Should().BeEmpty();
     }
+
+    [Then(@"(\d+) regular on programme earnings are persisted")]
+    public async Task ThenXOnProgrammeEarningsArePersisted(int expectedEarningsCount)
+    {
+        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => string.Equals(x.Type, nameof(InstalmentType.Regular), StringComparison.CurrentCultureIgnoreCase));
+
+        earningsInDb.Should().HaveCount(expectedEarningsCount);
+    }
+
+    [Then(@"the total amount of on programme earnings is (.*)")]
+    public async Task ThenTheTotalAmountOfOnProgrammeEarningsIs(decimal expectedTotalAmount)
+    {
+        var learningKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
+        var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
+
+        decimal.Round(earningsInDb.Sum(x => x.Amount), 5).Should().Be(expectedTotalAmount);
+    }
 }

@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Learning.Types;
 
@@ -22,6 +22,7 @@ public class UpdateOnProgrammeRequestBuilder
     private List<LearningEpisodePrice>? _existingPrices;
     private List<PeriodInLearningItem> _periodsInLearning = new List<PeriodInLearningItem>();
     private DateTime? _completionDate = null;
+    private DateTime? _achievementDate = null;
     private DateTime? _withdrawalDate = null;
     private bool _hasEHCP = false;
     private bool _isCareLeaver = false;
@@ -67,6 +68,7 @@ public class UpdateOnProgrammeRequestBuilder
         }
 
         if (model.CompletionDate.HasChanged) _completionDate = model.CompletionDate.Value;
+        if (model.AchievementDate.HasChanged) _achievementDate = model.AchievementDate.Value;
         if (model.WithdrawalDate.HasChanged) _withdrawalDate = model.WithdrawalDate.Value;
         if (model.HasEHCP.HasChanged) _hasEHCP = model.HasEHCP.Value;
         if (model.IsCareLeaver.HasChanged) _isCareLeaver = model.IsCareLeaver.Value;
@@ -124,6 +126,7 @@ public class UpdateOnProgrammeRequestBuilder
             DateOfBirth = _dateOfBirth,
             PauseDate = _pauseDate,
             CompletionDate = _completionDate,
+            AchievementDate = _achievementDate,
             WithdrawalDate = _withdrawalDate,
             FundingBandMaximum = requiresFundingBandMaximumUpdate ? (int?)fundingBandMaximum : null,
             Prices = prices,

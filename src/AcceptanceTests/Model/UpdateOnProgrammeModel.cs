@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 
@@ -19,6 +19,7 @@ public class UpdateOnProgrammeModel
 
     // Completion
     public TrackedValue<DateTime?> CompletionDate { get; set; } = new TrackedValue<DateTime?>(null);
+    public TrackedValue<DateTime?> AchievementDate { get; set; } = new TrackedValue<DateTime?>(null);
 
     // Withdrawal
     public TrackedValue<DateTime?> WithdrawalDate { get; set; } = new TrackedValue<DateTime?>(null);
