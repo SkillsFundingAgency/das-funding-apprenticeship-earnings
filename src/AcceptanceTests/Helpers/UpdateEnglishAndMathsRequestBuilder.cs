@@ -12,7 +12,7 @@ public class UpdateEnglishAndMathsRequestBuilder
     private string _learnAimRef = "4A";
     private decimal _amount = 4000;
     private DateTime? _withdrawalDate = null;
-    private int? _priorLearningAdjustmentPercentage = null;
+    private decimal? _combinedFundingAdjustmentPercentage = null;
     private DateTime? _completionDate = null;
     private DateTime? _pauseDate = null;
     private List<PeriodInLearningItem> _periodsInLearning =
@@ -38,8 +38,8 @@ public class UpdateEnglishAndMathsRequestBuilder
         if (model.WithdrawalDate.HasChanged)
             _withdrawalDate = model.WithdrawalDate.Value;
 
-        if (model.PriorLearningAdjustmentPercentage.HasChanged)
-            _priorLearningAdjustmentPercentage = model.PriorLearningAdjustmentPercentage.Value;
+        if (model.CombinedFundingAdjustmentPercentage.HasChanged)
+            _combinedFundingAdjustmentPercentage = model.CombinedFundingAdjustmentPercentage.Value;
 
         if (model.CompletionDate.HasChanged)
             _completionDate = model.CompletionDate.Value;
@@ -82,7 +82,7 @@ public class UpdateEnglishAndMathsRequestBuilder
                     LearnAimRef = _learnAimRef,
                     Amount = _amount,
                     WithdrawalDate = _withdrawalDate,
-                    PriorLearningAdjustmentPercentage = _priorLearningAdjustmentPercentage,
+                    CombinedFundingAdjustmentPercentage = _combinedFundingAdjustmentPercentage,
                     CompletionDate = _completionDate,
                     PauseDate = _pauseDate,
                     PeriodsInLearning = _periodsInLearning
