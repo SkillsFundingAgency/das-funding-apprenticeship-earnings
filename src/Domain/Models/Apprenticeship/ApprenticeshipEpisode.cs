@@ -67,7 +67,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         if (LastDayOfLearning.HasValue)
         {
-            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, _prices, LastDayOfLearning.Value);
+            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, EpisodePeriodsInLearning, LastDayOfLearning.Value);
             additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
         }
 

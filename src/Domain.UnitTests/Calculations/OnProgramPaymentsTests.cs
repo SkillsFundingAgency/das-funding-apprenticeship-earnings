@@ -18,7 +18,7 @@ public class OnProgramPaymentsTests
         // Arrange
         var lastDayOfLearning = new DateTime(2022, 2, 15); // Period 7
         var priceKey = Guid.NewGuid();
-        var prices = new List<ApprenticeshipPrice> { new ApprenticeshipPrice(priceKey, new DateTime(2021, 8, 1), new DateTime(2022, 7, 31), 15000) };
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new ApprenticeshipPeriodInLearning(Guid.NewGuid(), new DateTime(2021, 8, 1), new DateTime(2022, 7, 31), new DateTime(2022, 7, 31)) };
         
         var instalments = new List<ApprenticeshipInstalment>
         {
@@ -29,7 +29,7 @@ public class OnProgramPaymentsTests
         };
 
         // Act
-        var result = OnProgramPayments.RemoveAfterLastDayOfLearning(new List<ApprenticeshipInstalment>(instalments), prices, lastDayOfLearning);
+        var result = OnProgramPayments.RemoveAfterLastDayOfLearning(new List<ApprenticeshipInstalment>(instalments), periodsInLearning, lastDayOfLearning);
 
         // Assert
         result.Should().Contain(x => x.Type == InstalmentType.Completion && x.DeliveryPeriod == 8);
