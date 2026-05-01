@@ -7,10 +7,10 @@
     [Course] NVARCHAR(50) NOT NULL,
     [Amount] DECIMAL(15,5) NOT NULL, 
     [WithdrawalDate] DATETIME NULL,
-    [PriorLearningAdjustmentPercentage] INT NULL, 
     [PauseDate] DATETIME NULL, 
     [CompletionDate] DATETIME NULL, 
-    [LearnAimRef] VARCHAR(8) NOT NULL DEFAULT ''
+    [LearnAimRef] VARCHAR(8) NOT NULL DEFAULT '',
+    [CombinedFundingAdjustmentPercentage] DECIMAL(18, 6) NULL,
 )
 GO
 

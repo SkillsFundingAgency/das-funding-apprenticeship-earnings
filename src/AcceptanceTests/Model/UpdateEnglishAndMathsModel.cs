@@ -16,7 +16,7 @@ public class UpdateEnglishAndMathsModel
 
     public TrackedValue<DateTime?> WithdrawalDate { get; set; } = new TrackedValue<DateTime?>(null);
 
-    public TrackedValue<int?> PriorLearningAdjustmentPercentage { get; set; } = new TrackedValue<int?>(null);
+    public TrackedValue<int?> CombinedFundingAdjustmentPercentage { get; set; } = new TrackedValue<int?>(null);
 
     public TrackedValue<DateTime?> CompletionDate { get; set; } = new TrackedValue<DateTime?>(null);
 

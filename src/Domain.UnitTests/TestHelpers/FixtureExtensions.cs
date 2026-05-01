@@ -169,7 +169,7 @@ internal static class FixtureExtensions
             CompletionDate = c.CompletionDate,
             EndDate = c.EndDate,
             PauseDate = c.PauseDate,
-            PriorLearningAdjustmentPercentage = c.PriorLearningAdjustmentPercentage
+            CombinedFundingAdjustmentPercentage = c.CombinedFundingAdjustmentPercentage
         }).ToList();
 
         return new ApprenticeshipEarningsProfileEntity
