@@ -108,12 +108,13 @@ public class EnglishAndMathsPaymentsTests
     [TestCase(93)]
     [TestCase(100)]
     [TestCase(130)]
-    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForCombinedFundingAdjustmentPercentage(int combinedFundingAdjustmentPercentage)
+    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForCombinedFundingAdjustmentPercentage(int combinedFundingAdjustmentPercentageInt)
     {
         // Arrange
+        var combinedFundingAdjustmentPercentage = (decimal)combinedFundingAdjustmentPercentageInt/100;
         var startDate = new DateTime(2023, 8, 1);
         var endDate = new DateTime(2023, 12, 31);
-        var expectedAdjustedAmount = 211.6m * combinedFundingAdjustmentPercentage / 100m;
+        var expectedAdjustedAmount = 211.6m * combinedFundingAdjustmentPercentage;
         var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 1058, null, combinedFundingAdjustmentPercentage);
 
         // Act
@@ -163,7 +164,7 @@ public class EnglishAndMathsPaymentsTests
 
     }
 
-    private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? combinedFundingAdjustmentPercentage = null, DateTime? completionDate = null)
+    private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, decimal? combinedFundingAdjustmentPercentage = null, DateTime? completionDate = null)
     {
         var model = new EnglishAndMathsEntity
         {

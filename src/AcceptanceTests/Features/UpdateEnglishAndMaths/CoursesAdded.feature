@@ -116,7 +116,7 @@ Scenario: english and maths earnings for a course with prior learning
 	And the apprenticeship commitment is approved
 	And the following english and maths course information is provided
 		| StartDate | EndDate   | Course | LearnAimRef | Amount | CombinedFundingAdjustmentPercentage |
-		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      |   1500 |                                  63 |
+		| 2020-8-1  | 2021-11-1 | Maths1 | Maths1      |   1500 |                                  0.63 |
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| Maths1 | 63     | 2021         | 1              | Regular |

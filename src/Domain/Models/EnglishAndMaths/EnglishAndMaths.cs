@@ -21,7 +21,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
     public DateTime? CompletionDate => _entity.CompletionDate;
     public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
     public DateTime? PauseDate => _entity.PauseDate;
-    public int? CombinedFundingAdjustmentPercentage => _entity.CombinedFundingAdjustmentPercentage;
+    public decimal? CombinedFundingAdjustmentPercentage => _entity.CombinedFundingAdjustmentPercentage;
     public IReadOnlyCollection<EnglishAndMathsInstalment> Instalments => new ReadOnlyCollection<EnglishAndMathsInstalment>(_instalments);
     public IReadOnlyCollection<EnglishAndMathsPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<EnglishAndMathsPeriodInLearning>(_entity.PeriodsInLearning.Select(EnglishAndMathsPeriodInLearning.Get).ToList());
 
@@ -39,8 +39,8 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
         decimal amount, 
         DateTime? withdrawalDate, 
         DateTime? completionDate,
-        DateTime? pauseDate, 
-        int? combinedFundingAdjustmentPercentage,
+        DateTime? pauseDate,
+        decimal? combinedFundingAdjustmentPercentage,
         IEnumerable<IPeriodInLearning> periodsInLearning)
     {
         _entity = new EnglishAndMathsEntity();

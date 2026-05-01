@@ -12,7 +12,7 @@ public class UpdateEnglishAndMathsRequestBuilder
     private string _learnAimRef = "4A";
     private decimal _amount = 4000;
     private DateTime? _withdrawalDate = null;
-    private int? _combinedFundingAdjustmentPercentage = null;
+    private decimal? _combinedFundingAdjustmentPercentage = null;
     private DateTime? _completionDate = null;
     private DateTime? _pauseDate = null;
     private List<PeriodInLearningItem> _periodsInLearning =
