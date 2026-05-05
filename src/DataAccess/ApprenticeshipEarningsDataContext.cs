@@ -178,6 +178,10 @@ internal static class ModelBuilderExtensions
             .HasConversion<int>()
             .HasDefaultValue(MilestoneFlags.None);
 
+        builder
+            .Property(x => x.IsRemoved)
+            .HasDefaultValue(false);
+
         return builder;
     }
 

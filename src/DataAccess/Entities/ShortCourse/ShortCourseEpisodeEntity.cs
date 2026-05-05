@@ -12,6 +12,7 @@ public class ShortCourseEpisodeEntity : BaseEpisodeEntity
     public DateTime EndDate { get; set; }
     public decimal CoursePrice { get; set; }
     public MilestoneFlags Milestones { get; set; }
+    public bool IsRemoved { get; set; }
     public ShortCourseEarningsProfileEntity EarningsProfile { get; set; }
 
     public ShortCourseEpisodeEntity()
