@@ -123,6 +123,24 @@ internal class WhenCalculatingShortCourseOnProgram
     }
 
     [Test]
+    public void WhenPreviouslyRemoved_ThenIsRemovedIsClearedAndEarningsAreRestored()
+    {
+        // Arrange
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
+        _episode.Delete();
+        _episode.EarningsProfile.Instalments.Should().BeEmpty();
+
+        // Act
+        _episode.CalculateShortCourseOnProgram(calculationData: "reinstated");
+
+        // Assert
+        _episode.IsRemoved.Should().BeFalse();
+        _episode.EarningsProfile.Instalments.Should().NotBeEmpty();
+        _episode.EarningsProfile.OnProgramTotal.Should().Be(_agreedPrice * 0.3m);
+        _episode.EarningsProfile.CompletionPayment.Should().Be(_agreedPrice * 0.7m);
+    }
+
+    [Test]
     public void WhenApproved_MilestonesIsMarkedPayableIfRecorded()
     {
         // Arrange - only the 30% milestone achieved; clear withdrawal date so both instalments are generated

@@ -30,7 +30,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     public void CalculateShortCourseOnProgram(string calculationData)
     {
-        if (_entity.IsRemoved) { RemoveEarnings(); return; }
+        _entity.IsRemoved = false;
 
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             CoursePrice,
