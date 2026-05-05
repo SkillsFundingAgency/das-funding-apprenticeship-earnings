@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.DeleteShortCourseLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveShortCourseLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
@@ -129,24 +129,24 @@ public class ShortCoursesController : ControllerBase
     }
 
     [HttpDelete("/{learningKey}/shortCourses")]
-    public async Task<IActionResult> DeleteShortCourseLearning(Guid learningKey)
+    public async Task<IActionResult> RemoveShortCourseLearning(Guid learningKey)
     {
-        _logger.LogInformation("Received request to delete ShortCourse learning for LearningKey {LearningKey}", learningKey);
+        _logger.LogInformation("Received request to remove ShortCourse learning for LearningKey {LearningKey}", learningKey);
 
-        DeleteShortCourseLearningResponse? response = null;
+        RemoveShortCourseLearningResponse? response = null;
 
         try
         {
-            var command = new DeleteShortCourseLearningCommand(learningKey);
-            response = await _commandDispatcher.Send<DeleteShortCourseLearningCommand, DeleteShortCourseLearningResponse>(command);
+            var command = new RemoveShortCourseLearningCommand(learningKey);
+            response = await _commandDispatcher.Send<RemoveShortCourseLearningCommand, RemoveShortCourseLearningResponse>(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting ShortCourse learning for LearningKey {LearningKey}", learningKey);
+            _logger.LogError(ex, "Error removing ShortCourse learning for LearningKey {LearningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully deleted ShortCourse learning for LearningKey {LearningKey}", learningKey);
+        _logger.LogInformation("Successfully removed ShortCourse learning for LearningKey {LearningKey}", learningKey);
         return Ok(response);
     }
 }

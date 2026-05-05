@@ -91,7 +91,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
     }
 
-    public void Delete()
+    public void Remove()
     {
         _entity.IsRemoved = true;
         RemoveEarnings();

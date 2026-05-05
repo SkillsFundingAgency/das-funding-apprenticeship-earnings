@@ -31,7 +31,7 @@ internal class WhenDeletingShortCourseEpisode
     [Test]
     public void ThenIsRemovedIsTrue()
     {
-        _episode.Delete();
+        _episode.Remove();
 
         _episode.IsRemoved.Should().BeTrue();
     }
@@ -39,7 +39,7 @@ internal class WhenDeletingShortCourseEpisode
     [Test]
     public void ThenInstalmentsAreRemoved()
     {
-        _episode.Delete();
+        _episode.Remove();
 
         _episode.EarningsProfile.Instalments.Should().BeEmpty();
     }
@@ -47,7 +47,7 @@ internal class WhenDeletingShortCourseEpisode
     [Test]
     public void ThenOnProgramTotalIsZero()
     {
-        _episode.Delete();
+        _episode.Remove();
 
         _episode.EarningsProfile.OnProgramTotal.Should().Be(0m);
     }
@@ -55,7 +55,7 @@ internal class WhenDeletingShortCourseEpisode
     [Test]
     public void ThenCompletionPaymentIsZero()
     {
-        _episode.Delete();
+        _episode.Remove();
 
         _episode.EarningsProfile.CompletionPayment.Should().Be(0m);
     }

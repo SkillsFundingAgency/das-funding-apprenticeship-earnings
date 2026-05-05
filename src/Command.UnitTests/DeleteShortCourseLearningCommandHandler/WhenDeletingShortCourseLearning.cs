@@ -2,15 +2,10 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DeleteCmd = SFA.DAS.Funding.ApprenticeshipEarnings.Command.DeleteShortCourseLearningCommand.DeleteShortCourseLearningCommand;
-using DeleteHandler = SFA.DAS.Funding.ApprenticeshipEarnings.Command.DeleteShortCourseLearningCommand.DeleteShortCourseLearningCommandHandler;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveShortCourseLearningCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.DeleteShortCourseLearningCommandHandler;
 
@@ -18,13 +13,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.DeleteShortCo
 public class WhenDeletingShortCourseLearning
 {
     private readonly Fixture _fixture = new();
-    private Mock<ILogger<DeleteHandler>> _mockLogger;
+    private Mock<ILogger<RemoveShortCourseLearningCommandHandler>> _mockLogger;
     private Mock<ILearningRepository> _mockRepository;
 
     [SetUp]
     public void Setup()
     {
-        _mockLogger = new Mock<ILogger<DeleteHandler>>();
+        _mockLogger = new Mock<ILogger<RemoveShortCourseLearningCommandHandler>>();
         _mockRepository = new Mock<ILearningRepository>();
     }
 
@@ -35,7 +30,7 @@ public class WhenDeletingShortCourseLearning
         var learning = BuildShortCourseLearning(learningKey);
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
-        await BuildSut().Handle(new DeleteCmd(learningKey));
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey));
 
         _mockRepository.Verify(r => r.GetShortCourseLearning(learningKey), Times.Once);
     }
@@ -47,7 +42,7 @@ public class WhenDeletingShortCourseLearning
         var learning = BuildShortCourseLearning(learningKey);
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
-        await BuildSut().Handle(new DeleteCmd(learningKey));
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey));
 
         _mockRepository.Verify(r => r.Update(learning), Times.Once);
     }
@@ -58,7 +53,7 @@ public class WhenDeletingShortCourseLearning
         var learningKey = Guid.NewGuid();
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync((ShortCourseLearning?)null);
 
-        var act = async () => await BuildSut().Handle(new DeleteCmd(learningKey));
+        var act = async () => await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey));
 
         act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -85,5 +80,5 @@ public class WhenDeletingShortCourseLearning
         return ShortCourseLearning.Get(entity);
     }
 
-    private DeleteHandler BuildSut() => new(_mockLogger.Object, _mockRepository.Object);
+    private RemoveShortCourseLearningCommandHandler BuildSut() => new(_mockLogger.Object, _mockRepository.Object);
 }

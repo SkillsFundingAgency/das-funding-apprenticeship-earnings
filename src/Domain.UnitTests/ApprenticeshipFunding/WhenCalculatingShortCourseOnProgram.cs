@@ -127,7 +127,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Arrange
         _episode.CalculateShortCourseOnProgram(calculationData: "initial");
-        _episode.Delete();
+        _episode.Remove();
         _episode.EarningsProfile.Instalments.Should().BeEmpty();
 
         // Act
