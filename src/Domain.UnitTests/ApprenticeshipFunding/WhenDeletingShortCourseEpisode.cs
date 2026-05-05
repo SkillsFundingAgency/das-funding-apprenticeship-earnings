@@ -29,21 +29,11 @@ internal class WhenDeletingShortCourseEpisode
     }
 
     [Test]
-    public void ThenWithdrawalDateIsSetToStartDate()
+    public void ThenIsRemovedIsTrue()
     {
         _episode.Delete();
 
-        _episode.WithdrawalDate.Should().Be(_episode.StartDate);
-    }
-
-    [Test]
-    public void ThenCompletionDateIsCleared()
-    {
-        _episode.UpdateCompletion(new DateTime(2024, 3, 1));
-
-        _episode.Delete();
-
-        _episode.CompletionDate.Should().BeNull();
+        _episode.IsRemoved.Should().BeTrue();
     }
 
     [Test]
@@ -52,5 +42,21 @@ internal class WhenDeletingShortCourseEpisode
         _episode.Delete();
 
         _episode.EarningsProfile.Instalments.Should().BeEmpty();
+    }
+
+    [Test]
+    public void ThenOnProgramTotalIsZero()
+    {
+        _episode.Delete();
+
+        _episode.EarningsProfile.OnProgramTotal.Should().Be(0m);
+    }
+
+    [Test]
+    public void ThenCompletionPaymentIsZero()
+    {
+        _episode.Delete();
+
+        _episode.EarningsProfile.CompletionPayment.Should().Be(0m);
     }
 }

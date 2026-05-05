@@ -12,6 +12,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public decimal CoursePrice => _entity.CoursePrice;
     public MilestoneFlags MilestoneFlags => _entity.Milestones;
     public bool IsApproved => _earningsProfile?.IsApproved ?? false;
+    public bool IsRemoved => _entity.IsRemoved;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
@@ -29,6 +30,20 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     public void CalculateShortCourseOnProgram(string calculationData)
     {
+        if (_entity.IsRemoved)
+        {
+            if (_earningsProfile != null)
+            {
+                _earningsProfile.Update(
+                    instalments: new List<ShortCourseInstalment>(),
+                    onProgramTotal: 0m,
+                    completionPayment: 0m,
+                    calculationData: calculationData);
+                _entity.EarningsProfile = _earningsProfile.GetModel();
+            }
+            return;
+        }
+
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             CoursePrice,
             StartDate,
@@ -78,9 +93,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     public void Delete()
     {
-        UpdateWithdrawalDate(StartDate);
-        UpdateCompletion(null);
-        _entity.Milestones = MilestoneFlags.None;
+        _entity.IsRemoved = true;
         CalculateShortCourseOnProgram("{}");
     }
 
