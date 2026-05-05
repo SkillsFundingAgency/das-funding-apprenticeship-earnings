@@ -30,19 +30,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     public void CalculateShortCourseOnProgram(string calculationData)
     {
-        if (_entity.IsRemoved)
-        {
-            if (_earningsProfile != null)
-            {
-                _earningsProfile.Update(
-                    instalments: new List<ShortCourseInstalment>(),
-                    onProgramTotal: 0m,
-                    completionPayment: 0m,
-                    calculationData: calculationData);
-                _entity.EarningsProfile = _earningsProfile.GetModel();
-            }
-            return;
-        }
+        if (_entity.IsRemoved) { RemoveEarnings(); return; }
 
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             CoursePrice,
@@ -61,9 +49,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
                 ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
                 onProgramPayments,
                 ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice),
-                EpisodeKey, 
+                EpisodeKey,
                 false, // Initialize as unapproved
-                this.AddChildToRoot, 
+                this.AddChildToRoot,
                 calculationData);
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
@@ -80,6 +68,18 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         }
     }
 
+    private void RemoveEarnings()
+    {
+        if (_earningsProfile == null) return;
+
+        _earningsProfile.Update(
+            instalments: [],
+            onProgramTotal: 0m,
+            completionPayment: 0m,
+            calculationData: "{}");
+        _entity.EarningsProfile = _earningsProfile.GetModel();
+    }
+
     public void UpdateAgeAtStart(DateTime dateOfBirth)
     {
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
@@ -94,7 +94,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public void Delete()
     {
         _entity.IsRemoved = true;
-        CalculateShortCourseOnProgram("{}");
+        RemoveEarnings();
     }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
