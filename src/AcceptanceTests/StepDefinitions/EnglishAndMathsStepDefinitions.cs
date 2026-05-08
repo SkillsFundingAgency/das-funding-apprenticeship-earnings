@@ -143,8 +143,8 @@ public class EnglishAndMathsStepDefinitions
                     model.WithdrawalDate.SetValue(item.ToNullableDateTime());
                     break;
 
-                case nameof(UpdateEnglishAndMathsModel.PriorLearningAdjustmentPercentage):
-                    model.PriorLearningAdjustmentPercentage.SetValue(item.ToNullableInt());
+                case nameof(UpdateEnglishAndMathsModel.CombinedFundingAdjustmentPercentage):
+                    model.CombinedFundingAdjustmentPercentage.SetValue(item.ToNullableInt());
                     break;
 
                 case nameof(UpdateEnglishAndMathsModel.CompletionDate):

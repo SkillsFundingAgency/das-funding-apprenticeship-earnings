@@ -108,13 +108,14 @@ public class EnglishAndMathsPaymentsTests
     [TestCase(93)]
     [TestCase(100)]
     [TestCase(130)]
-    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForPriorLearning(int priorLearningAdjustmentPercentage)
+    public void GenerateMathsAndEnglishPayments_ShouldAdjustAmountForCombinedFundingAdjustmentPercentage(int combinedFundingAdjustmentPercentageInt)
     {
         // Arrange
+        var combinedFundingAdjustmentPercentage = (decimal)combinedFundingAdjustmentPercentageInt/100;
         var startDate = new DateTime(2023, 8, 1);
         var endDate = new DateTime(2023, 12, 31);
-        var expectedAdjustedAmount = 211.6m * priorLearningAdjustmentPercentage / 100m;
-        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 1058, null, priorLearningAdjustmentPercentage);
+        var expectedAdjustedAmount = 211.6m * combinedFundingAdjustmentPercentage;
+        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 1058, null, combinedFundingAdjustmentPercentage);
 
         // Act
         var result = EnglishAndMathsPayments.GenerateInstalments(course);
@@ -126,13 +127,13 @@ public class EnglishAndMathsPaymentsTests
 
     [TestCase(0)]
     [TestCase(null)]
-    public void GenerateMathsAndEnglishPayments_ShouldNotAdjustAmountForPriorLearningWhenNullOrZero(int? priorLearningAdjustmentPercentage)
+    public void GenerateMathsAndEnglishPayments_ShouldNotAdjustAmountForCombinedFundingAdjustmentPercentageWhenNullOrZero(int? combinedFundingAdjustmentPercentage)
     {
         // Arrange
         var startDate = new DateTime(2023, 8, 1);
         var endDate = new DateTime(2023, 12, 31);
         var expectedUnAdjustedAmount = 211.6m;
-        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 1058, null, priorLearningAdjustmentPercentage);
+        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 1058, null, combinedFundingAdjustmentPercentage);
 
         // Act
         var result = EnglishAndMathsPayments.GenerateInstalments(course);
@@ -163,7 +164,7 @@ public class EnglishAndMathsPaymentsTests
 
     }
 
-    private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, int? priorLearningAdjustmentPercentage = null, DateTime? completionDate = null)
+    private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, decimal? combinedFundingAdjustmentPercentage = null, DateTime? completionDate = null)
     {
         var model = new EnglishAndMathsEntity
         {
@@ -175,7 +176,7 @@ public class EnglishAndMathsPaymentsTests
             Amount = amount,
             WithdrawalDate = withdrawalDate,
             CompletionDate = completionDate,
-            PriorLearningAdjustmentPercentage = priorLearningAdjustmentPercentage,
+            CombinedFundingAdjustmentPercentage = combinedFundingAdjustmentPercentage,
             PeriodsInLearning = [ new EnglishAndMathsPeriodInLearningEntity
             {
                 StartDate = startDate,
