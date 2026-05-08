@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
@@ -26,7 +27,7 @@ public class BalancingInstalmentsTests
         var plannedEndDate = new DateTime(2024, 7, 15);
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity{ EndDate = plannedEndDate });
 
         // Assert
         result.Should().BeEquivalentTo(instalments);
@@ -53,7 +54,7 @@ public class BalancingInstalmentsTests
         var expectedBalancingAmount = 500;
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate });
 
         // Assert
         result.Should().ContainSingle(x =>
@@ -83,7 +84,7 @@ public class BalancingInstalmentsTests
         var plannedEndDate = new DateTime(2024, 7, 11);
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate });
 
         // Assert
         result.Should().NotContain(x => x.Type == InstalmentType.Balancing);
@@ -111,7 +112,7 @@ public class BalancingInstalmentsTests
         var plannedEndDate = new DateTime(2024, 6, 30); //census date for R11
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate });
 
         // Assert
         result.Should().Contain(x => x.DeliveryPeriod == completionPeriod && x.Type == InstalmentType.Balancing);
