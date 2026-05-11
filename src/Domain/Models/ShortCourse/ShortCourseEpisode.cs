@@ -12,6 +12,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public decimal CoursePrice => _entity.CoursePrice;
     public MilestoneFlags MilestoneFlags => _entity.Milestones;
     public bool IsApproved => _earningsProfile?.IsApproved ?? false;
+    public bool IsRemoved => _entity.IsRemoved;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
@@ -29,6 +30,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
     public void CalculateShortCourseOnProgram(string calculationData)
     {
+        _entity.IsRemoved = false;
+
         var onProgramPayments = ShortCoursePayments.GenerateShortCoursePayments(
             CoursePrice,
             StartDate,
@@ -46,9 +49,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
                 ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
                 onProgramPayments,
                 ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice),
-                EpisodeKey, 
+                EpisodeKey,
                 false, // Initialize as unapproved
-                this.AddChildToRoot, 
+                this.AddChildToRoot,
                 calculationData);
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
@@ -65,6 +68,18 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         }
     }
 
+    private void RemoveEarnings()
+    {
+        if (_earningsProfile == null) return;
+
+        _earningsProfile.Update(
+            instalments: [],
+            onProgramTotal: 0m,
+            completionPayment: 0m,
+            calculationData: "{}");
+        _entity.EarningsProfile = _earningsProfile.GetModel();
+    }
+
     public void UpdateAgeAtStart(DateTime dateOfBirth)
     {
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
@@ -76,12 +91,10 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
     }
 
-    public void Delete()
+    public void Remove()
     {
-        UpdateWithdrawalDate(StartDate);
-        UpdateCompletion(null);
-        _entity.Milestones = MilestoneFlags.None;
-        CalculateShortCourseOnProgram("{}");
+        _entity.IsRemoved = true;
+        RemoveEarnings();
     }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
