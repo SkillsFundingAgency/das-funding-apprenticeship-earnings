@@ -155,7 +155,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
                 existing.WithdrawalDate = updated.WithdrawalDate;
                 existing.CompletionDate = updated.CompletionDate;
                 existing.PauseDate = updated.PauseDate;
-                existing.PriorLearningAdjustmentPercentage = updated.PriorLearningAdjustmentPercentage;
+                existing.CombinedFundingAdjustmentPercentage = updated.CombinedFundingAdjustmentPercentage;
 
                 // 3a. Sync Instalments
                 existing.Instalments.SyncByKey(
