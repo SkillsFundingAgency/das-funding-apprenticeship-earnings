@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class BalancingInstalments
 {
-    public static List<ApprenticeshipInstalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<ApprenticeshipInstalment> instalments, ApprenticeshipEpisodePriceEntity lastEpisodePrice)
+    public static List<ApprenticeshipInstalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<ApprenticeshipInstalment> instalments, ApprenticeshipEpisodePriceEntity lastEpisodePrice, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning)
     {
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var completionYear = completionDate.ToAcademicYear();
@@ -16,10 +16,11 @@ public static class BalancingInstalments
         var nextPeriodYear = completionDate.LastDayOfMonth().AddDays(1).ToAcademicYear();
         var completionOnTime = !instalments.Any(x => x.AcademicYear == nextPeriodYear && x.DeliveryPeriod == nextPeriod) && completionDate >= lastEpisodePrice.EndDate;
 
+        var lastPeriodHasRegularInstalment = instalments.Any(x => x.Type == InstalmentType.Regular && x.AcademicYear == completionYear && x.DeliveryPeriod == completionPeriod);
+
         //No balancing is required if either:
-        // there is no instalment for the completion period (it's after the current price episodes/end date)
-        // or the learner completed on time
-        if (completionOnTime)
+        // the learner completed on time and has a regular instalment for the last period (because they qualified for earnings and passed a census date for that period)
+        if (completionOnTime && lastPeriodHasRegularInstalment)
         {
             return instalments;
         }
