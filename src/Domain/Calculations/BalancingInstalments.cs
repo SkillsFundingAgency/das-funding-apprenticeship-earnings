@@ -7,7 +7,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class BalancingInstalments
 {
-    public static List<ApprenticeshipInstalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<ApprenticeshipInstalment> instalments, ApprenticeshipEpisodePriceEntity lastEpisodePrice, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning)
+    public static List<ApprenticeshipInstalment> BalanceInstalmentsForCompletion(DateTime completionDate, List<ApprenticeshipInstalment> instalments, ApprenticeshipEpisodePriceEntity lastEpisodePrice, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning, decimal onProgramTotal)
     {
         var completionPeriod = completionDate.ToDeliveryPeriod();
         var completionYear = completionDate.ToAcademicYear();
@@ -18,24 +18,24 @@ public static class BalancingInstalments
 
         var lastPeriodHasRegularInstalment = instalments.Any(x => x.Type == InstalmentType.Regular && x.AcademicYear == completionYear && x.DeliveryPeriod == completionPeriod);
 
+        var pastInstalmentsTotal = instalments
+            .Where(x => x.AcademicYear < completionYear || (x.AcademicYear == completionYear && x.DeliveryPeriod < completionPeriod))
+            .Sum(x => x.Amount);
+
+        var totalAmountIncludingCompletionPeriodRegular = instalments
+            .Where(x => x.AcademicYear < completionYear || (x.AcademicYear == completionYear && x.DeliveryPeriod <= completionPeriod))
+            .Sum(x => x.Amount);
+
         //No balancing is required if either:
         // the learner completed on time and has a regular instalment for the last period (because they qualified for earnings and passed a census date for that period)
-        if (completionOnTime && lastPeriodHasRegularInstalment)
+        // AND the regular instalment already perfectly covers the remaining amount.
+        if (completionOnTime && lastPeriodHasRegularInstalment && totalAmountIncludingCompletionPeriodRegular == onProgramTotal)
         {
             return instalments;
         }
 
         //Calculate the balancing amount
-        var balancingAmount = 0m;
-
-        foreach (var instalment in instalments)
-        {
-            if (instalment.AcademicYear > completionYear
-                || (instalment.AcademicYear == completionYear && instalment.DeliveryPeriod >= completionPeriod))
-            {
-                balancingAmount += instalment.Amount;
-            }
-        }
+        var balancingAmount = onProgramTotal - pastInstalmentsTotal;
 
         //Remove all instalments after and on the completion date
         instalments.RemoveAll(x =>
