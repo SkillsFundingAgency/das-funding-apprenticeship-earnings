@@ -15,6 +15,7 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
     public List<ApprenticeshipPeriodInLearningEntity> PeriodsInLearning { get; set; } = new();
     public DateTime? PauseDate { get; set; }
     public decimal FundingBandMaximum { get; set; }
+    public bool IsRemoved { get; set; }
 
     public ApprenticeshipEpisodeEntity()
     {

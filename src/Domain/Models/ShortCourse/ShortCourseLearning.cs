@@ -28,6 +28,11 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _episodes.Single();
     }
 
+    public void Remove()
+    {
+        GetEpisode().Remove();
+    }
+
     public void UpdateUnapprovedShortCourseInformation(ShortCourseUpdateModel updateModel)
     {
         _entity.Uln = updateModel.Uln;

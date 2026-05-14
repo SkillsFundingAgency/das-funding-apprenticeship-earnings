@@ -16,6 +16,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
+    public bool IsRemoved => _entity.IsRemoved;
     public long EmployerAccountId => _entity.EmployerAccountId;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
@@ -49,8 +50,30 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         return episode;
     }
 
+    public void Remove(ISystemClockService systemClock)
+    {
+        _entity.IsRemoved = true;
+        RemoveEarnings(systemClock);
+    }
+
+    private void RemoveEarnings(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null) return;
+        _earningsProfile.Update(
+            systemClock,
+            instalments: [],
+            additionalPayments: [],
+            mathsAndEnglishCourses: [],
+            onProgramTotal: 0m,
+            completionPayment: 0m,
+            calculationData: "{}");
+        UpdatePeriodsInLearning([]);
+    }
+
     public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
     {
+        _entity.IsRemoved = false;
+
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
 
         if (_entity.CompletionDate != null)
