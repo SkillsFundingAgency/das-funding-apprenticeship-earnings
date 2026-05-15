@@ -50,15 +50,24 @@ public static class OnProgramPayments
 
         if (survivingInstalments.Any() && nonQualifyingInstalments.Any())
         {
-            var amountToRedistribute = nonQualifyingInstalments.Sum(x => x.Amount);
-            var amountPerInstalment = decimal.Round(amountToRedistribute / survivingInstalments.Count, 5);
-            foreach (var instalment in survivingInstalments)
+            foreach (var nonQualifyingInstalment in nonQualifyingInstalments)
             {
-                instalment.UpdateAmount(instalment.Amount + amountPerInstalment);
-            }
+                var forwardsSurvivingInstalments = survivingInstalments.Where(x =>
+                    x.AcademicYear > nonQualifyingInstalment.AcademicYear ||
+                    (x.AcademicYear == nonQualifyingInstalment.AcademicYear && x.DeliveryPeriod > nonQualifyingInstalment.DeliveryPeriod)).ToList();
 
-            var remainder = amountToRedistribute - (amountPerInstalment * survivingInstalments.Count);
-            survivingInstalments.Last().UpdateAmount(survivingInstalments.Last().Amount + remainder);
+                if (forwardsSurvivingInstalments.Any())
+                {
+                    var amountPerInstalment = decimal.Round(nonQualifyingInstalment.Amount / forwardsSurvivingInstalments.Count, 5);
+                    foreach (var instalment in forwardsSurvivingInstalments)
+                    {
+                        instalment.UpdateAmount(instalment.Amount + amountPerInstalment);
+                    }
+
+                    var remainder = nonQualifyingInstalment.Amount - (amountPerInstalment * forwardsSurvivingInstalments.Count);
+                    forwardsSurvivingInstalments.Last().UpdateAmount(forwardsSurvivingInstalments.Last().Amount + remainder);
+                }
+            }
         }
 
         instalments.RemoveAll(x => nonQualifyingInstalments.Contains(x) || postWithdrawalInstalments.Contains(x));
