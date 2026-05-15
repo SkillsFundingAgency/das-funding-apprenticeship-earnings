@@ -32,8 +32,10 @@ public static class OnProgramPayments
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
+        
         var nonQualifyingInstalments = instalments.Where(x =>
             x.Type == InstalmentType.Regular &&
+            //In order for an instalment to be non-qualifying, there must be a non-qualifying period in learning which spans that instalment's delivery period.
             periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning))
         ).ToList();
 
@@ -52,6 +54,7 @@ public static class OnProgramPayments
         {
             foreach (var nonQualifyingInstalment in nonQualifyingInstalments)
             {
+                //Only redistribute earnings from non-qualifying PILs to future qualifying PILs, not backwards, as per requirements in FLP-1424
                 var forwardsSurvivingInstalments = survivingInstalments.Where(x =>
                     x.AcademicYear > nonQualifyingInstalment.AcademicYear ||
                     (x.AcademicYear == nonQualifyingInstalment.AcademicYear && x.DeliveryPeriod > nonQualifyingInstalment.DeliveryPeriod)).ToList();
