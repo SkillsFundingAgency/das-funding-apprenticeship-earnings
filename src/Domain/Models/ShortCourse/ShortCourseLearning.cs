@@ -1,5 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
@@ -21,17 +22,26 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _entity;
     }
 
-    public ShortCourseEpisode GetEpisode()
+    public override void Approve(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Approve();
+
+    public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
+
+    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData)
     {
-        // Intentionally fail if there are more as at the time of writing there should only ever be one episode for short course learning
-        // if this changes in the future this method will need to be rethought
-        return _episodes.Single();
+        var episode = GetShortCourseEpisode(episodeKey);
+        episode.UpdateCompletion(completionDate);
+        episode.UpdateWithdrawalDate(withdrawalDate);
+        episode.UpdateMilestones(milestones);
+        episode.CalculateShortCourseOnProgram(calculationData);
     }
 
-    public void UpdateUnapprovedShortCourseInformation(ShortCourseUpdateModel updateModel)
+    public void CalculateOnProgram(Guid episodeKey, string calculationData)
+        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData);
+
+    public void UpdateUnapprovedShortCourseInformation(Guid episodeKey, ShortCourseUpdateModel updateModel)
     {
         _entity.Uln = updateModel.Uln;
-        var episode = _entity.Episodes.Single();
+        var episode = _entity.Episodes.Single(e => e.Key == episodeKey);
         episode.TrainingCode = updateModel.CourseCode;
         episode.Ukprn = updateModel.Ukprn;
         episode.StartDate = updateModel.StartDate;
@@ -45,5 +55,11 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     public override void UpdateDateOfBirth(DateTime dateOfBirth)
     {
         _entity.DateOfBirth = dateOfBirth;
+    }
+
+    private ShortCourseEpisode GetShortCourseEpisode(Guid episodeKey)
+    {
+        return _episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey)
+            ?? throw new InvalidOperationException($"No episode found for key {episodeKey}");
     }
 }

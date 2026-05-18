@@ -28,7 +28,7 @@ public class WhenUpdatingShortCourseOnProgramme
     {
         var learningKey = Guid.NewGuid();
         var learning = BuildShortCourseLearning(learningKey);
-        var command = BuildCommand(learningKey, completionDate: new DateTime(2021, 5, 25));
+        var command = BuildCommand(learningKey, learning.Episodes.Single().EpisodeKey, completionDate: new DateTime(2021, 5, 25));
 
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
@@ -43,13 +43,13 @@ public class WhenUpdatingShortCourseOnProgramme
         var learningKey = Guid.NewGuid();
         var learning = BuildShortCourseLearning(learningKey);
         var completionDate = new DateTime(2021, 5, 25);
-        var command = BuildCommand(learningKey, completionDate: completionDate);
+        var command = BuildCommand(learningKey, learning.Episodes.Single().EpisodeKey, completionDate: completionDate);
 
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
         await BuildSut().Handle(command);
 
-        learning.GetEpisode().CompletionDate.Should().Be(completionDate);
+        learning.Episodes.Single().CompletionDate.Should().Be(completionDate);
     }
 
     [Test]
@@ -57,13 +57,13 @@ public class WhenUpdatingShortCourseOnProgramme
     {
         var learningKey = Guid.NewGuid();
         var learning = BuildShortCourseLearning(learningKey, existingCompletionDate: new DateTime(2021, 4, 1));
-        var command = BuildCommand(learningKey, completionDate: null);
+        var command = BuildCommand(learningKey, learning.Episodes.Single().EpisodeKey, completionDate: null);
 
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
         await BuildSut().Handle(command);
 
-        learning.GetEpisode().CompletionDate.Should().BeNull();
+        learning.Episodes.Single().CompletionDate.Should().BeNull();
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class WhenUpdatingShortCourseOnProgramme
     {
         var learningKey = Guid.NewGuid();
         var learning = BuildShortCourseLearning(learningKey);
-        var command = BuildCommand(learningKey, completionDate: new DateTime(2021, 5, 25));
+        var command = BuildCommand(learningKey, learning.Episodes.Single().EpisodeKey, completionDate: new DateTime(2021, 5, 25));
 
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
@@ -106,8 +106,8 @@ public class WhenUpdatingShortCourseOnProgramme
         new(_mockLogger.Object, _mockRepository.Object);
 
     private static UpdateShortCourseOnProgrammeCommand.UpdateShortCourseOnProgrammeCommand BuildCommand(
-        Guid learningKey, DateTime? completionDate = null) =>
-        new(learningKey, new UpdateShortCourseOnProgrammeCommand.UpdateShortCourseOnProgrammeRequest
+        Guid learningKey, Guid episodeKey, DateTime? completionDate = null) =>
+        new(learningKey, episodeKey, new UpdateShortCourseOnProgrammeCommand.UpdateShortCourseOnProgrammeRequest
         {
             CompletionDate = completionDate,
             Milestones = new List<Milestone>()

@@ -18,10 +18,10 @@ public class GetFm99ShortCourseEarningsQueryHandler : IQueryHandler<GetFm99Short
 
     public async Task<GetFm99ShortCourseEarningsResponse> Handle(GetFm99ShortCourseEarningsRequest query, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling GetShortCourseEarningsRequest for LearningKey: {learningKey} Ukprn: {ukprn}", query.LearningKey, query.Ukprn);
+        _logger.LogInformation("Handling GetShortCourseEarningsRequest for LearningKey: {learningKey} EpisodeKey: {episodeKey}", query.LearningKey, query.EpisodeKey);
 
         var earnings = await _dbContext.ShortCourseEpisodes
-            .Where(e => e.LearningKey == query.LearningKey && e.Ukprn == query.Ukprn)
+            .Where(e => e.LearningKey == query.LearningKey && e.Key == query.EpisodeKey)
             .Where(e => e.EarningsProfile != null)
             .SelectMany(e => e.EarningsProfile!.Instalments)
             .Select(i => new GetFm99ShortCourseEarningsResponse.Earning

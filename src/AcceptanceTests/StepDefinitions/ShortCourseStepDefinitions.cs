@@ -2,15 +2,11 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Learning.Types;
 using System.Text.Json;
 using TechTalk.SpecFlow.Assist;
 
@@ -57,11 +53,9 @@ public class ShortCourseStepDefinitions
     public async Task WhenIRequestTheShortCourseEarnings()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        var learningKey = request.LearningKey;
-        var ukprn = request.OnProgramme.Ukprn;
 
         var response = await _testContext.TestInnerApi.Get<GetFm99ShortCourseEarningsResponse>(
-            $"/fm99/{learningKey}/shortCourses?ukprn={ukprn}");
+            $"/fm99/{request.LearningKey}/shortCourses/{request.EpisodeKey}");
 
         _scenarioContext.Set(response);
     }
@@ -113,7 +107,7 @@ public class ShortCourseStepDefinitions
             .WithDataFromSetupModel(data)
             .Build();
 
-        var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/on-programme", updateOnProgrammeRequest);
+        var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/{shortCourseCreateRequest.EpisodeKey}/on-programme", updateOnProgrammeRequest);
 
         var shortCourseEntity = await GetLearningEntity(shortCourseCreateRequest.LearningKey);
 
@@ -160,8 +154,7 @@ public class ShortCourseStepDefinitions
     {
         var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
 
-        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(shortCourseCreateRequest.LearningKey);
-        var response = await _testContext.TestInnerApi.Get<GetShortCourseResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses?ukprn={entity.Episodes.Single().Ukprn}");
+        var response = await _testContext.TestInnerApi.Get<GetShortCourseResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/{shortCourseCreateRequest.EpisodeKey}");
 
         _scenarioContext.Set(response);
     }
@@ -220,7 +213,7 @@ public class ShortCourseStepDefinitions
     public async Task WhenTheShortCourseLearningIsDeleted()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses");
+        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}");
     }
 
     [Then(@"the short course has no instalments")]

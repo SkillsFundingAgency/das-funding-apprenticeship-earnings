@@ -39,8 +39,10 @@ public class WhenCreatingUnapprovedShortCourseLearning
 
         var shortCourse = ShortCourseLearning.Get(_fixture
             .Build<ShortCourseLearningEntity>()
-            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { 
-                _fixture.Build<ShortCourseEpisodeEntity>().Create() 
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> {
+                _fixture.Build<ShortCourseEpisodeEntity>()
+                    .With(x => x.Key, request.EpisodeKey)
+                    .Create()
             })
             .Create());
 
@@ -75,7 +77,9 @@ public class WhenCreatingUnapprovedShortCourseLearning
             .With(x => x.LearningKey, request.LearningKey)
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity>
             {
-                _fixture.Build<ShortCourseEpisodeEntity>().Create()
+                _fixture.Build<ShortCourseEpisodeEntity>()
+                    .With(x => x.Key, request.EpisodeKey)
+                    .Create()
             }).Create());
 
         _mockRepository
