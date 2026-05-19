@@ -15,7 +15,7 @@ public class UnapprovedShortCourseSetupModel
 
 public static class UnapprovedShortCourseSetupModelExtensions
 {
-    public static CreateUnapprovedShortCourseLearningRequest ToApiRequest(this UnapprovedShortCourseSetupModel model, Guid? learningKey = null)
+    public static CreateUnapprovedShortCourseLearningRequest ToApiRequest(this UnapprovedShortCourseSetupModel model, Guid? learningKey = null, Guid? episodeKey = null)
     {
         var age = model.Age ?? 18;
         var startDate = model.StartDate ?? new DateTime(2022, 01, 01);
@@ -26,6 +26,7 @@ public static class UnapprovedShortCourseSetupModelExtensions
         return new CreateUnapprovedShortCourseLearningRequest
         {
             LearningKey = learningKey ?? Guid.NewGuid(),
+            EpisodeKey = episodeKey ?? Guid.NewGuid(),
             Learner = new Learner
             {
                 DateOfBirth = startDate.AddYears(age * -1),

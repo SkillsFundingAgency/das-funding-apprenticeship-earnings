@@ -31,7 +31,22 @@ public class ShortCourseStepDefinitions
 
         var request = table
             .CreateInstance<UnapprovedShortCourseSetupModel>()
-            .ToApiRequest(existingRequest?.LearningKey);
+            .ToApiRequest(existingRequest?.LearningKey, existingRequest?.EpisodeKey);
+
+        _scenarioContext.Set(request);
+
+        await _testContext.TestInnerApi.Post($"/shortCourses", request);
+    }
+
+    [Given("a short course has been created by a new provider with the following information")]
+    public async Task CreateUnapprovedShortCourseLearningForNewProvider(Table table)
+    {
+        _scenarioContext.TryGetValue<CreateUnapprovedShortCourseLearningRequest>(out var existingRequest);
+
+        // Reuse LearningKey (same learner) but generate a fresh EpisodeKey (new provider)
+        var request = table
+            .CreateInstance<UnapprovedShortCourseSetupModel>()
+            .ToApiRequest(existingRequest?.LearningKey, episodeKey: null);
 
         _scenarioContext.Set(request);
 
@@ -222,6 +237,14 @@ public class ShortCourseStepDefinitions
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
         entity!.Episodes.First().EarningsProfile.Instalments.Should().BeEmpty();
+    }
+
+    [Then(@"the learning has (\d+) episodes")]
+    public async Task ThenTheLearningHasEpisodes(int expectedCount)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        entity!.Episodes.Should().HaveCount(expectedCount);
     }
 
     private async Task<ShortCourseLearningEntity> GetLearningEntity(Guid learningKey)

@@ -32,7 +32,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
 
         var existingShortCourse = await _learningRepository.GetShortCourseLearning(command.Request.LearningKey);
 
-        if (existingShortCourse != null)
+        if (existingShortCourse != null && existingShortCourse.HasEpisode(command.Request.EpisodeKey))
         {
             existingShortCourse.UpdateDateOfBirth(command.Request.Learner.DateOfBirth);
             existingShortCourse.UpdateUnapprovedShortCourseInformation(command.Request.EpisodeKey, new ShortCourseUpdateModel
@@ -48,6 +48,13 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 Milestones = command.Request.OnProgramme.Milestones
             });
 
+            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
+
+            await _learningRepository.Update(existingShortCourse);
+        }
+        else if (existingShortCourse != null)
+        {
+            existingShortCourse.AddUnapprovedEpisode(command.Request);
             existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Update(existingShortCourse);
