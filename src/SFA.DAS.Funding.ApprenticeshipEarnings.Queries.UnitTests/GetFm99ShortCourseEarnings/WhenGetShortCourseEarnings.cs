@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -6,12 +10,8 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetShortCourseEarnings;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetFm99ShortCourseEarnings;
 
 [TestFixture]
 public class WhenGetShortCourseEarnings
@@ -38,7 +38,7 @@ public class WhenGetShortCourseEarnings
     [Test]
     public async Task Handle_LearningNotFound_ReturnsEmptyEarnings()
     {
-        var query = new GetFm99ShortCourseEarningsRequest(Guid.NewGuid(), Guid.NewGuid());
+        var query = new GetFm99ShortCourseEarningsRequest(Guid.NewGuid(), 10005077);
 
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
@@ -49,10 +49,10 @@ public class WhenGetShortCourseEarnings
     public async Task Handle_LearningExists_ReturnsMappedEarnings()
     {
         var learningKey = Guid.NewGuid();
-        var episodeKey = Guid.NewGuid();
-        var query = new GetFm99ShortCourseEarningsRequest(learningKey, episodeKey);
+        const long ukprn = 10005077;
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn);
 
-        await SeedEpisodeWithInstalments(learningKey, episodeKey, new List<ShortCourseInstalmentEntity>
+        await SeedEpisodeWithInstalments(learningKey, ukprn, new List<ShortCourseInstalmentEntity>
         {
             new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 7, Amount = 600, Type = "ThirtyPercentLearningComplete" },
             new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 11, Amount = 1400, Type = "LearningComplete" }
@@ -74,19 +74,19 @@ public class WhenGetShortCourseEarnings
     }
 
     [Test]
-    public async Task Handle_EpisodeKeyDoesNotMatch_ReturnsEmptyEarnings()
+    public async Task Handle_UkprnDoesNotMatch_ReturnsEmptyEarnings()
     {
         var learningKey = Guid.NewGuid();
-        var query = new GetFm99ShortCourseEarningsRequest(learningKey, Guid.NewGuid());
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, 99999999);
 
-        await SeedEpisodeWithInstalments(learningKey, Guid.NewGuid(), new List<ShortCourseInstalmentEntity>());
+        await SeedEpisodeWithInstalments(learningKey, 10005077, new List<ShortCourseInstalmentEntity>());
 
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         result.Earnings.Should().BeEmpty();
     }
 
-    private async Task SeedEpisodeWithInstalments(Guid learningKey, Guid episodeKey, List<ShortCourseInstalmentEntity> instalments)
+    private async Task SeedEpisodeWithInstalments(Guid learningKey, long ukprn, List<ShortCourseInstalmentEntity> instalments)
     {
         var earningsProfile = new ShortCourseEarningsProfileEntity
         {
@@ -97,9 +97,9 @@ public class WhenGetShortCourseEarnings
 
         var episode = new ShortCourseEpisodeEntity
         {
-            Key = episodeKey,
+            Key = Guid.NewGuid(),
             LearningKey = learningKey,
-            Ukprn = 10005077,
+            Ukprn = ukprn,
             TrainingCode = "SC001",
             StartDate = new DateTime(2021, 1, 1),
             EndDate = new DateTime(2021, 6, 25),
