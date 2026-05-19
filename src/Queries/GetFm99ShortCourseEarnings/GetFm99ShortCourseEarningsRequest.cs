@@ -5,11 +5,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarni
 public class GetFm99ShortCourseEarningsRequest : IQuery
 {
     public Guid LearningKey { get; }
-    public Guid EpisodeKey { get; }
+    public long Ukprn { get; }
 
-    public GetFm99ShortCourseEarningsRequest(Guid learningKey, Guid episodeKey)
+    public GetFm99ShortCourseEarningsRequest(Guid learningKey, long ukprn)
     {
         LearningKey = learningKey;
-        EpisodeKey = episodeKey;
+        Ukprn = ukprn;
     }
 }

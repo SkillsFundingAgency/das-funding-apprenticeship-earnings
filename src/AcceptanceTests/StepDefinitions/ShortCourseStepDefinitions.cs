@@ -70,7 +70,7 @@ public class ShortCourseStepDefinitions
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
 
         var response = await _testContext.TestInnerApi.Get<GetFm99ShortCourseEarningsResponse>(
-            $"/fm99/{request.LearningKey}/shortCourses/{request.EpisodeKey}");
+            $"/fm99/{request.LearningKey}/shortCourses?ukprn={request.OnProgramme.Ukprn}");
 
         _scenarioContext.Set(response);
     }

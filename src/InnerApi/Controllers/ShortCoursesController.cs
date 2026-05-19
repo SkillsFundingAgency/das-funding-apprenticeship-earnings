@@ -58,16 +58,16 @@ public class ShortCoursesController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("/fm99/{learningKey}/shortCourses/{episodeKey}")]
-    public async Task<IActionResult> GetFm99ShortCourseEarnings(Guid learningKey, Guid episodeKey)
+    [HttpGet("/fm99/{learningKey}/shortCourses")]
+    public async Task<IActionResult> GetFm99ShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn)
     {
         _logger.LogInformation(
-            "Received request to get fm99 short course earnings for LearningKey {LearningKey} and EpisodeKey {EpisodeKey}",
-            learningKey, episodeKey);
+            "Received request to get fm99 short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
+            learningKey, ukprn);
 
         try
         {
-            var request = new GetFm99ShortCourseEarningsRequest(learningKey, episodeKey);
+            var request = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn);
             var response = await _queryDispatcher.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(request);
             return Ok(response);
         }
@@ -75,8 +75,8 @@ public class ShortCoursesController : ControllerBase
         {
             _logger.LogError(
                 ex,
-                "Error getting short course earnings for LearningKey {LearningKey} and EpisodeKey {EpisodeKey}",
-                learningKey, episodeKey);
+                "Error getting short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
+                learningKey, ukprn);
 
             return StatusCode(500);
         }
