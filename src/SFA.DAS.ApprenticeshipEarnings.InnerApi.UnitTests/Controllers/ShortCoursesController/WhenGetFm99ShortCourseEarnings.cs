@@ -35,7 +35,7 @@ public class WhenGetFm99ShortCourseEarnings
     public async Task Then_Returns_Ok_With_Earnings_On_Success()
     {
         var learningKey = _fixture.Create<Guid>();
-        var episodeKey = _fixture.Create<Guid>();
+        var ukprn = _fixture.Create<long>();
         var expectedResponse = new GetFm99ShortCourseEarningsResponse
         {
             Earnings = new List<GetFm99ShortCourseEarningsResponse.Earning>
@@ -47,10 +47,10 @@ public class WhenGetFm99ShortCourseEarnings
 
         _queryDispatcherMock
             .Setup(x => x.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(
-                It.Is<GetFm99ShortCourseEarningsRequest>(r => r.LearningKey == learningKey && r.EpisodeKey == episodeKey)))
+                It.Is<GetFm99ShortCourseEarningsRequest>(r => r.LearningKey == learningKey && r.Ukprn == ukprn)))
             .ReturnsAsync(expectedResponse);
 
-        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, episodeKey);
+        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
 
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
@@ -61,14 +61,14 @@ public class WhenGetFm99ShortCourseEarnings
     public async Task Then_Returns_InternalServerError_On_Exception()
     {
         var learningKey = _fixture.Create<Guid>();
-        var episodeKey = _fixture.Create<Guid>();
+        var ukprn = _fixture.Create<long>();
 
         _queryDispatcherMock
             .Setup(x => x.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(
                 It.IsAny<GetFm99ShortCourseEarningsRequest>()))
             .ThrowsAsync(new Exception("Test exception"));
 
-        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, episodeKey);
+        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
 
         result.Should().BeOfType<StatusCodeResult>();
         ((StatusCodeResult)result).StatusCode.Should().Be(500);
