@@ -53,17 +53,17 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
 
+        if (LastDayOfLearning.HasValue)
+        {
+            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, EpisodePeriodsInLearning, LastDayOfLearning.Value);
+            additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
+        }
+
         if (_entity.CompletionDate != null)
         {
             instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.MaxBy(x => x.EndDate), EpisodePeriodsInLearning, onProgramTotal);
             var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.CompletionDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
             instalments = instalments.Append(completionInstalment).ToList();
-        }
-
-        if (LastDayOfLearning.HasValue)
-        {
-            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, EpisodePeriodsInLearning, LastDayOfLearning.Value);
-            additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
         }
 
         if (_earningsProfile == null)
