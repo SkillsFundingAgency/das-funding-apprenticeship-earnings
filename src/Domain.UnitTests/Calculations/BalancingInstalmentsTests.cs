@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
@@ -24,9 +25,10 @@ public class BalancingInstalmentsTests
             new ApprenticeshipInstalment(2324, 11, 300, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 7, 15);
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new ApprenticeshipPeriodInLearning(Guid.NewGuid(), new DateTime(2023, 8, 1), plannedEndDate, plannedEndDate) };
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity{ EndDate = plannedEndDate }, periodsInLearning, 800m);
 
         // Assert
         result.Should().BeEquivalentTo(instalments);
@@ -49,11 +51,12 @@ public class BalancingInstalmentsTests
             new ApprenticeshipInstalment(completionYear, 12, 400, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 7, 15);
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new ApprenticeshipPeriodInLearning(Guid.NewGuid(), new DateTime(2023, 8, 1), plannedEndDate, plannedEndDate) };
 
         var expectedBalancingAmount = 500;
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate }, periodsInLearning, 1000m);
 
         // Assert
         result.Should().ContainSingle(x =>
@@ -81,9 +84,10 @@ public class BalancingInstalmentsTests
             new ApprenticeshipInstalment(completionYear, 10, 200, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 7, 11);
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new ApprenticeshipPeriodInLearning(Guid.NewGuid(), new DateTime(2023, 8, 1), plannedEndDate, plannedEndDate) };
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate }, periodsInLearning, 300m);
 
         // Assert
         result.Should().NotContain(x => x.Type == InstalmentType.Balancing);
@@ -109,11 +113,43 @@ public class BalancingInstalmentsTests
             new ApprenticeshipInstalment(completionYear, 10, 200, priceKey)
         };
         var plannedEndDate = new DateTime(2024, 6, 30); //census date for R11
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearning> { new ApprenticeshipPeriodInLearning(Guid.NewGuid(), new DateTime(2023, 8, 1), plannedEndDate, plannedEndDate) };
 
         // Act
-        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), plannedEndDate);
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate }, periodsInLearning, 300m);
 
         // Assert
         result.Should().Contain(x => x.DeliveryPeriod == completionPeriod && x.Type == InstalmentType.Balancing);
+    }
+
+    [Test]
+    public void BalanceInstalmentsForCompletion_ShouldAddBalancingInstalment_IfCompletionOnTimeButLastPeriodDidNotQualifyOrMeetCensusDate()
+    {
+        // Arrange
+        var completionDate = new DateTime(2024, 9, 15); // On time completion
+        var completionYear = completionDate.ToAcademicYear();
+        var completionPeriod = completionDate.ToDeliveryPeriod();
+        var priceKey = Guid.NewGuid();
+
+        // previous period
+        var instalments = new List<ApprenticeshipInstalment>
+        {
+            new ApprenticeshipInstalment(completionYear, 1, 1000, priceKey) // Previous period
+        };
+        var plannedEndDate = new DateTime(2024, 9, 10);
+        
+        // non-qualifying period that also does not reach a census date
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearning> 
+        { 
+            new ApprenticeshipPeriodInLearning(Guid.NewGuid(), new DateTime(2024, 9, 1), plannedEndDate, plannedEndDate) 
+        };
+
+        var onProgramTotal = 1200m;
+
+        // Act
+        var result = BalancingInstalments.BalanceInstalmentsForCompletion(completionDate, new List<ApprenticeshipInstalment>(instalments), new ApprenticeshipEpisodePriceEntity { EndDate = plannedEndDate }, periodsInLearning, onProgramTotal);
+
+        // Assert
+        result.Should().Contain(x => x.DeliveryPeriod == completionPeriod && x.Type == InstalmentType.Balancing && x.Amount == 200m);
     }
 }

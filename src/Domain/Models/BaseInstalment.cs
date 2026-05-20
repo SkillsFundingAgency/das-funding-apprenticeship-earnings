@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
@@ -43,6 +43,11 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
     public TEntity GetEntity()
     {
         return _entity;
+    }
+
+    public void UpdateAmount(decimal amount)
+    {
+        _entity.Amount = amount;
     }
 
     public bool AreSame(TEntity? compare)

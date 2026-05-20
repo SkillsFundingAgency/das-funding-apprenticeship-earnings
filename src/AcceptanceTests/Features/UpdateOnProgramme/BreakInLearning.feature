@@ -1,4 +1,4 @@
-﻿Feature: BreakInLearning
+Feature: BreakInLearning
 
 Acceptance tests related to breaks in learning
 
