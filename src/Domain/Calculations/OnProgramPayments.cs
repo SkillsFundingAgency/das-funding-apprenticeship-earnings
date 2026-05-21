@@ -33,8 +33,10 @@ public static class OnProgramPayments
         var academicYear = lastDayOfLearning.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.ToDeliveryPeriod();
 
+        
         var nonQualifyingInstalments = instalments.Where(x =>
             x.Type == InstalmentType.Regular &&
+            //In order for an instalment to be non-qualifying, there must be a non-qualifying period in learning which spans that instalment's delivery period.
             periodsInLearning.Any(p => !p.QualifiesForEarnings(lastDayOfLearning) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning))
         ).ToList();
 
@@ -51,15 +53,25 @@ public static class OnProgramPayments
 
         if (survivingInstalments.Any() && nonQualifyingInstalments.Any())
         {
-            var amountToRedistribute = nonQualifyingInstalments.Sum(x => x.Amount);
-            var amountPerInstalment = decimal.Round(amountToRedistribute / survivingInstalments.Count, 5);
-            foreach (var instalment in survivingInstalments)
+            foreach (var nonQualifyingInstalment in nonQualifyingInstalments)
             {
-                instalment.UpdateAmount(instalment.Amount + amountPerInstalment);
-            }
+                //Only redistribute earnings from non-qualifying PILs to future qualifying PILs, not backwards, as per requirements in FLP-1424
+                var forwardsSurvivingInstalments = survivingInstalments.Where(x =>
+                    x.AcademicYear > nonQualifyingInstalment.AcademicYear ||
+                    (x.AcademicYear == nonQualifyingInstalment.AcademicYear && x.DeliveryPeriod > nonQualifyingInstalment.DeliveryPeriod)).ToList();
 
-            var remainder = amountToRedistribute - (amountPerInstalment * survivingInstalments.Count);
-            survivingInstalments.Last().UpdateAmount(survivingInstalments.Last().Amount + remainder);
+                if (forwardsSurvivingInstalments.Any())
+                {
+                    var amountPerInstalment = decimal.Round(nonQualifyingInstalment.Amount / forwardsSurvivingInstalments.Count, 5);
+                    foreach (var instalment in forwardsSurvivingInstalments)
+                    {
+                        instalment.UpdateAmount(instalment.Amount + amountPerInstalment);
+                    }
+
+                    var remainder = nonQualifyingInstalment.Amount - (amountPerInstalment * forwardsSurvivingInstalments.Count);
+                    forwardsSurvivingInstalments.Last().UpdateAmount(forwardsSurvivingInstalments.Last().Amount + remainder);
+                }
+            }
         }
 
         instalments.RemoveAll(x => nonQualifyingInstalments.Contains(x) || postWithdrawalInstalments.Contains(x));

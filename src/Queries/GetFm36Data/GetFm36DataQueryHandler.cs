@@ -40,6 +40,10 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             .Include(x => x.Episodes)
                 .ThenInclude(x => x.EarningsProfile)
                     .ThenInclude(x => x.ApprenticeshipAdditionalPayments)
+            .Include(x => x.Episodes)
+                .ThenInclude(x=> x.EarningsProfile)
+                    .ThenInclude(x => x.EnglishAndMathsCourses)
+                        .ThenInclude(x => x.Instalments)
             .AsNoTracking()
             .AsSplitQuery();
 
@@ -105,7 +109,22 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 DueDate = p.DueDate
             }).ToList(),
             CompletionPayment = profile?.CompletionPayment ?? 0,
-            OnProgramTotal = profile?.OnProgramTotal ?? 0
+            OnProgramTotal = profile?.OnProgramTotal ?? 0,
+            EnglishAndMaths = (profile?.EnglishAndMathsCourses ?? []).Select(em => new EnglishAndMaths
+            {
+                LearnAimRef = em.LearnAimRef,
+                StartDate = em.StartDate,
+                EndDate = em.EndDate,
+                Course = em.Course,
+                Instalments = (em.Instalments ?? []).Select(i => new EnglishAndMathsInstalment
+                {
+                    AcademicYear = i.AcademicYear,
+                    DeliveryPeriod = i.DeliveryPeriod,
+                    Amount = i.Amount,
+                    InstalmentType = i.Type
+                }).ToList()
+
+            }).ToList()
         };
     }
 

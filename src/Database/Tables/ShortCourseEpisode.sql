@@ -11,7 +11,8 @@ CREATE TABLE [Domain].[ShortCourseEpisode]
     [StartDate] DATETIME NOT NULL, 
     [EndDate] DATETIME NOT NULL, 
     [CoursePrice] DECIMAL(15,5) NOT NULL,
-    [Milestones] INT NOT NULL DEFAULT 0
+    [Milestones] INT NOT NULL DEFAULT 0,
+    [IsRemoved] BIT NOT NULL DEFAULT 0
 )
 GO
 ALTER TABLE Domain.ShortCourseEpisode

@@ -42,7 +42,7 @@ public static class EnglishAndMathsPayments
 
         var adjustedAmount =
             mathsAndEnglish.CombinedFundingAdjustmentPercentage is > 0
-                ? mathsAndEnglish.Amount * mathsAndEnglish.CombinedFundingAdjustmentPercentage.Value / 100m
+                ? mathsAndEnglish.Amount * mathsAndEnglish.CombinedFundingAdjustmentPercentage.Value
                 : mathsAndEnglish.Amount;
 
         return new InstalmentCalculationContext(

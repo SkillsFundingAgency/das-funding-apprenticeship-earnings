@@ -10,7 +10,7 @@
     [PauseDate] DATETIME NULL, 
     [CompletionDate] DATETIME NULL, 
     [LearnAimRef] VARCHAR(8) NOT NULL DEFAULT '',
-    [CombinedFundingAdjustmentPercentage] INT NULL,
+    [CombinedFundingAdjustmentPercentage] DECIMAL(18, 6) NULL,
 )
 GO
 

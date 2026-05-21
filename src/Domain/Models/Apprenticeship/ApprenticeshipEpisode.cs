@@ -52,23 +52,24 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
     {
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
+   
+        // Qualifying period logic must happen before completion and balancing
+        if (LastDayOfLearning.HasValue)
+        {
+            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, EpisodePeriodsInLearning, LastDayOfLearning.Value);
+            additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
+        }
 
         // Completion date drives balancing instalments, achievement date drives completion instalments. This may be updated in FLP-1515 to reduce this confusion.
         if (_entity.CompletionDate != null)
         {
-            instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.Max(x => x.EndDate));
+            instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.MaxBy(x => x.EndDate), EpisodePeriodsInLearning, onProgramTotal);
         }
 
         if (_entity.AchievementDate != null)
         {
             var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.AchievementDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
             instalments = instalments.Append(completionInstalment).ToList();
-        }
-
-        if (LastDayOfLearning.HasValue)
-        {
-            instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, EpisodePeriodsInLearning, LastDayOfLearning.Value);
-            additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
         }
 
         if (_earningsProfile == null)
