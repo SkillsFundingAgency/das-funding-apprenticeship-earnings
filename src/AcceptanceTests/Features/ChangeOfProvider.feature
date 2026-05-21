@@ -7,4 +7,4 @@ Scenario: Second provider creates a new episode on an existing learning record
 	And a short course has been created by a new provider with the following information
 		| StartDate  | ExpectedEndDate | TotalPrice |
 		| 2021-02-01 | 2021-07-25      |       3000 |
-	Then the learning has 2 episodes
+	Then the short course learning has 2 episodes

@@ -239,8 +239,8 @@ public class ShortCourseStepDefinitions
         entity!.Episodes.First().EarningsProfile.Instalments.Should().BeEmpty();
     }
 
-    [Then(@"the learning has (\d+) episodes")]
-    public async Task ThenTheLearningHasEpisodes(int expectedCount)
+    [Then(@"the short course learning has (\d+) episodes")]
+    public async Task ThenTheShortCourseLearningHasEpisodes(int expectedCount)
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
