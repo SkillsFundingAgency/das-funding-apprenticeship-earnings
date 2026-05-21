@@ -147,7 +147,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
                 new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
             };
 
-            var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1;
+            var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate!.Value).Days - 1;
 
             // Act
             var result = IncentivePaymentsCalculator.GenerateUnder19sIncentivePayments(17, startDate, endDate, periodsInLearning);
@@ -252,7 +252,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
                 new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(71), endDate, endDate)
             };
 
-            var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1;
+            var breakDuration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate!.Value).Days - 1;
 
             // Act
             var result = IncentivePaymentsCalculator.Generate19To24IncentivePayments(
@@ -297,8 +297,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.IncentivePayme
                 new ApprenticeshipPeriodInLearning(Guid.Empty, startDate.AddDays(151), endDate, endDate)
             };
 
-            var break1Duration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate).Days - 1; // 41
-            var break2Duration = (periodsInLearning[2].StartDate - periodsInLearning[1].EndDate).Days - 1; // 31
+            var break1Duration = (periodsInLearning[1].StartDate - periodsInLearning[0].EndDate!.Value).Days - 1; // 41
+            var break2Duration = (periodsInLearning[2].StartDate - periodsInLearning[1].EndDate!.Value).Days - 1; // 31
             var totalBreakDuration = break1Duration + break2Duration;
 
             // Act

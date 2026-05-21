@@ -64,7 +64,7 @@ public static class EnglishAndMathsPayments
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
-            while (paymentDate <= periodInLearning.EndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
+            while (paymentDate <= periodInLearning.EffectiveEndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
             {
                 context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
 

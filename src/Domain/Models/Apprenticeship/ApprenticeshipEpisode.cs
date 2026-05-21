@@ -191,7 +191,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         // Select prices that overlap with this period
         var pricesInPeriod = allPrices
-            .Where(p => p.StartDate <= periodInLearning.EndDate && p.EndDate >= periodInLearning.StartDate);
+            .Where(p => p.StartDate <= periodInLearning.EffectiveEndDate && p.EndDate >= periodInLearning.StartDate);
 
         // Clip prices to the boundaries of the period
         var pricePeriods = pricesInPeriod
@@ -201,8 +201,8 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
                     ? periodInLearning.StartDate
                     : price.StartDate;
 
-                var endDate = price.EndDate > periodInLearning.EndDate
-                    ? periodInLearning.EndDate
+                var endDate = price.EndDate > periodInLearning.EffectiveEndDate
+                    ? periodInLearning.EffectiveEndDate
                     : price.EndDate;
 
                 return new PriceInPeriod(price, startDate, endDate, periodInLearning.OriginalExpectedEndDate);

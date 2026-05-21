@@ -10,12 +10,13 @@ public class ApprenticeshipPeriodInLearning
     public Guid Key => _entity.Key;
     public Guid EpisodeKey => _entity.EpisodeKey;
     public DateTime StartDate => _entity.StartDate;
-    public DateTime EndDate => _entity.EndDate;
+    public DateTime? EndDate => _entity.EndDate;
     public DateTime OriginalExpectedEndDate => _entity.OriginalExpectedEndDate;
-    public int DurationInCensusDates => StartDate.NumberOfCensusDates(EndDate);
-    public int Duration => (_entity.EndDate - _entity.StartDate).Days + 1;
+    public DateTime EffectiveEndDate => EndDate ?? OriginalExpectedEndDate;
+    public int DurationInCensusDates => StartDate.NumberOfCensusDates(EffectiveEndDate);
+    public int Duration => (EffectiveEndDate - _entity.StartDate).Days + 1;
 
-    public ApprenticeshipPeriodInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
+    public ApprenticeshipPeriodInLearning(Guid episodeKey, DateTime startDate, DateTime? endDate, DateTime originalExpectedEndDate)
     {
         _entity = new ApprenticeshipPeriodInLearningEntity
         {
