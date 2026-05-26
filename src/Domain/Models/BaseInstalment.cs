@@ -57,6 +57,7 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
 
         return AcademicYear == compare.AcademicYear &&
                DeliveryPeriod == compare.DeliveryPeriod &&
-               Amount == compare.Amount;
+               Amount == compare.Amount &&
+               _entity.Type == compare.Type;
     }
 }

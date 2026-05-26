@@ -1,4 +1,4 @@
-﻿CREATE TABLE [Domain].[ShortCourseEpisode]
+CREATE TABLE [Domain].[ShortCourseEpisode]
 (
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[LearningKey] UNIQUEIDENTIFIER NOT NULL, 
@@ -6,6 +6,7 @@
     [FundingType] NVARCHAR(50) NOT NULL, 
     [TrainingCode] NCHAR(50) NOT NULL,
     [CompletionDate] DATETIME NULL, 
+    [AchievementDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
     [StartDate] DATETIME NOT NULL, 
     [EndDate] DATETIME NOT NULL, 

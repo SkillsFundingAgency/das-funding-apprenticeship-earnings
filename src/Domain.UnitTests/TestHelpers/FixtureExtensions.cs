@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
@@ -93,7 +93,10 @@ internal static class FixtureExtensions
                 StartDate = p.StartDate,
                 EndDate = p.EndDate,
                 OriginalExpectedEndDate = p.OriginalExpectedEndDate
-            }).ToList()
+            }).ToList(),
+            WithdrawalDate = x.WithdrawalDate,
+            CompletionDate = x.CompletionDate,
+            AchievementDate = x.AchievementDate
         }).ToList();
 
         return ApprenticeshipLearning.Get(learningEntity);
@@ -141,7 +144,8 @@ internal static class FixtureExtensions
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
-            EpisodePriceKey = i.EpisodePriceKey
+            EpisodePriceKey = i.EpisodePriceKey,
+            Type = i.Type.ToString()
         }).ToList();
 
         var additionalPayments = earningsProfile.AdditionalPayments.Select(p => new ApprenticeshipAdditionalPaymentEntity

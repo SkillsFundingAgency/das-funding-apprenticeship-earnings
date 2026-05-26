@@ -66,6 +66,7 @@ Scenario: Qualifying first period, break, returning in second period with comple
 	When the following on-programme request is sent
 		| Key               | Value                                                                                                  |
 		| CompletionDate    | 2023-04-30                                                                                             |
+		| AchievementDate   | 2023-04-30                                                                                             |
 		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-03-15, OriginalExpectedEndDate:2023-12-31                           |
 		| PeriodsInLearning | StartDate:2023-04-20, EndDate:2023-04-30, OriginalExpectedEndDate:2023-05-03                           |
 	Then the instalments are balanced as follows
@@ -86,6 +87,7 @@ Scenario: Qualifying first period, break, returning in second period with comple
 	When the following on-programme request is sent
 		| Key               | Value                                                                                                  |
 		| CompletionDate    | 2023-04-30                                                                                             |
+		| AchievementDate   | 2023-04-30                                                                                             |
 		| PeriodsInLearning | StartDate:2023-01-01, EndDate:2023-03-15, OriginalExpectedEndDate:2023-12-31                           |
 		| PeriodsInLearning | StartDate:2023-04-30, EndDate:2023-04-30, OriginalExpectedEndDate:2023-05-12                           |
 	Then the instalments are balanced as follows
