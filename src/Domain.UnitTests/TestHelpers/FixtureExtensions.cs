@@ -144,7 +144,8 @@ internal static class FixtureExtensions
             AcademicYear = i.AcademicYear,
             DeliveryPeriod = i.DeliveryPeriod,
             Amount = i.Amount,
-            EpisodePriceKey = i.EpisodePriceKey
+            EpisodePriceKey = i.EpisodePriceKey,
+            Type = i.Type.ToString()
         }).ToList();
 
         var additionalPayments = earningsProfile.AdditionalPayments.Select(p => new ApprenticeshipAdditionalPaymentEntity
