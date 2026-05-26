@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using FundingType = SFA.DAS.Learning.Types.FundingType;
@@ -28,6 +28,7 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : 
     public override TEarningProfileDomainModel? EarningsProfile => _earningsProfile;
     public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;
     public DateTime? CompletionDate => _entity.CompletionDate;
+    public DateTime? AchievementDate => _entity.AchievementDate;
     public DateTime? WithdrawalDate => _entity.WithdrawalDate;
 
     protected BaseEpisode(TEpisodeEntity model, Action<AggregateComponent> addChildToRoot) : base(addChildToRoot)
@@ -38,6 +39,11 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate, ISystemClockService systemClock)
     {
         _entity.WithdrawalDate = withdrawalDate;
+    }
+
+    public void UpdateAchievementDate(DateTime? achievementDate)
+    {
+        _entity.AchievementDate = achievementDate;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
@@ -50,6 +50,7 @@ public class EnglishAndMathsInstalment : IDomainEntity<EnglishAndMathsInstalment
             return false;
         return AcademicYear == compare.AcademicYear &&
                DeliveryPeriod == compare.DeliveryPeriod &&
-               Amount == compare.Amount;
+               Amount == compare.Amount &&
+               _entity.Type == compare.Type;
     }
 }

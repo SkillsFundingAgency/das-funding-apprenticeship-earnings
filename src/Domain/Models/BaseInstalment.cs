@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
@@ -45,6 +45,11 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
         return _entity;
     }
 
+    public void UpdateAmount(decimal amount)
+    {
+        _entity.Amount = amount;
+    }
+
     public bool AreSame(TEntity? compare)
     {
         if (compare == null)
@@ -52,6 +57,7 @@ public abstract class BaseInstalment<TEntity> : IDomainEntity<TEntity> where TEn
 
         return AcademicYear == compare.AcademicYear &&
                DeliveryPeriod == compare.DeliveryPeriod &&
-               Amount == compare.Amount;
+               Amount == compare.Amount &&
+               _entity.Type == compare.Type;
     }
 }

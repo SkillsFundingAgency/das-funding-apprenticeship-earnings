@@ -5,7 +5,9 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
@@ -61,6 +63,8 @@ public class WhenGetFm36Data
     {
         const long ukprn = 10005077;
         var learningKey = Guid.NewGuid();
+        var startDate = SearchDate.AddMonths(-6);
+        var endDate = SearchDate.AddMonths(12);
 
         var instalment = new ApprenticeshipInstalmentEntity
         {
@@ -82,11 +86,35 @@ public class WhenGetFm36Data
             DueDate = SearchDate
         };
 
+        var englishAndMathsCourse = new EnglishAndMathsEntity
+        {
+            Key = Guid.NewGuid(),
+            StartDate = startDate,
+            EndDate = endDate,
+            Course = "English GCSE",
+            LearnAimRef = "ENG_GCSE",
+            Amount = 1900m,
+            Instalments = startDate.Enumerate(endDate, DateIncrement.Monthly)
+                .Select((date) => { 
+                    (var academicYear, var deliveryPeriod) = date.ToAcademicYearAndPeriod();
+                    return new EnglishAndMathsInstalmentEntity
+                    {
+                        Key = Guid.NewGuid(),
+                        AcademicYear = academicYear,
+                        DeliveryPeriod = deliveryPeriod,
+                        Amount = 100m,
+                        Type = "Regular"
+                    };
+                })
+                .ToList()
+        };
+
         var learning = BuildLearning(learningKey, ukprn,
-            priceStartDate: SearchDate.AddMonths(-6),
-            priceEndDate: SearchDate.AddMonths(12),
+            priceStartDate: startDate,
+            priceEndDate: endDate,
             instalment: instalment,
             additionalPayment: additionalPayment,
+            englishAndMaths: englishAndMathsCourse,
             dateOfBirth: new DateTime(2000, 6, 1),
             onProgramTotal: 4500m,
             completionPayment: 500m);
@@ -122,6 +150,14 @@ public class WhenGetFm36Data
             p.DeliveryPeriod == CollectionPeriod &&
             p.Amount == 150m &&
             p.AdditionalPaymentType == "EmployerIncentive");
+
+        episode.EnglishAndMaths.Should().ContainSingle(c =>
+            c.Course == "English GCSE" &&
+            c.LearnAimRef == "ENG_GCSE" &&
+            c.StartDate == startDate &&
+            c.EndDate == endDate &&
+            c.Instalments.Where(i => i.Amount == 100m ).Count() == 19);
+
     }
 
     [Test]
@@ -260,6 +296,7 @@ public class WhenGetFm36Data
         DateTime priceEndDate,
         ApprenticeshipInstalmentEntity? instalment = null,
         ApprenticeshipAdditionalPaymentEntity? additionalPayment = null,
+        EnglishAndMathsEntity? englishAndMaths = null,
         DateTime? dateOfBirth = null,
         decimal onProgramTotal = 0m,
         decimal completionPayment = 0m,
@@ -272,6 +309,8 @@ public class WhenGetFm36Data
 
         if (instalment != null) instalment.EarningsProfileId = profileId;
         if (additionalPayment != null) additionalPayment.EarningsProfileId = profileId;
+        if (englishAndMaths != null) englishAndMaths.EarningsProfileId = profileId;
+
 
         var profile = new ApprenticeshipEarningsProfileEntity
         {
@@ -282,7 +321,7 @@ public class WhenGetFm36Data
             CompletionPayment = completionPayment,
             Instalments = instalment != null ? [instalment] : [],
             ApprenticeshipAdditionalPayments = additionalPayment != null ? [additionalPayment] : [],
-            EnglishAndMathsCourses = []
+            EnglishAndMathsCourses = englishAndMaths != null ? [englishAndMaths] : []
         };
 
         var episode = new ApprenticeshipEpisodeEntity

@@ -1,4 +1,4 @@
-﻿Feature: BreakInLearning
+Feature: BreakInLearning
 
 Acceptance tests related to breaks in learning
 
@@ -275,6 +275,7 @@ Scenario: Early Completion with BIL
 	When the following on-programme request is sent
 		| Key               | Value                                                                        |
 		| CompletionDate    | 2021-02-15                                                                   |
+		| AchievementDate   | 2021-02-15                                                                   |
 		| PeriodsInLearning | StartDate:2020-08-01, EndDate:2020-10-14, OriginalExpectedEndDate:2021-07-31 |
 		| PeriodsInLearning | StartDate:2020-12-16, EndDate:2021-07-31, OriginalExpectedEndDate:2021-07-31 |
 	Then the instalments are balanced as follows
