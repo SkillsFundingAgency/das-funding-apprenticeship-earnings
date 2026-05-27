@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Text.Json;
@@ -38,6 +38,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         ExecuteAndLog(() => episode.UpdatePause(request.PauseDate), "update Pause");
         ExecuteAndLog(() => episode.UpdatePeriodsInLearning(request.ToEpisodePeriodsInLearning()), "update Periods in learning");
         ExecuteAndLog(() => episode.UpdateCompletion(request.CompletionDate), "update Completion");
+        ExecuteAndLog(() => episode.UpdateAchievementDate(request.AchievementDate), "update Achievement");
         ExecuteAndLog(() => episode.UpdateWithdrawalDate(request.WithdrawalDate, _systemClock), "update Withdrawal");
 
         if (request.IncludesFundingBandMaximumUpdate)
