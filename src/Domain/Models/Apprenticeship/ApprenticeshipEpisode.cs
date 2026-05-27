@@ -50,10 +50,11 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         return episode;
     }
 
-    public void Remove(ISystemClockService systemClock)
+    public void Remove(ApprenticeshipLearning learning, ISystemClockService systemClock)
     {
         _entity.IsRemoved = true;
         RemoveEarnings(systemClock);
+        AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
     }
 
     private void RemoveEarnings(ISystemClockService systemClock)
@@ -112,7 +113,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
-            AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning));
+            AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
         }
     }
 
