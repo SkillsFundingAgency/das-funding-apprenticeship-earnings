@@ -3,6 +3,7 @@
 public interface IPeriodInLearning
 {
     public DateTime StartDate { get; }
-    public DateTime EndDate { get; }
+    public DateTime? EndDate { get; }
     public DateTime OriginalExpectedEndDate { get; }
+    public DateTime EffectiveEndDate { get; }
 }

@@ -23,8 +23,9 @@ public class UpdateOnProgrammeRequest
 public class PeriodInLearningItem : IPeriodInLearning
 {
     public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public DateTime OriginalExpectedEndDate { get; set; }
+    public DateTime EffectiveEndDate => EndDate ?? OriginalExpectedEndDate;
 }
 
 public class Care

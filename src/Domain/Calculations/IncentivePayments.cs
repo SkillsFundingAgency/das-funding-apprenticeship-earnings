@@ -114,7 +114,7 @@ public static class IncentivePayments
             var periodInLearning = orderedPeriods[i];
 
             // Case 1: break started before incentive date, with a return recorded
-            if (periodInLearning.EndDate < incentiveDate && i + 1 < orderedPeriods.Count)
+            if (periodInLearning.EffectiveEndDate < incentiveDate && i + 1 < orderedPeriods.Count)
                 incentiveDate = incentiveDate.AddDays(periodInLearning.GetBreakDurationUntilNextPeriod(orderedPeriods[i + 1]));
 
             // Case 2: break started before incentive date, with no return recorded, no need to do anything because the incentive will not be due regardless
