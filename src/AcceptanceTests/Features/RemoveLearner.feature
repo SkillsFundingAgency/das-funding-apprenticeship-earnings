@@ -2,7 +2,7 @@
 
 Remove Learner
 
-Scenario: Remove learner by doing a withdrawal back to start date; remove all incentive payments
+Scenario: Remove learner; remove all incentive payments
 	Given an apprenticeship has been created with the following information
 		| Age |
 		| 18  |
