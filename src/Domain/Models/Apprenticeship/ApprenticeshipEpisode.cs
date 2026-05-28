@@ -16,6 +16,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
+    public bool IsRemoved => _entity.IsRemoved;
     public long EmployerAccountId => _entity.EmployerAccountId;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
@@ -49,8 +50,31 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         return episode;
     }
 
+    public void Remove(ApprenticeshipLearning learning, ISystemClockService systemClock)
+    {
+        _entity.IsRemoved = true;
+        RemoveEarnings(systemClock);
+        AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
+    }
+
+    private void RemoveEarnings(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null) return;
+        _earningsProfile.Update(
+            systemClock,
+            instalments: [],
+            additionalPayments: [],
+            mathsAndEnglishCourses: [],
+            onProgramTotal: 0m,
+            completionPayment: 0m,
+            calculationData: "{}");
+        UpdatePeriodsInLearning([]);
+    }
+
     public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
     {
+        _entity.IsRemoved = false;
+
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
    
         // Qualifying period logic must happen before completion and balancing
@@ -89,7 +113,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
-            AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning));
+            AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
         }
     }
 

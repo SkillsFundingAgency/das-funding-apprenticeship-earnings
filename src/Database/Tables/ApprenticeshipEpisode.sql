@@ -12,7 +12,8 @@ CREATE TABLE [Domain].[ApprenticeshipEpisode]
     [AchievementDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
     [PauseDate] DATETIME NULL,
-    [FundingBandMaximum] DECIMAL(15,5) NULL
+    [FundingBandMaximum] DECIMAL(15,5) NULL,
+    [IsRemoved] BIT NOT NULL DEFAULT 0
 )
 GO
 ALTER TABLE Domain.ApprenticeshipEpisode

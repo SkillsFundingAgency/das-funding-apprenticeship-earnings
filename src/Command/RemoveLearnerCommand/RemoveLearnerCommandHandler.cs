@@ -1,7 +1,5 @@
-﻿using System.Text.Json;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 
@@ -19,13 +17,7 @@ public class RemoveLearnerCommandHandler : ICommandHandler<RemoveLearnerCommand>
     public async Task Handle(RemoveLearnerCommand command, CancellationToken cancellationToken = default)
     {
         var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
-        var episode = learningDomainModel!.GetCurrentEpisode(_systemClock);
-        var startDate = episode.Prices.Min(x => x.StartDate);
-        episode.UpdateWithdrawalDate(startDate, _systemClock);
-        episode.UpdateEnglishAndMaths([], _systemClock);
-        episode.RemoveAdditionalEarnings(_systemClock);
-        learningDomainModel!.Calculate(_systemClock, JsonSerializer.Serialize(command.LearningKey));
-        episode.UpdatePeriodsInLearning([]);
+        learningDomainModel!.Remove(_systemClock);
 
         await _learningRepository.Update(learningDomainModel);
     }
