@@ -28,6 +28,11 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         return episode;
     }
 
+    public void Remove(ISystemClockService systemClock)
+    {
+        this.GetCurrentEpisode(systemClock).Remove(this, systemClock);
+    }
+
     public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null)
     {
         ApprenticeshipEpisode episode;

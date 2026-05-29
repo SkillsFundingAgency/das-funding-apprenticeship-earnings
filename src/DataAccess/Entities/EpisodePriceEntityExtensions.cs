@@ -10,7 +10,7 @@ public static class EpisodePriceEntityExtensions
         {
             Key = Guid.NewGuid(),
             StartDate = episodePrice.StartDate,
-            EndDate = episodePrice.EndDate,
+            EndDate = null,
             OriginalExpectedEndDate = episodePrice.EndDate,
             EpisodeKey = episodePrice.EpisodeKey
         };

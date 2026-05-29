@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 
@@ -25,9 +25,7 @@ public class ApprenticeshipInstalment : BaseInstalment<ApprenticeshipInstalmentE
         if (compare == null)
             return false;
 
-        return AcademicYear == compare.AcademicYear &&
-               DeliveryPeriod == compare.DeliveryPeriod &&
-               Amount == compare.Amount &&
+        return base.AreSame(compare) &&
                EpisodePriceKey == compare.EpisodePriceKey;
     }
 }

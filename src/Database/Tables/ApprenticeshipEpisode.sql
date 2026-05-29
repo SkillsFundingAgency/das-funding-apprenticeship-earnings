@@ -1,4 +1,4 @@
-﻿CREATE TABLE [Domain].[ApprenticeshipEpisode]
+CREATE TABLE [Domain].[ApprenticeshipEpisode]
 (
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[LearningKey] UNIQUEIDENTIFIER NOT NULL, 
@@ -9,9 +9,11 @@
     [LegalEntityName] NVARCHAR(255) NOT NULL,
     [TrainingCode] NCHAR(50) NOT NULL,
     [CompletionDate] DATETIME NULL, 
+    [AchievementDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 
     [PauseDate] DATETIME NULL,
-    [FundingBandMaximum] DECIMAL(15,5) NULL
+    [FundingBandMaximum] DECIMAL(15,5) NULL,
+    [IsRemoved] BIT NOT NULL DEFAULT 0
 )
 GO
 ALTER TABLE Domain.ApprenticeshipEpisode

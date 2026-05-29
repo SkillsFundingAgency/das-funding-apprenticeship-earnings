@@ -39,7 +39,7 @@ public static class BalancingInstalments
 
         //Remove all instalments after and on the completion date
         instalments.RemoveAll(x =>
-            x.AcademicYear > completionYear || (x.AcademicYear == completionYear && x.DeliveryPeriod >= completionPeriod));
+            (x.AcademicYear > completionYear || (x.AcademicYear == completionYear && x.DeliveryPeriod >= completionPeriod)) && x.Type == InstalmentType.Regular);
 
         //Now create balancing instalment
         if (balancingAmount > 0)

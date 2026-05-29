@@ -92,10 +92,13 @@ public static class KeyValueModelExtensions
         return result;
     }
 
-    private static object ConvertTo(string value, Type targetType)
+    private static object? ConvertTo(string value, Type targetType)
     {
         if (targetType == typeof(DateTime))
             return DateTime.Parse(value);
+
+        if (targetType == typeof(DateTime?))
+            return string.IsNullOrWhiteSpace(value) ? (DateTime?)null : DateTime.Parse(value);
 
         if (targetType.IsEnum)
             return Enum.Parse(targetType, value);

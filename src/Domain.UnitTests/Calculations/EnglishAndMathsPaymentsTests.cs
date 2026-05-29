@@ -156,11 +156,11 @@ public class EnglishAndMathsPaymentsTests
         var result = EnglishAndMathsPayments.GenerateInstalments(course);
 
         // Assert
-        result.Count.Should().Be(3);
+        result.Count.Should().Be(4);
         result.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Amount.Should().Be(50));
         result.Where(x => x.DeliveryPeriod < 5).Should().AllSatisfy(x => x.Type.Should().Be(EnglishAndMathsInstalmentType.Regular.ToString()));
-        result.Single(x => x.DeliveryPeriod == 5).Amount.Should().Be(200);
-        result.Single(x => x.DeliveryPeriod == 5).Type.Should().Be(EnglishAndMathsInstalmentType.Balancing.ToString());
+        result.Single(x => x.DeliveryPeriod == 5 && x.Type == EnglishAndMathsInstalmentType.Regular.ToString()).Amount.Should().Be(50);
+        result.Single(x => x.DeliveryPeriod == 5 && x.Type == EnglishAndMathsInstalmentType.Balancing.ToString()).Amount.Should().Be(150);
 
     }
 

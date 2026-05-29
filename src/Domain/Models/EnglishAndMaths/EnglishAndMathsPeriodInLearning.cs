@@ -9,10 +9,11 @@ public class EnglishAndMathsPeriodInLearning
     public Guid Key => _entity.Key;
     public Guid EnglishAndMathsKey => _entity.EnglishAndMathsKey;
     public DateTime StartDate => _entity.StartDate;
-    public DateTime EndDate => _entity.EndDate;
+    public DateTime? EndDate => _entity.EndDate;
     public DateTime OriginalExpectedEndDate => _entity.OriginalExpectedEndDate;
+    public DateTime EffectiveEndDate => EndDate ?? OriginalExpectedEndDate;
 
-    public EnglishAndMathsPeriodInLearning(Guid episodeKey, DateTime startDate, DateTime endDate, DateTime originalExpectedEndDate)
+    public EnglishAndMathsPeriodInLearning(Guid episodeKey, DateTime startDate, DateTime? endDate, DateTime originalExpectedEndDate)
     {
         _entity = new EnglishAndMathsPeriodInLearningEntity
         {

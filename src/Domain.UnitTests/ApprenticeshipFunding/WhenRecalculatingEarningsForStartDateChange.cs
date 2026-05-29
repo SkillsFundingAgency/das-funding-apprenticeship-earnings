@@ -46,6 +46,7 @@ public class WhenRecalculatingEarningsForStartDateChange
         learningEpisode.Prices = prices;
         learningEpisode.WithdrawalDate = null;
         learningEpisode.CompletionDate = null;
+        learningEpisode.AchievementDate = null;
         learningEpisode.FundingBandMaximum = int.MaxValue;
         learningEpisode.PeriodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
         {

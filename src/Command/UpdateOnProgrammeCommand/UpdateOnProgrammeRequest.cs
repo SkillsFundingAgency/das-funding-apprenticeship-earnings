@@ -11,6 +11,7 @@ public class UpdateOnProgrammeRequest
     public DateTime? CompletionDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? PauseDate { get; set; }
+    public DateTime? AchievementDate { get; set; }
     public DateTime DateOfBirth { get; set; }
     public int? FundingBandMaximum { get; set; }
     public bool IncludesFundingBandMaximumUpdate { get; set; }
@@ -22,8 +23,9 @@ public class UpdateOnProgrammeRequest
 public class PeriodInLearningItem : IPeriodInLearning
 {
     public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public DateTime OriginalExpectedEndDate { get; set; }
+    public DateTime EffectiveEndDate => EndDate ?? OriginalExpectedEndDate;
 }
 
 public class Care

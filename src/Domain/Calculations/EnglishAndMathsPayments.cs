@@ -64,7 +64,7 @@ public static class EnglishAndMathsPayments
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
-            while (paymentDate <= periodInLearning.EndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
+            while (paymentDate <= periodInLearning.EffectiveEndDate && paymentDate <= periodInLearning.OriginalExpectedEndDate)
             {
                 context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, paymentDate, monthlyAmount));
 
@@ -81,7 +81,12 @@ public static class EnglishAndMathsPayments
             mathsAndEnglish.CompletionDate >= mathsAndEnglish.EndDate)
             return;
 
-        var paymentDateToAdjust = mathsAndEnglish.CompletionDate.Value.LastDayOfMonth();
+        var completionCensusDate = mathsAndEnglish.CompletionDate.Value.LastDayOfMonth();
+        var completionIsOnCensusDate = mathsAndEnglish.CompletionDate.Value.Date == completionCensusDate.Date;
+
+        var paymentDateToAdjust = completionIsOnCensusDate
+            ? completionCensusDate.AddMonths(1).LastDayOfMonth()
+            : completionCensusDate;
 
         while (paymentDateToAdjust <= mathsAndEnglish.EndDate.LastCensusDate())
         {
@@ -92,12 +97,13 @@ public static class EnglishAndMathsPayments
             paymentDateToAdjust = paymentDateToAdjust.AddMonths(1).LastDayOfMonth();
         }
 
-        context.Instalments.Add(
-            CreateInstalment(
-                mathsAndEnglish.Key,
-                mathsAndEnglish.CompletionDate.Value.LastDayOfMonth(),
-                context.AmountOutStanding,
-                EnglishAndMathsInstalmentType.Balancing));
+        if (context.AmountOutStanding != 0)
+            context.Instalments.Add(
+                CreateInstalment(
+                    mathsAndEnglish.Key,
+                    completionCensusDate,
+                    context.AmountOutStanding,
+                    EnglishAndMathsInstalmentType.Balancing));
     }
 
     private static void ApplyWithdrawalRules(InstalmentCalculationContext context)

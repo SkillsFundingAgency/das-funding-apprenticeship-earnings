@@ -3,7 +3,7 @@
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
     [EpisodeKey] UNIQUEIDENTIFIER NOT NULL, 
     [StartDate] DATETIME NOT NULL, 
-    [EndDate] DATETIME NOT NULL,
+    [EndDate] DATETIME NULL,
     [OriginalExpectedEndDate] DATETIME NOT NULL
 )
 GO

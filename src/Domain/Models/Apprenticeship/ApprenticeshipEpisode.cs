@@ -16,6 +16,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
+    public bool IsRemoved => _entity.IsRemoved;
     public long EmployerAccountId => _entity.EmployerAccountId;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
@@ -49,20 +50,49 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         return episode;
     }
 
+    public void Remove(ApprenticeshipLearning learning, ISystemClockService systemClock)
+    {
+        _entity.IsRemoved = true;
+        RemoveEarnings(systemClock);
+        AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
+    }
+
+    private void RemoveEarnings(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null) return;
+        _earningsProfile.Update(
+            systemClock,
+            instalments: [],
+            additionalPayments: [],
+            mathsAndEnglishCourses: [],
+            onProgramTotal: 0m,
+            completionPayment: 0m,
+            calculationData: "{}");
+        UpdatePeriodsInLearning([]);
+    }
+
     public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
     {
-        var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
+        _entity.IsRemoved = false;
 
+        var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
+   
+        // Qualifying period logic must happen before completion and balancing
         if (LastDayOfLearning.HasValue)
         {
             instalments = OnProgramPayments.RemoveAfterLastDayOfLearning(instalments, EpisodePeriodsInLearning, LastDayOfLearning.Value);
             additionalPayments = AdditionalPayments.RemoveAfterLastDayOfLearning(additionalPayments, LastDayOfLearning.Value);
         }
 
+        // Completion date drives balancing instalments, achievement date drives completion instalments. This may be updated in FLP-1515 to reduce this confusion.
         if (_entity.CompletionDate != null)
         {
             instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.MaxBy(x => x.EndDate), EpisodePeriodsInLearning, onProgramTotal);
-            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.CompletionDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
+        }
+
+        if (_entity.AchievementDate != null)
+        {
+            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.AchievementDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
             instalments = instalments.Append(completionInstalment).ToList();
         }
 
@@ -83,7 +113,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
-            AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning));
+            AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
         }
     }
 
@@ -191,7 +221,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     {
         // Select prices that overlap with this period
         var pricesInPeriod = allPrices
-            .Where(p => p.StartDate <= periodInLearning.EndDate && p.EndDate >= periodInLearning.StartDate);
+            .Where(p => p.StartDate <= periodInLearning.EffectiveEndDate && p.EndDate >= periodInLearning.StartDate);
 
         // Clip prices to the boundaries of the period
         var pricePeriods = pricesInPeriod
@@ -201,8 +231,8 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
                     ? periodInLearning.StartDate
                     : price.StartDate;
 
-                var endDate = price.EndDate > periodInLearning.EndDate
-                    ? periodInLearning.EndDate
+                var endDate = price.EndDate > periodInLearning.EffectiveEndDate
+                    ? periodInLearning.EffectiveEndDate
                     : price.EndDate;
 
                 return new PriceInPeriod(price, startDate, endDate, periodInLearning.OriginalExpectedEndDate);

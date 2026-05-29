@@ -100,11 +100,11 @@ public static class ApprenticeshipEpisodeExtensions
             .FirstOrDefault();
     }
 
-    internal static ApprenticeshipEarningsRecalculatedEvent CreateApprenticeshipEarningsRecalculatedEvent(this ApprenticeshipEpisode episode, ApprenticeshipLearning learning)
+    internal static ApprenticeshipEarningsRecalculatedEvent CreateApprenticeshipEarningsRecalculatedEvent(this ApprenticeshipEpisode episode, Guid learningKey)
     {
         return new ApprenticeshipEarningsRecalculatedEvent
         {
-            ApprenticeshipKey = learning.LearningKey,
+            ApprenticeshipKey = learningKey,
             DeliveryPeriods = episode.BuildDeliveryPeriods() ?? throw new ArgumentException("DeliveryPeriods"),
             EarningsProfileId = episode.EarningsProfile!.EarningsProfileId,
             StartDate = episode.Prices.OrderBy(x => x.StartDate).First().StartDate,

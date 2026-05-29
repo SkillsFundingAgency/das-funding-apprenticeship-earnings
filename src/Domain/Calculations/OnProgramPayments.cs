@@ -2,6 +2,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
@@ -40,12 +41,12 @@ public static class OnProgramPayments
         ).ToList();
 
         var postWithdrawalInstalments = instalments.Where(x =>
+            x.Type == InstalmentType.Regular && //ignore balancing and completion as they should not be removed
             !nonQualifyingInstalments.Contains(x) &&
             (x.AcademicYear > academicYear
             || (x.AcademicYear == academicYear && x.DeliveryPeriod > deliveryPeriod)
             || (x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
-                && lastDayOfLearning.Day < DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)
-                && x.Type != InstalmentType.Balancing && x.Type != InstalmentType.Completion))
+                && lastDayOfLearning.Day < DateTime.DaysInMonth(lastDayOfLearning.Year, lastDayOfLearning.Month)))
         ).ToList();
 
         var survivingInstalments = instalments.Where(x => x.Type == InstalmentType.Regular && !nonQualifyingInstalments.Contains(x) && !postWithdrawalInstalments.Contains(x)).ToList();

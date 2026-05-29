@@ -7,13 +7,16 @@ public static class PeriodInLearningHelper
 {
     public static IPeriodInLearning Create(
         DateTime startDate,
-        DateTime endDate,
+        DateTime? endDate,
         DateTime originalExpectedEndDate)
         => new Impl(startDate, endDate, originalExpectedEndDate);
 
     private sealed record Impl(
         DateTime StartDate,
-        DateTime EndDate,
+        DateTime? EndDate,
         DateTime OriginalExpectedEndDate
-    ) : IPeriodInLearning;
+    ) : IPeriodInLearning
+    {
+        public DateTime EffectiveEndDate => EndDate ?? OriginalExpectedEndDate;
+    }
 }
