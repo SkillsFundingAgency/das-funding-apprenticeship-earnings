@@ -34,11 +34,11 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         episode.UpdateCompletion(completionDate);
         episode.UpdateWithdrawalDate(withdrawalDate);
         episode.UpdateMilestones(milestones);
-        episode.CalculateShortCourseOnProgram(calculationData);
+        episode.CalculateShortCourseOnProgram(calculationData, IsThirtyPercentClaimedBySibling(episodeKey));
     }
 
     public void CalculateOnProgram(Guid episodeKey, string calculationData)
-        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData);
+        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData, IsThirtyPercentClaimedBySibling(episodeKey));
 
     public void UpdateUnapprovedShortCourseInformation(Guid episodeKey, ShortCourseUpdateModel updateModel)
     {
@@ -87,4 +87,9 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey)
             ?? throw new InvalidOperationException($"No episode found for key {episodeKey}");
     }
+
+    private bool IsThirtyPercentClaimedBySibling(Guid episodeKey)
+        => _episodes.Any(e => e.EpisodeKey != episodeKey
+            && e.WithdrawalDate.HasValue
+            && e.MilestoneFlags.HasFlag(MilestoneFlags.ThirtyPercentLearningComplete));
 }
