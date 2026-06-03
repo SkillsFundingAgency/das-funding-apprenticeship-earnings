@@ -9,7 +9,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public interface ICalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    Task<CalculateGrowthAndSkillsPayments> Build(ApprenticeshipLearning learning);
+    CalculateGrowthAndSkillsPayments Build(ApprenticeshipLearning learning);
 }
 
 public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndSkillsPaymentsEventBuilder
@@ -22,10 +22,10 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
         _systemClock = systemClock;
     }
 
-    public async Task<CalculateGrowthAndSkillsPayments> Build(ApprenticeshipLearning learning)
+    public CalculateGrowthAndSkillsPayments Build(ApprenticeshipLearning learning)
     {
         var episode = learning.GetCurrentEpisode(_systemClock);
-        var earnings = await BuildEarnings(learning, episode);
+        var earnings = BuildEarnings(learning, episode);
 
         return new CalculateGrowthAndSkillsPayments
         {
@@ -66,7 +66,7 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
         return TrainingStatus.Continuing;
     }
 
-    private async Task<IEnumerable<Earnings>> BuildEarnings(ApprenticeshipLearning learning, ApprenticeshipEpisode episode)
+    private IEnumerable<Earnings> BuildEarnings(ApprenticeshipLearning learning, ApprenticeshipEpisode episode)
     {
         var employerType = episode.FundingType == SFA.DAS.Learning.Types.FundingType.Levy
             ? SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType.Levy
@@ -105,12 +105,12 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
             .ToList();
 
         if (earnings.Count > 1)
-            await SetStartEndDatesForMultipleYears(earnings);
+            SetStartEndDatesForMultipleYears(earnings);
 
         return earnings;
     }
 
-    private async Task SetStartEndDatesForMultipleYears(List<Earnings> earnings)
+    private void SetStartEndDatesForMultipleYears(List<Earnings> earnings)
     {
         var totalEarnings = earnings.Count;
 
