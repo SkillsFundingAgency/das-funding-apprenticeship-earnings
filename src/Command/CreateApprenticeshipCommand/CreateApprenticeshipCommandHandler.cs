@@ -41,8 +41,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateApprenticeshipCom
             learning.Calculate(_systemClock, JsonSerializer.Serialize(command.LearningCreatedEvent));
             await _learningRepository.Add(learning);
             await _messageSession.Publish(_earningsGeneratedEventBuilder.Build(learning));
-            //todo either publish from here the event for pv2,
-            //or handle internally the earnings generated event and publish the pv2 event from there.
             return learning;
         }
 
