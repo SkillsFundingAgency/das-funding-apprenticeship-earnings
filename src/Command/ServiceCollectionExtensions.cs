@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
             .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>()
             .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
+            .AddScoped<ICalculateGrowthAndSkillsPaymentsEventBuilder, CalculateGrowthAndSkillsPaymentsEventBuilder>()
             .AddTransient<ISystemClockService, SystemClockService>();
         return serviceCollection;
     }

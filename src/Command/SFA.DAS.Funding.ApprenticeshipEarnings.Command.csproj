@@ -11,6 +11,7 @@
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>
+	<PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages.External" Version="2.0.8-prerelease-9" />
   </ItemGroup>
 
   <ItemGroup>

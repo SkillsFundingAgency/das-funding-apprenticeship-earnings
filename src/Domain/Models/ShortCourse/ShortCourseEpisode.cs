@@ -89,6 +89,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
+        // todo add domain event to make this episode as needing to be sent to pv2
     }
 
     public void Remove()
