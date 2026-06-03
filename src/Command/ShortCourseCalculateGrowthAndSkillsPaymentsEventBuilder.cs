@@ -1,30 +1,18 @@
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
-public interface ICalculateGrowthAndSkillsPaymentsEventBuilder
+public interface IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    CalculateGrowthAndSkillsPayments Build(ApprenticeshipLearning learning);
+    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning);
 }
 
-public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndSkillsPaymentsEventBuilder
+public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    private readonly ISystemClockService _systemClock;
-
-    public CalculateGrowthAndSkillsPaymentsEventBuilder(
-        ISystemClockService systemClock)
+    public CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning)
     {
-        _systemClock = systemClock;
-    }
-
-    public CalculateGrowthAndSkillsPayments Build(ApprenticeshipLearning learning)
-    {
-        var episode = learning.GetCurrentEpisode(_systemClock);
         var earnings = BuildEarnings(learning, episode);
 
         return new CalculateGrowthAndSkillsPayments
@@ -40,15 +28,15 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
             Training = new Training
             {
                 LearningKey = learning.LearningKey,
-                CourseType = CourseType.Apprenticeship,
-                LearningType = LearningType.Apprenticeship,
+                CourseType = CourseType.ShortCourse,
+                LearningType = LearningType.ApprenticeshipUnit,
                 CourseCode = episode.TrainingCode,
                 CourseReference = episode.TrainingCode,
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
-                StartDate = episode.Prices.First().StartDate,
-                PlannedEndDate = episode.Prices.First().EndDate,
-                ActualEndDate = episode.LastDayOfLearning,
-                TrainingStatus = GetTrainingStatus(episode.IsRemoved, episode.LastDayOfLearning),
+                StartDate = episode.StartDate,
+                PlannedEndDate = episode.EndDate,
+                ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
+                TrainingStatus = GetTrainingStatus(episode.IsRemoved, episode.WithdrawalDate ?? episode.CompletionDate),
             },
             EmployerContribution = 0,
             Earnings = earnings,
@@ -66,11 +54,11 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
         return TrainingStatus.Continuing;
     }
 
-    private IEnumerable<Earnings> BuildEarnings(ApprenticeshipLearning learning, ApprenticeshipEpisode episode)
+    private IEnumerable<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode)
     {
-        var employerType = episode.FundingType == SFA.DAS.Learning.Types.FundingType.Levy
-            ? SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType.Levy
-            : SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType.NonLevy;
+        var employerType = episode.FundingType == Learning.Types.FundingType.Levy
+            ? EmployerType.Levy
+            : EmployerType.NonLevy;
 
         var profile = episode.EarningsProfile;
 
@@ -82,19 +70,19 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
                 PricePeriods = new List<PricePeriod> {
                     new PricePeriod
                     {
-                        Price = episode.Prices.First().AgreedPrice,
-                        StartDate = episode.Prices.First().StartDate,
-                        EndDate = episode.Prices.First().EndDate,
+                        Price = episode.CoursePrice,
+                        StartDate = episode.StartDate,
+                        EndDate = episode.EndDate,
                         Periods = g.Select(instalment => new EarningPeriod
                         {
                             EarningType = GetEarningType(instalment.Type),
-                            DeliveryPeriod = (byte)instalment.DeliveryPeriod,
+                            DeliveryPeriod = instalment.DeliveryPeriod,
                             LearningId = learning.ApprovalsApprenticeshipId,
                             Amount = instalment.Amount,
                             Employer = new Employer
                             {
-                                AccountId = episode.EmployerAccountId,
-                                FundingAccountId = episode.FundingEmployerAccountId ?? episode.EmployerAccountId,
+                                AccountId = 0,
+                                FundingAccountId = 0,
                                 EmployerType = employerType
                             }
                         }).ToList()
@@ -117,23 +105,23 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
         for (var i = 0; i < totalEarnings; i++)
         {
             var earningYear = earnings[i];
-            var academicYearDates = GetAcademicYearDates(earningYear.AcademicYear);
+            var academicYear = GetAcademicYear(earningYear.AcademicYear);
 
             var pricePeriod = earningYear.PricePeriods.Single();
 
             if (i > 0)
             {
-                pricePeriod.StartDate = academicYearDates.StartDate;
+                pricePeriod.StartDate = academicYear.StartDate;
             }
 
             if (i < totalEarnings - 1)
             {
-                pricePeriod.EndDate = academicYearDates.EndDate;
+                pricePeriod.EndDate = academicYear.EndDate;
             }
         }
     }
 
-    private (DateTime StartDate, DateTime EndDate) GetAcademicYearDates(short year)
+    private (DateTime StartDate, DateTime EndDate) GetAcademicYear(short year)
     {
         // Parse the first two digits as the start year
         var startYear = 2000 + int.Parse(year.ToString()[..2]);
@@ -142,13 +130,12 @@ public class CalculateGrowthAndSkillsPaymentsEventBuilder : ICalculateGrowthAndS
         return (new DateTime(startYear, 8, 1), new DateTime(endYear, 7, 31));
     }
 
-    private static EarningType GetEarningType(InstalmentType instalmentType)
+    private static EarningType GetEarningType(ShortCourseInstalmentType instalmentType)
     {
         return instalmentType switch
         {
-            InstalmentType.Regular => EarningType.Learning,
-            InstalmentType.Completion => EarningType.Completion,
-            InstalmentType.Balancing => EarningType.Balancing,
+            ShortCourseInstalmentType.ThirtyPercentLearningComplete => EarningType.Learning,
+            ShortCourseInstalmentType.LearningComplete => EarningType.Completion,
             _ => throw new ArgumentException($"Unknown instalment type: {instalmentType}")
         };
     }
