@@ -18,10 +18,10 @@ public class RemoveShortCourseLearningCommandHandler(
         if (learning == null)
             throw new InvalidOperationException($"Short course learning not found for LearningKey {command.LearningKey}");
 
-        learning.Remove();
+        learning.Remove(command.EpisodeKey);
 
         await learningRepository.Update(learning);
 
-        return learning.ToDtoResponse<RemoveShortCourseLearningResponse>();
+        return learning.ToDtoResponse<RemoveShortCourseLearningResponse>(command.EpisodeKey);
     }
 }

@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -6,12 +10,8 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetShortCourseEarnings;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetFm99ShortCourseEarnings;
 
 [TestFixture]
 public class WhenGetShortCourseEarnings
@@ -74,12 +74,12 @@ public class WhenGetShortCourseEarnings
     }
 
     [Test]
-    public async Task Handle_UkprnDoesNotMatchEpisode_ReturnsEmptyEarnings()
+    public async Task Handle_UkprnDoesNotMatch_ReturnsEmptyEarnings()
     {
         var learningKey = Guid.NewGuid();
-        var query = new GetFm99ShortCourseEarningsRequest(learningKey, 10005077);
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, 99999999);
 
-        await SeedEpisodeWithInstalments(learningKey, ukprn: 99999999, new List<ShortCourseInstalmentEntity>());
+        await SeedEpisodeWithInstalments(learningKey, 10005077, new List<ShortCourseInstalmentEntity>());
 
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 

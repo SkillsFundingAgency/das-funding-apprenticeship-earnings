@@ -39,8 +39,10 @@ public class WhenCreatingUnapprovedShortCourseLearning
 
         var shortCourse = ShortCourseLearning.Get(_fixture
             .Build<ShortCourseLearningEntity>()
-            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { 
-                _fixture.Build<ShortCourseEpisodeEntity>().Create() 
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> {
+                _fixture.Build<ShortCourseEpisodeEntity>()
+                    .With(x => x.Key, request.EpisodeKey)
+                    .Create()
             })
             .Create());
 
@@ -75,7 +77,9 @@ public class WhenCreatingUnapprovedShortCourseLearning
             .With(x => x.LearningKey, request.LearningKey)
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity>
             {
-                _fixture.Build<ShortCourseEpisodeEntity>().Create()
+                _fixture.Build<ShortCourseEpisodeEntity>()
+                    .With(x => x.Key, request.EpisodeKey)
+                    .Create()
             }).Create());
 
         _mockRepository
@@ -95,6 +99,42 @@ public class WhenCreatingUnapprovedShortCourseLearning
         _mockRepository.Verify(x => x.GetShortCourseLearning(request.LearningKey), Times.Once);
         _mockRepository.Verify(x => x.Update(existingShortCourse), Times.Once);
 
+        _mockRepository.Verify(x => x.Add(It.IsAny<ShortCourseLearning>()), Times.Never);
+        _mockFactory.Verify(x => x.CreateNewShortCourse(It.IsAny<CreateUnapprovedShortCourseLearningRequest>()), Times.Never);
+    }
+
+    [Test]
+    public async Task WhenLearningExistsButEpisodeIsNew_ThenEpisodeIsAddedAndLearningIsUpdated()
+    {
+        // Arrange — simulates Change of Provider: same LearningKey, new EpisodeKey
+        var request = _fixture.Create<CreateUnapprovedShortCourseLearningRequest>();
+        var command = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommand(request);
+
+        var existingShortCourse = ShortCourseLearning.Get(_fixture
+            .Build<ShortCourseLearningEntity>()
+            .With(x => x.LearningKey, request.LearningKey)
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity>
+            {
+                _fixture.Build<ShortCourseEpisodeEntity>()
+                    .With(x => x.Key, Guid.NewGuid()) // Provider A's episode — different key
+                    .Create()
+            }).Create());
+
+        _mockRepository
+            .Setup(x => x.GetShortCourseLearning(request.LearningKey))
+            .ReturnsAsync(existingShortCourse);
+
+        var sut = new CreateUnapprovedShortCourseLearningCommand.CreateUnapprovedShortCourseLearningCommandHandler(
+            _mockLogger.Object,
+            _mockFactory.Object,
+            _mockRepository.Object
+        );
+
+        // Act
+        await sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        _mockRepository.Verify(x => x.Update(existingShortCourse), Times.Once);
         _mockRepository.Verify(x => x.Add(It.IsAny<ShortCourseLearning>()), Times.Never);
         _mockFactory.Verify(x => x.CreateNewShortCourse(It.IsAny<CreateUnapprovedShortCourseLearningRequest>()), Times.Never);
     }
