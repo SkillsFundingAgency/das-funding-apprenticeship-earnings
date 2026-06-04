@@ -39,6 +39,7 @@ public class ShortCourseStepDefinitions
     }
 
     [Given("a short course has been created by a new provider with the following information")]
+    [When("a short course has been created by a new provider with the following information")]
     public async Task CreateUnapprovedShortCourseLearningForNewProvider(Table table)
     {
         _scenarioContext.TryGetValue<CreateUnapprovedShortCourseLearningRequest>(out var existingRequest);
@@ -110,16 +111,27 @@ public class ShortCourseStepDefinitions
         history.First().Version.Should().Be(episode.EarningsProfile.Version);
     }
 
+    [Given(@"Provider A's short course has been withdrawn on (.*)")]
+    public async Task GivenProviderAWithdrawnOn(DateTime withdrawalDate)
+    {
+        var model = new UpdateShortCourseOnProgrammeModel();
+        model.WithdrawalDate.SetValue(withdrawalDate);
+        await PerformOnProgrammeUpdate(model);
+    }
+
     [When(@"Short Course Update OnProgramme is triggered with")]
     public async Task WhenShortCourseUpdateOnProgrammeIsTriggeredWith(Table table)
     {
-        var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        await PerformOnProgrammeUpdate(GetUpdateOnProgrammeModel(table));
+    }
 
-        var data = GetUpdateOnProgrammeModel(table);
+    private async Task PerformOnProgrammeUpdate(UpdateShortCourseOnProgrammeModel model)
+    {
+        var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
 
         var updateOnProgrammeRequest = _scenarioContext.GetShortCourseUpdateOnProgrammeRequestBuilder()
             .WithExistingData(shortCourseCreateRequest)
-            .WithDataFromSetupModel(data)
+            .WithDataFromSetupModel(model)
             .Build();
 
         var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/{shortCourseCreateRequest.EpisodeKey}/on-programme", updateOnProgrammeRequest);
