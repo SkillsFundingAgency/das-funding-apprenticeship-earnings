@@ -237,7 +237,20 @@ public class ShortCourseStepDefinitions
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
         var instalments = entity!.Episodes.First().EarningsProfile.Instalments;
+        await AssertInstalmentPayability(instalments, table);
+    }
 
+    [Then(@"the short course instalment payability for the current episode is")]
+    public async Task ThenTheShortCourseInstalmentPayabilityForCurrentEpisodeIs(Table table)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        var instalments = entity!.Episodes.Single(e => e.Key == request.EpisodeKey).EarningsProfile.Instalments;
+        await AssertInstalmentPayability(instalments, table);
+    }
+
+    private static Task AssertInstalmentPayability(IEnumerable<ShortCourseInstalmentEntity> instalments, Table table)
+    {
         var expected = table.CreateSet<InstalmentPayabilityExpectation>().ToList();
 
         foreach (var exp in expected)
@@ -245,6 +258,8 @@ public class ShortCourseStepDefinitions
             var instalment = instalments.Single(i => Enum.Parse<ShortCourseInstalmentType>(i.Type) == exp.Type);
             instalment.IsPayable.Should().Be(exp.IsPayable, $"{exp.Type} instalment should have IsPayable={exp.IsPayable}");
         }
+
+        return Task.CompletedTask;
     }
 
     [When(@"the short course learning is deleted")]
