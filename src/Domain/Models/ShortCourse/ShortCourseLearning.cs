@@ -89,7 +89,13 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     }
 
     private bool IsThirtyPercentClaimedBySibling(Guid episodeKey)
-        => _episodes.Any(e => e.EpisodeKey != episodeKey
-            && e.WithdrawalDate.HasValue
-            && e.MilestoneFlags.HasFlag(MilestoneFlags.ThirtyPercentLearningComplete));
+    {
+        var result = _episodes.Any(e => e.EpisodeKey != episodeKey
+                                        && !e.IsRemoved
+                                        && e.IsApproved
+                                        && e.EarningsProfile.Instalments.Any(x =>
+                                            x is { IsPayable: true, Type: ShortCourseInstalmentType.ThirtyPercentLearningComplete }));
+
+        return result;
+    }
 }

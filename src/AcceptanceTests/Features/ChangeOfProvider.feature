@@ -26,6 +26,7 @@ Scenario: Provider A claimed 30% - Provider B unapproved 30% earning is suppress
 	Given a short course has been created with the following information
 		| StartDate  | ExpectedEndDate | TotalPrice | Milestones                    |
 		| 2021-01-01 | 2021-06-25      |       2000 | ThirtyPercentLearningComplete |
+	And the Short Course is approved by the Employer
 	And Provider A's short course has been withdrawn on 2021-03-01
 	When a short course has been created by a new provider with the following information
 		| StartDate  | ExpectedEndDate | TotalPrice |
@@ -57,6 +58,7 @@ Scenario: Provider A claimed 30% - Provider B earnings are approved provisional 
 	Given a short course has been created with the following information
 		| StartDate  | ExpectedEndDate | TotalPrice | Milestones                    |
 		| 2021-01-01 | 2021-06-25      |       2000 | ThirtyPercentLearningComplete |
+	And the Short Course is approved by the Employer
 	And Provider A's short course has been withdrawn on 2021-03-01
 	And a short course has been created by a new provider with the following information
 		| StartDate  | ExpectedEndDate | TotalPrice |
