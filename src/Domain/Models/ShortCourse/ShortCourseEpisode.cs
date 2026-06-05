@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -89,7 +89,11 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
-        // todo add domain event to make this episode as needing to be sent to pv2
+        AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+        {
+            LearningKey = _entity.LearningKey,
+            EpisodeKey = EpisodeKey
+        });
     }
 
     public void Remove()
