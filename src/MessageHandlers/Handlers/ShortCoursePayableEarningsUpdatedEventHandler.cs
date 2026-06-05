@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 
 public class ShortCoursePayableEarningsUpdatedEventHandler(
-    ICommandHandler<ProcessShortCoursePayableEarningsUpdatedCommand> processShortCoursePayableEarningsUpdatedCommandHandler,
+    ICommandHandler<SendShortCoursePayableEarningsToPaymentsCommand> sendShortCoursePayableEarningsToPaymentsCommandHandler,
     ILogger<ShortCoursePayableEarningsUpdatedEventHandler> logger)
     : IHandleMessages<ShortCoursePayableEarningsUpdatedEvent>
 {
@@ -16,6 +16,6 @@ public class ShortCoursePayableEarningsUpdatedEventHandler(
     {
         logger.LogInformation("{functionName} processing LearningKey: {LearningKey}", nameof(ShortCoursePayableEarningsUpdatedEventHandler), message.LearningKey);
 
-        await processShortCoursePayableEarningsUpdatedCommandHandler.Handle(new ProcessShortCoursePayableEarningsUpdatedCommand(message), context.CancellationToken);
+        await sendShortCoursePayableEarningsToPaymentsCommandHandler.Handle(new SendShortCoursePayableEarningsToPaymentsCommand(message), context.CancellationToken);
     }
 }

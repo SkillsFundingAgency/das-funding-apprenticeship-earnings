@@ -1,31 +1,27 @@
 using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ShortCoursePayableEarningsUpdatedEventHandlerTests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ShortCoursePayableEarningsUpdatedEventHandler;
 
 [TestFixture]
 public class WhenShortCoursePayableEarningsUpdated
 {
-    private Mock<global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ICommandHandler<global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand>> _mockCommandHandler = null!;
+    private Mock<ICommandHandler<SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand>> _mockCommandHandler = null!;
     private Mock<IMessageHandlerContext> _mockContext = null!;
     private Fixture _fixture = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockCommandHandler = new Mock<global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ICommandHandler<global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand>>();
+        _mockCommandHandler = new Mock<ICommandHandler<SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand>>();
         _mockContext = new Mock<IMessageHandlerContext>();
         _fixture = new Fixture();
     }
 
     [Test]
-    public async Task ThenProcessShortCoursePayableEarningsUpdatedCommandIsInvokedWithCorrectKeys()
+    public async Task ThenSendShortCoursePayableEarningsToPaymentsCommandIsInvokedWithCorrectKeys()
     {
         // Arrange
         var message = _fixture.Create<ShortCoursePayableEarningsUpdatedEvent>();
@@ -39,7 +35,7 @@ public class WhenShortCoursePayableEarningsUpdated
 
         // Assert
         _mockCommandHandler.Verify(x => x.Handle(
-            It.Is<global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand>(c =>
+            It.Is<SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand>(c =>
                 c.ShortCoursePayableEarningsUpdatedEvent.LearningKey == message.LearningKey &&
                 c.ShortCoursePayableEarningsUpdatedEvent.EpisodeKey == message.EpisodeKey),
             It.IsAny<CancellationToken>()), Times.Once);

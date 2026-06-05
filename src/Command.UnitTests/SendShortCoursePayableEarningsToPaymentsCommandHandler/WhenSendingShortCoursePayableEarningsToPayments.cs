@@ -1,6 +1,7 @@
 using AutoFixture;
 using FluentAssertions;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -11,18 +12,18 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ProcessShortCoursePayableEarningsUpdatedCommandTests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.SendShortCoursePayableEarningsToPaymentsCommandTests;
 
 [TestFixture]
-public class WhenProcessingShortCoursePayableEarningsUpdated
+public class WhenSendingShortCoursePayableEarningsToPayments
 {
     private Fixture _fixture = null!;
     private Mock<ILearningRepository> _mockRepository = null!;
     private Mock<IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder> _mockBuilder = null!;
     private Mock<IMessageSession> _mockMessageSession = null!;
-    private global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommandHandler _sut = null!;
+    private SendShortCoursePayableEarningsToPaymentsCommandHandler _sut = null!;
 
     [SetUp]
     public void SetUp()
@@ -32,11 +33,11 @@ public class WhenProcessingShortCoursePayableEarningsUpdated
         _mockBuilder = new Mock<IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder>();
         _mockMessageSession = new Mock<IMessageSession>();
 
-        _sut = new ProcessShortCoursePayableEarningsUpdatedCommandHandler(
+        _sut = new SendShortCoursePayableEarningsToPaymentsCommandHandler(
             _mockRepository.Object,
             _mockBuilder.Object,
             _mockMessageSession.Object,
-            Mock.Of<Microsoft.Extensions.Logging.ILogger<ProcessShortCoursePayableEarningsUpdatedCommandHandler>>());
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<SendShortCoursePayableEarningsToPaymentsCommandHandler>>());
     }
 
     [Test]
@@ -44,7 +45,7 @@ public class WhenProcessingShortCoursePayableEarningsUpdated
     {
         // Arrange
         var shortCoursePayableEarningsUpdatedEvent = _fixture.Create<ShortCoursePayableEarningsUpdatedEvent>();
-        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand(shortCoursePayableEarningsUpdatedEvent);
+        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand(shortCoursePayableEarningsUpdatedEvent);
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
             .With(x => x.Key, shortCoursePayableEarningsUpdatedEvent.EpisodeKey)
@@ -75,7 +76,7 @@ public class WhenProcessingShortCoursePayableEarningsUpdated
     {
         // Arrange
         var shortCoursePayableEarningsUpdatedEvent = _fixture.Create<ShortCoursePayableEarningsUpdatedEvent>();
-        var command = new ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand(shortCoursePayableEarningsUpdatedEvent);
+        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand(shortCoursePayableEarningsUpdatedEvent);
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
             .With(x => x.Key, shortCoursePayableEarningsUpdatedEvent.EpisodeKey)
@@ -107,7 +108,7 @@ public class WhenProcessingShortCoursePayableEarningsUpdated
     {
         // Arrange
         var shortCoursePayableEarningsUpdatedEvent = _fixture.Create<ShortCoursePayableEarningsUpdatedEvent>();
-        var command = new ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand(shortCoursePayableEarningsUpdatedEvent);
+        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand(shortCoursePayableEarningsUpdatedEvent);
 
         _mockRepository.Setup(x => x.GetShortCourseLearning(command.ShortCoursePayableEarningsUpdatedEvent.LearningKey))
             .ReturnsAsync((ShortCourseLearning?)null);
@@ -121,11 +122,11 @@ public class WhenProcessingShortCoursePayableEarningsUpdated
     }
 
     [Test]
-    public async Task WhenEpisodeKeyMismatch_ThrowsException()
+    public async Task WhenEpisodeNotFound_ThrowsException()
     {
         // Arrange
         var shortCoursePayableEarningsUpdatedEvent = _fixture.Create<ShortCoursePayableEarningsUpdatedEvent>();
-        var command = new ProcessShortCoursePayableEarningsUpdatedCommand.ProcessShortCoursePayableEarningsUpdatedCommand(shortCoursePayableEarningsUpdatedEvent);
+        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand(shortCoursePayableEarningsUpdatedEvent);
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
             .With(x => x.Key, Guid.NewGuid())
@@ -144,6 +145,7 @@ public class WhenProcessingShortCoursePayableEarningsUpdated
         Func<Task> act = async () => await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"Short course episode not found for EpisodeKey: {command.ShortCoursePayableEarningsUpdatedEvent.EpisodeKey} on LearningKey: {command.ShortCoursePayableEarningsUpdatedEvent.LearningKey}");
     }
 }
