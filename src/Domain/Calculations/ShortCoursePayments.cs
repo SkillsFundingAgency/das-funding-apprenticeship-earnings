@@ -10,20 +10,23 @@ public static class ShortCoursePayments
     private const decimal FirstPaymentPortionPercentage = 0.3m;
     private const decimal SecondPaymentPortionPercentage = 0.7m;
 
-    public static List<ShortCourseInstalment> GenerateShortCoursePayments(decimal totalPrice, DateTime startDate, DateTime endDate, DateTime? completionDate)
+    public static List<ShortCourseInstalment> GenerateShortCoursePayments(decimal totalPrice, DateTime startDate, DateTime endDate, DateTime? completionDate, bool suppressThirtyPercent = false)
     {
         var payments = new List<ShortCourseInstalment>();
 
         var duration = (endDate - startDate).Days + 1;
         var firstPaymentDate = startDate.AddDays(Math.Floor(duration * FirstPaymentDurationPercentage) - 1);
 
-        payments.Add(new ShortCourseInstalment
-        (
-            firstPaymentDate.ToAcademicYear(),
-            firstPaymentDate.ToDeliveryPeriod(),
-            CalculateThirtyPercentInstalmentAmount(totalPrice),
-            ShortCourseInstalmentType.ThirtyPercentLearningComplete
-        ));
+        if (!suppressThirtyPercent)
+        {
+            payments.Add(new ShortCourseInstalment
+            (
+                firstPaymentDate.ToAcademicYear(),
+                firstPaymentDate.ToDeliveryPeriod(),
+                CalculateThirtyPercentInstalmentAmount(totalPrice),
+                ShortCourseInstalmentType.ThirtyPercentLearningComplete
+            ));
+        }
 
         payments.Add(new ShortCourseInstalment
         (

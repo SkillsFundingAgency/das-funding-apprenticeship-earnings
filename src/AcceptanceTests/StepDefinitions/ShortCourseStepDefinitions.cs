@@ -208,6 +208,29 @@ public class ShortCourseStepDefinitions
         return model;
     }
 
+    [Then(@"On programme short course earnings for the current episode are persisted as follows")]
+    public async Task ThenOnProgrammeShortCourseEarningsForCurrentEpisodeArePersistedAsFollows(Table table)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        var episode = updatedEntity.Episodes.Single(e => e.Key == request.EpisodeKey);
+        var earningsInDb = episode.EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+
+        var data = table.CreateSet<EarningDbExpectationModel>().ToList();
+
+        earningsInDb.Should().HaveCount(data.Count);
+
+        foreach (var expectedEarning in data)
+        {
+            earningsInDb.Should()
+                .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                              && (expectedEarning.Type == null || Enum.Parse<ShortCourseInstalmentType>(expectedEarning.Type) == Enum.Parse<ShortCourseInstalmentType>(x.Type))
+                    , $"Expected earning not found: {Newtonsoft.Json.JsonConvert.SerializeObject(expectedEarning)}");
+        }
+    }
+
     [Then(@"the short course instalment payability is")]
     public async Task ThenTheShortCourseInstalmentPayabilityIs(Table table)
     {

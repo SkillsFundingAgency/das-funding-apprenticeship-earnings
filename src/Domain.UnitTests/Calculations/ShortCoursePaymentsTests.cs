@@ -135,6 +135,26 @@ public class ShortCoursePaymentsTests
         result[1].Type.Should().Be(ShortCourseInstalmentType.LearningComplete);
     }
 
+    [Test]
+    public void GenerateShortCoursePayments_WhenSuppressThirtyPercent_ShouldReturnOnlyCompletionInstalment()
+    {
+        var result = ShortCoursePayments.GenerateShortCoursePayments(1000m, new DateTime(2023, 11, 1), new DateTime(2023, 11, 30), null, suppressThirtyPercent: true);
+
+        result.Should().HaveCount(1);
+        result.Single().Type.Should().Be(ShortCourseInstalmentType.LearningComplete);
+        result.Single().Amount.Should().Be(700m);
+    }
+
+    [Test]
+    public void GenerateShortCoursePayments_WhenNotSuppressed_ShouldReturnBothInstalments()
+    {
+        var result = ShortCoursePayments.GenerateShortCoursePayments(1000m, new DateTime(2023, 11, 1), new DateTime(2023, 11, 30), null, suppressThirtyPercent: false);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(p => p.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete);
+        result.Should().ContainSingle(p => p.Type == ShortCourseInstalmentType.LearningComplete);
+    }
+
     [TestCase(true, MilestoneFlags.ThirtyPercentLearningComplete | MilestoneFlags.LearningComplete, true, true)]
     [TestCase(true, MilestoneFlags.ThirtyPercentLearningComplete, true, false)]
     [TestCase(true, MilestoneFlags.LearningComplete, false, true)]
