@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
 public static class NServiceBusExtensions
 {
@@ -32,8 +32,8 @@ public static class NServiceBusExtensions
 
     private static bool IsMessage(Type t) => t.Name.EndsWith("Message");
 
-    private static bool IsEvent(Type t) => t.Name.EndsWith("Event");
+    private static bool IsEvent(Type t) => t.Name.EndsWith("Event") || (t.FullName != null && t.FullName.StartsWith("SFA.DAS.Payments") && t.FullName.Contains(".Events"));
 
-    private static bool IsCommand(Type t) => t.Name.EndsWith("Command");
+    private static bool IsCommand(Type t) => t.Name.EndsWith("Command") || (t.FullName != null && t.FullName.StartsWith("SFA.DAS.Payments") && t.FullName.Contains(".Commands"));
 
 }

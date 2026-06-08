@@ -1,4 +1,4 @@
-﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,6 +93,8 @@ public class Startup
         services.AddSingleton<ITelemetryInitializer, CorrelationTelemetryInitializer>();
 
         services.AddEntityFrameworkForApprenticeships(ApplicationSettings);
+        services.AddSingleton(x => ApplicationSettings);
+        services.AddSingleton(x => ApplicationSettings.PaymentsConfiguration);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();

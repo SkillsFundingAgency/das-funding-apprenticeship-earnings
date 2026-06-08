@@ -1,10 +1,12 @@
 using AutoFixture;
 using FluentAssertions;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -23,6 +25,7 @@ public class WhenSendingShortCoursePayableEarningsToPayments
     private Mock<ILearningRepository> _mockRepository = null!;
     private Mock<IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder> _mockBuilder = null!;
     private Mock<IMessageSession> _mockMessageSession = null!;
+    private PaymentsConfiguration _paymentsConfiguration = null!;
     private SendShortCoursePayableEarningsToPaymentsCommandHandler _sut = null!;
 
     [SetUp]
@@ -32,11 +35,13 @@ public class WhenSendingShortCoursePayableEarningsToPayments
         _mockRepository = new Mock<ILearningRepository>();
         _mockBuilder = new Mock<IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder>();
         _mockMessageSession = new Mock<IMessageSession>();
+        _paymentsConfiguration = new PaymentsConfiguration { PaymentsEndpoint = "payments-queue-name" };
 
         _sut = new SendShortCoursePayableEarningsToPaymentsCommandHandler(
             _mockRepository.Object,
             _mockBuilder.Object,
             _mockMessageSession.Object,
+            _paymentsConfiguration,
             Mock.Of<Microsoft.Extensions.Logging.ILogger<SendShortCoursePayableEarningsToPaymentsCommandHandler>>());
     }
 
@@ -100,7 +105,8 @@ public class WhenSendingShortCoursePayableEarningsToPayments
 
         // Assert
         _mockBuilder.Verify(x => x.Build(learning.GetEpisode(), learning), Times.Once);
-        _mockMessageSession.Verify(x => x.Publish(paymentEvent, It.IsAny<PublishOptions>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Send(paymentEvent, It.IsAny<SendOptions>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == paymentEvent), It.IsAny<PublishOptions>()), Times.Once);
     }
 
     [Test]

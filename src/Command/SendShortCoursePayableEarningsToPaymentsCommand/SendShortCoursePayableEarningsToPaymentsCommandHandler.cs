@@ -1,5 +1,8 @@
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendShortCoursePayableEarningsToPaymentsCommand;
 
@@ -8,17 +11,20 @@ public class SendShortCoursePayableEarningsToPaymentsCommandHandler : ICommandHa
     private readonly ILearningRepository _learningRepository;
     private readonly IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder _eventBuilder;
     private readonly IMessageSession _messageSession;
+    private readonly PaymentsConfiguration _paymentsConfiguration;
     private readonly ILogger<SendShortCoursePayableEarningsToPaymentsCommandHandler> _logger;
 
     public SendShortCoursePayableEarningsToPaymentsCommandHandler(
         ILearningRepository learningRepository,
         IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder eventBuilder,
         IMessageSession messageSession,
+        PaymentsConfiguration paymentsConfiguration,
         ILogger<SendShortCoursePayableEarningsToPaymentsCommandHandler> logger)
     {
         _learningRepository = learningRepository;
         _eventBuilder = eventBuilder;
         _messageSession = messageSession;
+        _paymentsConfiguration = paymentsConfiguration;
         _logger = logger;
     }
 
@@ -40,7 +46,12 @@ public class SendShortCoursePayableEarningsToPaymentsCommandHandler : ICommandHa
 
         var paymentEvent = _eventBuilder.Build(episode, learning);
 
-        await _messageSession.Publish(paymentEvent, cancellationToken: cancellationToken);
+        var options = new SendOptions();
+        options.DoNotEnforceBestPractices();
+        options.SetDestination(_paymentsConfiguration.PaymentsEndpoint);
+        await _messageSession.Send(paymentEvent, options);
+
+        await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
 
         _logger.LogInformation("{handler} - Successfully processed and published event for LearningKey: {LearningKey}", nameof(SendShortCoursePayableEarningsToPaymentsCommandHandler), command.ShortCoursePayableEarningsUpdatedEvent.LearningKey);
     }
