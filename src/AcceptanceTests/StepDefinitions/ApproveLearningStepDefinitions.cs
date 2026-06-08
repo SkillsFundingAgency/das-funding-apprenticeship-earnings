@@ -17,6 +17,8 @@ public class ApproveLearningStepDefinitions
 
     [Given("a LearningApproved event is received for the short course")]
     [When("a LearningApproved event is received for the short course")]
+    [Given("the Short Course is approved by the Employer")]
+    [When("the Short Course is approved by the Employer")]
     public async Task WhenLearningApprovedEventReceived()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
@@ -38,5 +40,13 @@ public class ApproveLearningStepDefinitions
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
         entity!.Episodes.First().EarningsProfile.IsApproved.Should().BeTrue();
+    }
+
+    [Then("the short course earnings profile for the current episode is marked as approved")]
+    public async Task ThenShortCourseEarningsProfileForCurrentEpisodeIsApproved()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        entity!.Episodes.Single(e => e.Key == request.EpisodeKey).EarningsProfile.IsApproved.Should().BeTrue();
     }
 }
