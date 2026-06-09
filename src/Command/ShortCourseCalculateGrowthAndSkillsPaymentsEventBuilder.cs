@@ -1,3 +1,4 @@
+using Azure.Core;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -31,7 +32,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                 CourseType = CourseType.ShortCourse,
                 LearningType = LearningType.ApprenticeshipUnit,
                 CourseCode = episode.TrainingCode.Trim(),
-                CourseReference = episode.TrainingCode.Trim(),
+                CourseReference = $"ZSC{int.Parse(episode.TrainingCode.Trim()):D5}",
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.StartDate,
                 PlannedEndDate = episode.EndDate,

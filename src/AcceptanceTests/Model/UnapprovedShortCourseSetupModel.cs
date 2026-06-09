@@ -34,7 +34,7 @@ public static class UnapprovedShortCourseSetupModelExtensions
             LearningSupport = new List<LearningSupportItem>(),
             OnProgramme = new OnProgramme
             {
-                CourseCode = "UX1",
+                CourseCode = "071",
                 ExpectedEndDate = expectedEndDate,
                 Milestones = milestones,
                 StartDate = startDate,
