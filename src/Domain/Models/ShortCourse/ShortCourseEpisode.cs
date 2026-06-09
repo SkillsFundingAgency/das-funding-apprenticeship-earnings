@@ -13,6 +13,8 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public MilestoneFlags MilestoneFlags => _entity.Milestones;
     public bool IsApproved => _earningsProfile?.IsApproved ?? false;
     public bool IsRemoved => _entity.IsRemoved;
+    public long? EmployerAccountId => _entity.EmployerAccountId;
+    public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {

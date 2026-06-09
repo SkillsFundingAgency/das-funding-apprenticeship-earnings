@@ -82,8 +82,8 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                             Amount = instalment.Amount,
                             Employer = new Employer
                             {
-                                AccountId = 0,
-                                FundingAccountId = 0,
+                                AccountId = episode.EmployerAccountId ?? 0,
+                                FundingAccountId = episode.FundingEmployerAccountId ?? 0,
                                 EmployerType = employerType
                             }
                         }).ToList()

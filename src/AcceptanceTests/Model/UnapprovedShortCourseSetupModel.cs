@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
@@ -35,6 +35,8 @@ public static class UnapprovedShortCourseSetupModelExtensions
             OnProgramme = new OnProgramme
             {
                 CourseCode = "071",
+                EmployerAccountId = Constants.EventBuilderSharedDefaults.EmployerAccountId,
+                FundingEmployerAccountId = null,
                 ExpectedEndDate = expectedEndDate,
                 Milestones = milestones,
                 StartDate = startDate,

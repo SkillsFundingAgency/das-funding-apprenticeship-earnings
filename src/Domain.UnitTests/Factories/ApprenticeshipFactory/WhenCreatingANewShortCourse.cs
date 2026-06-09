@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
@@ -36,6 +36,8 @@ public class WhenCreatingANewShortCourse
             OnProgramme = new OnProgramme
             {
                 CourseCode = "SC101",
+                EmployerAccountId = 12345,
+                FundingEmployerAccountId = 67890,
                 StartDate = new DateTime(2025, 01, 01),
                 ExpectedEndDate = new DateTime(2025, 06, 30),
                 TotalPrice = 1500m,
@@ -54,6 +56,8 @@ public class WhenCreatingANewShortCourse
         var episode = learning.Episodes.SingleOrDefault();
         episode.Should().NotBeNull();
         episode.TrainingCode.Should().Be(request.OnProgramme.CourseCode);
+        episode.EmployerAccountId.Should().Be(request.OnProgramme.EmployerAccountId);
+        episode.FundingEmployerAccountId.Should().Be(request.OnProgramme.FundingEmployerAccountId);
         episode.AgeAtStartOfApprenticeship.Should().Be(25); // 2025 - 2000
         episode.FundingType.Should().Be(FundingType.Levy);
         episode.UKPRN.Should().Be(request.OnProgramme.Ukprn);

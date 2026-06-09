@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -39,6 +39,8 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
             {
                 CompletionDate = command.Request.OnProgramme.CompletionDate,
                 CourseCode = command.Request.OnProgramme.CourseCode,
+                EmployerAccountId = command.Request.OnProgramme.EmployerAccountId,
+                FundingEmployerAccountId = command.Request.OnProgramme.FundingEmployerAccountId,
                 ExpectedEndDate = command.Request.OnProgramme.ExpectedEndDate,
                 StartDate = command.Request.OnProgramme.StartDate,
                 TotalPrice = command.Request.OnProgramme.TotalPrice,

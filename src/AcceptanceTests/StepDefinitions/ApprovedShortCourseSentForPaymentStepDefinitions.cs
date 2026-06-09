@@ -81,16 +81,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             learningPeriod.Amount.Should().Be(600);
             learningPeriod.DeliveryPeriod.Should().Be(7);
             learningPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design
-            learningPeriod.Employer.AccountId.Should().Be(0); //todo account ids
-            learningPeriod.Employer.FundingAccountId.Should().Be(0); //todo account ids
+            learningPeriod.Employer.AccountId.Should().Be(request.OnProgramme.EmployerAccountId);
+            learningPeriod.Employer.FundingAccountId.Should().Be(request.OnProgramme.FundingEmployerAccountId ?? 0);
             learningPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
 
             var completionPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion);
             completionPeriod.Amount.Should().Be(1400);
             completionPeriod.DeliveryPeriod.Should().Be(11);
             completionPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design
-            completionPeriod.Employer.AccountId.Should().Be(0); //todo account ids
-            completionPeriod.Employer.FundingAccountId.Should().Be(0); //todo account ids
+            completionPeriod.Employer.AccountId.Should().Be(request.OnProgramme.EmployerAccountId);
+            completionPeriod.Employer.FundingAccountId.Should().Be(request.OnProgramme.FundingEmployerAccountId ?? 0);
             completionPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
         }
     }

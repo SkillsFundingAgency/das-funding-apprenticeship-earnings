@@ -28,6 +28,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var dateOfBirth = new DateTime(2005, 1, 1);
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.TrainingCode, "101")
             .With(x => x.StartDate, startDate)
             .With(x => x.EndDate, endDate)
             .With(x => x.CoursePrice, 1000m)
@@ -66,7 +67,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         result.Training.CourseType.Should().Be(CourseType.ShortCourse);
         result.Training.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
         result.Training.CourseCode.Should().Be(episode.TrainingCode);
-        result.Training.CourseReference.Should().Be(episode.TrainingCode);
+        result.Training.CourseReference.Should().Be($"ZSC{int.Parse(episode.TrainingCode.Trim()):D5}");
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(episode.StartDate);
         result.Training.PlannedEndDate.Should().Be(episode.EndDate);
@@ -79,6 +80,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
     {
         // Arrange
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.TrainingCode, "101")
             .With(x => x.IsRemoved, true)
             .With(x => x.WithdrawalDate, new DateTime(2024, 3, 1))
             .With(x => x.CompletionDate, (DateTime?)null)
@@ -108,6 +110,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
     {
         // Arrange
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.TrainingCode, "101")
             .With(x => x.IsRemoved, false)
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
@@ -151,9 +154,12 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.TrainingCode, "101")
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 6, 30))
             .With(x => x.CoursePrice, 1000m)
+            .With(x => x.EmployerAccountId, 12345L)
+            .With(x => x.FundingEmployerAccountId, 67890L)
             .With(x => x.FundingType, SFA.DAS.Learning.Types.FundingType.Levy)
             .With(x => x.EarningsProfile, _fixture.Build<ShortCourseEarningsProfileEntity>()
                 .With(p => p.Instalments, new List<ShortCourseInstalmentEntity> { instalment1, instalment2 })
@@ -187,8 +193,8 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         period1.EarningType.Should().Be(EarningType.Learning);
         period1.Amount.Should().Be(300m);
         period1.LearningId.Should().Be(learning.ApprovalsApprenticeshipId);
-        period1.Employer.AccountId.Should().Be(0);
-        period1.Employer.FundingAccountId.Should().Be(0);
+        period1.Employer.AccountId.Should().Be(12345L);
+        period1.Employer.FundingAccountId.Should().Be(67890L);
         period1.Employer.EmployerType.Should().Be(EmployerType.Levy);
 
         var period2 = pricePeriod.Periods.First(p => p.DeliveryPeriod == 10);
@@ -216,6 +222,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.TrainingCode, "101")
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 10, 31))
             .With(x => x.CoursePrice, 1000m)

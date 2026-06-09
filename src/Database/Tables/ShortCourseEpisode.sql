@@ -3,6 +3,8 @@ CREATE TABLE [Domain].[ShortCourseEpisode]
     [Key] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[LearningKey] UNIQUEIDENTIFIER NOT NULL, 
     [Ukprn] BIGINT NOT NULL, 
+    [EmployerAccountId] BIGINT NULL,
+    [FundingEmployerAccountId] BIGINT NULL,
     [FundingType] NVARCHAR(50) NOT NULL, 
     [TrainingCode] NCHAR(50) NOT NULL,
     [CompletionDate] DATETIME NULL, 

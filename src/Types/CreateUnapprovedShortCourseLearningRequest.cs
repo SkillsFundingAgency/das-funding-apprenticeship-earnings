@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 #pragma warning disable CS8618
 public class CreateUnapprovedShortCourseLearningRequest
@@ -21,6 +21,10 @@ public class OnProgramme
     public string CourseCode { get; set; } = null!;
 
     public long Ukprn { get; set; }
+
+    public long EmployerAccountId { get; set; }
+
+    public long? FundingEmployerAccountId { get; set; }
 
     public DateTime StartDate { get; set; }
 
