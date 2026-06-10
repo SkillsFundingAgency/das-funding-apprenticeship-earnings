@@ -68,6 +68,15 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
         }
+
+        if (IsApproved)
+        {
+            AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+            {
+                LearningKey = _entity.LearningKey,
+                EpisodeKey = EpisodeKey
+            });
+        }
     }
 
     private void RemoveEarnings()
@@ -102,6 +111,11 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _entity.IsRemoved = true;
         RemoveEarnings();
+        AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+        {
+            LearningKey = _entity.LearningKey,
+            EpisodeKey = EpisodeKey
+        });
     }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
