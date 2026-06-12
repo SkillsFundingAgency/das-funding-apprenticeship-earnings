@@ -15,8 +15,8 @@ public abstract class BaseLearning : AggregateRoot
     public abstract DateTime DateOfBirth { get; }
 
     public abstract void UpdateDateOfBirth(DateTime dateOfBirth);
+    public abstract void Approve(Guid episodeKey);
     public abstract BaseEpisode GetEpisode(Guid episodeKey);
-    public abstract BaseEpisode GetFirstEpisode();
 }
 
 public abstract class BaseLearning<TEntity, TEpisode> : BaseLearning
@@ -40,14 +40,6 @@ public abstract class BaseLearning<TEntity, TEpisode> : BaseLearning
         var episode = _episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey);
         if (episode == null)
             throw new InvalidOperationException($"No episode found for key {episodeKey}");
-        return episode;
-    }
-
-    public override BaseEpisode GetFirstEpisode()
-    {
-        var episode = _episodes.FirstOrDefault();
-        if (episode == null)
-            throw new InvalidOperationException("No episodes found for learning");
         return episode;
     }
 

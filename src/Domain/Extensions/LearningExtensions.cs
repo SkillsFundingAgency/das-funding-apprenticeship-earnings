@@ -45,9 +45,9 @@ public static class LearningExtensions
         return ShortCourseEpisode.Get(learning, entity);
     }
 
-    public static T ToDtoResponse<T>(this ShortCourseLearning learning) where T : DataTransferObjects.ShortCourseEarnings, new()
+    public static T ToDtoResponse<T>(this ShortCourseLearning learning, Guid episodeKey) where T : DataTransferObjects.ShortCourseEarnings, new()
     {
-        var episode = learning.GetEpisode();
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeKey);
         var earningsProfile = episode.EarningsProfile!;
 
         var response = new T

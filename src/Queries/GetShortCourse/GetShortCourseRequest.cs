@@ -1,15 +1,15 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourse;
 
 public class GetShortCourseRequest : IQuery
 {
     public Guid LearningKey { get; }
-    public long Ukprn { get; }
+    public Guid EpisodeKey { get; }
 
-    public GetShortCourseRequest(Guid learningKey, long ukprn)
+    public GetShortCourseRequest(Guid learningKey, Guid episodeKey)
     {
         LearningKey = learningKey;
-        Ukprn = ukprn;
+        EpisodeKey = episodeKey;
     }
 }

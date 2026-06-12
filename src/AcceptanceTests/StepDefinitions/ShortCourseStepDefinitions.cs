@@ -2,15 +2,11 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Learning.Types;
 using System.Text.Json;
 using TechTalk.SpecFlow.Assist;
 
@@ -35,7 +31,23 @@ public class ShortCourseStepDefinitions
 
         var request = table
             .CreateInstance<UnapprovedShortCourseSetupModel>()
-            .ToApiRequest(existingRequest?.LearningKey);
+            .ToApiRequest(existingRequest?.LearningKey, existingRequest?.EpisodeKey);
+
+        _scenarioContext.Set(request);
+
+        await _testContext.TestInnerApi.Post($"/shortCourses", request);
+    }
+
+    [Given("a short course has been created by a new provider with the following information")]
+    [When("a short course has been created by a new provider with the following information")]
+    public async Task CreateUnapprovedShortCourseLearningForNewProvider(Table table)
+    {
+        _scenarioContext.TryGetValue<CreateUnapprovedShortCourseLearningRequest>(out var existingRequest);
+
+        // Reuse LearningKey (same learner) but generate a fresh EpisodeKey (new provider)
+        var request = table
+            .CreateInstance<UnapprovedShortCourseSetupModel>()
+            .ToApiRequest(existingRequest?.LearningKey, episodeKey: null);
 
         _scenarioContext.Set(request);
 
@@ -57,11 +69,9 @@ public class ShortCourseStepDefinitions
     public async Task WhenIRequestTheShortCourseEarnings()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        var learningKey = request.LearningKey;
-        var ukprn = request.OnProgramme.Ukprn;
 
         var response = await _testContext.TestInnerApi.Get<GetFm99ShortCourseEarningsResponse>(
-            $"/fm99/{learningKey}/shortCourses?ukprn={ukprn}");
+            $"/fm99/{request.LearningKey}/shortCourses?ukprn={request.OnProgramme.Ukprn}");
 
         _scenarioContext.Set(response);
     }
@@ -101,19 +111,30 @@ public class ShortCourseStepDefinitions
         history.First().Version.Should().Be(episode.EarningsProfile.Version);
     }
 
+    [Given(@"Provider A's short course has been withdrawn on (.*)")]
+    public async Task GivenProviderAWithdrawnOn(DateTime withdrawalDate)
+    {
+        var model = new UpdateShortCourseOnProgrammeModel();
+        model.WithdrawalDate.SetValue(withdrawalDate);
+        await PerformOnProgrammeUpdate(model);
+    }
+
     [When(@"Short Course Update OnProgramme is triggered with")]
     public async Task WhenShortCourseUpdateOnProgrammeIsTriggeredWith(Table table)
     {
-        var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        await PerformOnProgrammeUpdate(GetUpdateOnProgrammeModel(table));
+    }
 
-        var data = GetUpdateOnProgrammeModel(table);
+    private async Task PerformOnProgrammeUpdate(UpdateShortCourseOnProgrammeModel model)
+    {
+        var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
 
         var updateOnProgrammeRequest = _scenarioContext.GetShortCourseUpdateOnProgrammeRequestBuilder()
             .WithExistingData(shortCourseCreateRequest)
-            .WithDataFromSetupModel(data)
+            .WithDataFromSetupModel(model)
             .Build();
 
-        var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/on-programme", updateOnProgrammeRequest);
+        var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/{shortCourseCreateRequest.EpisodeKey}/on-programme", updateOnProgrammeRequest);
 
         var shortCourseEntity = await GetLearningEntity(shortCourseCreateRequest.LearningKey);
 
@@ -160,8 +181,7 @@ public class ShortCourseStepDefinitions
     {
         var shortCourseCreateRequest = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
 
-        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(shortCourseCreateRequest.LearningKey);
-        var response = await _testContext.TestInnerApi.Get<GetShortCourseResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses?ukprn={entity.Episodes.Single().Ukprn}");
+        var response = await _testContext.TestInnerApi.Get<GetShortCourseResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/{shortCourseCreateRequest.EpisodeKey}");
 
         _scenarioContext.Set(response);
     }
@@ -200,13 +220,49 @@ public class ShortCourseStepDefinitions
         return model;
     }
 
+    [Then(@"On programme short course earnings for the current episode are persisted as follows")]
+    public async Task ThenOnProgrammeShortCourseEarningsForCurrentEpisodeArePersistedAsFollows(Table table)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var updatedEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        var episode = updatedEntity.Episodes.Single(e => e.Key == request.EpisodeKey);
+        var earningsInDb = episode.EarningsProfile.Instalments.OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod);
+
+        var data = table.CreateSet<EarningDbExpectationModel>().ToList();
+
+        earningsInDb.Should().HaveCount(data.Count);
+
+        foreach (var expectedEarning in data)
+        {
+            earningsInDb.Should()
+                .Contain(x => Math.Round(x.Amount, 2) == Math.Round(expectedEarning.Amount, 2)
+                              && x.AcademicYear == expectedEarning.AcademicYear
+                              && x.DeliveryPeriod == expectedEarning.DeliveryPeriod
+                              && (expectedEarning.Type == null || Enum.Parse<ShortCourseInstalmentType>(expectedEarning.Type) == Enum.Parse<ShortCourseInstalmentType>(x.Type))
+                    , $"Expected earning not found: {Newtonsoft.Json.JsonConvert.SerializeObject(expectedEarning)}");
+        }
+    }
+
     [Then(@"the short course instalment payability is")]
     public async Task ThenTheShortCourseInstalmentPayabilityIs(Table table)
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
         var instalments = entity!.Episodes.First().EarningsProfile.Instalments;
+        await AssertInstalmentPayability(instalments, table);
+    }
 
+    [Then(@"the short course instalment payability for the current episode is")]
+    public async Task ThenTheShortCourseInstalmentPayabilityForCurrentEpisodeIs(Table table)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        var instalments = entity!.Episodes.Single(e => e.Key == request.EpisodeKey).EarningsProfile.Instalments;
+        await AssertInstalmentPayability(instalments, table);
+    }
+
+    private static Task AssertInstalmentPayability(IEnumerable<ShortCourseInstalmentEntity> instalments, Table table)
+    {
         var expected = table.CreateSet<InstalmentPayabilityExpectation>().ToList();
 
         foreach (var exp in expected)
@@ -214,13 +270,15 @@ public class ShortCourseStepDefinitions
             var instalment = instalments.Single(i => Enum.Parse<ShortCourseInstalmentType>(i.Type) == exp.Type);
             instalment.IsPayable.Should().Be(exp.IsPayable, $"{exp.Type} instalment should have IsPayable={exp.IsPayable}");
         }
+
+        return Task.CompletedTask;
     }
 
     [When(@"the short course learning is deleted")]
     public async Task WhenTheShortCourseLearningIsDeleted()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses");
+        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}");
     }
 
     [Then(@"the short course has no instalments")]
@@ -229,6 +287,14 @@ public class ShortCourseStepDefinitions
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
         var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
         entity!.Episodes.First().EarningsProfile.Instalments.Should().BeEmpty();
+    }
+
+    [Then(@"the short course learning has (\d+) episodes")]
+    public async Task ThenTheShortCourseLearningHasEpisodes(int expectedCount)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
+        entity!.Episodes.Should().HaveCount(expectedCount);
     }
 
     private async Task<ShortCourseLearningEntity> GetLearningEntity(Guid learningKey)

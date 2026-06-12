@@ -34,7 +34,6 @@ public class WhenGetFm99ShortCourseEarnings
     [Test]
     public async Task Then_Returns_Ok_With_Earnings_On_Success()
     {
-        // Arrange
         var learningKey = _fixture.Create<Guid>();
         var ukprn = _fixture.Create<long>();
         var expectedResponse = new GetFm99ShortCourseEarningsResponse
@@ -51,10 +50,8 @@ public class WhenGetFm99ShortCourseEarnings
                 It.Is<GetFm99ShortCourseEarningsRequest>(r => r.LearningKey == learningKey && r.Ukprn == ukprn)))
             .ReturnsAsync(expectedResponse);
 
-        // Act
         var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
 
-        // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
         okResult!.Value.Should().Be(expectedResponse);
@@ -63,7 +60,6 @@ public class WhenGetFm99ShortCourseEarnings
     [Test]
     public async Task Then_Returns_InternalServerError_On_Exception()
     {
-        // Arrange
         var learningKey = _fixture.Create<Guid>();
         var ukprn = _fixture.Create<long>();
 
@@ -72,10 +68,8 @@ public class WhenGetFm99ShortCourseEarnings
                 It.IsAny<GetFm99ShortCourseEarningsRequest>()))
             .ThrowsAsync(new Exception("Test exception"));
 
-        // Act
         var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
 
-        // Assert
         result.Should().BeOfType<StatusCodeResult>();
         ((StatusCodeResult)result).StatusCode.Should().Be(500);
     }

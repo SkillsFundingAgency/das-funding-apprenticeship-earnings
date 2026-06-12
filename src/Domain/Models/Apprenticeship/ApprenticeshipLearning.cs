@@ -17,6 +17,9 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         return new ApprenticeshipLearning(entity);
     }
 
+    public override void Approve(Guid episodeKey) =>
+        throw new NotSupportedException("Apprenticeship approval is not yet implemented.");
+
     public override ApprenticeshipEpisode GetEpisode(Guid episodeKey)
     {
         var episode = _episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey);
