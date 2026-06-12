@@ -34,7 +34,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
             var dbEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
             var domainModel = ShortCourseLearning.Get(dbEntity);
-            var episode = domainModel.GetEpisode();
+            var episode = (ShortCourseEpisode)domainModel.GetEpisode(request.EpisodeKey);
             var learningApprovedEvent = _scenarioContext.Get<LearningApprovedEvent>();
 
             var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().SingleOrDefault();

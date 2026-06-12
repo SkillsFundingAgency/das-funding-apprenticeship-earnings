@@ -190,7 +190,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data");
-        _learning.Approve(providerAEpisodeKey);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId);
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -212,7 +212,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn; Provider B also submits 30% milestone
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data");
-        _learning.Approve(providerAEpisodeKey);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId);
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);

@@ -15,7 +15,7 @@ public abstract class BaseLearning : AggregateRoot
     public abstract DateTime DateOfBirth { get; }
 
     public abstract void UpdateDateOfBirth(DateTime dateOfBirth);
-    public abstract void Approve(Guid episodeKey);
+    public abstract void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId);
     public abstract BaseEpisode GetEpisode(Guid episodeKey);
 }
 

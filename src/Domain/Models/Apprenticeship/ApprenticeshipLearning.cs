@@ -1,6 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -17,7 +16,7 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         return new ApprenticeshipLearning(entity);
     }
 
-    public override void Approve(Guid episodeKey) =>
+    public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId) =>
         throw new NotSupportedException("Apprenticeship approval is not yet implemented.");
 
     public override ApprenticeshipEpisode GetEpisode(Guid episodeKey)

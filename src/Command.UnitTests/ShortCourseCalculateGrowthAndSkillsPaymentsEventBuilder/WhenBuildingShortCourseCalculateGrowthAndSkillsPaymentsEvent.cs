@@ -49,7 +49,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
-        var episode = learning.GetEpisode();
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
         var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
@@ -100,7 +100,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
-        var episode = learning.GetEpisode();
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
         var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
@@ -133,7 +133,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
-        var episode = learning.GetEpisode();
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
         var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
@@ -183,7 +183,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
-        var episode = learning.GetEpisode();
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
         var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
@@ -251,7 +251,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
-        var episode = learning.GetEpisode();
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
         var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);

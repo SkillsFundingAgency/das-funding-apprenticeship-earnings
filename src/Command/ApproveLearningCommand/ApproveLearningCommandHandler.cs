@@ -16,8 +16,7 @@ public class ApproveLearningCommandHandler : ICommandHandler<ApproveLearningComm
         var learning = await _learningDomainService.GetLearning(command.LearningKey)
             ?? throw new InvalidOperationException($"Learning not found for key: {command.LearningKey}");
 
-        learning.Approve(command.EpisodeKey);
-        episode.Approve(command.EmployerAccountId, command.FundingAccountId); //todo fix this - learning.Approve?!
+        learning.Approve(command.EpisodeKey, command.EmployerAccountId, command.FundingAccountId);
 
         await _learningDomainService.Update(learning);
     }
