@@ -34,6 +34,18 @@ public class WhenApprovingLearning
     }
 
     [Test]
+    public async Task ThenTheEpisodeIsApproved()
+    {
+        var learning = BuildLearning(isApproved: false);
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.Episodes.Single().EarningsProfile!.IsApproved.Should().BeTrue();
+    }
+
+    [Test]
     public async Task ThenUpdateIsCalledWithTheLearning()
     {
         var learning = BuildLearning();
@@ -48,8 +60,7 @@ public class WhenApprovingLearning
     [Test]
     public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
     {
-        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), 0, 0);
-        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid());
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>());
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
@@ -57,19 +68,7 @@ public class WhenApprovingLearning
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
-    public async Task ThenTheEpisodeIsApproved()
-    {
-        var learning = BuildLearning(isApproved: false);
-        var command = BuildCommand(learning);
-        SetupDomainService(learning);
-
-        await CreateHandler().Handle(command);
-
-        var episode = learning.GetFirstEpisode();
-        episode.EarningsProfile!.IsApproved.Should().BeTrue();
-    }
-
+    private ShortCourseLearning BuildLearning(bool isApproved = true)
     {
         var episodeEntity = _fixture
             .Build<ShortCourseEpisodeEntity>()
@@ -91,10 +90,8 @@ public class WhenApprovingLearning
         return ShortCourseLearning.Get(entity);
     }
 
-    private Command.ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning)
-        => new(learning.LearningKey, _fixture.Create<long>(), _fixture.Create<long>());
-    private static ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
-        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey);
+    private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>());
 
     private void SetupDomainService(ShortCourseLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
