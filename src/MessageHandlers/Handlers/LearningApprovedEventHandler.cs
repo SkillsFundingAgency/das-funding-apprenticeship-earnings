@@ -19,7 +19,7 @@ public class LearningApprovedEventHandler(
             message.LearningKey);
 
         await approveLearningCommandHandler.Handle(
-            new ApproveLearningCommand(message.LearningKey),
+            new ApproveLearningCommand(message.LearningKey, message.EmployerAccountId, message.FundingAccountId),
             context.CancellationToken);
     }
 }

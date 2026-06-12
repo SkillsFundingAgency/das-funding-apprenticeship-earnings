@@ -20,7 +20,9 @@ public class ApproveLearningStepDefinitions
     public async Task WhenLearningApprovedEventReceived()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        await _testContext.TestFunction.PublishEvent(new LearningApprovedEvent { LearningKey = request.LearningKey });
+        var learningApprovedEvent = new LearningApprovedEvent { LearningKey = request.LearningKey };
+        _scenarioContext.Set(learningApprovedEvent);
+        await _testContext.TestFunction.PublishEvent(learningApprovedEvent);
     }
 
     [Given(@"the short course earnings profile is not yet approved")]

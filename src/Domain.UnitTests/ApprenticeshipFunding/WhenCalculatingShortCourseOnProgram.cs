@@ -22,6 +22,8 @@ internal class WhenCalculatingShortCourseOnProgram
     private ShortCourseEpisode _episode;
     private Mock<ISystemClockService> _mockSystemClock;
     private decimal _agreedPrice;
+    private long _employerAccountId;
+    private long _fundingAccountId;
 
     [SetUp]
     public void SetUp()
@@ -36,6 +38,9 @@ internal class WhenCalculatingShortCourseOnProgram
 
         _learning = _fixture.CreateLearningWithShortCourse(startDate, endDate, _agreedPrice);
         _episode = _learning.Episodes.Single();
+
+        _employerAccountId = _fixture.Create<long>();
+        _fundingAccountId = _fixture.Create<long>();
     }
 
     [Test]
@@ -116,7 +121,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
 
         // Act
-        _episode.Approve();
+        _episode.Approve(_employerAccountId, _fundingAccountId);
 
         // Assert
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeTrue());
@@ -149,10 +154,29 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Act
-        _episode.Approve();
+        _episode.Approve(_employerAccountId, _fundingAccountId);
 
         // Assert
         _episode.EarningsProfile.Instalments.Single(i => i.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).IsPayable.Should().BeTrue();
         _episode.EarningsProfile.Instalments.Single(i => i.Type == ShortCourseInstalmentType.LearningComplete).IsPayable.Should().BeFalse();
+    }
+
+    [Test]
+    public void WhenApproved_ShortCoursePayableEarningsUpdatedDomainEventIsAddedWithCorrectAccountIds()
+    {
+        // Arrange - milestones set, earnings calculated while unapproved
+        _episode.UpdateMilestones(new List<Milestone> { Milestone.ThirtyPercentLearningComplete, Milestone.LearningComplete });
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
+        _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
+
+        // Act
+        _episode.Approve(_employerAccountId, _fundingAccountId);
+
+        // Assert
+        var events = _episode.FlushEvents();
+        events.Should().ContainSingle(e =>
+            e is ShortCoursePayableEarningsUpdatedEvent &&
+            ((ShortCoursePayableEarningsUpdatedEvent)e).EmployerAccountId == _employerAccountId &&
+            ((ShortCoursePayableEarningsUpdatedEvent)e).FundingAccountId == _fundingAccountId);
     }
 }

@@ -35,19 +35,6 @@ public class WhenApprovingLearning
     }
 
     [Test]
-    public async Task ThenTheEpisodeIsApproved()
-    {
-        var learning = BuildLearning(isApproved: false);
-        var command = BuildCommand(learning);
-        SetupDomainService(learning);
-
-        await CreateHandler().Handle(command);
-
-        var episode = learning.GetFirstEpisode();
-        episode.EarningsProfile!.IsApproved.Should().BeTrue();
-    }
-
-    [Test]
     public async Task ThenUpdateIsCalledWithTheLearning()
     {
         var learning = BuildLearning();
@@ -62,12 +49,25 @@ public class WhenApprovingLearning
     [Test]
     public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
     {
-        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid());
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), 0, 0);
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task ThenTheEpisodeIsApproved()
+    {
+        var learning = BuildLearning(isApproved: false);
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        var episode = learning.GetFirstEpisode();
+        episode.EarningsProfile!.IsApproved.Should().BeTrue();
     }
 
     private ApprenticeshipLearning BuildLearning(bool isApproved = true)
@@ -100,8 +100,8 @@ public class WhenApprovingLearning
         return ApprenticeshipLearning.Get(learningEntity);
     }
 
-    private static Command.ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning)
-        => new(learning.LearningKey);
+    private Command.ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning)
+        => new(learning.LearningKey, _fixture.Create<long>(), _fixture.Create<long>());
 
     private void SetupDomainService(ApprenticeshipLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);

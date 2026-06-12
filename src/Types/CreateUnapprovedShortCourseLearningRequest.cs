@@ -22,10 +22,6 @@ public class OnProgramme
 
     public long Ukprn { get; set; }
 
-    public long EmployerAccountId { get; set; }
-
-    public long? FundingEmployerAccountId { get; set; }
-
     public DateTime StartDate { get; set; }
 
     public DateTime? WithdrawalDate { get; set; }

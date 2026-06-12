@@ -13,8 +13,6 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public MilestoneFlags MilestoneFlags => _entity.Milestones;
     public bool IsApproved => _earningsProfile?.IsApproved ?? false;
     public bool IsRemoved => _entity.IsRemoved;
-    public long? EmployerAccountId => _entity.EmployerAccountId;
-    public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
@@ -87,14 +85,16 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
 
-    public override void Approve()
+    public override void Approve(long employerAccountId, long fundingAccountId)
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
         AddEvent(new ShortCoursePayableEarningsUpdatedEvent
         {
             LearningKey = _entity.LearningKey,
-            EpisodeKey = EpisodeKey
+            EpisodeKey = EpisodeKey,
+            EmployerAccountId = employerAccountId,
+            FundingAccountId = fundingAccountId
         });
     }
 

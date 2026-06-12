@@ -47,8 +47,6 @@ public class LearningFactory : ILearningFactory
                 Key = commandRequest.EpisodeKey,
                 LearningKey = commandRequest.LearningKey,
                 Ukprn = commandRequest.OnProgramme.Ukprn,
-                EmployerAccountId = commandRequest.OnProgramme.EmployerAccountId,
-                FundingEmployerAccountId = commandRequest.OnProgramme.FundingEmployerAccountId,
                 FundingType = FundingType.Levy,
                 TrainingCode = commandRequest.OnProgramme.CourseCode,
                 CompletionDate = commandRequest.OnProgramme.CompletionDate,

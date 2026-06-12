@@ -35,8 +35,6 @@ public static class UnapprovedShortCourseSetupModelExtensions
             OnProgramme = new OnProgramme
             {
                 CourseCode = "071",
-                EmployerAccountId = Constants.EventBuilderSharedDefaults.EmployerAccountId,
-                FundingEmployerAccountId = null,
                 ExpectedEndDate = expectedEndDate,
                 Milestones = milestones,
                 StartDate = startDate,

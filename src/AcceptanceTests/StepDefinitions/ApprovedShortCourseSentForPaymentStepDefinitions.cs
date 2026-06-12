@@ -1,18 +1,18 @@
 using FluentAssertions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Learning.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
-
-using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
-using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
-using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
+using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
+using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
+using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
 {
@@ -35,6 +35,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var dbEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
             var domainModel = ShortCourseLearning.Get(dbEntity);
             var episode = domainModel.GetEpisode();
+            var learningApprovedEvent = _scenarioContext.Get<LearningApprovedEvent>();
 
             var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().SingleOrDefault();
             paymentsEvent.Should().NotBeNull();
@@ -81,16 +82,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             learningPeriod.Amount.Should().Be(600);
             learningPeriod.DeliveryPeriod.Should().Be(7);
             learningPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design
-            learningPeriod.Employer.AccountId.Should().Be(request.OnProgramme.EmployerAccountId);
-            learningPeriod.Employer.FundingAccountId.Should().Be(request.OnProgramme.FundingEmployerAccountId ?? 0);
+            learningPeriod.Employer.AccountId.Should().Be(learningApprovedEvent.EmployerAccountId);
+            learningPeriod.Employer.FundingAccountId.Should().Be(learningApprovedEvent.FundingAccountId);
             learningPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
 
             var completionPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion);
             completionPeriod.Amount.Should().Be(1400);
             completionPeriod.DeliveryPeriod.Should().Be(11);
             completionPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design
-            completionPeriod.Employer.AccountId.Should().Be(request.OnProgramme.EmployerAccountId);
-            completionPeriod.Employer.FundingAccountId.Should().Be(request.OnProgramme.FundingEmployerAccountId ?? 0);
+            completionPeriod.Employer.AccountId.Should().Be(learningApprovedEvent.EmployerAccountId);
+            completionPeriod.Employer.FundingAccountId.Should().Be(learningApprovedEvent.FundingAccountId);
             completionPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
         }
     }
