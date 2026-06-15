@@ -1,4 +1,4 @@
-using Azure.Core;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -107,7 +107,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         for (var i = 0; i < totalEarnings; i++)
         {
             var earningYear = earnings[i];
-            var academicYear = GetAcademicYear(earningYear.AcademicYear);
+            var academicYear = earningYear.AcademicYear.GetAcademicYear();
 
             var pricePeriod = earningYear.PricePeriods.Single();
 
@@ -121,15 +121,6 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                 pricePeriod.EndDate = academicYear.EndDate;
             }
         }
-    }
-
-    private (DateTime StartDate, DateTime EndDate) GetAcademicYear(short year)
-    {
-        // Parse the first two digits as the start year
-        var startYear = 2000 + int.Parse(year.ToString()[..2]);
-        var endYear = startYear + 1;
-
-        return (new DateTime(startYear, 8, 1), new DateTime(endYear, 7, 31));
     }
 
     private static EarningType GetEarningType(ShortCourseInstalmentType instalmentType)
