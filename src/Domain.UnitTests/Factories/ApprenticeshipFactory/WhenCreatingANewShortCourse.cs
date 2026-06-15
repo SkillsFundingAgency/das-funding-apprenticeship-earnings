@@ -50,10 +50,10 @@ public class WhenCreatingANewShortCourse
         learning.LearningKey.Should().Be(request.LearningKey);
         learning.DateOfBirth.Should().Be(request.Learner.DateOfBirth);
         learning.Uln.Should().Be(request.Learner.Uln);
+        learning.TrainingCode.Should().Be(request.OnProgramme.CourseCode);
 
         var episode = learning.Episodes.SingleOrDefault();
         episode.Should().NotBeNull();
-        episode.TrainingCode.Should().Be(request.OnProgramme.CourseCode);
         episode.AgeAtStartOfApprenticeship.Should().Be(25); // 2025 - 2000
         episode.FundingType.Should().Be(FundingType.Levy);
         episode.UKPRN.Should().Be(request.OnProgramme.Ukprn);

@@ -111,6 +111,7 @@ public class WhenGetShortCourseEarnings
             LearningKey = learningKey,
             Uln = "1234567890",
             DateOfBirth = new DateTime(1990, 1, 1),
+            TrainingCode = "SC001",
             Episodes = new List<ShortCourseEpisodeEntity> { episode }
         };
 

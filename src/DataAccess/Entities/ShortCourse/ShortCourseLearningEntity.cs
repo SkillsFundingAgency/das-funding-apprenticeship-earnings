@@ -6,4 +6,5 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse
 [Table("ShortCourseLearning", Schema = "Domain")]
 public class ShortCourseLearningEntity : BaseLearningEntity<ShortCourseEpisodeEntity>
 {
+    public string TrainingCode { get; set; } = null!;
 }

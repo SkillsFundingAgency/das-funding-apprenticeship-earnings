@@ -14,6 +14,8 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         _episodes = _entity.Episodes.Select(this.GetShortCourseEpisodeFromEntity).ToList();
     }
 
+    public string TrainingCode => _entity.TrainingCode;
+
     public static ShortCourseLearning Get(ShortCourseLearningEntity entity)
     {
         return new ShortCourseLearning(entity);
@@ -44,7 +46,6 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     {
         _entity.Uln = updateModel.Uln;
         var episode = _entity.Episodes.Single(e => e.Key == episodeKey);
-        episode.TrainingCode = updateModel.CourseCode;
         episode.Ukprn = updateModel.Ukprn;
         episode.StartDate = updateModel.StartDate;
         episode.WithdrawalDate = updateModel.WithdrawalDate;
@@ -65,7 +66,6 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
             LearningKey = request.LearningKey,
             Ukprn = request.OnProgramme.Ukprn,
             FundingType = FundingType.Levy,
-            TrainingCode = request.OnProgramme.CourseCode,
             CompletionDate = request.OnProgramme.CompletionDate,
             WithdrawalDate = request.OnProgramme.WithdrawalDate,
             StartDate = request.OnProgramme.StartDate,
