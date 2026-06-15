@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedShortCourseLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveShortCourseLearningCommand;
@@ -82,8 +82,8 @@ public class ShortCoursesController : ControllerBase
         }
     }
 
-    [HttpPut("/{learningKey}/shortCourses/on-programme")]
-    public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateShortCourseOnProgrammeRequest request)
+    [HttpPut("/{learningKey}/shortCourses/{episodeKey}/on-programme")]
+    public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, Guid episodeKey, UpdateShortCourseOnProgrammeRequest request)
     {
         _logger.LogInformation("Received request to update ShortCourse on programme for LearningKey {LearningKey}", learningKey);
 
@@ -91,7 +91,7 @@ public class ShortCoursesController : ControllerBase
 
         try
         {
-            var command = new UpdateShortCourseOnProgrammeCommand(learningKey, request);
+            var command = new UpdateShortCourseOnProgrammeCommand(learningKey, episodeKey, request);
             response = await _commandDispatcher.Send<UpdateShortCourseOnProgrammeCommand, UpdateShortCourseOnProgrammeResponse>(command);
         }
         catch (Exception ex)
@@ -104,16 +104,16 @@ public class ShortCoursesController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet("/{learningKey}/shortCourses")]
-    public async Task<IActionResult> GetShortCourse(Guid learningKey, [FromQuery] long ukprn)
+    [HttpGet("/{learningKey}/shortCourses/{episodeKey}")]
+    public async Task<IActionResult> GetShortCourse(Guid learningKey, Guid episodeKey)
     {
         _logger.LogInformation(
-            "Received request to get short course for LearningKey {LearningKey} and Ukprn {Ukprn}",
-            learningKey, ukprn);
+            "Received request to get short course for LearningKey {LearningKey} and EpisodeKey {EpisodeKey}",
+            learningKey, episodeKey);
 
         try
         {
-            var request = new GetShortCourseRequest(learningKey, ukprn);
+            var request = new GetShortCourseRequest(learningKey, episodeKey);
             var response = await _queryDispatcher.Send<GetShortCourseRequest, GetShortCourseResponse>(request);
             return Ok(response);
         }
@@ -121,15 +121,15 @@ public class ShortCoursesController : ControllerBase
         {
             _logger.LogError(
                 ex,
-                "Error getting short course for LearningKey {LearningKey} and Ukprn {Ukprn}",
-                learningKey, ukprn);
+                "Error getting short course for LearningKey {LearningKey} and EpisodeKey {EpisodeKey}",
+                learningKey, episodeKey);
 
             return StatusCode(500);
         }
     }
 
-    [HttpDelete("/{learningKey}/shortCourses")]
-    public async Task<IActionResult> RemoveShortCourseLearning(Guid learningKey)
+    [HttpDelete("/{learningKey}/shortCourses/{episodeKey}")]
+    public async Task<IActionResult> RemoveShortCourseLearning(Guid learningKey, Guid episodeKey)
     {
         _logger.LogInformation("Received request to remove ShortCourse learning for LearningKey {LearningKey}", learningKey);
 
@@ -137,7 +137,7 @@ public class ShortCoursesController : ControllerBase
 
         try
         {
-            var command = new RemoveShortCourseLearningCommand(learningKey);
+            var command = new RemoveShortCourseLearningCommand(learningKey, episodeKey);
             response = await _commandDispatcher.Send<RemoveShortCourseLearningCommand, RemoveShortCourseLearningResponse>(command);
         }
         catch (Exception ex)

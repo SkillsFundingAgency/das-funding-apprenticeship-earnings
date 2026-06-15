@@ -27,17 +27,16 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
         if (learning == null)
             throw new InvalidOperationException($"Short course learning not found for LearningKey {command.LearningKey}");
 
-        var episode = learning.GetEpisode();
-
-        episode.UpdateCompletion(command.Request.CompletionDate);
-        episode.UpdateWithdrawalDate(command.Request.WithdrawalDate);
-        episode.UpdateMilestones(command.Request.Milestones);
-
-        episode.CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
+        learning.UpdateOnProgramme(
+            command.EpisodeKey,
+            command.Request.CompletionDate,
+            command.Request.WithdrawalDate,
+            command.Request.Milestones,
+            JsonSerializer.Serialize(command.Request));
 
         await _learningRepository.Update(learning);
 
-        return learning.ToDtoResponse<UpdateShortCourseOnProgrammeResponse>();
+        return learning.ToDtoResponse<UpdateShortCourseOnProgrammeResponse>(command.EpisodeKey);
     }
 
 }

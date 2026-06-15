@@ -21,11 +21,11 @@ public class GetShortCourseQueryHandler : IQueryHandler<GetShortCourseRequest, G
 
     public async Task<GetShortCourseResponse> Handle(GetShortCourseRequest query, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Handling GetShortCourseEarningsRequest for LearningKey: {learningKey} Ukprn: {ukprn}", query.LearningKey, query.Ukprn);
+        _logger.LogInformation("Handling GetShortCourseEarningsRequest for LearningKey: {learningKey} EpisodeKey: {episodeKey}", query.LearningKey, query.EpisodeKey);
 
         var result = await _dbContext.ShortCourseEpisodes
             .AsNoTracking()
-            .Where(e => e.LearningKey == query.LearningKey && e.Ukprn == query.Ukprn)
+            .Where(e => e.LearningKey == query.LearningKey && e.Key == query.EpisodeKey)
             .Select(episode => new
             {
                 episode.EarningsProfile.Version,

@@ -1,10 +1,9 @@
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApproveLearningCommandHandler;
@@ -43,8 +42,7 @@ public class WhenApprovingLearning
 
         await CreateHandler().Handle(command);
 
-        var episode = learning.GetFirstEpisode();
-        episode.EarningsProfile!.IsApproved.Should().BeTrue();
+        learning.Episodes.Single().EarningsProfile!.IsApproved.Should().BeTrue();
     }
 
     [Test]
@@ -62,7 +60,7 @@ public class WhenApprovingLearning
     [Test]
     public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
     {
-        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid());
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>());
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
@@ -70,40 +68,32 @@ public class WhenApprovingLearning
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    private ApprenticeshipLearning BuildLearning(bool isApproved = true)
+    private ShortCourseLearning BuildLearning(bool isApproved = true)
     {
         var episodeEntity = _fixture
-            .Build<ApprenticeshipEpisodeEntity>()
-            .With(x => x.FundingBandMaximum, int.MaxValue)
-            .With(x => x.PeriodsInLearning, new List<ApprenticeshipPeriodInLearningEntity>())
-            .With(x => x.Prices, new List<ApprenticeshipEpisodePriceEntity>
-            {
-                _fixture.Build<ApprenticeshipEpisodePriceEntity>()
-                    .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-6))
-                    .With(x => x.EndDate, DateTime.UtcNow.AddMonths(6))
-                    .Create()
-            })
+            .Build<ShortCourseEpisodeEntity>()
+            .With(x => x.StartDate, new DateTime(2021, 1, 1))
+            .With(x => x.EndDate, new DateTime(2021, 6, 25))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.EarningsProfile, _fixture
-                .Build<ApprenticeshipEarningsProfileEntity>()
+                .Build<ShortCourseEarningsProfileEntity>()
                 .With(x => x.IsApproved, isApproved)
-                .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
-                .With(x => x.ApprenticeshipAdditionalPayments, new List<ApprenticeshipAdditionalPaymentEntity>())
-                .With(x => x.EnglishAndMathsCourses, new List<EnglishAndMathsEntity>())
+                .With(x => x.Instalments, new List<ShortCourseInstalmentEntity>())
                 .Create())
             .Create();
 
-        var learningEntity = _fixture
-            .Build<ApprenticeshipLearningEntity>()
-            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
+        var entity = _fixture
+            .Build<ShortCourseLearningEntity>()
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
             .Create();
 
-        return ApprenticeshipLearning.Get(learningEntity);
+        return ShortCourseLearning.Get(entity);
     }
 
-    private static Command.ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning)
-        => new(learning.LearningKey);
+    private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>());
 
-    private void SetupDomainService(ApprenticeshipLearning learning)
+    private void SetupDomainService(ShortCourseLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
 
     private Command.ApproveLearningCommand.ApproveLearningCommandHandler CreateHandler()

@@ -32,15 +32,13 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
 
         var existingShortCourse = await _learningRepository.GetShortCourseLearning(command.Request.LearningKey);
 
-        if (existingShortCourse != null)
+        if (existingShortCourse != null && existingShortCourse.HasEpisode(command.Request.EpisodeKey))
         {
             existingShortCourse.UpdateDateOfBirth(command.Request.Learner.DateOfBirth);
-            existingShortCourse.UpdateUnapprovedShortCourseInformation(new ShortCourseUpdateModel
+            existingShortCourse.UpdateUnapprovedShortCourseInformation(command.Request.EpisodeKey, new ShortCourseUpdateModel
             {
                 CompletionDate = command.Request.OnProgramme.CompletionDate,
                 CourseCode = command.Request.OnProgramme.CourseCode,
-                EmployerAccountId = command.Request.OnProgramme.EmployerAccountId,
-                FundingEmployerAccountId = command.Request.OnProgramme.FundingEmployerAccountId,
                 ExpectedEndDate = command.Request.OnProgramme.ExpectedEndDate,
                 StartDate = command.Request.OnProgramme.StartDate,
                 TotalPrice = command.Request.OnProgramme.TotalPrice,
@@ -50,7 +48,14 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 Milestones = command.Request.OnProgramme.Milestones
             });
 
-            existingShortCourse.GetEpisode().CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
+            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
+
+            await _learningRepository.Update(existingShortCourse);
+        }
+        else if (existingShortCourse != null)
+        {
+            existingShortCourse.AddUnapprovedEpisode(command.Request);
+            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Update(existingShortCourse);
         }
@@ -58,7 +63,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
         {
             var shortCourse = _learningFactory.CreateNewShortCourse(command.Request);
 
-            shortCourse.GetEpisode().CalculateShortCourseOnProgram(JsonSerializer.Serialize(command.Request));
+            shortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
 
             await _learningRepository.Add(shortCourse);
         }

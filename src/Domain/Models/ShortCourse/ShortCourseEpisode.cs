@@ -13,8 +13,6 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     public MilestoneFlags MilestoneFlags => _entity.Milestones;
     public bool IsApproved => _earningsProfile?.IsApproved ?? false;
     public bool IsRemoved => _entity.IsRemoved;
-    public long? EmployerAccountId => _entity.EmployerAccountId;
-    public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
 
     private ShortCourseEpisode(ShortCourseEpisodeEntity model, DateTime dateOfBirth, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
     {
@@ -30,7 +28,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         return episode;
     }
 
-    public void CalculateShortCourseOnProgram(string calculationData)
+    public void CalculateShortCourseOnProgram(string calculationData, bool suppressThirtyPercent = false)
     {
         _entity.IsRemoved = false;
 
@@ -38,17 +36,20 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             CoursePrice,
             StartDate,
             EndDate,
-            CompletionDate);
+            CompletionDate,
+            suppressThirtyPercent);
 
         if(WithdrawalDate.HasValue)
             ShortCoursePayments.RemoveWithdrawnPayments(onProgramPayments, _entity.Milestones);
 
         ShortCoursePayments.SetPayability(onProgramPayments, _earningsProfile?.IsApproved ?? false, _entity.Milestones);
 
+        var onProgramTotal = suppressThirtyPercent ? 0m : ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice);
+
         if (_earningsProfile == null)
         {
             _earningsProfile = new ShortCourseEarningsProfile(
-                ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
+                onProgramTotal,
                 onProgramPayments,
                 ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice),
                 EpisodeKey,
@@ -63,7 +64,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             _earningsProfile.Update(
                 instalments: onProgramPayments,
                 calculationData: calculationData,
-                onProgramTotal: ShortCoursePayments.CalculateThirtyPercentInstalmentAmount(CoursePrice),
+                onProgramTotal: onProgramTotal,
                 completionPayment: ShortCoursePayments.CalculateCompletionInstalmentAmount(CoursePrice));
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
@@ -96,14 +97,16 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
 
-    public override void Approve()
+    public override void Approve(long employerAccountId, long fundingAccountId)
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
         AddEvent(new ShortCoursePayableEarningsUpdatedEvent
         {
             LearningKey = _entity.LearningKey,
-            EpisodeKey = EpisodeKey
+            EpisodeKey = EpisodeKey,
+            EmployerAccountId = employerAccountId,
+            FundingAccountId = fundingAccountId
         });
     }
 

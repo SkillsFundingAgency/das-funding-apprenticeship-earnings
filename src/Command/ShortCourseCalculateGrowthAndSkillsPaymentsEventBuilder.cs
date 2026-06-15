@@ -1,4 +1,4 @@
-using Azure.Core;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -7,14 +7,15 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public interface IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning);
+    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning, long employerAccountId, long fundingAccountId);
 }
 
 public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    public CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning)
+    public CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning,
+        long employerAccountId, long fundingAccountId)
     {
-        var earnings = BuildEarnings(learning, episode);
+        var earnings = BuildEarnings(learning, episode, employerAccountId, fundingAccountId);
 
         return new CalculateGrowthAndSkillsPayments
         {
@@ -55,7 +56,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         return TrainingStatus.Continuing;
     }
 
-    private IEnumerable<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode)
+    private IEnumerable<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
     {
         var employerType = episode.FundingType == Learning.Types.FundingType.Levy
             ? EmployerType.Levy
@@ -82,8 +83,8 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                             Amount = instalment.Amount,
                             Employer = new Employer
                             {
-                                AccountId = episode.EmployerAccountId ?? 0,
-                                FundingAccountId = episode.FundingEmployerAccountId ?? 0,
+                                AccountId = employerAccountId,
+                                FundingAccountId = fundingAccountId,
                                 EmployerType = employerType
                             }
                         }).ToList()
@@ -106,7 +107,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         for (var i = 0; i < totalEarnings; i++)
         {
             var earningYear = earnings[i];
-            var academicYear = GetAcademicYear(earningYear.AcademicYear);
+            var academicYear = earningYear.AcademicYear.GetAcademicYear();
 
             var pricePeriod = earningYear.PricePeriods.Single();
 
@@ -120,15 +121,6 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                 pricePeriod.EndDate = academicYear.EndDate;
             }
         }
-    }
-
-    private (DateTime StartDate, DateTime EndDate) GetAcademicYear(short year)
-    {
-        // Parse the first two digits as the start year
-        var startYear = 2000 + int.Parse(year.ToString()[..2]);
-        var endYear = startYear + 1;
-
-        return (new DateTime(startYear, 8, 1), new DateTime(endYear, 7, 31));
     }
 
     private static EarningType GetEarningType(ShortCourseInstalmentType instalmentType)
