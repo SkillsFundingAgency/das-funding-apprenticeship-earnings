@@ -58,8 +58,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             paymentsEvent.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
             paymentsEvent.Training.StartDate.Should().Be(episode.StartDate);
             paymentsEvent.Training.PlannedEndDate.Should().Be(episode.EndDate);
-            paymentsEvent.Training.ActualEndDate.Should().BeNull(); //todo assert for completion, withdrawal etc. - Is this in scope for 1531 or just approval?
-            paymentsEvent.Training.TrainingStatus.Should().Be(TrainingStatus.Continuing); //todo assert for completion, withdrawal etc. - Is this in scope for 1531 or just approval?
+            paymentsEvent.Training.ActualEndDate.Should().Be(episode.WithdrawalDate ?? episode.CompletionDate);
+            var expectedTrainingStatus = TrainingStatus.Continuing;
+            if (episode.CompletionDate.HasValue) expectedTrainingStatus = TrainingStatus.Completed;
+            if (episode.WithdrawalDate.HasValue) expectedTrainingStatus = TrainingStatus.Withdrawn;
+            paymentsEvent.Training.TrainingStatus.Should().Be(expectedTrainingStatus);
 
             paymentsEvent.Earnings.Should().NotBeNull();
             paymentsEvent.Earnings.Should().HaveCount(1);
