@@ -69,7 +69,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         result.Training.CourseType.Should().Be(CourseType.ShortCourse);
         result.Training.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
         result.Training.CourseCode.Should().Be(episode.TrainingCode);
-        result.Training.CourseReference.Should().Be($"ZSC{int.Parse(episode.TrainingCode.Trim()):D5}");
+        result.Training.CourseReference.Should().Be(episode.TrainingCode);
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(episode.StartDate);
         result.Training.PlannedEndDate.Should().Be(episode.EndDate);

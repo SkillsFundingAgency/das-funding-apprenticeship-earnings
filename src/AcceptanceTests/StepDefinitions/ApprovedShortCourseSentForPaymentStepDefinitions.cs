@@ -54,7 +54,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             paymentsEvent.Training.CourseType.Should().Be(CourseType.ShortCourse);
             paymentsEvent.Training.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
             paymentsEvent.Training.CourseCode.Should().Be(request.OnProgramme.CourseCode);
-            paymentsEvent.Training.CourseReference.Should().Be($"ZSC{int.Parse(request.OnProgramme.CourseCode):D5}");
+            paymentsEvent.Training.CourseReference.Should().Be(request.OnProgramme.CourseCode);
             paymentsEvent.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
             paymentsEvent.Training.StartDate.Should().Be(episode.StartDate);
             paymentsEvent.Training.PlannedEndDate.Should().Be(episode.EndDate);
