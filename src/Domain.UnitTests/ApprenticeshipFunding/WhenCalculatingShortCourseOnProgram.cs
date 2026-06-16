@@ -268,6 +268,42 @@ internal class WhenCalculatingShortCourseOnProgram
             ((ShortCoursePayableEarningsUpdatedEvent)e).FundingAccountId == _fundingAccountId);
     }
 
+    [Test]
+    public void WhenApproved_EmployerIdsArePersistedOnEpisode()
+    {
+        // Arrange
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
+
+        // Act
+        _episode.Approve(_employerAccountId, _fundingAccountId);
+
+        // Assert
+        var episodeEntity = _learning.GetModel().Episodes.Single(e => e.Key == _episode.EpisodeKey);
+        episodeEntity.EmployerAccountId.Should().Be(_employerAccountId);
+        episodeEntity.FundingEmployerAccountId.Should().Be(_fundingAccountId);
+    }
+
+    [Test]
+    public void WhenRecalculatedAfterApproval_ShortCoursePayableEarningsUpdatedDomainEventIsPublishedCorrectly()
+    {
+        // Arrange
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
+        _episode.Approve(_employerAccountId, _fundingAccountId);
+        _episode.FlushEvents();
+
+        // Act
+        _episode.CalculateShortCourseOnProgram(calculationData: "recalc");
+
+        // Assert
+        var events = _episode.FlushEvents();
+        var @event = events.OfType<ShortCoursePayableEarningsUpdatedEvent>().Single();
+
+        @event.LearningKey.Should().Be(_learning.LearningKey);
+        @event.EpisodeKey.Should().Be(_episode.EpisodeKey);
+        @event.EmployerAccountId.Should().Be(_employerAccountId);
+        @event.FundingAccountId.Should().Be(_fundingAccountId);
+    }
+
     private CreateUnapprovedShortCourseLearningRequest BuildProviderBRequest()
     {
         var request = _fixture.Create<CreateUnapprovedShortCourseLearningRequest>();

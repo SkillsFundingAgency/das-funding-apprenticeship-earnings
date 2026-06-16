@@ -75,7 +75,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             AddEvent(new ShortCoursePayableEarningsUpdatedEvent
             {
                 LearningKey = _entity.LearningKey,
-                EpisodeKey = EpisodeKey
+                EpisodeKey = EpisodeKey,
+                EmployerAccountId = _entity.EmployerAccountId ?? 0,
+                FundingAccountId = _entity.FundingEmployerAccountId ?? 0
             });
         }
     }
@@ -101,6 +103,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
+        _entity.EmployerAccountId = employerAccountId;
+        _entity.FundingEmployerAccountId = fundingAccountId;
+
         AddEvent(new ShortCoursePayableEarningsUpdatedEvent
         {
             LearningKey = _entity.LearningKey,
@@ -117,7 +122,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         AddEvent(new ShortCoursePayableEarningsUpdatedEvent
         {
             LearningKey = _entity.LearningKey,
-            EpisodeKey = EpisodeKey
+            EpisodeKey = EpisodeKey,
+            EmployerAccountId = _entity.EmployerAccountId ?? 0,
+            FundingAccountId = _entity.FundingEmployerAccountId ?? 0
         });
     }
 

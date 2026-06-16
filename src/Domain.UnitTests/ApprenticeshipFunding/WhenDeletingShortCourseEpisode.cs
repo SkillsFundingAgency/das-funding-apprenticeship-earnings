@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Linq;
 
@@ -15,6 +16,8 @@ internal class WhenDeletingShortCourseEpisode
     private readonly Fixture _fixture = new();
     private ShortCourseLearning _learning;
     private ShortCourseEpisode _episode;
+    private long _employerAccountId;
+    private long _fundingAccountId;
 
     [SetUp]
     public void SetUp()
@@ -26,6 +29,8 @@ internal class WhenDeletingShortCourseEpisode
         _episode = _learning.Episodes.Single();
         _episode.UpdateWithdrawalDate(null);
         _episode.CalculateShortCourseOnProgram("initial");
+        _employerAccountId = _fixture.Create<long>();
+        _fundingAccountId = _fixture.Create<long>();
     }
 
     [Test]
@@ -58,5 +63,25 @@ internal class WhenDeletingShortCourseEpisode
         _episode.Remove();
 
         _episode.EarningsProfile.CompletionPayment.Should().Be(0m);
+    }
+
+    [Test]
+    public void ThenShortCoursePayableEarningsUpdatedDomainEventIsPublishedCorrectly()
+    {
+        // Arrange
+        _episode.Approve(_employerAccountId, _fundingAccountId);
+        _episode.FlushEvents();
+
+        // Act
+        _episode.Remove();
+
+        // Assert
+        var events = _episode.FlushEvents();
+        var @event = events.OfType<ShortCoursePayableEarningsUpdatedEvent>().Single();
+
+        @event.LearningKey.Should().Be(_learning.LearningKey);
+        @event.EpisodeKey.Should().Be(_episode.EpisodeKey);
+        @event.EmployerAccountId.Should().Be(_employerAccountId);
+        @event.FundingAccountId.Should().Be(_fundingAccountId);
     }
 }
