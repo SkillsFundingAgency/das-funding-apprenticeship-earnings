@@ -100,9 +100,6 @@ public class WhenUpdatingShortCourseOnProgramme
     [Test]
     public async Task Handle_ShouldUpdateStartDateAndExpectedEndDate_EvenWhenApproved()
     {
-        // Learning never reports a StartDate/ExpectedEndDate change for an episode it considers
-        // approved, so any change Earnings receives is legitimate regardless of Earnings' own
-        // (possibly out-of-order) approval state - applying it unconditionally avoids drift.
         var learningKey = Guid.NewGuid();
         var learning = BuildShortCourseLearning(learningKey, isApproved: true);
         var newStartDate = new DateTime(2021, 2, 1);
