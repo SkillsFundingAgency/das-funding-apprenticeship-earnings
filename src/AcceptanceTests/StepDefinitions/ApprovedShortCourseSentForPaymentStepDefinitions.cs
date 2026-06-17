@@ -81,7 +81,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             pricePeriod.Periods.Should().NotBeNull();
             pricePeriod.Periods.Should().HaveCount(2);
 
-            var learningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Learning);
+            var learningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Milestone1);
             learningPeriod.Amount.Should().Be(600);
             learningPeriod.DeliveryPeriod.Should().Be(7);
             learningPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design

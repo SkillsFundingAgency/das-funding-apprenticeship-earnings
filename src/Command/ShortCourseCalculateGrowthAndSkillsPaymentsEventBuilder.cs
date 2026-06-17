@@ -127,7 +127,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
     {
         return instalmentType switch
         {
-            ShortCourseInstalmentType.ThirtyPercentLearningComplete => EarningType.Learning,
+            ShortCourseInstalmentType.ThirtyPercentLearningComplete => EarningType.Milestone1,
             ShortCourseInstalmentType.LearningComplete => EarningType.Completion,
             _ => throw new ArgumentException($"Unknown instalment type: {instalmentType}")
         };

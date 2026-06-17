@@ -201,7 +201,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         pricePeriod.Periods.Should().HaveCount(2);
 
         var period1 = pricePeriod.Periods.First(p => p.DeliveryPeriod == 2);
-        period1.EarningType.Should().Be(EarningType.Learning);
+        period1.EarningType.Should().Be(EarningType.Milestone1);
         period1.Amount.Should().Be(300m);
         period1.LearningId.Should().Be(learning.ApprovalsApprenticeshipId);
         period1.Employer.AccountId.Should().Be(employerAccountId);
