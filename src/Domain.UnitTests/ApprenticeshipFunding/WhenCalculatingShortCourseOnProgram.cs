@@ -158,6 +158,46 @@ internal class WhenCalculatingShortCourseOnProgram
     }
 
     [Test]
+    public void ThenStartDateIsUpdatedWhenUnapproved()
+    {
+        // Arrange
+        var newStartDate = new DateTime(2024, 2, 1);
+
+        // Act
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", startDate: newStartDate);
+
+        // Assert
+        _episode.StartDate.Should().Be(newStartDate);
+    }
+
+    [Test]
+    public void ThenExpectedEndDateIsUpdatedWhenUnapproved()
+    {
+        // Arrange
+        var newEndDate = new DateTime(2024, 5, 31);
+
+        // Act
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", expectedEndDate: newEndDate);
+
+        // Assert
+        _episode.EndDate.Should().Be(newEndDate);
+    }
+
+    [Test]
+    public void ThenStartDateIsUpdatedEvenWhenApproved()
+    {
+        var newStartDate = new DateTime(2024, 2, 1);
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
+        _episode.Approve();
+
+        // Act
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", startDate: newStartDate);
+
+        // Assert
+        _episode.StartDate.Should().Be(newStartDate);
+    }
+
+    [Test]
     public void WhenProviderAHasNotClaimed30Percent_ThenProviderBGetsBothInstalments()
     {
         // Arrange

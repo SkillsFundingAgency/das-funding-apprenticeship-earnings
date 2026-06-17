@@ -11,5 +11,7 @@ internal class UpdateShortCourseOnProgrammeModel
 {
     public TrackedValue<DateTime?> WithdrawalDate { get; set; } = new TrackedValue<DateTime?>(null);
     public TrackedValue<DateTime?> CompletionDate { get; set; } = new TrackedValue<DateTime?>(null);
+    public TrackedValue<DateTime?> StartDate { get; set; } = new TrackedValue<DateTime?>(null);
+    public TrackedValue<DateTime?> ExpectedEndDate { get; set; } = new TrackedValue<DateTime?>(null);
     public TrackedValue<List<Milestone>> Milestones { get; set; } = new TrackedValue<List<Milestone>>(new List<Milestone>());
 }

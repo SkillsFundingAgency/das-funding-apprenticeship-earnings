@@ -80,7 +80,44 @@ public class WhenUpdatingShortCourseOnProgramme
         _mockRepository.Verify(r => r.Update(learning), Times.Once);
     }
 
-    private ShortCourseLearning BuildShortCourseLearning(Guid learningKey, DateTime? existingCompletionDate = null)
+    [Test]
+    public async Task Handle_ShouldUpdateStartDateAndExpectedEndDate_WhenUnapproved()
+    {
+        var learningKey = Guid.NewGuid();
+        var learning = BuildShortCourseLearning(learningKey, isApproved: false);
+        var newStartDate = new DateTime(2021, 2, 1);
+        var newExpectedEndDate = new DateTime(2021, 7, 25);
+        var command = BuildCommand(learningKey, learning.Episodes.Single().EpisodeKey, startDate: newStartDate, expectedEndDate: newExpectedEndDate);
+
+        _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
+
+        await BuildSut().Handle(command);
+
+        learning.Episodes.Single().StartDate.Should().Be(newStartDate);
+        learning.Episodes.Single().EndDate.Should().Be(newExpectedEndDate);
+    }
+
+    [Test]
+    public async Task Handle_ShouldUpdateStartDateAndExpectedEndDate_EvenWhenApproved()
+    {
+        // Learning never reports a StartDate/ExpectedEndDate change for an episode it considers
+        // approved, so any change Earnings receives is legitimate regardless of Earnings' own
+        // (possibly out-of-order) approval state - applying it unconditionally avoids drift.
+        var learningKey = Guid.NewGuid();
+        var learning = BuildShortCourseLearning(learningKey, isApproved: true);
+        var newStartDate = new DateTime(2021, 2, 1);
+        var newExpectedEndDate = new DateTime(2021, 7, 25);
+        var command = BuildCommand(learningKey, learning.Episodes.Single().EpisodeKey, startDate: newStartDate, expectedEndDate: newExpectedEndDate);
+
+        _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
+
+        await BuildSut().Handle(command);
+
+        learning.Episodes.Single().StartDate.Should().Be(newStartDate);
+        learning.Episodes.Single().EndDate.Should().Be(newExpectedEndDate);
+    }
+
+    private ShortCourseLearning BuildShortCourseLearning(Guid learningKey, DateTime? existingCompletionDate = null, bool isApproved = false)
     {
         var episodeEntity = _fixture
             .Build<ShortCourseEpisodeEntity>()
@@ -90,6 +127,7 @@ public class WhenUpdatingShortCourseOnProgramme
             .With(x => x.EarningsProfile, _fixture
                 .Build<ShortCourseEarningsProfileEntity>()
                 .With(x => x.Instalments, new List<ShortCourseInstalmentEntity>())
+                .With(x => x.IsApproved, isApproved)
                 .Create())
             .Create();
 
@@ -106,10 +144,12 @@ public class WhenUpdatingShortCourseOnProgramme
         new(_mockLogger.Object, _mockRepository.Object);
 
     private static UpdateShortCourseOnProgrammeCommand.UpdateShortCourseOnProgrammeCommand BuildCommand(
-        Guid learningKey, Guid episodeKey, DateTime? completionDate = null) =>
+        Guid learningKey, Guid episodeKey, DateTime? completionDate = null, DateTime? startDate = null, DateTime? expectedEndDate = null) =>
         new(learningKey, episodeKey, new UpdateShortCourseOnProgrammeCommand.UpdateShortCourseOnProgrammeRequest
         {
             CompletionDate = completionDate,
-            Milestones = new List<Milestone>()
+            Milestones = new List<Milestone>(),
+            StartDate = startDate ?? new DateTime(2021, 1, 1),
+            ExpectedEndDate = expectedEndDate ?? new DateTime(2021, 6, 25)
         });
 }

@@ -214,6 +214,14 @@ public class ShortCourseStepDefinitions
                 case nameof(UpdateShortCourseOnProgrammeModel.CompletionDate):
                     model.CompletionDate.SetValue(item.ToNullableDateTime());
                     break;
+
+                case nameof(UpdateShortCourseOnProgrammeModel.StartDate):
+                    model.StartDate.SetValue(item.ToNullableDateTime());
+                    break;
+
+                case nameof(UpdateShortCourseOnProgrammeModel.ExpectedEndDate):
+                    model.ExpectedEndDate.SetValue(item.ToNullableDateTime());
+                    break;
             }
         }
 
