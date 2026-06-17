@@ -29,15 +29,12 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
 
     public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
 
-    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, DateTime? startDate = null, DateTime? expectedEndDate = null)
+    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, DateTime startDate, DateTime expectedEndDate)
     {
         var episode = GetShortCourseEpisode(episodeKey);
 
-        if (startDate.HasValue)
-            episode.UpdateStartDate(startDate.Value);
-
-        if (expectedEndDate.HasValue)
-            episode.UpdateExpectedEndDate(expectedEndDate.Value);
+        episode.UpdateStartDate(startDate);
+        episode.UpdateExpectedEndDate(expectedEndDate);
 
         episode.UpdateCompletion(completionDate);
         episode.UpdateWithdrawalDate(withdrawalDate);
