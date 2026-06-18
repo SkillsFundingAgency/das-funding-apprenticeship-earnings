@@ -155,6 +155,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)2)
             .With(x => x.Type, ShortCourseInstalmentType.ThirtyPercentLearningComplete.ToString())
             .With(x => x.Amount, 300m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var instalment2 = _fixture.Build<ShortCourseInstalmentEntity>()
@@ -162,6 +163,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)10)
             .With(x => x.Type, ShortCourseInstalmentType.LearningComplete.ToString())
             .With(x => x.Amount, 700m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
@@ -215,6 +217,65 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
     }
 
     [Test]
+    public void WhenSomeInstalmentsAreNotPayable_ThenOnlyMapPayableInstalments()
+    {
+        // Arrange
+        var employerAccountId = _fixture.Create<long>();
+        var fundingAccountId = _fixture.Create<long>();
+
+        var payableThirtyPercentInstalment = _fixture.Build<ShortCourseInstalmentEntity>()
+            .With(x => x.AcademicYear, (short)2324)
+            .With(x => x.DeliveryPeriod, (byte)2)
+            .With(x => x.Type, ShortCourseInstalmentType.ThirtyPercentLearningComplete.ToString())
+            .With(x => x.Amount, 300m)
+            .With(x => x.IsPayable, true)
+            .Create();
+
+        var nonPayableLearningCompleteInstalment = _fixture.Build<ShortCourseInstalmentEntity>()
+            .With(x => x.AcademicYear, (short)2324)
+            .With(x => x.DeliveryPeriod, (byte)10)
+            .With(x => x.Type, ShortCourseInstalmentType.LearningComplete.ToString())
+            .With(x => x.Amount, 700m)
+            .With(x => x.IsPayable, false)
+            .Create();
+
+        var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.TrainingCode, "101")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 6, 30))
+            .With(x => x.CoursePrice, 1000m)
+            .With(x => x.FundingType, SFA.DAS.Learning.Types.FundingType.Levy)
+            .With(x => x.EarningsProfile, _fixture.Build<ShortCourseEarningsProfileEntity>()
+                .With(p => p.Instalments, new List<ShortCourseInstalmentEntity> { payableThirtyPercentInstalment, nonPayableLearningCompleteInstalment })
+                .Create())
+            .Create();
+
+        var learningEntity = _fixture.Build<ShortCourseLearningEntity>()
+            .With(x => x.Uln, "7878787878")
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .Create();
+
+        var learning = ShortCourseLearning.Get(learningEntity);
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
+
+        // Act
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+
+        // Assert
+        result.Earnings.Should().HaveCount(1);
+        var earning = result.Earnings.Single();
+        earning.AcademicYear.Should().Be(2324);
+
+        var pricePeriod = earning.PricePeriods.Single();
+        pricePeriod.Periods.Should().HaveCount(1);
+
+        var period = pricePeriod.Periods.Single();
+        period.EarningType.Should().Be(EarningType.Milestone1);
+        period.DeliveryPeriod.Should().Be(2);
+        period.Amount.Should().Be(300m);
+    }
+
+    [Test]
     public void WhenMultipleAcademicYearsExist_ThenAdjustsStartAndEndDatesAcrossYears()
     {
         // Arrange
@@ -226,6 +287,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)11)
             .With(x => x.Type, ShortCourseInstalmentType.ThirtyPercentLearningComplete.ToString())
             .With(x => x.Amount, 300m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var instalment2 = _fixture.Build<ShortCourseInstalmentEntity>()
@@ -233,6 +295,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)2)
             .With(x => x.Type, ShortCourseInstalmentType.LearningComplete.ToString())
             .With(x => x.Amount, 700m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()

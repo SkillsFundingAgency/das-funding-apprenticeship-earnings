@@ -65,6 +65,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         var profile = episode.EarningsProfile;
 
         var earnings = profile!.Instalments
+            .Where(i => i.IsPayable)
             .GroupBy(i => i.AcademicYear)
             .Select(g => new Earnings
             {
