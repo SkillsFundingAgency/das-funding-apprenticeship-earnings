@@ -6,5 +6,6 @@
     [HasEHCP] BIT NULL, 
     [IsCareLeaver] BIT NULL, 
     [CareLeaverEmployerConsentGiven] BIT NULL, 
-    [DateOfBirth] DATETIME NOT NULL DEFAULT ('2002-01-01')
+    [DateOfBirth] DATETIME NOT NULL DEFAULT ('2002-01-01'),
+    [TrainingCode] VARCHAR(8) NOT NULL DEFAULT ''
 )

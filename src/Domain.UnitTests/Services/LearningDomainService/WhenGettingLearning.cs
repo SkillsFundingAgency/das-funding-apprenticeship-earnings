@@ -89,6 +89,7 @@ public class WhenGettingLearning
         var entity = new ShortCourseLearningEntity
         {
             LearningKey = key,
+            TrainingCode = "SC001",
             Episodes = new List<ShortCourseEpisodeEntity> { new ShortCourseEpisodeEntity() }
         };
         return ShortCourseLearning.Get(entity);

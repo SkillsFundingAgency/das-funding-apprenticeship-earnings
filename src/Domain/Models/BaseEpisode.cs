@@ -23,7 +23,6 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : 
     protected TEarningProfileDomainModel? _earningsProfile;
     public override Guid EpisodeKey => _entity.Key;
     public long UKPRN => _entity.Ukprn;
-    public string TrainingCode => _entity.TrainingCode;
     public FundingType FundingType => _entity.FundingType;
     public override TEarningProfileDomainModel? EarningsProfile => _earningsProfile;
     public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;

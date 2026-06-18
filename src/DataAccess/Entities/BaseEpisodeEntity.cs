@@ -15,7 +15,6 @@ public abstract class BaseEpisodeEntity
 	public Guid LearningKey { get; set; }
     public long Ukprn { get; set; }
 	public FundingType FundingType { get; set; }
-    public string TrainingCode { get; set; } = null!;
     public DateTime? CompletionDate { get; set; }
     public DateTime? AchievementDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
