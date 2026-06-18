@@ -19,7 +19,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
 
         return new CalculateGrowthAndSkillsPayments
         {
-            EarningsId = episode.EarningsProfile!.EarningsProfileId,
+            EarningsId = episode.EarningsProfile!.Version,
             UKPRN = episode.UKPRN,
             Learner = new Learner
             {

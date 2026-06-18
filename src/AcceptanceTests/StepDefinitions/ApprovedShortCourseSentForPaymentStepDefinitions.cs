@@ -40,7 +40,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().SingleOrDefault();
             paymentsEvent.Should().NotBeNull();
 
-            paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.EarningsProfileId);
+            paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.Version);
             paymentsEvent.UKPRN.Should().Be(request.OnProgramme.Ukprn);
             paymentsEvent.EmployerContribution.Should().Be(0); //todo not specified on design, assumption
 

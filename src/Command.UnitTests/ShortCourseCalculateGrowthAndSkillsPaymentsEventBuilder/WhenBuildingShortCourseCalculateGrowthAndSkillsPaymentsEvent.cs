@@ -55,7 +55,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
 
         // Assert
-        result.EarningsId.Should().Be(episode.EarningsProfile!.EarningsProfileId);
+        result.EarningsId.Should().Be(episode.EarningsProfile!.Version);
         result.UKPRN.Should().Be(episode.UKPRN);
         result.EmployerContribution.Should().Be(0);
 
