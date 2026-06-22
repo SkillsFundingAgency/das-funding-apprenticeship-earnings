@@ -7,13 +7,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public interface IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning, long employerAccountId, long fundingAccountId);
+    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference);
 }
 
 public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
     public CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning,
-        long employerAccountId, long fundingAccountId)
+        long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
     {
         var earnings = BuildEarnings(learning, episode, employerAccountId, fundingAccountId);
 
@@ -23,9 +23,9 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
             UKPRN = episode.UKPRN,
             Learner = new Learner
             {
-                LearnerKey = learning.LearningKey,
+                LearnerKey = learnerKey,
                 ULN = long.Parse(learning.Uln),
-                Reference = learning.LearningKey.ToString()
+                Reference = learnerReference
             },
             Training = new Training
             {

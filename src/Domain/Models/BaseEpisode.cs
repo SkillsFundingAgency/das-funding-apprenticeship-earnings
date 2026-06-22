@@ -10,7 +10,7 @@ public abstract class BaseEpisode : AggregateComponent
 
     public abstract Guid EpisodeKey { get; }
     public abstract BaseEarningsProfile? EarningsProfile { get; }
-    public abstract void Approve(long employerAccountId, long fundingAccountId);
+    public abstract void Approve(long employerAccountId, long fundingAccountId, Guid? learnerKey = null, string? learnerRef = null);
 }
 
 public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : BaseEpisode

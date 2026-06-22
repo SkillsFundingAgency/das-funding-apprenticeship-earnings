@@ -44,7 +44,13 @@ public class SendShortCoursePayableEarningsToPaymentsCommandHandler : ICommandHa
             throw new InvalidOperationException($"Short course episode not found for EpisodeKey: {command.ShortCoursePayableEarningsUpdatedEvent.EpisodeKey} on LearningKey: {command.ShortCoursePayableEarningsUpdatedEvent.LearningKey}");
         }
 
-        var paymentEvent = _eventBuilder.Build(episode, learning, command.ShortCoursePayableEarningsUpdatedEvent.EmployerAccountId, command.ShortCoursePayableEarningsUpdatedEvent.FundingAccountId);
+        var paymentEvent = _eventBuilder.Build(
+            episode,
+            learning,
+            command.ShortCoursePayableEarningsUpdatedEvent.EmployerAccountId,
+            command.ShortCoursePayableEarningsUpdatedEvent.FundingAccountId,
+            command.ShortCoursePayableEarningsUpdatedEvent.LearnerKey,
+            command.ShortCoursePayableEarningsUpdatedEvent.LearnerRef);
 
         var options = new SendOptions();
         options.DoNotEnforceBestPractices();

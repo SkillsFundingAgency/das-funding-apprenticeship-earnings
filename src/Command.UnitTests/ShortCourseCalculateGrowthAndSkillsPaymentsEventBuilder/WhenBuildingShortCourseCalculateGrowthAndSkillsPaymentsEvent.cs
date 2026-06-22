@@ -28,6 +28,8 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var dateOfBirth = new DateTime(2005, 1, 1);
         var employerAccountId = _fixture.Create<long>();
         var fundingAccountId = _fixture.Create<long>();
+        var learnerKey = _fixture.Create<Guid>();
+        var learnerReference = _fixture.Create<string>();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
             .With(x => x.TrainingCode, "101")
@@ -52,7 +54,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learnerKey, learnerReference);
 
         // Assert
         result.EarningsId.Should().Be(episode.EarningsProfile!.Version);
@@ -60,9 +62,9 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         result.EmployerContribution.Should().Be(0);
 
         result.Learner.Should().NotBeNull();
-        result.Learner.LearnerKey.Should().Be(learning.LearningKey);
+        result.Learner.LearnerKey.Should().Be(learnerKey);
         result.Learner.ULN.Should().Be(1234567890);
-        result.Learner.Reference.Should().Be(learning.LearningKey.ToString());
+        result.Learner.Reference.Should().Be(learnerReference);
 
         result.Training.Should().NotBeNull();
         result.Training.LearningKey.Should().Be(learning.LearningKey);
@@ -103,7 +105,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Training.TrainingStatus.Should().Be(TrainingStatus.Withdrawn);
@@ -136,7 +138,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Training.TrainingStatus.Should().Be(TrainingStatus.Continuing);
@@ -188,7 +190,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Earnings.Should().HaveCount(1);
@@ -259,7 +261,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Earnings.Should().HaveCount(1);
@@ -317,7 +319,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Earnings.Should().HaveCount(2);

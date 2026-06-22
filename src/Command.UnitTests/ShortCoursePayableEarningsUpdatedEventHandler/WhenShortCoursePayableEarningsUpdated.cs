@@ -37,7 +37,9 @@ public class WhenShortCoursePayableEarningsUpdated
         _mockCommandHandler.Verify(x => x.Handle(
             It.Is<SendShortCoursePayableEarningsToPaymentsCommand.SendShortCoursePayableEarningsToPaymentsCommand>(c =>
                 c.ShortCoursePayableEarningsUpdatedEvent.LearningKey == message.LearningKey &&
-                c.ShortCoursePayableEarningsUpdatedEvent.EpisodeKey == message.EpisodeKey),
+                c.ShortCoursePayableEarningsUpdatedEvent.EpisodeKey == message.EpisodeKey &&
+                c.ShortCoursePayableEarningsUpdatedEvent.LearnerKey == message.LearnerKey &&
+                c.ShortCoursePayableEarningsUpdatedEvent.LearnerRef == message.LearnerRef),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

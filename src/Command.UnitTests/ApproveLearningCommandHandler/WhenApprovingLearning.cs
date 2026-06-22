@@ -60,7 +60,7 @@ public class WhenApprovingLearning
     [Test]
     public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
     {
-        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>());
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
@@ -91,7 +91,7 @@ public class WhenApprovingLearning
     }
 
     private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
-        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>());
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
     private void SetupDomainService(ShortCourseLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);

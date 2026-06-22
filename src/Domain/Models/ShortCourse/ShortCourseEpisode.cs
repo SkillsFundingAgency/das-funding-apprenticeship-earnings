@@ -88,7 +88,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
 
-    public override void Approve(long employerAccountId, long fundingAccountId)
+    public override void Approve(long employerAccountId, long fundingAccountId, Guid? learnerKey = null, string? learnerRef = null)
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
@@ -97,7 +97,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             LearningKey = _entity.LearningKey,
             EpisodeKey = EpisodeKey,
             EmployerAccountId = employerAccountId,
-            FundingAccountId = fundingAccountId
+            FundingAccountId = fundingAccountId,
+            LearnerKey = learnerKey ?? _entity.LearningKey,
+            LearnerRef = string.IsNullOrWhiteSpace(learnerRef) ? _entity.LearningKey.ToString() : learnerRef
         });
     }
 

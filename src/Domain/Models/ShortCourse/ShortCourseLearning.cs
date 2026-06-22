@@ -24,7 +24,8 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _entity;
     }
 
-    public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId) => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId);
+    public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid? learnerKey = null, string? learnerRef = null)
+        => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
     public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
 
