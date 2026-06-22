@@ -40,14 +40,14 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().SingleOrDefault();
             paymentsEvent.Should().NotBeNull();
 
-            paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.EarningsProfileId);
+            paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.Version);
             paymentsEvent.UKPRN.Should().Be(request.OnProgramme.Ukprn);
             paymentsEvent.EmployerContribution.Should().Be(0); //todo not specified on design, assumption
 
             paymentsEvent.Learner.Should().NotBeNull();
-            paymentsEvent.Learner.LearnerKey.Should().Be(request.LearningKey);
+            paymentsEvent.Learner.LearnerKey.Should().Be(learningApprovedEvent.LearnerKey);
             paymentsEvent.Learner.ULN.Should().Be(long.Parse(request.Learner.Uln));
-            paymentsEvent.Learner.Reference.Should().Be(request.LearningKey.ToString()); //todo not specified on design, assumption
+            paymentsEvent.Learner.Reference.Should().Be(learningApprovedEvent.LearnerRef);
 
             paymentsEvent.Training.Should().NotBeNull();
             paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey); //todo not specified on design, assumption
@@ -81,7 +81,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             pricePeriod.Periods.Should().NotBeNull();
             pricePeriod.Periods.Should().HaveCount(2);
 
-            var learningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Learning);
+            var learningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Milestone1);
             learningPeriod.Amount.Should().Be(600);
             learningPeriod.DeliveryPeriod.Should().Be(7);
             learningPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design

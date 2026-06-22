@@ -6,7 +6,7 @@ CREATE TABLE [Domain].[ShortCourseEpisode]
     [EmployerAccountId] BIGINT NULL,
     [FundingEmployerAccountId] BIGINT NULL,
     [FundingType] NVARCHAR(50) NOT NULL, 
-    [TrainingCode] NCHAR(50) NOT NULL,
+    [TrainingCode] NCHAR(50) NOT NULL DEFAULT '',
     [CompletionDate] DATETIME NULL, 
     [AchievementDate] DATETIME NULL, 
     [WithdrawalDate] DATETIME NULL, 

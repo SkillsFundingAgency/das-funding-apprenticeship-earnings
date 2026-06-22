@@ -14,6 +14,8 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         _episodes = _entity.Episodes.Select(this.GetShortCourseEpisodeFromEntity).ToList();
     }
 
+    public string TrainingCode => _entity.TrainingCode;
+
     public static ShortCourseLearning Get(ShortCourseLearningEntity entity)
     {
         return new ShortCourseLearning(entity);
@@ -24,7 +26,8 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _entity;
     }
 
-    public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId) => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId);
+    public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef)
+        => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
     public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
 
@@ -44,7 +47,6 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     {
         _entity.Uln = updateModel.Uln;
         var episode = _entity.Episodes.Single(e => e.Key == episodeKey);
-        episode.TrainingCode = updateModel.CourseCode;
         episode.EmployerAccountId = updateModel.EmployerAccountId;
         episode.FundingEmployerAccountId = updateModel.FundingEmployerAccountId;
         episode.Ukprn = updateModel.Ukprn;
@@ -67,7 +69,6 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
             LearningKey = request.LearningKey,
             Ukprn = request.OnProgramme.Ukprn,
             FundingType = FundingType.Levy,
-            TrainingCode = request.OnProgramme.CourseCode,
             CompletionDate = request.OnProgramme.CompletionDate,
             WithdrawalDate = request.OnProgramme.WithdrawalDate,
             StartDate = request.OnProgramme.StartDate,

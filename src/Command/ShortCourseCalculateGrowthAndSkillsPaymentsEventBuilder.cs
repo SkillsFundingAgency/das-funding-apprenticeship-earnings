@@ -7,33 +7,33 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
 public interface IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning, long employerAccountId, long fundingAccountId);
+    CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference);
 }
 
 public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder
 {
     public CalculateGrowthAndSkillsPayments Build(ShortCourseEpisode episode, ShortCourseLearning learning,
-        long employerAccountId, long fundingAccountId)
+        long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
     {
         var earnings = BuildEarnings(learning, episode, employerAccountId, fundingAccountId);
 
         return new CalculateGrowthAndSkillsPayments
         {
-            EarningsId = episode.EarningsProfile!.EarningsProfileId,
+            EarningsId = episode.EarningsProfile!.Version,
             UKPRN = episode.UKPRN,
             Learner = new Learner
             {
-                LearnerKey = learning.LearningKey,
+                LearnerKey = learnerKey,
                 ULN = long.Parse(learning.Uln),
-                Reference = learning.LearningKey.ToString()
+                Reference = learnerReference
             },
             Training = new Training
             {
                 LearningKey = learning.LearningKey,
                 CourseType = CourseType.ShortCourse,
                 LearningType = LearningType.ApprenticeshipUnit,
-                CourseCode = episode.TrainingCode.Trim(),
-                CourseReference = episode.TrainingCode.Trim(),
+                CourseCode = learning.TrainingCode.Trim(),
+                CourseReference = learning.TrainingCode.Trim(),
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.StartDate,
                 PlannedEndDate = episode.EndDate,
@@ -45,7 +45,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         };
     }
 
-    private TrainingStatus GetTrainingStatus(bool isRemoved, DateTime? lastDayOfLearning)
+    private static TrainingStatus GetTrainingStatus(bool isRemoved, DateTime? lastDayOfLearning)
     {
         if (isRemoved)
             return TrainingStatus.Withdrawn;
@@ -56,7 +56,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         return TrainingStatus.Continuing;
     }
 
-    private IEnumerable<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
+    private IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
     {
         var employerType = episode.FundingType == Learning.Types.FundingType.Levy
             ? EmployerType.Levy
@@ -65,6 +65,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         var profile = episode.EarningsProfile;
 
         var earnings = profile!.Instalments
+            .Where(i => i.IsPayable)
             .GroupBy(i => i.AcademicYear)
             .Select(g => new Earnings
             {
@@ -100,7 +101,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         return earnings;
     }
 
-    private void SetStartEndDatesForMultipleYears(List<Earnings> earnings)
+    private static void SetStartEndDatesForMultipleYears(List<Earnings> earnings)
     {
         var totalEarnings = earnings.Count;
 
@@ -127,7 +128,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
     {
         return instalmentType switch
         {
-            ShortCourseInstalmentType.ThirtyPercentLearningComplete => EarningType.Learning,
+            ShortCourseInstalmentType.ThirtyPercentLearningComplete => EarningType.Milestone1,
             ShortCourseInstalmentType.LearningComplete => EarningType.Completion,
             _ => throw new ArgumentException($"Unknown instalment type: {instalmentType}")
         };

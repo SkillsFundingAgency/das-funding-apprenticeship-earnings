@@ -14,6 +14,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     private List<ApprenticeshipPrice> _prices;
     private List<ApprenticeshipPeriodInLearning> _periodsInLearning;
 
+    public string TrainingCode => _entity.TrainingCode;
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
     public bool IsRemoved => _entity.IsRemoved;
@@ -277,5 +278,5 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _entity.FundingBandMaximum = fundingBandMaximum;
     }
 
-    public override void Approve(long employerAccountId, long fundingAccountId) => _earningsProfile!.Approve();
+    public override void Approve(long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef) => _earningsProfile!.Approve();
 }

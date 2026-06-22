@@ -122,7 +122,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
 
         // Act
-        _episode.Approve(_employerAccountId, _fundingAccountId);
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Assert
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeTrue());
@@ -155,7 +155,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Act
-        _episode.Approve(_employerAccountId, _fundingAccountId);
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Assert
         _episode.EarningsProfile.Instalments.Single(i => i.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).IsPayable.Should().BeTrue();
@@ -190,7 +190,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data");
-        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -212,7 +212,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn; Provider B also submits 30% milestone
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data");
-        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -258,7 +258,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
 
         // Act
-        _episode.Approve(_employerAccountId, _fundingAccountId);
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Assert
         var events = _episode.FlushEvents();

@@ -66,7 +66,7 @@ public class WhenSendingShortCoursePayableEarningsToPayments
             .ReturnsAsync(learning);
 
         var paymentEvent = new CalculateGrowthAndSkillsPayments();
-        _mockBuilder.Setup(x => x.Build((ShortCourseEpisode)learning.GetEpisode(shortCoursePayableEarningsUpdatedEvent.EpisodeKey), learning, shortCoursePayableEarningsUpdatedEvent.EmployerAccountId, shortCoursePayableEarningsUpdatedEvent.FundingAccountId))
+        _mockBuilder.Setup(x => x.Build((ShortCourseEpisode)learning.GetEpisode(shortCoursePayableEarningsUpdatedEvent.EpisodeKey), learning, shortCoursePayableEarningsUpdatedEvent.EmployerAccountId, shortCoursePayableEarningsUpdatedEvent.FundingAccountId, shortCoursePayableEarningsUpdatedEvent.LearnerKey, shortCoursePayableEarningsUpdatedEvent.LearnerRef))
             .Returns(paymentEvent);
 
         // Act
@@ -97,14 +97,14 @@ public class WhenSendingShortCoursePayableEarningsToPayments
             .ReturnsAsync(learning);
 
         var paymentEvent = new CalculateGrowthAndSkillsPayments();
-        _mockBuilder.Setup(x => x.Build((ShortCourseEpisode)learning.GetEpisode(shortCoursePayableEarningsUpdatedEvent.EpisodeKey), learning, shortCoursePayableEarningsUpdatedEvent.EmployerAccountId, shortCoursePayableEarningsUpdatedEvent.FundingAccountId))
+        _mockBuilder.Setup(x => x.Build((ShortCourseEpisode)learning.GetEpisode(shortCoursePayableEarningsUpdatedEvent.EpisodeKey), learning, shortCoursePayableEarningsUpdatedEvent.EmployerAccountId, shortCoursePayableEarningsUpdatedEvent.FundingAccountId, shortCoursePayableEarningsUpdatedEvent.LearnerKey, shortCoursePayableEarningsUpdatedEvent.LearnerRef))
             .Returns(paymentEvent);
 
         // Act
         await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        _mockBuilder.Verify(x => x.Build((ShortCourseEpisode)learning.GetEpisode(shortCoursePayableEarningsUpdatedEvent.EpisodeKey), learning, shortCoursePayableEarningsUpdatedEvent.EmployerAccountId, shortCoursePayableEarningsUpdatedEvent.FundingAccountId), Times.Once);
+        _mockBuilder.Verify(x => x.Build((ShortCourseEpisode)learning.GetEpisode(shortCoursePayableEarningsUpdatedEvent.EpisodeKey), learning, shortCoursePayableEarningsUpdatedEvent.EmployerAccountId, shortCoursePayableEarningsUpdatedEvent.FundingAccountId, shortCoursePayableEarningsUpdatedEvent.LearnerKey, shortCoursePayableEarningsUpdatedEvent.LearnerRef), Times.Once);
         _mockMessageSession.Verify(x => x.Send(paymentEvent, It.IsAny<SendOptions>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == paymentEvent), It.IsAny<PublishOptions>()), Times.Once);
     }

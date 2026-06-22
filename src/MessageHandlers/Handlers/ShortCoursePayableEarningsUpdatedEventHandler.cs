@@ -14,7 +14,7 @@ public class ShortCoursePayableEarningsUpdatedEventHandler(
 {
     public async Task Handle(ShortCoursePayableEarningsUpdatedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("{functionName} processing LearningKey: {LearningKey}", nameof(ShortCoursePayableEarningsUpdatedEventHandler), message.LearningKey);
+        logger.LogInformation("{FunctionName} processing LearningKey: {LearningKey}", nameof(ShortCoursePayableEarningsUpdatedEventHandler), message.LearningKey);
 
         await sendShortCoursePayableEarningsToPaymentsCommandHandler.Handle(new SendShortCoursePayableEarningsToPaymentsCommand(message), context.CancellationToken);
     }

@@ -23,8 +23,10 @@ public class WhenLearningApproved
     {
         // Arrange
         var learningKey = Guid.NewGuid();
+        var learnerKey = Guid.NewGuid();
+        var learnerRef = "L-REF-001";
 
-        var message = new LearningApprovedEvent { LearningKey = learningKey };
+        var message = new LearningApprovedEvent { LearningKey = learningKey, LearnerKey = learnerKey, LearnerRef = learnerRef };
 
         var handler = new MessageHandlers.Handlers.LearningApprovedEventHandler(
             _mockCommandHandler.Object,
@@ -36,7 +38,9 @@ public class WhenLearningApproved
         // Assert
         _mockCommandHandler.Verify(x => x.Handle(
             It.Is<ApproveLearningCommand.ApproveLearningCommand>(c =>
-                c.LearningKey == learningKey),
+                c.LearningKey == learningKey &&
+                c.LearnerKey == learnerKey &&
+                c.LearnerRef == learnerRef),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

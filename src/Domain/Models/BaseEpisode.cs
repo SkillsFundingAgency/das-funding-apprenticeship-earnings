@@ -10,7 +10,7 @@ public abstract class BaseEpisode : AggregateComponent
 
     public abstract Guid EpisodeKey { get; }
     public abstract BaseEarningsProfile? EarningsProfile { get; }
-    public abstract void Approve(long employerAccountId, long fundingAccountId);
+    public abstract void Approve(long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef);
 }
 
 public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : BaseEpisode
@@ -22,7 +22,6 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : 
     protected TEarningProfileDomainModel? _earningsProfile;
     public override Guid EpisodeKey => _entity.Key;
     public long UKPRN => _entity.Ukprn;
-    public string TrainingCode => _entity.TrainingCode;
     public FundingType FundingType => _entity.FundingType;
     public override TEarningProfileDomainModel? EarningsProfile => _earningsProfile;
     public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;

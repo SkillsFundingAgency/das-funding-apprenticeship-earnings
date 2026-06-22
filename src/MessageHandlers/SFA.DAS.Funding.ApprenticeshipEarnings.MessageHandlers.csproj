@@ -21,7 +21,7 @@
 	  
 	  <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.113" />
 	  
-	  <PackageReference Include="SFA.DAS.Learning.Types" Version="8.15.45-prerelease-2" />
+	  <PackageReference Include="SFA.DAS.Learning.Types" Version="8.15.47-prerelease-5" />
 	  <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>

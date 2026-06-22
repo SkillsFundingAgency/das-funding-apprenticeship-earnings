@@ -28,9 +28,10 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var dateOfBirth = new DateTime(2005, 1, 1);
         var employerAccountId = _fixture.Create<long>();
         var fundingAccountId = _fixture.Create<long>();
+        var learnerKey = _fixture.Create<Guid>();
+        var learnerReference = _fixture.Create<string>();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
-            .With(x => x.TrainingCode, "101")
             .With(x => x.StartDate, startDate)
             .With(x => x.EndDate, endDate)
             .With(x => x.CoursePrice, 1000m)
@@ -46,30 +47,31 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.Uln, "1234567890")
             .With(x => x.DateOfBirth, dateOfBirth)
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .With(x => x.TrainingCode, "101")
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learnerKey, learnerReference);
 
         // Assert
-        result.EarningsId.Should().Be(episode.EarningsProfile!.EarningsProfileId);
+        result.EarningsId.Should().Be(episode.EarningsProfile!.Version);
         result.UKPRN.Should().Be(episode.UKPRN);
         result.EmployerContribution.Should().Be(0);
 
         result.Learner.Should().NotBeNull();
-        result.Learner.LearnerKey.Should().Be(learning.LearningKey);
+        result.Learner.LearnerKey.Should().Be(learnerKey);
         result.Learner.ULN.Should().Be(1234567890);
-        result.Learner.Reference.Should().Be(learning.LearningKey.ToString());
+        result.Learner.Reference.Should().Be(learnerReference);
 
         result.Training.Should().NotBeNull();
         result.Training.LearningKey.Should().Be(learning.LearningKey);
         result.Training.CourseType.Should().Be(CourseType.ShortCourse);
         result.Training.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
-        result.Training.CourseCode.Should().Be(episode.TrainingCode);
-        result.Training.CourseReference.Should().Be(episode.TrainingCode);
+        result.Training.CourseCode.Should().Be(learning.TrainingCode);
+        result.Training.CourseReference.Should().Be(learning.TrainingCode);
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(episode.StartDate);
         result.Training.PlannedEndDate.Should().Be(episode.EndDate);
@@ -85,7 +87,6 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var fundingAccountId = _fixture.Create<long>();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
-            .With(x => x.TrainingCode, "101")
             .With(x => x.IsRemoved, true)
             .With(x => x.WithdrawalDate, new DateTime(2024, 3, 1))
             .With(x => x.CompletionDate, (DateTime?)null)
@@ -97,13 +98,14 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var learningEntity = _fixture.Build<ShortCourseLearningEntity>()
             .With(x => x.Uln, "9876543210")
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .With(x => x.TrainingCode, "101")
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Training.TrainingStatus.Should().Be(TrainingStatus.Withdrawn);
@@ -118,7 +120,6 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var fundingAccountId = _fixture.Create<long>();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
-            .With(x => x.TrainingCode, "101")
             .With(x => x.IsRemoved, false)
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
@@ -130,13 +131,14 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var learningEntity = _fixture.Build<ShortCourseLearningEntity>()
             .With(x => x.Uln, "1212121212")
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .With(x => x.TrainingCode, "101")
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Training.TrainingStatus.Should().Be(TrainingStatus.Continuing);
@@ -155,6 +157,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)2)
             .With(x => x.Type, ShortCourseInstalmentType.ThirtyPercentLearningComplete.ToString())
             .With(x => x.Amount, 300m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var instalment2 = _fixture.Build<ShortCourseInstalmentEntity>()
@@ -162,10 +165,10 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)10)
             .With(x => x.Type, ShortCourseInstalmentType.LearningComplete.ToString())
             .With(x => x.Amount, 700m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
-            .With(x => x.TrainingCode, "101")
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 6, 30))
             .With(x => x.CoursePrice, 1000m)
@@ -180,13 +183,14 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var learningEntity = _fixture.Build<ShortCourseLearningEntity>()
             .With(x => x.Uln, "3434343434")
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .With(x => x.TrainingCode, "101")
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Earnings.Should().HaveCount(1);
@@ -201,7 +205,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         pricePeriod.Periods.Should().HaveCount(2);
 
         var period1 = pricePeriod.Periods.First(p => p.DeliveryPeriod == 2);
-        period1.EarningType.Should().Be(EarningType.Learning);
+        period1.EarningType.Should().Be(EarningType.Milestone1);
         period1.Amount.Should().Be(300m);
         period1.LearningId.Should().Be(learning.ApprovalsApprenticeshipId);
         period1.Employer.AccountId.Should().Be(employerAccountId);
@@ -212,6 +216,65 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         period2.EarningType.Should().Be(EarningType.Completion);
         period2.Amount.Should().Be(700m);
         period2.LearningId.Should().Be(learning.ApprovalsApprenticeshipId);
+    }
+
+    [Test]
+    public void WhenSomeInstalmentsAreNotPayable_ThenOnlyMapPayableInstalments()
+    {
+        // Arrange
+        var employerAccountId = _fixture.Create<long>();
+        var fundingAccountId = _fixture.Create<long>();
+
+        var payableThirtyPercentInstalment = _fixture.Build<ShortCourseInstalmentEntity>()
+            .With(x => x.AcademicYear, (short)2324)
+            .With(x => x.DeliveryPeriod, (byte)2)
+            .With(x => x.Type, ShortCourseInstalmentType.ThirtyPercentLearningComplete.ToString())
+            .With(x => x.Amount, 300m)
+            .With(x => x.IsPayable, true)
+            .Create();
+
+        var nonPayableLearningCompleteInstalment = _fixture.Build<ShortCourseInstalmentEntity>()
+            .With(x => x.AcademicYear, (short)2324)
+            .With(x => x.DeliveryPeriod, (byte)10)
+            .With(x => x.Type, ShortCourseInstalmentType.LearningComplete.ToString())
+            .With(x => x.Amount, 700m)
+            .With(x => x.IsPayable, false)
+            .Create();
+
+        var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 6, 30))
+            .With(x => x.CoursePrice, 1000m)
+            .With(x => x.FundingType, SFA.DAS.Learning.Types.FundingType.Levy)
+            .With(x => x.EarningsProfile, _fixture.Build<ShortCourseEarningsProfileEntity>()
+                .With(p => p.Instalments, new List<ShortCourseInstalmentEntity> { payableThirtyPercentInstalment, nonPayableLearningCompleteInstalment })
+                .Create())
+            .Create();
+
+        var learningEntity = _fixture.Build<ShortCourseLearningEntity>()
+            .With(x => x.Uln, "7878787878")
+            .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .With(x => x.TrainingCode, "101")
+            .Create();
+
+        var learning = ShortCourseLearning.Get(learningEntity);
+        var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
+
+        // Act
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
+
+        // Assert
+        result.Earnings.Should().HaveCount(1);
+        var earning = result.Earnings.Single();
+        earning.AcademicYear.Should().Be(2324);
+
+        var pricePeriod = earning.PricePeriods.Single();
+        pricePeriod.Periods.Should().HaveCount(1);
+
+        var period = pricePeriod.Periods.Single();
+        period.EarningType.Should().Be(EarningType.Milestone1);
+        period.DeliveryPeriod.Should().Be(2);
+        period.Amount.Should().Be(300m);
     }
 
     [Test]
@@ -226,6 +289,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)11)
             .With(x => x.Type, ShortCourseInstalmentType.ThirtyPercentLearningComplete.ToString())
             .With(x => x.Amount, 300m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var instalment2 = _fixture.Build<ShortCourseInstalmentEntity>()
@@ -233,10 +297,10 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.DeliveryPeriod, (byte)2)
             .With(x => x.Type, ShortCourseInstalmentType.LearningComplete.ToString())
             .With(x => x.Amount, 700m)
+            .With(x => x.IsPayable, true)
             .Create();
 
         var episodeEntity = _fixture.Build<ShortCourseEpisodeEntity>()
-            .With(x => x.TrainingCode, "101")
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 10, 31))
             .With(x => x.CoursePrice, 1000m)
@@ -248,13 +312,14 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         var learningEntity = _fixture.Build<ShortCourseLearningEntity>()
             .With(x => x.Uln, "5656565656")
             .With(x => x.Episodes, new List<ShortCourseEpisodeEntity> { episodeEntity })
+            .With(x => x.TrainingCode, "101")
             .Create();
 
         var learning = ShortCourseLearning.Get(learningEntity);
         var episode = (ShortCourseEpisode)learning.GetEpisode(episodeEntity.Key);
 
         // Act
-        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId);
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, learning.LearningKey, learning.LearningKey.ToString());
 
         // Assert
         result.Earnings.Should().HaveCount(2);
