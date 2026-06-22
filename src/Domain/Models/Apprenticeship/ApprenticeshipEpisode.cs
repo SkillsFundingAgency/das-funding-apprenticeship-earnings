@@ -14,6 +14,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     private List<ApprenticeshipPrice> _prices;
     private List<ApprenticeshipPeriodInLearning> _periodsInLearning;
 
+    public string TrainingCode => _entity.TrainingCode;
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
     public bool IsRemoved => _entity.IsRemoved;

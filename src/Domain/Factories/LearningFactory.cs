@@ -42,13 +42,13 @@ public class LearningFactory : ILearningFactory
             LearningKey = commandRequest.LearningKey,
             DateOfBirth = commandRequest.Learner.DateOfBirth,
             Uln = commandRequest.Learner.Uln,
+            TrainingCode = commandRequest.OnProgramme.CourseCode,
             Episodes = new List<ShortCourseEpisodeEntity> {  new ShortCourseEpisodeEntity
             {
                 Key = commandRequest.EpisodeKey,
                 LearningKey = commandRequest.LearningKey,
                 Ukprn = commandRequest.OnProgramme.Ukprn,
                 FundingType = FundingType.Levy,
-                TrainingCode = commandRequest.OnProgramme.CourseCode,
                 CompletionDate = commandRequest.OnProgramme.CompletionDate,
                 WithdrawalDate = commandRequest.OnProgramme.WithdrawalDate,
                 StartDate = commandRequest.OnProgramme.StartDate,
