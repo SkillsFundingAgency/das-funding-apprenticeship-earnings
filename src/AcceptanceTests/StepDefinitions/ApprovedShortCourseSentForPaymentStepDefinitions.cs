@@ -45,9 +45,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             paymentsEvent.EmployerContribution.Should().Be(0); //todo not specified on design, assumption
 
             paymentsEvent.Learner.Should().NotBeNull();
-            paymentsEvent.Learner.LearnerKey.Should().Be(request.LearningKey);
+            paymentsEvent.Learner.LearnerKey.Should().Be(learningApprovedEvent.LearnerKey);
             paymentsEvent.Learner.ULN.Should().Be(long.Parse(request.Learner.Uln));
-            paymentsEvent.Learner.Reference.Should().Be(request.LearningKey.ToString()); //todo not specified on design, assumption
+            paymentsEvent.Learner.Reference.Should().Be(learningApprovedEvent.LearnerRef);
 
             paymentsEvent.Training.Should().NotBeNull();
             paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey); //todo not specified on design, assumption
