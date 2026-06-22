@@ -30,7 +30,7 @@ public class SendShortCoursePayableEarningsToPaymentsCommandHandler : ICommandHa
 
     public async Task Handle(SendShortCoursePayableEarningsToPaymentsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("{handler} - Started for LearningKey: {LearningKey}", nameof(SendShortCoursePayableEarningsToPaymentsCommandHandler), command.ShortCoursePayableEarningsUpdatedEvent.LearningKey);
+        _logger.LogInformation("{Handler} - Started for LearningKey: {LearningKey}", nameof(SendShortCoursePayableEarningsToPaymentsCommandHandler), command.ShortCoursePayableEarningsUpdatedEvent.LearningKey);
 
         var learning = await _learningRepository.GetShortCourseLearning(command.ShortCoursePayableEarningsUpdatedEvent.LearningKey);
         if (learning == null)
@@ -55,10 +55,10 @@ public class SendShortCoursePayableEarningsToPaymentsCommandHandler : ICommandHa
         var options = new SendOptions();
         options.DoNotEnforceBestPractices();
         options.SetDestination(_paymentsConfiguration.PaymentsEndpoint);
-        await _messageSession.Send(paymentEvent, options);
+        await _messageSession.Send(paymentEvent, options, cancellationToken);
 
         await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
 
-        _logger.LogInformation("{handler} - Successfully processed and published event for LearningKey: {LearningKey}", nameof(SendShortCoursePayableEarningsToPaymentsCommandHandler), command.ShortCoursePayableEarningsUpdatedEvent.LearningKey);
+        _logger.LogInformation("{Handler} - Successfully processed and published event for LearningKey: {LearningKey}", nameof(SendShortCoursePayableEarningsToPaymentsCommandHandler), command.ShortCoursePayableEarningsUpdatedEvent.LearningKey);
     }
 }

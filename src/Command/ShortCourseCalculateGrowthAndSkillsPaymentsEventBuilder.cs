@@ -45,7 +45,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         };
     }
 
-    private TrainingStatus GetTrainingStatus(bool isRemoved, DateTime? lastDayOfLearning)
+    private static TrainingStatus GetTrainingStatus(bool isRemoved, DateTime? lastDayOfLearning)
     {
         if (isRemoved)
             return TrainingStatus.Withdrawn;
@@ -56,7 +56,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         return TrainingStatus.Continuing;
     }
 
-    private IEnumerable<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
+    private IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
     {
         var employerType = episode.FundingType == Learning.Types.FundingType.Levy
             ? EmployerType.Levy
@@ -101,7 +101,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         return earnings;
     }
 
-    private void SetStartEndDatesForMultipleYears(List<Earnings> earnings)
+    private static void SetStartEndDatesForMultipleYears(List<Earnings> earnings)
     {
         var totalEarnings = earnings.Count;
 
