@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveShortCourseLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
@@ -278,7 +279,11 @@ public class ShortCourseStepDefinitions
     public async Task WhenTheShortCourseLearningIsDeleted()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}");
+        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}", new RemoveShortCourseLearningRequest
+        {
+            LearnerKey = Guid.NewGuid(),
+            LearnerRef = $"learner-{request.LearningKey:N}"
+        });
     }
 
     [Then(@"the short course has no instalments")]
