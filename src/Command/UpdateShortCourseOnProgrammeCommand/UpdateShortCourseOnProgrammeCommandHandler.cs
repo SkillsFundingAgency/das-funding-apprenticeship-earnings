@@ -32,7 +32,10 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
             command.Request.CompletionDate,
             command.Request.WithdrawalDate,
             command.Request.Milestones,
-            JsonSerializer.Serialize(command.Request));
+            JsonSerializer.Serialize(command.Request),
+            command.Request.LearnerKey,
+            command.Request.LearnerRef);
+            //todo assert this results in two new values correctly on event
 
         await _learningRepository.Update(learning);
 

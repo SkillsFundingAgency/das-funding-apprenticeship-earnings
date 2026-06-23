@@ -28,7 +28,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         return episode;
     }
 
-    public void CalculateShortCourseOnProgram(string calculationData, bool suppressThirtyPercent = false)
+    public void CalculateShortCourseOnProgram(string calculationData, Guid learnerKey, string learnerRef, bool suppressThirtyPercent = false)
     {
         _entity.IsRemoved = false;
 
@@ -77,7 +77,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
                 LearningKey = _entity.LearningKey,
                 EpisodeKey = EpisodeKey,
                 EmployerAccountId = _entity.EmployerAccountId ?? 0,
-                FundingAccountId = _entity.FundingEmployerAccountId ?? 0
+                FundingAccountId = _entity.FundingEmployerAccountId ?? 0,
+                LearnerKey = learnerKey,
+                LearnerRef = learnerRef
             });
         }
     }
@@ -117,7 +119,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         });
     }
 
-    public void Remove()
+    public void Remove(Guid learnerKey, string learnerRef)
     {
         _entity.IsRemoved = true;
         RemoveEarnings();
@@ -126,7 +128,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
             LearningKey = _entity.LearningKey,
             EpisodeKey = EpisodeKey,
             EmployerAccountId = _entity.EmployerAccountId ?? 0,
-            FundingAccountId = _entity.FundingEmployerAccountId ?? 0
+            FundingAccountId = _entity.FundingEmployerAccountId ?? 0,
+            LearnerKey = learnerKey,
+            LearnerRef = learnerRef
         });
     }
 

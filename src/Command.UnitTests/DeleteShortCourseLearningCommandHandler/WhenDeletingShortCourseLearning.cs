@@ -30,7 +30,7 @@ public class WhenDeletingShortCourseLearning
         var learning = BuildShortCourseLearning(learningKey);
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
-        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey));
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey, Guid.NewGuid(), "learner-ref"));
 
         _mockRepository.Verify(r => r.GetShortCourseLearning(learningKey), Times.Once);
     }
@@ -42,7 +42,7 @@ public class WhenDeletingShortCourseLearning
         var learning = BuildShortCourseLearning(learningKey);
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
-        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey));
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey, Guid.NewGuid(), "learner-ref"));
 
         _mockRepository.Verify(r => r.Update(learning), Times.Once);
     }
@@ -53,7 +53,7 @@ public class WhenDeletingShortCourseLearning
         var learningKey = Guid.NewGuid();
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync((ShortCourseLearning?)null);
 
-        var act = async () => await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, Guid.NewGuid()));
+        var act = async () => await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, Guid.NewGuid(), Guid.NewGuid(), "learner-ref"));
 
         act.Should().ThrowAsync<InvalidOperationException>();
     }

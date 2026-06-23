@@ -110,6 +110,8 @@ public class WhenUpdatingShortCourseOnProgramme
         new(learningKey, episodeKey, new UpdateShortCourseOnProgrammeCommand.UpdateShortCourseOnProgrammeRequest
         {
             CompletionDate = completionDate,
-            Milestones = new List<Milestone>()
+            Milestones = new List<Milestone>(),
+            LearnerKey = Guid.NewGuid(),
+            LearnerRef = "learner-ref"
         });
 }

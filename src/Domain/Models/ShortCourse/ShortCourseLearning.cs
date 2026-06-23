@@ -29,19 +29,20 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef)
         => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
-    public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
+    public void Remove(Guid episodeKey, Guid learnerKey, string learnerRef)
+        => GetShortCourseEpisode(episodeKey).Remove(learnerKey, learnerRef);
 
-    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData)
+    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, Guid learnerKey, string learnerRef)
     {
         var episode = GetShortCourseEpisode(episodeKey);
         episode.UpdateCompletion(completionDate);
         episode.UpdateWithdrawalDate(withdrawalDate);
         episode.UpdateMilestones(milestones);
-        episode.CalculateShortCourseOnProgram(calculationData, IsThirtyPercentClaimedBySibling(episodeKey));
+        episode.CalculateShortCourseOnProgram(calculationData, learnerKey, learnerRef, IsThirtyPercentClaimedBySibling(episodeKey));
     }
 
-    public void CalculateOnProgram(Guid episodeKey, string calculationData)
-        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData, IsThirtyPercentClaimedBySibling(episodeKey));
+    public void CalculateOnProgram(Guid episodeKey, string calculationData, Guid learnerKey, string learnerRef)
+        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData, learnerKey, learnerRef, IsThirtyPercentClaimedBySibling(episodeKey));
 
     public void UpdateUnapprovedShortCourseInformation(Guid episodeKey, ShortCourseUpdateModel updateModel)
     {

@@ -14,6 +14,8 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
     private DateTime? _withdrawalDate;
     private DateTime? _completionDate;
     private List<Milestone> _milestones = new List<Milestone>();
+    private Guid _learnerKey = Guid.NewGuid();
+    private string _learnerRef = "acceptance-learner-ref";
 
     internal UpdateShortCourseOnProgrammeRequestBuilder WithExistingData(CreateUnapprovedShortCourseLearningRequest createUnapprovedShortCourseLearningRequest)
     {
@@ -37,7 +39,9 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
         {
             WithdrawalDate = _withdrawalDate,
             CompletionDate = _completionDate,
-            Milestones = _milestones
+            Milestones = _milestones,
+            LearnerKey = _learnerKey,
+            LearnerRef = _learnerRef
         };
     }
 }
