@@ -18,6 +18,8 @@ internal class WhenDeletingShortCourseEpisode
     private ShortCourseEpisode _episode;
     private long _employerAccountId;
     private long _fundingAccountId;
+    private string _learnerRef;
+    private Guid _learnerKey;
 
     [SetUp]
     public void SetUp()
@@ -31,6 +33,8 @@ internal class WhenDeletingShortCourseEpisode
         _episode.CalculateShortCourseOnProgram("initial");
         _employerAccountId = _fixture.Create<long>();
         _fundingAccountId = _fixture.Create<long>();
+        _learnerKey = _fixture.Create<Guid>();
+        _learnerRef = _fixture.Create<string>();
     }
 
     [Test]
@@ -69,7 +73,7 @@ internal class WhenDeletingShortCourseEpisode
     public void ThenShortCoursePayableEarningsUpdatedDomainEventIsPublishedCorrectly()
     {
         // Arrange
-        _episode.Approve(_employerAccountId, _fundingAccountId);
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learnerKey, _learnerRef);
         _episode.FlushEvents();
 
         // Act
@@ -83,5 +87,7 @@ internal class WhenDeletingShortCourseEpisode
         @event.EpisodeKey.Should().Be(_episode.EpisodeKey);
         @event.EmployerAccountId.Should().Be(_employerAccountId);
         @event.FundingAccountId.Should().Be(_fundingAccountId);
+        @event.LearnerKey.Should().Be(_learnerKey);
+        @event.LearnerRef.Should().Be(_learnerRef);
     }
 }
