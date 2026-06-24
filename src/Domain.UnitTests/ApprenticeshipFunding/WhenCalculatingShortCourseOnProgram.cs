@@ -193,7 +193,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         var newStartDate = new DateTime(2024, 2, 1);
         _episode.CalculateShortCourseOnProgram(calculationData: "initial");
-        _episode.Approve();
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Act
         _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate);
