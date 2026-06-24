@@ -56,13 +56,15 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
         return TrainingStatus.Continuing;
     }
 
-    private IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
+    private static IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
     {
         var employerType = episode.FundingType == Learning.Types.FundingType.Levy
             ? EmployerType.Levy
             : EmployerType.NonLevy;
 
         var profile = episode.EarningsProfile;
+
+
 
         var earnings = profile!.Instalments
             .Where(i => i.IsPayable)
