@@ -279,11 +279,9 @@ public class ShortCourseStepDefinitions
     public async Task WhenTheShortCourseLearningIsDeleted()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}", new RemoveShortCourseLearningRequest
-        {
-            LearnerKey = Guid.NewGuid(),
-            LearnerRef = $"learner-{request.LearningKey:N}"
-        });
+        var learnerKey = Guid.NewGuid();
+        var learnerRef = $"learner-{request.LearningKey:N}";
+        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}?learnerKey={learnerKey}&learnerRef={learnerRef}");
     }
 
     [Then(@"the short course has no instalments")]

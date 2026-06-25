@@ -129,7 +129,11 @@ public class ShortCoursesController : ControllerBase
     }
 
     [HttpDelete("/{learningKey}/shortCourses/{episodeKey}")]
-    public async Task<IActionResult> RemoveShortCourseLearning(Guid learningKey, Guid episodeKey, [FromBody] RemoveShortCourseLearningRequest request)
+    public async Task<IActionResult> RemoveShortCourseLearning(
+        Guid learningKey,
+        Guid episodeKey,
+        [FromQuery] Guid learnerKey,
+        [FromQuery] string learnerRef)
     {
         _logger.LogInformation("Received request to remove ShortCourse learning for LearningKey {LearningKey}", learningKey);
 
@@ -137,7 +141,7 @@ public class ShortCoursesController : ControllerBase
 
         try
         {
-            var command = new RemoveShortCourseLearningCommand(learningKey, episodeKey, request.LearnerKey, request.LearnerRef);
+            var command = new RemoveShortCourseLearningCommand(learningKey, episodeKey, learnerKey, learnerRef);
             response = await _commandDispatcher.Send<RemoveShortCourseLearningCommand, RemoveShortCourseLearningResponse>(command);
         }
         catch (Exception ex)
