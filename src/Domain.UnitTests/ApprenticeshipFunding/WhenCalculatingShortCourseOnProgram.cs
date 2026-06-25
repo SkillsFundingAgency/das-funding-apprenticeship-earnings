@@ -167,11 +167,51 @@ internal class WhenCalculatingShortCourseOnProgram
     }
 
     [Test]
+    public void ThenStartDateIsUpdatedWhenUnapproved()
+    {
+        // Arrange
+        var newStartDate = new DateTime(2024, 2, 1);
+
+        // Act
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate);
+
+        // Assert
+        _episode.StartDate.Should().Be(newStartDate);
+    }
+
+    [Test]
+    public void ThenExpectedEndDateIsUpdatedWhenUnapproved()
+    {
+        // Arrange
+        var newEndDate = new DateTime(2024, 5, 31);
+
+        // Act
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", _episode.StartDate, newEndDate);
+
+        // Assert
+        _episode.EndDate.Should().Be(newEndDate);
+    }
+
+    [Test]
+    public void ThenStartDateIsUpdatedEvenWhenApproved()
+    {
+        var newStartDate = new DateTime(2024, 2, 1);
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
+
+        // Act
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate);
+
+        // Assert
+        _episode.StartDate.Should().Be(newStartDate);
+    }
+
+    [Test]
     public void WhenProviderAHasNotClaimed30Percent_ThenProviderBGetsBothInstalments()
     {
         // Arrange
         var providerAEpisodeKey = _episode.EpisodeKey;
-        _learning.UpdateOnProgramme(providerAEpisodeKey, null, null, new List<Milestone>(), "providerA-data", _learnerKey, _learnerRef);
+        _learning.UpdateOnProgramme(providerAEpisodeKey, null, null, new List<Milestone>(), "providerA-data", _episode.StartDate, _episode.EndDate,  _learnerKey, _learnerRef);
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -193,7 +233,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Arrange - Provider A claimed 30% and has since withdrawn
         var providerAEpisodeKey = _episode.EpisodeKey;
-        _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _learnerKey, _learnerRef);
+        _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _episode.StartDate, _episode.EndDate, _learnerKey, _learnerRef);
         _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learnerKey, _learnerRef);
 
         var providerBRequest = BuildProviderBRequest();
@@ -215,8 +255,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         // Arrange - Provider A claimed 30% and has since withdrawn; Provider B also submits 30% milestone
         var providerAEpisodeKey = _episode.EpisodeKey;
-        _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _learnerKey, _learnerRef);
-        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learnerKey, _learnerRef);
+        _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _episode.StartDate, _episode.EndDate, _learnerKey, _learnerRef);
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -224,7 +263,7 @@ internal class WhenCalculatingShortCourseOnProgram
         var providerBEpisode = _learning.Episodes.Single(e => e.EpisodeKey == providerBRequest.EpisodeKey);
 
         // Act - Provider B's PUT arrives with 30% milestone recorded
-        _learning.UpdateOnProgramme(providerBRequest.EpisodeKey, null, null, new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerB-data", _learnerKey, _learnerRef);
+        _learning.UpdateOnProgramme(providerBRequest.EpisodeKey, null, null, new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerB-data", providerBEpisode.StartDate, providerBEpisode.EndDate, _learnerKey, _learnerRef);
 
         // Assert - 30% still suppressed because Provider A claimed it
         providerBEpisode.EarningsProfile.Instalments.Should().HaveCount(1);
@@ -238,11 +277,12 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and withdrew; Provider B also has the 30% milestone flag but is active (no withdrawal)
         // Verifies that Provider B's milestone cannot suppress Provider A's 30% in a recalculation
         var providerAEpisodeKey = _episode.EpisodeKey;
-        _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _learnerKey, _learnerRef);
+        _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _episode.StartDate, _episode.EndDate, _learnerKey, _learnerRef);
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
-        _learning.UpdateOnProgramme(providerBRequest.EpisodeKey, null, null, new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerB-data", _learnerKey, _learnerRef);
+        var providerBEpisode = _learning.Episodes.Single(e => e.EpisodeKey == providerBRequest.EpisodeKey);
+        _learning.UpdateOnProgramme(providerBRequest.EpisodeKey, null, null, new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerB-data", providerBEpisode.StartDate, providerBEpisode.EndDate, _learnerKey, _learnerRef);
 
         var providerAEpisode = _learning.Episodes.Single(e => e.EpisodeKey == providerAEpisodeKey);
 

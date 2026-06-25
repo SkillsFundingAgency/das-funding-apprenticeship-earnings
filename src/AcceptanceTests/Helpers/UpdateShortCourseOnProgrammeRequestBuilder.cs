@@ -13,6 +13,8 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
 {
     private DateTime? _withdrawalDate;
     private DateTime? _completionDate;
+    private DateTime _startDate;
+    private DateTime _expectedEndDate;
     private List<Milestone> _milestones = new List<Milestone>();
     private Guid _learnerKey = Guid.NewGuid();
     private string _learnerRef = "acceptance-learner-ref";
@@ -21,6 +23,8 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
     {
         _withdrawalDate = createUnapprovedShortCourseLearningRequest.OnProgramme.WithdrawalDate;
         _completionDate = createUnapprovedShortCourseLearningRequest.OnProgramme.CompletionDate;
+        _startDate = createUnapprovedShortCourseLearningRequest.OnProgramme.StartDate;
+        _expectedEndDate = createUnapprovedShortCourseLearningRequest.OnProgramme.ExpectedEndDate;
         _milestones = createUnapprovedShortCourseLearningRequest.OnProgramme.Milestones;
         return this;
     }
@@ -29,6 +33,8 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
     {
         if(data.WithdrawalDate.HasChanged) _withdrawalDate = data.WithdrawalDate.Value;
         if(data.CompletionDate.HasChanged) _completionDate = data.CompletionDate.Value;
+        if(data.StartDate.HasChanged) _startDate = data.StartDate.Value!.Value;
+        if(data.ExpectedEndDate.HasChanged) _expectedEndDate = data.ExpectedEndDate.Value!.Value;
         if(data.Milestones.HasChanged) _milestones = data.Milestones.Value;
         return this;
     }
@@ -39,6 +45,8 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
         {
             WithdrawalDate = _withdrawalDate,
             CompletionDate = _completionDate,
+            StartDate = _startDate,
+            ExpectedEndDate = _expectedEndDate,
             Milestones = _milestones,
             LearnerKey = _learnerKey,
             LearnerRef = _learnerRef

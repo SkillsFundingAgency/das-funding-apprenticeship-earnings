@@ -1,7 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Learning.Types;
 using FundingType = SFA.DAS.Learning.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
@@ -32,9 +31,13 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     public void Remove(Guid episodeKey, Guid learnerKey, string learnerRef)
         => GetShortCourseEpisode(episodeKey).Remove(learnerKey, learnerRef);
 
-    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, Guid learnerKey, string learnerRef)
+    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, DateTime startDate, DateTime expectedEndDate, Guid learnerKey, string learnerRef)
     {
         var episode = GetShortCourseEpisode(episodeKey);
+
+        episode.UpdateStartDate(startDate);
+        episode.UpdateExpectedEndDate(expectedEndDate);
+
         episode.UpdateCompletion(completionDate);
         episode.UpdateWithdrawalDate(withdrawalDate);
         episode.UpdateMilestones(milestones);

@@ -139,6 +139,16 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         _entity.WithdrawalDate = withdrawalDate;
     }
 
+    public void UpdateStartDate(DateTime startDate)
+    {
+        _entity.StartDate = startDate;
+    }
+
+    public void UpdateExpectedEndDate(DateTime expectedEndDate)
+    {
+        _entity.EndDate = expectedEndDate;
+    }
+
     public void UpdateMilestones(List<Milestone> milestones)
     {
         _entity.Milestones = milestones.ToMilestoneFlags();
