@@ -46,6 +46,18 @@ public class WhenApprovingLearning
     }
 
     [Test]
+    public async Task ThenTheApprovalsApprenticeshipIdIsUpdatedForShortCourseLearning()
+    {
+        var learning = BuildLearning(isApproved: false);
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.ApprovalsApprenticeshipId.Should().Be(command.ApprovalsApprenticeshipId);
+    }
+
+    [Test]
     public async Task ThenUpdateIsCalledWithTheLearning()
     {
         var learning = BuildLearning();
@@ -60,7 +72,7 @@ public class WhenApprovingLearning
     [Test]
     public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
     {
-        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>());
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
@@ -91,7 +103,7 @@ public class WhenApprovingLearning
     }
 
     private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
-        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>());
 
     private void SetupDomainService(ShortCourseLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
