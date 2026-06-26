@@ -28,6 +28,9 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef)
         => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
+    public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
+        => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
+
     public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
 
     public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, DateTime startDate, DateTime expectedEndDate)

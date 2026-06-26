@@ -25,6 +25,7 @@ public class WhenLearningApproved
         var learningKey = Guid.NewGuid();
         var learnerKey = Guid.NewGuid();
         var learnerRef = "L-REF-001";
+        var approvalsApprenticeshipId = 15L;
 
         var message = new LearningApprovedEvent { LearningKey = learningKey, LearnerKey = learnerKey, LearnerRef = learnerRef };
 
@@ -40,7 +41,8 @@ public class WhenLearningApproved
             It.Is<ApproveLearningCommand.ApproveLearningCommand>(c =>
                 c.LearningKey == learningKey &&
                 c.LearnerKey == learnerKey &&
-                c.LearnerRef == learnerRef),
+                c.LearnerRef == learnerRef &&
+                c.ApprovalsApprenticeshipId == approvalsApprenticeshipId),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }
