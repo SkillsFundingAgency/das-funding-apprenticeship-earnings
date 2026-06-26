@@ -2,9 +2,6 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
@@ -173,7 +170,7 @@ internal class WhenCalculatingShortCourseOnProgram
         var newStartDate = new DateTime(2024, 2, 1);
 
         // Act
-        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate);
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate, _learnerKey, _learnerRef);
 
         // Assert
         _episode.StartDate.Should().Be(newStartDate);
@@ -186,7 +183,7 @@ internal class WhenCalculatingShortCourseOnProgram
         var newEndDate = new DateTime(2024, 5, 31);
 
         // Act
-        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", _episode.StartDate, newEndDate);
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", _episode.StartDate, newEndDate, _learnerKey, _learnerRef);
 
         // Assert
         _episode.EndDate.Should().Be(newEndDate);
@@ -196,11 +193,11 @@ internal class WhenCalculatingShortCourseOnProgram
     public void ThenStartDateIsUpdatedEvenWhenApproved()
     {
         var newStartDate = new DateTime(2024, 2, 1);
-        _episode.CalculateShortCourseOnProgram(calculationData: "initial");
+        _episode.CalculateShortCourseOnProgram(calculationData: "initial", learnerKey: _learnerKey, learnerRef: _learnerRef);
         _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Act
-        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate);
+        _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate, _learnerKey, _learnerRef);
 
         // Assert
         _episode.StartDate.Should().Be(newStartDate);
@@ -256,6 +253,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn; Provider B also submits 30% milestone
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _episode.StartDate, _episode.EndDate, _learnerKey, _learnerRef);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learnerKey, _learnerRef);
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
