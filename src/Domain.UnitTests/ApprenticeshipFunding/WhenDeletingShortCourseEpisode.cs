@@ -91,5 +91,22 @@ internal class WhenDeletingShortCourseEpisode
         @event.LearnerRef.Should().Be(_learnerRef);
     }
 
-    //todo add test where learnerref/key is changed
+    [Test]
+    public void ThenShortCoursePayableEarningsUpdatedDomainEventUsesLatestLearnerValuesWhenChanged()
+    {
+        // Arrange
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learnerKey, _learnerRef);
+        _episode.FlushEvents();
+
+        var updatedLearnerKey = _fixture.Create<Guid>();
+        var updatedLearnerRef = _fixture.Create<string>();
+
+        // Act
+        _episode.Remove(updatedLearnerKey, updatedLearnerRef);
+
+        // Assert
+        var @event = _episode.FlushEvents().OfType<ShortCoursePayableEarningsUpdatedEvent>().Single();
+        @event.LearnerKey.Should().Be(updatedLearnerKey);
+        @event.LearnerRef.Should().Be(updatedLearnerRef);
+    }
 }
