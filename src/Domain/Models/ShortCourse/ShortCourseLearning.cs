@@ -25,7 +25,11 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         return _entity;
     }
 
-    public override void Approve(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Approve();
+    public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef)
+        => GetShortCourseEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
+
+    public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
+        => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
 
     public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
 
@@ -49,6 +53,8 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
     {
         _entity.Uln = updateModel.Uln;
         var episode = _entity.Episodes.Single(e => e.Key == episodeKey);
+        episode.EmployerAccountId = updateModel.EmployerAccountId;
+        episode.FundingEmployerAccountId = updateModel.FundingEmployerAccountId;
         episode.Ukprn = updateModel.Ukprn;
         episode.StartDate = updateModel.StartDate;
         episode.WithdrawalDate = updateModel.WithdrawalDate;

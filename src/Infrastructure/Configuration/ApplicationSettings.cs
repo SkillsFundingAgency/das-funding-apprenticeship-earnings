@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
@@ -15,6 +15,7 @@ public class ApplicationSettings
     public string NServiceBusLicense { get; set; }
     public string DbConnectionString { get; set; }
     public string LearningTransportStorageDirectory { get; set; }
+    public PaymentsConfiguration PaymentsConfiguration { get; set; }
     public EarningOuterApiConfiguration EarningOuterApiConfiguration { get; set; }
 }
 
@@ -23,5 +24,11 @@ public class EarningOuterApiConfiguration
 {
     public string Key { get; set; }
     public string BaseUrl { get; set; }
+}
+
+[ExcludeFromCodeCoverage]
+public class PaymentsConfiguration
+{
+    public string PaymentsEndpoint { get; set; }
 }
 #pragma warning restore CS8618

@@ -23,6 +23,8 @@ internal class WhenCalculatingShortCourseOnProgram
     private ShortCourseEpisode _episode;
     private Mock<ISystemClockService> _mockSystemClock;
     private decimal _agreedPrice;
+    private long _employerAccountId;
+    private long _fundingAccountId;
 
     [SetUp]
     public void SetUp()
@@ -37,6 +39,9 @@ internal class WhenCalculatingShortCourseOnProgram
 
         _learning = _fixture.CreateLearningWithShortCourse(startDate, endDate, _agreedPrice);
         _episode = _learning.Episodes.Single();
+
+        _employerAccountId = _fixture.Create<long>();
+        _fundingAccountId = _fixture.Create<long>();
     }
 
     [Test]
@@ -117,7 +122,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
 
         // Act
-        _episode.Approve();
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Assert
         _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeTrue());
@@ -150,7 +155,7 @@ internal class WhenCalculatingShortCourseOnProgram
         _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
 
         // Act
-        _episode.Approve();
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Assert
         _episode.EarningsProfile.Instalments.Single(i => i.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete).IsPayable.Should().BeTrue();
@@ -188,7 +193,7 @@ internal class WhenCalculatingShortCourseOnProgram
     {
         var newStartDate = new DateTime(2024, 2, 1);
         _episode.CalculateShortCourseOnProgram(calculationData: "initial");
-        _episode.Approve();
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         // Act
         _learning.UpdateOnProgramme(_episode.EpisodeKey, null, null, new List<Milestone>(), "test-data", newStartDate, _episode.EndDate);
@@ -225,7 +230,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _episode.StartDate, _episode.EndDate);
-        _learning.Approve(providerAEpisodeKey);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -247,7 +252,7 @@ internal class WhenCalculatingShortCourseOnProgram
         // Arrange - Provider A claimed 30% and has since withdrawn; Provider B also submits 30% milestone
         var providerAEpisodeKey = _episode.EpisodeKey;
         _learning.UpdateOnProgramme(providerAEpisodeKey, null, new DateTime(2024, 2, 15), new List<Milestone> { Milestone.ThirtyPercentLearningComplete }, "providerA-data", _episode.StartDate, _episode.EndDate);
-        _learning.Approve(providerAEpisodeKey);
+        _learning.Approve(providerAEpisodeKey, _employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
 
         var providerBRequest = BuildProviderBRequest();
         _learning.AddUnapprovedEpisode(providerBRequest);
@@ -283,6 +288,25 @@ internal class WhenCalculatingShortCourseOnProgram
 
         // Assert - Provider A still has their 30% instalment (Provider B's flag does not suppress it)
         providerAEpisode.EarningsProfile.Instalments.Should().ContainSingle(i => i.Type == ShortCourseInstalmentType.ThirtyPercentLearningComplete);
+    }
+    
+    [Test]
+    public void WhenApproved_ShortCoursePayableEarningsUpdatedDomainEventIsAddedWithCorrectAccountIds()
+    {
+        // Arrange - milestones set, earnings calculated while unapproved
+        _episode.UpdateMilestones(new List<Milestone> { Milestone.ThirtyPercentLearningComplete, Milestone.LearningComplete });
+        _episode.CalculateShortCourseOnProgram(calculationData: "test-data");
+        _episode.EarningsProfile.Instalments.Should().AllSatisfy(i => i.IsPayable.Should().BeFalse());
+
+        // Act
+        _episode.Approve(_employerAccountId, _fundingAccountId, _learning.LearningKey, _learning.LearningKey.ToString());
+
+        // Assert
+        var events = _episode.FlushEvents();
+        events.Should().ContainSingle(e =>
+            e is ShortCoursePayableEarningsUpdatedEvent &&
+            ((ShortCoursePayableEarningsUpdatedEvent)e).EmployerAccountId == _employerAccountId &&
+            ((ShortCoursePayableEarningsUpdatedEvent)e).FundingAccountId == _fundingAccountId);
     }
 
     private CreateUnapprovedShortCourseLearningRequest BuildProviderBRequest()

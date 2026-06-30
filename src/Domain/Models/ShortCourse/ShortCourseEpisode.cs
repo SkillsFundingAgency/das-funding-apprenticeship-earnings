@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -88,10 +88,19 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         _ageAtStartOfApprenticeship = dateOfBirth.CalculateAgeAtDate(StartDate);
     }
 
-    public override void Approve()
+    public override void Approve(long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef)
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
+        AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+        {
+            LearningKey = _entity.LearningKey,
+            EpisodeKey = EpisodeKey,
+            EmployerAccountId = employerAccountId,
+            FundingAccountId = fundingAccountId,
+            LearnerKey = learnerKey,
+            LearnerRef = learnerRef
+        });
     }
 
     public void Remove()

@@ -1,4 +1,4 @@
-﻿using Grpc.Core;
+using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -69,6 +69,7 @@ internal class TestStartup
                 new KeyValuePair<string, string>("AzureWebJobsStorage", "UseDevelopmentStorage=true"),
                 new KeyValuePair<string, string>("AzureWebJobsServiceBus", "UseDevelopmentStorage=true"),
                 new KeyValuePair<string, string>("ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true"),
+                new KeyValuePair<string, string>("ApplicationSettings:PaymentsConfiguration:PaymentsEndpoint", "payments-queue-name"),
                 new KeyValuePair<string, string>("ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString!)
             }
         };

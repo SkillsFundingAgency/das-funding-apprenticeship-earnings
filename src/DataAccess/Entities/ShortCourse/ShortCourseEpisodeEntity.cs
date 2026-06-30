@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 
@@ -13,6 +13,8 @@ public class ShortCourseEpisodeEntity : BaseEpisodeEntity
     public decimal CoursePrice { get; set; }
     public MilestoneFlags Milestones { get; set; }
     public bool IsRemoved { get; set; }
+    public long? EmployerAccountId { get; set; }
+    public long? FundingEmployerAccountId { get; set; }
     public ShortCourseEarningsProfileEntity EarningsProfile { get; set; }
 
     public ShortCourseEpisodeEntity()

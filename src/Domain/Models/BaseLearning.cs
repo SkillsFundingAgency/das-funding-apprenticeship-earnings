@@ -15,7 +15,7 @@ public abstract class BaseLearning : AggregateRoot
     public abstract DateTime DateOfBirth { get; }
 
     public abstract void UpdateDateOfBirth(DateTime dateOfBirth);
-    public abstract void Approve(Guid episodeKey);
+    public abstract void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef);
     public abstract BaseEpisode GetEpisode(Guid episodeKey);
 }
 
@@ -61,7 +61,8 @@ public class ShortCourseUpdateModel
 {
     public string Uln { get; set; }
     public string CourseCode { get; set; }
-    public long EmployerId { get; set; }
+    public long EmployerAccountId { get; set; }
+    public long? FundingEmployerAccountId { get; set; }
     public long Ukprn { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }

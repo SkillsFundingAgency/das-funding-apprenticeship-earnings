@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using NServiceBus;
 using SFA.DAS.Learning.Types;
 
-namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.LearningApprovedEventHandlerTests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.LearningApprovedEventHandler;
 
 [TestFixture]
 public class WhenLearningApproved
@@ -23,8 +22,13 @@ public class WhenLearningApproved
     {
         // Arrange
         var learningKey = Guid.NewGuid();
+        var learnerKey = Guid.NewGuid();
+        var learnerRef = "L-REF-001";
+        var approvalsApprenticeshipId = 15L;
+        var employerAccountId = 112;
+        var fundingAccountId = 223;
 
-        var message = new LearningApprovedEvent { LearningKey = learningKey };
+        var message = new LearningApprovedEvent { LearningKey = learningKey, LearnerKey = learnerKey, LearnerRef = learnerRef, ApprovalsApprenticeshipId = approvalsApprenticeshipId, EmployerAccountId = employerAccountId, FundingAccountId = fundingAccountId };
 
         var handler = new MessageHandlers.Handlers.LearningApprovedEventHandler(
             _mockCommandHandler.Object,
@@ -36,7 +40,12 @@ public class WhenLearningApproved
         // Assert
         _mockCommandHandler.Verify(x => x.Handle(
             It.Is<ApproveLearningCommand.ApproveLearningCommand>(c =>
-                c.LearningKey == learningKey),
+                c.LearningKey == learningKey &&
+                c.LearnerKey == learnerKey &&
+                c.LearnerRef == learnerRef &&
+                c.EmployerAccountId == employerAccountId &&
+                c.FundingAccountId == fundingAccountId &&
+                c.ApprovalsApprenticeshipId == approvalsApprenticeshipId),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

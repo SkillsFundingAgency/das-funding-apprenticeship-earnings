@@ -1,4 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveLearningCommand;
 
@@ -16,7 +17,12 @@ public class ApproveLearningCommandHandler : ICommandHandler<ApproveLearningComm
         var learning = await _learningDomainService.GetLearning(command.LearningKey)
             ?? throw new InvalidOperationException($"Learning not found for key: {command.LearningKey}");
 
-        learning.Approve(command.EpisodeKey);
+        if (learning is ShortCourseLearning shortCourseLearning)
+        {
+            shortCourseLearning.SetApprovalsApprenticeshipId(command.ApprovalsApprenticeshipId);
+        }
+
+        learning.Approve(command.EpisodeKey, command.EmployerAccountId, command.FundingAccountId, command.LearnerKey, command.LearnerRef);
 
         await _learningDomainService.Update(learning);
     }

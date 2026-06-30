@@ -31,6 +31,7 @@ var applicationSettings = new ApplicationSettings();
 builder.Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
 builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings);
 builder.Services.AddSingleton(x => applicationSettings);
+builder.Services.AddSingleton(x => applicationSettings.PaymentsConfiguration);
 builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
 builder.Services.AddApplicationHealthChecks(applicationSettings);

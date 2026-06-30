@@ -278,5 +278,5 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _entity.FundingBandMaximum = fundingBandMaximum;
     }
 
-    public override void Approve() => _earningsProfile!.Approve();
+    public override void Approve(long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef) => _earningsProfile!.Approve();
 }

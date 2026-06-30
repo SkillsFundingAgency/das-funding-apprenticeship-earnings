@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
+namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests;
 
 public class TestMessageSession : IMessageSession
 {
@@ -30,9 +30,13 @@ public class TestMessageSession : IMessageSession
         throw new NotImplementedException();
     }
 
-    public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _publishedMessages.Add(message);
+        foreach (var listener in _publishListeners)
+        {
+            await listener(message);
+        }
     }
 
     public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
