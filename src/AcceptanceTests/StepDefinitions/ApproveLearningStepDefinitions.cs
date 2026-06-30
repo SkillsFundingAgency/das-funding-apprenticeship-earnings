@@ -1,3 +1,4 @@
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
@@ -22,7 +23,15 @@ public class ApproveLearningStepDefinitions
     public async Task WhenLearningApprovedEventReceived()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        var learningApprovedEvent = new LearningApprovedEvent { LearningKey = request.LearningKey, EpisodeKey = request.EpisodeKey, EmployerAccountId = 112, FundingAccountId = 114, LearnerKey = Guid.NewGuid(), LearnerRef = "Ref493" };
+        var learningApprovedEvent = new LearningApprovedEvent { 
+            LearningKey = request.LearningKey, 
+            EpisodeKey = request.EpisodeKey, 
+            ApprovalsApprenticeshipId = _scenarioContext.GetApprovalsApprenticeshipId(),
+            EmployerAccountId = _scenarioContext.GetEmployerAccountId(), 
+            FundingAccountId = _scenarioContext.GetFundingAccountId(), 
+            LearnerKey = _scenarioContext.GetLearnerKey(), 
+            LearnerRef = _scenarioContext.GetLearnerRef() 
+        };
         _scenarioContext.Set(learningApprovedEvent);
         await _testContext.TestFunction.PublishEvent(learningApprovedEvent);
     }

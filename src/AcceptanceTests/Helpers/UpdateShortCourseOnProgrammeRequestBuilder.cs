@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
@@ -16,8 +17,6 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
     private DateTime _startDate;
     private DateTime _expectedEndDate;
     private List<Milestone> _milestones = new List<Milestone>();
-    private Guid _learnerKey = Guid.NewGuid();
-    private string _learnerRef = "acceptance-learner-ref";
 
     internal UpdateShortCourseOnProgrammeRequestBuilder WithExistingData(CreateUnapprovedShortCourseLearningRequest createUnapprovedShortCourseLearningRequest)
     {
@@ -39,7 +38,7 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
         return this;
     }
 
-    internal UpdateShortCourseOnProgrammeRequest Build()
+    internal UpdateShortCourseOnProgrammeRequest Build(ScenarioContext scenarioContext)
     {
         return new UpdateShortCourseOnProgrammeRequest
         {
@@ -48,8 +47,8 @@ public class UpdateShortCourseOnProgrammeRequestBuilder
             StartDate = _startDate,
             ExpectedEndDate = _expectedEndDate,
             Milestones = _milestones,
-            LearnerKey = _learnerKey,
-            LearnerRef = _learnerRef
+            LearnerKey = scenarioContext.GetLearnerKey(),
+            LearnerRef = scenarioContext.GetLearnerRef()
         };
     }
 }

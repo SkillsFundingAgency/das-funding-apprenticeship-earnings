@@ -14,6 +14,7 @@ Scenario: Learner withdrawn - 30% milestone reached (and subsequently removed)
 		| Milestones     |            |
 	Then On programme short course earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type |
+	And the payments event is sent to pv2 with the correct information
 
 Scenario: Learner withdrawn - 30% milestone reached (and retained despite the withdrawal)
 	Given a short course has been created with the following information
@@ -27,6 +28,7 @@ Scenario: Learner withdrawn - 30% milestone reached (and retained despite the wi
 	Then On programme short course earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type                          |
 		| 600    | 2021         | 7              | ThirtyPercentLearningComplete |
+	And the payments event is sent to pv2 with the correct information
 
 Scenario: Learner withdrawn - milestone(s) not reached 
 	Given a short course has been created with the following information
@@ -39,6 +41,7 @@ Scenario: Learner withdrawn - milestone(s) not reached
 		| Milestones     |            |
 	Then On programme short course earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type                          |
+	And the payments event is sent to pv2 with the correct information
 
 Scenario: Learner recorded as “Completed” and subsequently withdrawn
 	Given a short course has been created with the following information
@@ -52,3 +55,4 @@ Scenario: Learner recorded as “Completed” and subsequently withdrawn
 	Then On programme short course earnings are persisted as follows
 		| Amount | AcademicYear | DeliveryPeriod | Type                          |
 		| 600    | 2021         | 7              | ThirtyPercentLearningComplete |
+	And the payments event is sent to pv2 with the correct information
