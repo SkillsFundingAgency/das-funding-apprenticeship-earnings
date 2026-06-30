@@ -19,7 +19,6 @@ public class RemoveShortCourseLearningCommandHandler(
             throw new InvalidOperationException($"Short course learning not found for LearningKey {command.LearningKey}");
 
         learning.Remove(command.EpisodeKey, command.LearnerKey, command.LearnerRef);
-        //todo assert this results in two new values correctly on event
 
         await learningRepository.Update(learning);
 
