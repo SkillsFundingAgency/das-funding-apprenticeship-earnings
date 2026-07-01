@@ -18,7 +18,7 @@ public class RemoveShortCourseLearningCommandHandler(
         if (learning == null)
             throw new InvalidOperationException($"Short course learning not found for LearningKey {command.LearningKey}");
 
-        learning.Remove(command.EpisodeKey);
+        learning.Remove(command.EpisodeKey, command.LearnerKey, command.LearnerRef);
 
         await learningRepository.Update(learning);
 

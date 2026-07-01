@@ -147,6 +147,8 @@ public class WhenUpdatingShortCourseOnProgramme
             CompletionDate = completionDate,
             Milestones = new List<Milestone>(),
             StartDate = startDate ?? new DateTime(2021, 1, 1),
-            ExpectedEndDate = expectedEndDate ?? new DateTime(2021, 6, 25)
+            ExpectedEndDate = expectedEndDate ?? new DateTime(2021, 6, 25),
+            LearnerKey = Guid.NewGuid(),
+            LearnerRef = "learner-ref"
         });
 }

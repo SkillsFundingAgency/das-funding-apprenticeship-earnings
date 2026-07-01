@@ -30,10 +30,11 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
 
     public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
         => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
+    public void Remove(Guid episodeKey, Guid learnerKey, string learnerRef)
+        => GetShortCourseEpisode(episodeKey).Remove(learnerKey, learnerRef);
 
-    public void Remove(Guid episodeKey) => GetShortCourseEpisode(episodeKey).Remove();
 
-    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, DateTime startDate, DateTime expectedEndDate)
+    public void UpdateOnProgramme(Guid episodeKey, DateTime? completionDate, DateTime? withdrawalDate, List<Milestone> milestones, string calculationData, DateTime startDate, DateTime expectedEndDate, Guid learnerKey, string learnerRef)
     {
         var episode = GetShortCourseEpisode(episodeKey);
 
@@ -43,11 +44,11 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
         episode.UpdateCompletion(completionDate);
         episode.UpdateWithdrawalDate(withdrawalDate);
         episode.UpdateMilestones(milestones);
-        episode.CalculateShortCourseOnProgram(calculationData, IsThirtyPercentClaimedBySibling(episodeKey));
+        episode.CalculateShortCourseOnProgram(calculationData, learnerKey, learnerRef, IsThirtyPercentClaimedBySibling(episodeKey));
     }
 
-    public void CalculateOnProgram(Guid episodeKey, string calculationData)
-        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData, IsThirtyPercentClaimedBySibling(episodeKey));
+    public void CalculateOnProgram(Guid episodeKey, string calculationData, Guid learnerKey, string learnerRef)
+        => GetShortCourseEpisode(episodeKey).CalculateShortCourseOnProgram(calculationData, learnerKey, learnerRef, IsThirtyPercentClaimedBySibling(episodeKey));
 
     public void UpdateUnapprovedShortCourseInformation(Guid episodeKey, ShortCourseUpdateModel updateModel)
     {

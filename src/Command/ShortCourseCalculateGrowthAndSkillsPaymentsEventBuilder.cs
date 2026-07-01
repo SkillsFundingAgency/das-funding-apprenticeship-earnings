@@ -38,31 +38,33 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                 StartDate = episode.StartDate,
                 PlannedEndDate = episode.EndDate,
                 ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
-                TrainingStatus = GetTrainingStatus(episode.IsRemoved, episode.WithdrawalDate ?? episode.CompletionDate),
+                TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate)
             },
             EmployerContribution = 0,
             Earnings = earnings,
         };
     }
 
-    private static TrainingStatus GetTrainingStatus(bool isRemoved, DateTime? lastDayOfLearning)
+    private TrainingStatus GetTrainingStatus(DateTime? withdrawalDate, DateTime? completionDate)
     {
-        if (isRemoved)
+        if (withdrawalDate != null)
             return TrainingStatus.Withdrawn;
 
-        if (lastDayOfLearning != null)
+        if (completionDate != null)
             return TrainingStatus.Completed;
 
         return TrainingStatus.Continuing;
     }
 
-    private IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
+    private static IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
     {
         var employerType = episode.FundingType == Learning.Types.FundingType.Levy
             ? EmployerType.Levy
             : EmployerType.NonLevy;
 
         var profile = episode.EarningsProfile;
+
+
 
         var earnings = profile!.Instalments
             .Where(i => i.IsPayable)

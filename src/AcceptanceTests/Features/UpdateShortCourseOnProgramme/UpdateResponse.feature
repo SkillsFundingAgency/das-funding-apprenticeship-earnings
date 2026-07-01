@@ -15,4 +15,4 @@ Scenario: Short course updated with one milestone reached, only one instalment i
 		| Amount | CollectionYear | CollectionPeriod | Type                          | IsPayable |
 		| 600    | 2021           | 7                | ThirtyPercentLearningComplete | True      |
 		| 1400   | 2021           | 11               | LearningComplete              | False     |
-
+	And the payments event is sent to pv2 with the correct information

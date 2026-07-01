@@ -28,7 +28,7 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         return episode;
     }
 
-    public void CalculateShortCourseOnProgram(string calculationData, bool suppressThirtyPercent = false)
+    public void CalculateShortCourseOnProgram(string calculationData, Guid learnerKey, string learnerRef, bool suppressThirtyPercent = false)
     {
         _entity.IsRemoved = false;
 
@@ -69,6 +69,19 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
 
             _entity.EarningsProfile = _earningsProfile.GetModel();
         }
+
+        if (IsApproved)
+        {
+            AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+            {
+                LearningKey = _entity.LearningKey,
+                EpisodeKey = EpisodeKey,
+                EmployerAccountId = _entity.EmployerAccountId ?? 0,
+                FundingAccountId = _entity.FundingEmployerAccountId ?? 0,
+                LearnerKey = learnerKey,
+                LearnerRef = learnerRef
+            });
+        }
     }
 
     private void RemoveEarnings()
@@ -92,6 +105,9 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _earningsProfile!.Approve();
         ShortCoursePayments.SetPayability(_earningsProfile.Instalments.ToList(), true, _entity.Milestones);
+        _entity.EmployerAccountId = employerAccountId;
+        _entity.FundingEmployerAccountId = fundingAccountId;
+
         AddEvent(new ShortCoursePayableEarningsUpdatedEvent
         {
             LearningKey = _entity.LearningKey,
@@ -103,10 +119,19 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
         });
     }
 
-    public void Remove()
+    public void Remove(Guid learnerKey, string learnerRef)
     {
         _entity.IsRemoved = true;
         RemoveEarnings();
+        AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+        {
+            LearningKey = _entity.LearningKey,
+            EpisodeKey = EpisodeKey,
+            EmployerAccountId = _entity.EmployerAccountId ?? 0,
+            FundingAccountId = _entity.FundingEmployerAccountId ?? 0,
+            LearnerKey = learnerKey,
+            LearnerRef = learnerRef
+        });
     }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)

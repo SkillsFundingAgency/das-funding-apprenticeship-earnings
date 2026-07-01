@@ -6,6 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveShortCourseLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.DeleteShortCourseLearningCommandHandler;
 
@@ -30,7 +31,7 @@ public class WhenDeletingShortCourseLearning
         var learning = BuildShortCourseLearning(learningKey);
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
-        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey));
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey, Guid.NewGuid(), "learner-ref"));
 
         _mockRepository.Verify(r => r.GetShortCourseLearning(learningKey), Times.Once);
     }
@@ -42,7 +43,7 @@ public class WhenDeletingShortCourseLearning
         var learning = BuildShortCourseLearning(learningKey);
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
 
-        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey));
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, learning.Episodes.Single().EpisodeKey, Guid.NewGuid(), "learner-ref"));
 
         _mockRepository.Verify(r => r.Update(learning), Times.Once);
     }
@@ -53,9 +54,28 @@ public class WhenDeletingShortCourseLearning
         var learningKey = Guid.NewGuid();
         _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync((ShortCourseLearning?)null);
 
-        var act = async () => await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, Guid.NewGuid()));
+        var act = async () => await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, Guid.NewGuid(), Guid.NewGuid(), "learner-ref"));
 
         act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task Handle_ShouldSetLearnerValuesOnPayableEarningsUpdatedEvent()
+    {
+        var learningKey = Guid.NewGuid();
+        var learnerKey = Guid.NewGuid();
+        const string learnerRef = "learner-ref-updated";
+        var learning = BuildShortCourseLearning(learningKey);
+        var episodeKey = learning.Episodes.Single().EpisodeKey;
+
+        _mockRepository.Setup(r => r.GetShortCourseLearning(learningKey)).ReturnsAsync(learning);
+
+        await BuildSut().Handle(new RemoveShortCourseLearningCommand.RemoveShortCourseLearningCommand(learningKey, episodeKey, learnerKey, learnerRef));
+
+        var @event = learning.FlushEvents().OfType<ShortCoursePayableEarningsUpdatedEvent>().Single();
+
+        @event.LearnerKey.Should().Be(learnerKey);
+        @event.LearnerRef.Should().Be(learnerRef);
     }
 
     private ShortCourseLearning BuildShortCourseLearning(Guid learningKey)

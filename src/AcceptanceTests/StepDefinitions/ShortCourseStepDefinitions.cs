@@ -1,14 +1,22 @@
+using Azure.Core;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveShortCourseLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateShortCourseOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+using SFA.DAS.Payments.EarningEvents.Messages.External;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using System.Text.Json;
 using TechTalk.SpecFlow.Assist;
+using ExternalEarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
+using ExternalEmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -132,7 +140,7 @@ public class ShortCourseStepDefinitions
         var updateOnProgrammeRequest = _scenarioContext.GetShortCourseUpdateOnProgrammeRequestBuilder()
             .WithExistingData(shortCourseCreateRequest)
             .WithDataFromSetupModel(model)
-            .Build();
+            .Build(_scenarioContext);
 
         var response = await _testContext.TestInnerApi.Put<UpdateShortCourseOnProgrammeRequest, UpdateShortCourseOnProgrammeResponse>($"/{shortCourseCreateRequest.LearningKey}/shortCourses/{shortCourseCreateRequest.EpisodeKey}/on-programme", updateOnProgrammeRequest);
 
@@ -286,7 +294,9 @@ public class ShortCourseStepDefinitions
     public async Task WhenTheShortCourseLearningIsDeleted()
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
-        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}");
+        var learnerKey = Guid.NewGuid();
+        var learnerRef = $"learner-{request.LearningKey:N}";
+        await _testContext.TestInnerApi.Delete($"/{request.LearningKey}/shortCourses/{request.EpisodeKey}?learnerKey={learnerKey}&learnerRef={learnerRef}");
     }
 
     [Then(@"the short course has no instalments")]
@@ -330,4 +340,5 @@ public class ShortCourseStepDefinitions
         public ShortCourseInstalmentType Type { get; set; }
         public bool IsPayable { get; set; }
     }
+
 }

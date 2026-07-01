@@ -34,7 +34,9 @@ public class UpdateShortCourseOnProgrammeCommandHandler : ICommandHandler<Update
             command.Request.Milestones,
             JsonSerializer.Serialize(command.Request),
             command.Request.StartDate,
-            command.Request.ExpectedEndDate);
+            command.Request.ExpectedEndDate,
+            command.Request.LearnerKey,
+            command.Request.LearnerRef);
 
         await _learningRepository.Update(learning);
 

@@ -1,5 +1,8 @@
 using FluentAssertions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
@@ -35,9 +38,11 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var dbEntity = await _testContext.SqlDatabase.GetShortCourseLearning(request.LearningKey);
             var domainModel = ShortCourseLearning.Get(dbEntity);
             var episode = (ShortCourseEpisode)domainModel.GetEpisode(request.EpisodeKey);
-            var learningApprovedEvent = _scenarioContext.Get<LearningApprovedEvent>();
+            var approvalsApprenticeshipId = _scenarioContext.GetApprovalsApprenticeshipId();
+            var employerAccountId = _scenarioContext.GetEmployerAccountId();
+            var fundingAccountId = _scenarioContext.GetFundingAccountId();
 
-            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().SingleOrDefault();
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
             paymentsEvent.Should().NotBeNull();
 
             paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.Version);
@@ -45,9 +50,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             paymentsEvent.EmployerContribution.Should().Be(0); //todo not specified on design, assumption
 
             paymentsEvent.Learner.Should().NotBeNull();
-            paymentsEvent.Learner.LearnerKey.Should().Be(learningApprovedEvent.LearnerKey);
+            paymentsEvent.Learner.LearnerKey.Should().Be(_scenarioContext.GetLearnerKey());
             paymentsEvent.Learner.ULN.Should().Be(long.Parse(request.Learner.Uln));
-            paymentsEvent.Learner.Reference.Should().Be(learningApprovedEvent.LearnerRef);
+            paymentsEvent.Learner.Reference.Should().Be(_scenarioContext.GetLearnerRef());
 
             paymentsEvent.Training.Should().NotBeNull();
             paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey); //todo not specified on design, assumption
@@ -64,38 +69,69 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             if (episode.WithdrawalDate.HasValue) expectedTrainingStatus = TrainingStatus.Withdrawn;
             paymentsEvent.Training.TrainingStatus.Should().Be(expectedTrainingStatus);
 
+            var academicYears = episode.EarningsProfile.Instalments.Where(x => x.IsPayable).Select(x => x.AcademicYear).Distinct().ToList();
+
             paymentsEvent.Earnings.Should().NotBeNull();
-            paymentsEvent.Earnings.Should().HaveCount(1);
+            paymentsEvent.Earnings.Should().HaveCount(academicYears.Count);
 
-            var yearlyEarning = paymentsEvent.Earnings.Single();
-            yearlyEarning.AcademicYear.Should().Be(2021);
+            foreach (var academicYear in academicYears)
+            {
+                var yearlyEarning = paymentsEvent.Earnings.SingleOrDefault(e => e.AcademicYear == academicYear);
+                yearlyEarning.Should().NotBeNull($"Expected to find an earning for academic year {academicYear}, but none was found.");
 
-            yearlyEarning.PricePeriods.Should().NotBeNull();
-            yearlyEarning.PricePeriods.Should().HaveCount(1);
+                yearlyEarning.PricePeriods.Should().NotBeNull();
+                yearlyEarning.PricePeriods.Should().HaveCount(1);
 
-            var pricePeriod = yearlyEarning.PricePeriods.Single();
-            pricePeriod.Price.Should().Be(request.OnProgramme.TotalPrice);
-            pricePeriod.StartDate.Should().Be(episode.StartDate);
-            pricePeriod.EndDate.Should().Be(episode.EndDate);
+                var pricePeriod = yearlyEarning.PricePeriods.Single();
+                pricePeriod.Price.Should().Be(request.OnProgramme.TotalPrice);
+                pricePeriod.StartDate.Should().Be(episode.StartDate);
+                pricePeriod.EndDate.Should().Be(episode.EndDate);
+                pricePeriod.Periods.Should().NotBeNull();
 
-            pricePeriod.Periods.Should().NotBeNull();
-            pricePeriod.Periods.Should().HaveCount(2);
+                pricePeriod.Periods.Should().HaveCount(episode.EarningsProfile.Instalments.Count(x => x.IsPayable));
 
-            var learningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Milestone1);
-            learningPeriod.Amount.Should().Be(600);
-            learningPeriod.DeliveryPeriod.Should().Be(7);
-            learningPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design
-            learningPeriod.Employer.AccountId.Should().Be(learningApprovedEvent.EmployerAccountId);
-            learningPeriod.Employer.FundingAccountId.Should().Be(learningApprovedEvent.FundingAccountId);
+                AssertPricePeriod(academicYear, pricePeriod.Periods, EarningType.Milestone1, episode, approvalsApprenticeshipId, employerAccountId, fundingAccountId);
+                AssertPricePeriod(academicYear, pricePeriod.Periods, EarningType.Completion, episode, approvalsApprenticeshipId, employerAccountId, fundingAccountId);
+            }
+        }
+
+        private void AssertPricePeriod(
+            short academicYear,
+            IEnumerable<EarningPeriod> period, 
+            EarningType earningType, 
+            ShortCourseEpisode episode,
+            long approvalsApprenticeshipId,
+            long employerAccountId,
+            long fundingAccountId)
+        {
+            var expectedType = earningType == EarningType.Milestone1 ? 
+                ShortCourseInstalmentType.ThirtyPercentLearningComplete : ShortCourseInstalmentType.LearningComplete;
+
+            var expectedInstalment = episode.EarningsProfile.Instalments.SingleOrDefault(x => x.IsPayable && x.Type == expectedType && x.AcademicYear == academicYear);
+
+            var learningPeriod = period.SingleOrDefault(p => p.EarningType == earningType);
+
+            if(expectedInstalment != null && learningPeriod == null)
+            {
+                learningPeriod.Should().NotBeNull($"Expected to find a {earningType} earning period, but none was found.");
+            }
+
+            if(expectedInstalment == null && learningPeriod != null)
+            {
+                learningPeriod.Should().BeNull($"Did not expect to find a {earningType} earning period, but one was found.");
+            }
+
+            if(expectedInstalment == null && learningPeriod == null)
+            {
+                return; // nothing to assert
+            }
+
+            learningPeriod.Amount.Should().Be(expectedInstalment.Amount);
+            learningPeriod.DeliveryPeriod.Should().Be(expectedInstalment.DeliveryPeriod);
+            learningPeriod.LearningId.Should().Be(approvalsApprenticeshipId);
+            learningPeriod.Employer.AccountId.Should().Be(employerAccountId);
+            learningPeriod.Employer.FundingAccountId.Should().Be(fundingAccountId);
             learningPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
-
-            var completionPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion);
-            completionPeriod.Amount.Should().Be(1400);
-            completionPeriod.DeliveryPeriod.Should().Be(11);
-            completionPeriod.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId); //todo this is listed as "TBC" on the tech design
-            completionPeriod.Employer.AccountId.Should().Be(learningApprovedEvent.EmployerAccountId);
-            completionPeriod.Employer.FundingAccountId.Should().Be(learningApprovedEvent.FundingAccountId);
-            completionPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
         }
     }
 }

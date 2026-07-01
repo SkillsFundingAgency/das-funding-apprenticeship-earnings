@@ -11,6 +11,8 @@ public class UpdateShortCourseOnProgrammeRequest
     public DateTime? CompletionDate { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime ExpectedEndDate { get; set; }
+    public Guid LearnerKey { get; set; }
+    public string LearnerRef { get; set; } = string.Empty;
 }
 
 #pragma warning restore CS8618

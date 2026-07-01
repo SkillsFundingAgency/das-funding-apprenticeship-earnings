@@ -14,3 +14,4 @@ Scenario: ExpectedEndDate changed via update on programme
 		| Amount | AcademicYear | DeliveryPeriod | Type                          |
 		| 600    | 2021         | 8              | ThirtyPercentLearningComplete |
 		| 1400   | 2122         | 1              | LearningComplete              |
+	And the payments event is sent to pv2 with the correct information

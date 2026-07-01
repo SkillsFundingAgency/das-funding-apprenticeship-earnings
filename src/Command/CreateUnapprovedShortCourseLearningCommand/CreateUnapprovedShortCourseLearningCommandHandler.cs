@@ -48,14 +48,14 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
                 Milestones = command.Request.OnProgramme.Milestones
             });
 
-            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
+            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request), command.Request.LearningKey, command.Request.LearningKey.ToString());
 
             await _learningRepository.Update(existingShortCourse);
         }
         else if (existingShortCourse != null)
         {
             existingShortCourse.AddUnapprovedEpisode(command.Request);
-            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
+            existingShortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request), command.Request.LearningKey, command.Request.LearningKey.ToString());
 
             await _learningRepository.Update(existingShortCourse);
         }
@@ -63,7 +63,7 @@ public class CreateUnapprovedShortCourseLearningCommandHandler
         {
             var shortCourse = _learningFactory.CreateNewShortCourse(command.Request);
 
-            shortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request));
+            shortCourse.CalculateOnProgram(command.Request.EpisodeKey, JsonSerializer.Serialize(command.Request), command.Request.LearningKey, command.Request.LearningKey.ToString());
 
             await _learningRepository.Add(shortCourse);
         }
