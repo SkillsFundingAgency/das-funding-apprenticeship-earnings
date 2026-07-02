@@ -109,4 +109,18 @@ internal class WhenDeletingShortCourseEpisode
         @event.LearnerKey.Should().Be(updatedLearnerKey);
         @event.LearnerRef.Should().Be(updatedLearnerRef);
     }
+
+    [Test]
+    public void ThenShortCoursePayableEarningsUpdatedDomainEventIsNotPublishedWhenNotApproved()
+    {
+        // Arrange - _episode is unapproved (only CalculateShortCourseOnProgram was called in SetUp)
+        _episode.FlushEvents();
+
+        // Act
+        _episode.Remove(_learnerKey, _learnerRef);
+
+        // Assert
+        var events = _episode.FlushEvents();
+        events.OfType<ShortCoursePayableEarningsUpdatedEvent>().Should().BeEmpty();
+    }
 }
