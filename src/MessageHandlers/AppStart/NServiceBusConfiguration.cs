@@ -18,6 +18,8 @@ internal static class NServiceBusConfiguration
 
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
+            endpointConfiguration.AdvancedConfiguration.AssemblyScanner().ScanFileSystemAssemblies = false;
+
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
