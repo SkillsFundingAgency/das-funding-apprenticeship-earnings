@@ -123,15 +123,19 @@ public class ShortCourseEpisode : BaseEpisode<ShortCourseEpisodeEntity, ShortCou
     {
         _entity.IsRemoved = true;
         RemoveEarnings();
-        AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+
+        if (IsApproved)
         {
-            LearningKey = _entity.LearningKey,
-            EpisodeKey = EpisodeKey,
-            EmployerAccountId = _entity.EmployerAccountId ?? 0,
-            FundingAccountId = _entity.FundingEmployerAccountId ?? 0,
-            LearnerKey = learnerKey,
-            LearnerRef = learnerRef
-        });
+            AddEvent(new ShortCoursePayableEarningsUpdatedEvent
+            {
+                LearningKey = _entity.LearningKey,
+                EpisodeKey = EpisodeKey,
+                EmployerAccountId = _entity.EmployerAccountId ?? 0,
+                FundingAccountId = _entity.FundingEmployerAccountId ?? 0,
+                LearnerKey = learnerKey,
+                LearnerRef = learnerRef
+            });
+        }
     }
 
     public void UpdateWithdrawalDate(DateTime? withdrawalDate)
