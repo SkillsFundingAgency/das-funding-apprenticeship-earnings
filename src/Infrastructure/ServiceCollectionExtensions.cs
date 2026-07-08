@@ -52,6 +52,8 @@ public static class ServiceCollectionExtensions
             behavior: typeof(OutgoingCorrelationIdBehavior),
             description: "Populates Correlation ID for outgoing messages");
 
+        endpointConfiguration.AssemblyScanner().ScanFileSystemAssemblies = false;
+
         var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
         services.AddSingleton<IMessageSession>(endpointInstance);
     }

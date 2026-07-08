@@ -8,6 +8,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using System;
 using System.Net;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.AppStart;
 
@@ -18,6 +19,13 @@ internal static class NServiceBusConfiguration
 
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
+            endpointConfiguration.AdvancedConfiguration.AssemblyScanner().ScanFileSystemAssemblies = false;
+
+            endpointConfiguration.AdvancedConfiguration.CustomDiagnosticsWriter((diagnostics, _) =>
+            {
+                Console.WriteLine(diagnostics);
+                return Task.CompletedTask;
+            });
             endpointConfiguration.LogDiagnostics();
 
             endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
