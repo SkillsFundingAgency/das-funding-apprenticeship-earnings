@@ -174,7 +174,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.CoursePrice, 1000m)
             .With(x => x.EmployerAccountId, 12345L)
             .With(x => x.FundingEmployerAccountId, 67890L)
-            .With(x => x.FundingType, SFA.DAS.Learning.Types.FundingType.Levy)
+            .With(x => x.EmployerType, SFA.DAS.Funding.ApprenticeshipEarnings.Types.EmployerType.NonLevy)
             .With(x => x.EarningsProfile, _fixture.Build<ShortCourseEarningsProfileEntity>()
                 .With(p => p.Instalments, new List<ShortCourseInstalmentEntity> { instalment1, instalment2 })
                 .Create())
@@ -210,7 +210,7 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
         period1.LearningId.Should().Be(learning.ApprovalsApprenticeshipId);
         period1.Employer.AccountId.Should().Be(employerAccountId);
         period1.Employer.FundingAccountId.Should().Be(fundingAccountId);
-        period1.Employer.EmployerType.Should().Be(EmployerType.Levy);
+        period1.Employer.EmployerType.Should().Be(EmployerType.NonLevy);
 
         var period2 = pricePeriod.Periods.First(p => p.DeliveryPeriod == 10);
         period2.EarningType.Should().Be(EarningType.Completion);
@@ -245,7 +245,6 @@ public class WhenBuildingShortCourseCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 6, 30))
             .With(x => x.CoursePrice, 1000m)
-            .With(x => x.FundingType, SFA.DAS.Learning.Types.FundingType.Levy)
             .With(x => x.EarningsProfile, _fixture.Build<ShortCourseEarningsProfileEntity>()
                 .With(p => p.Instalments, new List<ShortCourseInstalmentEntity> { payableThirtyPercentInstalment, nonPayableLearningCompleteInstalment })
                 .Create())

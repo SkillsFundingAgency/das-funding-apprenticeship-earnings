@@ -2,6 +2,6 @@
 
 public enum EmployerType
 {
-    Levy,
-    NonLevy
+    NonLevy,
+    Levy
 }
