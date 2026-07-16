@@ -41,6 +41,9 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var approvalsApprenticeshipId = _scenarioContext.GetApprovalsApprenticeshipId();
             var employerAccountId = _scenarioContext.GetEmployerAccountId();
             var fundingAccountId = _scenarioContext.GetFundingAccountId();
+            var employerType = _scenarioContext.GetEmployerType() == SFA.DAS.Learning.Enums.EmployerType.Levy
+                ? EmployerType.Levy
+                : EmployerType.NonLevy;
 
             var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
             paymentsEvent.Should().NotBeNull();
@@ -90,8 +93,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
 
                 pricePeriod.Periods.Should().HaveCount(episode.EarningsProfile.Instalments.Count(x => x.IsPayable));
 
-                AssertPricePeriod(academicYear, pricePeriod.Periods, EarningType.Milestone1, episode, approvalsApprenticeshipId, employerAccountId, fundingAccountId);
-                AssertPricePeriod(academicYear, pricePeriod.Periods, EarningType.Completion, episode, approvalsApprenticeshipId, employerAccountId, fundingAccountId);
+                AssertPricePeriod(academicYear, pricePeriod.Periods, EarningType.Milestone1, episode, approvalsApprenticeshipId, employerAccountId, fundingAccountId, employerType);
+                AssertPricePeriod(academicYear, pricePeriod.Periods, EarningType.Completion, episode, approvalsApprenticeshipId, employerAccountId, fundingAccountId, employerType);
             }
         }
 
@@ -102,7 +105,8 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             ShortCourseEpisode episode,
             long approvalsApprenticeshipId,
             long employerAccountId,
-            long fundingAccountId)
+            long fundingAccountId,
+            EmployerType employerType)
         {
             var expectedType = earningType == EarningType.Milestone1 ? 
                 ShortCourseInstalmentType.ThirtyPercentLearningComplete : ShortCourseInstalmentType.LearningComplete;
@@ -131,7 +135,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             learningPeriod.LearningId.Should().Be(approvalsApprenticeshipId);
             learningPeriod.Employer.AccountId.Should().Be(employerAccountId);
             learningPeriod.Employer.FundingAccountId.Should().Be(fundingAccountId);
-            learningPeriod.Employer.EmployerType.Should().Be(EmployerType.Levy);
+            learningPeriod.Employer.EmployerType.Should().Be(employerType);
         }
     }
 }
