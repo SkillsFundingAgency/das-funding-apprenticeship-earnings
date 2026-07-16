@@ -30,6 +30,9 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
 
     public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
         => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
+
+    public void SetEmployerType(Guid episodeKey, EmployerType employerType)
+        => GetShortCourseEpisode(episodeKey).SetEmployerType(employerType);
     public void Remove(Guid episodeKey, Guid learnerKey, string learnerRef)
         => GetShortCourseEpisode(episodeKey).Remove(learnerKey, learnerRef);
 
@@ -76,6 +79,7 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
             LearningKey = request.LearningKey,
             Ukprn = request.OnProgramme.Ukprn,
             FundingType = FundingType.Levy,
+            EmployerType = EmployerType.NonLevy,
             CompletionDate = request.OnProgramme.CompletionDate,
             WithdrawalDate = request.OnProgramme.WithdrawalDate,
             StartDate = request.OnProgramme.StartDate,

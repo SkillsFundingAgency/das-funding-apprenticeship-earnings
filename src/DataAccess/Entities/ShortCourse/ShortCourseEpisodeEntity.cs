@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 
@@ -15,6 +16,7 @@ public class ShortCourseEpisodeEntity : BaseEpisodeEntity
     public bool IsRemoved { get; set; }
     public long? EmployerAccountId { get; set; }
     public long? FundingEmployerAccountId { get; set; }
+    public EmployerType EmployerType { get; set; }
     public ShortCourseEarningsProfileEntity EarningsProfile { get; set; }
 
     public ShortCourseEpisodeEntity()

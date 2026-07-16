@@ -29,8 +29,9 @@ public class ApproveLearningStepDefinitions
             ApprovalsApprenticeshipId = _scenarioContext.GetApprovalsApprenticeshipId(),
             EmployerAccountId = _scenarioContext.GetEmployerAccountId(), 
             FundingAccountId = _scenarioContext.GetFundingAccountId(), 
-            LearnerKey = _scenarioContext.GetLearnerKey(), 
-            LearnerRef = _scenarioContext.GetLearnerRef() 
+            LearnerKey = _scenarioContext.GetLearnerKey(),
+            LearnerRef = _scenarioContext.GetLearnerRef(),
+            EmployerType = _scenarioContext.GetEmployerType()
         };
         _scenarioContext.Set(learningApprovedEvent);
         await _testContext.TestFunction.PublishEvent(learningApprovedEvent);

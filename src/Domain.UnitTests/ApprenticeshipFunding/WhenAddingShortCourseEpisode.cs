@@ -65,6 +65,16 @@ internal class WhenAddingShortCourseEpisode
         _learning.Episodes.Should().ContainSingle(e => e.EpisodeKey == _existingEpisodeKey);
     }
 
+    [Test]
+    public void AddUnapprovedEpisode_NewEpisodeDefaultsToNonLevy()
+    {
+        var request = BuildRequest();
+
+        _learning.AddUnapprovedEpisode(request);
+
+        _learning.Episodes.Should().ContainSingle(e => e.EpisodeKey == request.EpisodeKey && e.EmployerType == EmployerType.NonLevy);
+    }
+
     private CreateUnapprovedShortCourseLearningRequest BuildRequest()
     {
         var request = _fixture.Create<CreateUnapprovedShortCourseLearningRequest>();

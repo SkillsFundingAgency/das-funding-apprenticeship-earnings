@@ -1,8 +1,10 @@
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
+
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveLearningCommand;
 
 public class ApproveLearningCommand : ICommand
 {
-    public ApproveLearningCommand(Guid learningKey, Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef, long approvalsApprenticeshipId)
+    public ApproveLearningCommand(Guid learningKey, Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef, long approvalsApprenticeshipId, EmployerType employerType)
     {
         LearningKey = learningKey;
         EpisodeKey = episodeKey;
@@ -11,6 +13,7 @@ public class ApproveLearningCommand : ICommand
         LearnerKey = learnerKey;
         LearnerRef = learnerRef;
         ApprovalsApprenticeshipId = approvalsApprenticeshipId;
+        EmployerType = employerType;
     }
 
     public Guid LearningKey { get; }
@@ -20,4 +23,5 @@ public class ApproveLearningCommand : ICommand
     public Guid LearnerKey { get; }
     public string LearnerRef { get; }
     public long ApprovalsApprenticeshipId { get; }
+    public EmployerType EmployerType { get; }
 }

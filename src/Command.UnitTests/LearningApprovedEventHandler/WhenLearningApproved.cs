@@ -28,7 +28,7 @@ public class WhenLearningApproved
         var employerAccountId = 112;
         var fundingAccountId = 223;
 
-        var message = new LearningApprovedEvent { LearningKey = learningKey, LearnerKey = learnerKey, LearnerRef = learnerRef, ApprovalsApprenticeshipId = approvalsApprenticeshipId, EmployerAccountId = employerAccountId, FundingAccountId = fundingAccountId };
+        var message = new LearningApprovedEvent { LearningKey = learningKey, LearnerKey = learnerKey, LearnerRef = learnerRef, ApprovalsApprenticeshipId = approvalsApprenticeshipId, EmployerAccountId = employerAccountId, FundingAccountId = fundingAccountId, EmployerType = SFA.DAS.Learning.Enums.EmployerType.NonLevy };
 
         var handler = new MessageHandlers.Handlers.LearningApprovedEventHandler(
             _mockCommandHandler.Object,
@@ -45,7 +45,8 @@ public class WhenLearningApproved
                 c.LearnerRef == learnerRef &&
                 c.EmployerAccountId == employerAccountId &&
                 c.FundingAccountId == fundingAccountId &&
-                c.ApprovalsApprenticeshipId == approvalsApprenticeshipId),
+                c.ApprovalsApprenticeshipId == approvalsApprenticeshipId &&
+                c.EmployerType == Types.EmployerType.NonLevy),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

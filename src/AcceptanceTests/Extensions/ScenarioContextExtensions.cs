@@ -89,4 +89,12 @@ public static class ScenarioContextExtensions
         context.Set<long>(fundingAccountId, "FundingAccountId");
         return fundingAccountId;
     }
+
+    public static SFA.DAS.Learning.Enums.EmployerType GetEmployerType(this ScenarioContext context)
+    {
+        if (context.TryGetValue("EmployerType", out SFA.DAS.Learning.Enums.EmployerType employerType)) return employerType;
+        employerType = SFA.DAS.Learning.Enums.EmployerType.Levy;
+        context.Set(employerType, "EmployerType");
+        return employerType;
+    }
 }

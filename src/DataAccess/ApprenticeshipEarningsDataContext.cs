@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
@@ -172,6 +173,11 @@ internal static class ModelBuilderExtensions
             .HasConversion(
                 v => v.ToString(),
                 v => (FundingType)Enum.Parse(typeof(FundingType), v));
+
+        builder
+            .Property(p => p.EmployerType)
+            .HasConversion<int>()
+            .HasDefaultValue(EmployerType.Levy);
 
         builder
             .Property(x => x.Milestones)

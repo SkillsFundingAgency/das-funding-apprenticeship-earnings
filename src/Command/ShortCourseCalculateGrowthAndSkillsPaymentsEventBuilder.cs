@@ -2,6 +2,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using static SFA.DAS.Funding.ApprenticeshipEarnings.Types.EmployerTypeExtensions;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
@@ -58,15 +59,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
 
     private static IList<Earnings> BuildEarnings(ShortCourseLearning learning, ShortCourseEpisode episode, long employerAccountId, long fundingAccountId)
     {
-        var employerType = episode.FundingType == Learning.Types.FundingType.Levy
-            ? EmployerType.Levy
-            : EmployerType.NonLevy;
-
-        var profile = episode.EarningsProfile;
-
-
-
-        var earnings = profile!.Instalments
+        var earnings = episode.EarningsProfile!.Instalments
             .Where(i => i.IsPayable)
             .GroupBy(i => i.AcademicYear)
             .Select(g => new Earnings
@@ -88,7 +81,7 @@ public class ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder : IShortCou
                             {
                                 AccountId = employerAccountId,
                                 FundingAccountId = fundingAccountId,
-                                EmployerType = employerType
+                                EmployerType = episode.EmployerType.ToPaymentsEmployerType()
                             }
                         }).ToList()
                     }

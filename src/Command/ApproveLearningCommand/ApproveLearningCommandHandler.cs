@@ -20,6 +20,7 @@ public class ApproveLearningCommandHandler : ICommandHandler<ApproveLearningComm
         if (learning is ShortCourseLearning shortCourseLearning)
         {
             shortCourseLearning.SetApprovalsApprenticeshipId(command.ApprovalsApprenticeshipId);
+            shortCourseLearning.SetEmployerType(command.EpisodeKey, command.EmployerType);
         }
 
         learning.Approve(command.EpisodeKey, command.EmployerAccountId, command.FundingAccountId, command.LearnerKey, command.LearnerRef);

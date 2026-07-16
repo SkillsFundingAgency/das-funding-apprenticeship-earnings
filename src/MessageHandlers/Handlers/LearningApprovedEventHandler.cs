@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ApproveLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Learning.Types;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ public class LearningApprovedEventHandler(
             message.LearningKey);
 
         await approveLearningCommandHandler.Handle(
-            new ApproveLearningCommand(message.LearningKey, message.EpisodeKey, message.EmployerAccountId, message.FundingAccountId, message.LearnerKey, message.LearnerRef, message.ApprovalsApprenticeshipId),
+            new ApproveLearningCommand(message.LearningKey, message.EpisodeKey, message.EmployerAccountId, message.FundingAccountId, message.LearnerKey, message.LearnerRef, message.ApprovalsApprenticeshipId, message.EmployerType.ToEmployerType()),
             context.CancellationToken);
     }
 }

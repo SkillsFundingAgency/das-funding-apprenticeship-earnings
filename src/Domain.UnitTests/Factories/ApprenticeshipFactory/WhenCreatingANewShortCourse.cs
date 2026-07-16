@@ -56,6 +56,7 @@ public class WhenCreatingANewShortCourse
         episode.Should().NotBeNull();
         episode.AgeAtStartOfApprenticeship.Should().Be(25); // 2025 - 2000
         episode.FundingType.Should().Be(FundingType.Levy);
+        episode.EmployerType.Should().Be(EmployerType.NonLevy);
         episode.UKPRN.Should().Be(request.OnProgramme.Ukprn);
 
         var price = request.OnProgramme.TotalPrice;

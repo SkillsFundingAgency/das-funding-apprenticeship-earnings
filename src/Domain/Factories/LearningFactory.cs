@@ -49,6 +49,7 @@ public class LearningFactory : ILearningFactory
                 LearningKey = commandRequest.LearningKey,
                 Ukprn = commandRequest.OnProgramme.Ukprn,
                 FundingType = FundingType.Levy,
+                EmployerType = EmployerType.NonLevy,
                 CompletionDate = commandRequest.OnProgramme.CompletionDate,
                 WithdrawalDate = commandRequest.OnProgramme.WithdrawalDate,
                 StartDate = commandRequest.OnProgramme.StartDate,
