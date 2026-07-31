@@ -93,7 +93,7 @@ public class WhenBuildingEarningsGeneratedEvent
     [Test]
     public void ShouldPopulateThe_EmployerType_Correctly()
     {
-        _result.EmployerType.Should().Be(EmployerType.NonLevy);
+        _result.EmployerType.Should().Be(_learningDomainModel.Episodes.Single().EmployerType);
     }
 
     [Test]
