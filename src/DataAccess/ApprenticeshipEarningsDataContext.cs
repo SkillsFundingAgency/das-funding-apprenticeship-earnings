@@ -106,6 +106,11 @@ internal static class ModelBuilderExtensions
                 v => (FundingType)Enum.Parse(typeof(FundingType), v));
 
         builder
+            .Property(p => p.EmployerType)
+            .HasConversion<int>()
+            .HasDefaultValue(EmployerType.Levy);
+
+        builder
             .HasMany(a => a.Prices)
             .WithOne()
             .HasForeignKey(x => x.EpisodeKey);

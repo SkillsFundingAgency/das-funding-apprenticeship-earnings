@@ -123,6 +123,7 @@ internal static class FixtureExtensions
             Key = Guid.NewGuid(),
             Ukprn = 10000001,
             EmployerAccountId = 10000001,
+            EmployerType = SFA.DAS.Learning.Enums.EmployerType.Levy,
             Prices = new List<LearningEpisodePrice>{ new()
                 {
                     Key = Guid.NewGuid(),

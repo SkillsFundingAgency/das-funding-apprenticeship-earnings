@@ -95,7 +95,7 @@ public class LearningCreatedEventBuilder
 
     public LearningCreatedEvent Build()
     {
-        return new LearningCreatedEvent
+        var learningCreatedEvent = new LearningCreatedEvent
         {
             LearningKey = _learningKey,
             Uln = _uln,
@@ -126,6 +126,18 @@ public class LearningCreatedEventBuilder
                 AgeAtStartOfLearning = _ageAtStart
             }
         };
+
+        var employerTypeProperty = learningCreatedEvent.Episode.GetType().GetProperty("EmployerType");
+        if (employerTypeProperty != null)
+        {
+            var employerTypeName = learningCreatedEvent.Episode.FundingType == Learning.Enums.FundingType.NonLevy
+                ? "NonLevy"
+                : "Levy";
+            var employerType = Enum.Parse(employerTypeProperty.PropertyType, employerTypeName);
+            employerTypeProperty.SetValue(learningCreatedEvent.Episode, employerType);
+        }
+
+        return learningCreatedEvent;
     }
 
     private static DateTime CalculateDateOfBirth(DateTime startDate, int age)
