@@ -1,4 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -32,7 +34,7 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
         this.GetCurrentEpisode(systemClock).Remove(this, systemClock);
     }
 
-    public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null)
+    public void Calculate(ISystemClockService systemClock, string calculationData, Guid? episodeKey = null, bool initialGenerationIsApproved = true)
     {
         ApprenticeshipEpisode episode;
 
@@ -45,7 +47,84 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
             episode = this.GetCurrentEpisode(systemClock);
         }
 
-        episode.CalculateOnProgram(this, systemClock, calculationData);
+        episode.CalculateOnProgramme(this, systemClock, calculationData, initialGenerationIsApproved);
+    }
+
+    public bool HasEpisode(Guid episodeKey)
+    {
+        return _episodes.Any(x => x.EpisodeKey == episodeKey);
+    }
+
+    public void AddUnapprovedEpisode(
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum,
+        List<ApprenticeshipPeriodInLearning> periodsInLearning)
+    {
+        var episodePrices = request.Prices
+            .Select(price => new ApprenticeshipEpisodePriceEntity(request.EpisodeKey, price))
+            .ToList();
+
+        var periods = periodsInLearning.Any()
+            ? periodsInLearning.Select(x => x.GetEntity()).ToList()
+            : episodePrices.Select(x => x.ToSinglePeriodInLearning()).ToList();
+
+        var episodeEntity = new ApprenticeshipEpisodeEntity
+        {
+            Key = request.EpisodeKey,
+            LearningKey = request.LearningKey,
+            Ukprn = request.OnProgramme.Ukprn,
+            EmployerAccountId = request.OnProgramme.EmployerAccountId,
+            FundingEmployerAccountId = request.OnProgramme.FundingEmployerAccountId,
+            FundingType = request.OnProgramme.FundingType,
+            LegalEntityName = request.OnProgramme.LegalEntityName,
+            TrainingCode = request.OnProgramme.TrainingCode,
+            FundingBandMaximum = fundingBandMaximum,
+            CompletionDate = request.CompletionDate,
+            WithdrawalDate = request.WithdrawalDate,
+            AchievementDate = request.AchievementDate,
+            PauseDate = request.PauseDate,
+            Prices = episodePrices,
+            PeriodsInLearning = periods
+        };
+
+        _entity.Episodes.Add(episodeEntity);
+        _episodes.Add(this.GetApprenticeshipEpisodeFromEntity(episodeEntity));
+    }
+
+    public void UpdateUnapprovedApprenticeshipInformation(
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum,
+        List<ApprenticeshipPeriodInLearning> periodsInLearning,
+        ISystemClockService systemClock)
+    {
+        _entity.ApprovalsApprenticeshipId = request.ApprovalsApprenticeshipId;
+        _entity.Uln = request.Learner.Uln;
+
+        UpdateDateOfBirth(request.Learner.DateOfBirth);
+
+        var episode = GetEpisode(request.EpisodeKey);
+        episode.UpdateStaticLearningDetails(
+            request.OnProgramme.Ukprn,
+            request.OnProgramme.EmployerAccountId,
+            request.OnProgramme.FundingEmployerAccountId,
+            request.OnProgramme.FundingType,
+            request.OnProgramme.TrainingCode,
+            request.OnProgramme.LegalEntityName);
+
+        episode.UpdateFundingBandMaximum(fundingBandMaximum);
+        episode.UpdatePrices(request.Prices);
+        episode.UpdatePeriodsInLearning(periodsInLearning);
+        episode.UpdatePause(request.PauseDate);
+        episode.UpdateCompletion(request.CompletionDate);
+        episode.UpdateAchievementDate(request.AchievementDate);
+        episode.UpdateWithdrawalDate(request.WithdrawalDate, systemClock);
+        episode.UpdateAgeAtStart(_entity.DateOfBirth);
+
+        UpdateCareDetails(
+            request.Learner.Care.HasEHCP,
+            request.Learner.Care.IsCareLeaver,
+                request.Learner.Care.CareLeaverEmployerConsentGiven,
+                systemClock);
     }
 
     public void UpdateCareDetails(bool hasEHCP, bool isCareLeaver, bool careLeaverEmployerConsentGiven, ISystemClockService systemClock)
