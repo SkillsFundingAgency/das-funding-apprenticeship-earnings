@@ -102,7 +102,7 @@ internal static class ModelBuilderExtensions
         builder
             .Property(p => p.EmployerType)
             .HasConversion<int>()
-            .HasDefaultValue(EmployerType.Levy);
+            .HasDefaultValue(EmployerType.NonLevy);
 
         builder
             .HasMany(a => a.Prices)
