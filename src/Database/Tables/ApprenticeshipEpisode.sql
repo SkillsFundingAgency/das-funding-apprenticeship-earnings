@@ -4,7 +4,7 @@ CREATE TABLE [Domain].[ApprenticeshipEpisode]
 	[LearningKey] UNIQUEIDENTIFIER NOT NULL, 
     [Ukprn] BIGINT NOT NULL, 
     [EmployerAccountId] BIGINT NOT NULL, 
-    [EmployerType] INT NOT NULL DEFAULT 1,
+    [EmployerType] INT NOT NULL DEFAULT 0,
     [FundingEmployerAccountId] BIGINT NULL, 
     [LegalEntityName] NVARCHAR(255) NOT NULL,
     [TrainingCode] NCHAR(50) NOT NULL,
