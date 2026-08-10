@@ -19,7 +19,6 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
     public bool IsRemoved => _entity.IsRemoved;
     public long EmployerAccountId => _entity.EmployerAccountId;
-    public EmployerType EmployerType => _entity.EmployerType;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
 

@@ -10,7 +10,6 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
 {
     public string TrainingCode { get; set; } = null!;
     public long EmployerAccountId { get; set; }
-    public EmployerType EmployerType { get; set; }
     public long? FundingEmployerAccountId { get; set; }
     public string LegalEntityName { get; set; } = null!;
     public ApprenticeshipEarningsProfileEntity EarningsProfile { get; set; }
