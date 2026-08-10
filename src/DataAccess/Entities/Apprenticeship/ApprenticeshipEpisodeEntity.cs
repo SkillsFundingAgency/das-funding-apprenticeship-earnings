@@ -10,7 +10,7 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
 {
     public string TrainingCode { get; set; } = null!;
     public long EmployerAccountId { get; set; }
-    public EmployerType EmployerType { get; set; } = EmployerType.Levy;
+    public EmployerType EmployerType { get; set; }
     public long? FundingEmployerAccountId { get; set; }
     public string LegalEntityName { get; set; } = null!;
     public ApprenticeshipEarningsProfileEntity EarningsProfile { get; set; }
@@ -30,7 +30,6 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
         LearningKey = learningKey;
         Ukprn = learningEpisode.Ukprn;
         EmployerAccountId = learningEpisode.EmployerAccountId;
-        FundingType = (FundingType)learningEpisode.FundingType;
         EmployerType = (EmployerType)learningEpisode.EmployerType;
         FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
         LegalEntityName = learningEpisode.LegalEntityName;

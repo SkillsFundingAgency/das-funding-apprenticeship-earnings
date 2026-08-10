@@ -35,7 +35,7 @@ public class WhenBuildingEarningsGeneratedEvent
             startDate: new DateTime(2022, 8, 1),
             endDate: new DateTime(2022, 9, 30),
             agreedPrice: 20000,
-            fundingType: Learning.Enums.FundingType.NonLevy);
+            employerType: EmployerType.NonLevy);
 
         _learningDomainModel.Calculate(_mockSystemClock.Object, string.Empty);
 

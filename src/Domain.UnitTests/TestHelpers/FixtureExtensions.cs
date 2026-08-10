@@ -11,7 +11,6 @@ using SFA.DAS.Learning.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FundingType = SFA.DAS.Learning.Enums.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
 
@@ -21,14 +20,14 @@ internal static class FixtureExtensions
 
     internal static ApprenticeshipLearning CreateLearning(
         this Fixture fixture,
-        FundingType? fundingType = null,
+        EmployerType employerType = EmployerType.Levy,
         byte age = 17)
     {
         return fixture.CreateLearningWithApprenticeship(
             new DateTime(2021, 1, 15),
             new DateTime(2022, 1, 31), 
             7000,
-            fundingType, 
+            employerType, 
             age);
     }
 
@@ -37,12 +36,12 @@ internal static class FixtureExtensions
         DateTime startDate, 
         DateTime endDate, 
         decimal agreedPrice, 
-        FundingType? fundingType = null, 
+        EmployerType employerType = EmployerType.Levy, 
         byte age = 17)
     {
         var learningCreatedEvent = fixture.CreateLearningCreatedEvent(startDate, endDate, agreedPrice, age);
 
-        learningCreatedEvent.Episode.FundingType = fundingType == null ? fixture.Create<FundingType>() : fundingType.Value;
+        learningCreatedEvent.Episode.EmployerType = employerType == EmployerType.Levy ? Learning.Enums.EmployerType.Levy : Learning.Enums.EmployerType.NonLevy;
 
         return _apprenticeshipFactory.CreateNew(learningCreatedEvent, int.MaxValue);
     }
@@ -81,7 +80,7 @@ internal static class FixtureExtensions
             Ukprn = x.UKPRN,
             EmployerAccountId = x.EmployerAccountId,
             TrainingCode = x.TrainingCode,
-            FundingType = x.FundingType,
+            EmployerType = x.EmployerType,
             LegalEntityName = x.LegalEntityName,
             EarningsProfile = withMissingEarningsProfile ? null : MapEarningsProfileToModel(x.EarningsProfile),
             FundingEmployerAccountId = x.FundingEmployerAccountId,

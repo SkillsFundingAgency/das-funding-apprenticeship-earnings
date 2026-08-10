@@ -117,7 +117,6 @@ public class LearningCreatedEventBuilder
                     }
                 },
                 EmployerAccountId = _employerAccountId,
-                FundingType = Learning.Enums.FundingType.Levy,
                 EmployerType = Learning.Enums.EmployerType.Levy,
                 Ukprn = 116,
                 TrainingCode = "AbleSeafarer",

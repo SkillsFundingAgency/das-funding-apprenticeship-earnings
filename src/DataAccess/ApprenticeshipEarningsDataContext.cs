@@ -100,12 +100,6 @@ internal static class ModelBuilderExtensions
             .HasForeignKey<ApprenticeshipEarningsProfileEntity>(x => x.EpisodeKey);
 
         builder
-            .Property(p => p.FundingType)
-            .HasConversion(
-                v => v.ToString(),
-                v => (FundingType)Enum.Parse(typeof(FundingType), v));
-
-        builder
             .Property(p => p.EmployerType)
             .HasConversion<int>()
             .HasDefaultValue(EmployerType.Levy);
@@ -172,12 +166,6 @@ internal static class ModelBuilderExtensions
             .HasOne(a => a.EarningsProfile)
             .WithOne()
             .HasForeignKey<ShortCourseEarningsProfileEntity>(x => x.EpisodeKey);
-
-        builder
-            .Property(p => p.FundingType)
-            .HasConversion(
-                v => v.ToString(),
-                v => (FundingType)Enum.Parse(typeof(FundingType), v));
 
         builder
             .Property(p => p.EmployerType)
