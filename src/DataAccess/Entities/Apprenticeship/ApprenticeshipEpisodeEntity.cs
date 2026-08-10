@@ -30,7 +30,7 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
         LearningKey = learningKey;
         Ukprn = learningEpisode.Ukprn;
         EmployerAccountId = learningEpisode.EmployerAccountId;
-        EmployerType = (EmployerType)learningEpisode.EmployerType;
+        EmployerType = learningEpisode.EmployerType == Learning.Enums.EmployerType.Levy ? EmployerType.Levy : EmployerType.NonLevy;
         FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;
