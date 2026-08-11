@@ -95,7 +95,7 @@ public class LearningCreatedEventBuilder
 
     public LearningCreatedEvent Build()
     {
-        return new LearningCreatedEvent
+        var learningCreatedEvent = new LearningCreatedEvent
         {
             LearningKey = _learningKey,
             Uln = _uln,
@@ -117,7 +117,7 @@ public class LearningCreatedEventBuilder
                     }
                 },
                 EmployerAccountId = _employerAccountId,
-                FundingType = Learning.Enums.FundingType.Levy,
+                EmployerType = Learning.Enums.EmployerType.Levy,
                 Ukprn = 116,
                 TrainingCode = "AbleSeafarer",
                 FundingEmployerAccountId = null,
@@ -126,6 +126,8 @@ public class LearningCreatedEventBuilder
                 AgeAtStartOfLearning = _ageAtStart
             }
         };
+
+        return learningCreatedEvent;
     }
 
     private static DateTime CalculateDateOfBirth(DateTime startDate, int age)

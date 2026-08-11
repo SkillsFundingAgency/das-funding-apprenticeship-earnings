@@ -1,6 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using FundingType = SFA.DAS.Learning.Types.FundingType;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 
@@ -22,7 +22,7 @@ public abstract class BaseEpisode<TEpisodeEntity, TEarningProfileDomainModel> : 
     protected TEarningProfileDomainModel? _earningsProfile;
     public override Guid EpisodeKey => _entity.Key;
     public long UKPRN => _entity.Ukprn;
-    public FundingType FundingType => _entity.FundingType;
+    public EmployerType EmployerType => _entity.EmployerType;
     public override TEarningProfileDomainModel? EarningsProfile => _earningsProfile;
     public int AgeAtStartOfApprenticeship => _ageAtStartOfApprenticeship;
     public DateTime? CompletionDate => _entity.CompletionDate;

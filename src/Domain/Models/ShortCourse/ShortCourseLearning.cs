@@ -1,7 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using FundingType = SFA.DAS.Learning.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 
@@ -78,7 +77,6 @@ public class ShortCourseLearning : BaseLearning<ShortCourseLearningEntity, Short
             Key = request.EpisodeKey,
             LearningKey = request.LearningKey,
             Ukprn = request.OnProgramme.Ukprn,
-            FundingType = FundingType.Levy,
             EmployerType = EmployerType.NonLevy,
             CompletionDate = request.OnProgramme.CompletionDate,
             WithdrawalDate = request.OnProgramme.WithdrawalDate,

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.UnitTests.GetFm36Data;
 
@@ -331,7 +332,7 @@ public class WhenGetFm36Data
             Ukprn = ukprn,
             LegalEntityName = "Test Employer",
             TrainingCode = "ST0001",
-            FundingType = FundingType.Levy,
+            EmployerType = EmployerType.Levy,
             EarningsProfile = profile,
             WithdrawalDate = withdrawalDate,
             CompletionDate = completionDate,

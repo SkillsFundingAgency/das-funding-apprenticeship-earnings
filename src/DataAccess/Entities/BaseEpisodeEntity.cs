@@ -1,4 +1,4 @@
-using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
@@ -14,8 +14,8 @@ public abstract class BaseEpisodeEntity
     public Guid Key { get; set; }
 	public Guid LearningKey { get; set; }
     public long Ukprn { get; set; }
-	public FundingType FundingType { get; set; }
     public DateTime? CompletionDate { get; set; }
     public DateTime? AchievementDate { get; set; }
     public DateTime? WithdrawalDate { get; set; }
+    public EmployerType EmployerType { get; set; }
 }
