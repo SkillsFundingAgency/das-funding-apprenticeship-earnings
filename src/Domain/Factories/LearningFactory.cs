@@ -6,7 +6,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
-using FundingType = SFA.DAS.Learning.Types.FundingType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
@@ -105,7 +104,6 @@ public class LearningFactory : ILearningFactory
                 Key = commandRequest.EpisodeKey,
                 LearningKey = commandRequest.LearningKey,
                 Ukprn = commandRequest.OnProgramme.Ukprn,
-                FundingType = FundingType.Levy,
                 EmployerType = EmployerType.NonLevy,
                 CompletionDate = commandRequest.OnProgramme.CompletionDate,
                 WithdrawalDate = commandRequest.OnProgramme.WithdrawalDate,

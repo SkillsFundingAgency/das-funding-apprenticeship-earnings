@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
@@ -28,7 +29,7 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
         LearningKey = learningKey;
         Ukprn = learningEpisode.Ukprn;
         EmployerAccountId = learningEpisode.EmployerAccountId;
-        FundingType = (FundingType)learningEpisode.FundingType;
+        EmployerType = learningEpisode.EmployerType == Learning.Enums.EmployerType.Levy ? EmployerType.Levy : EmployerType.NonLevy;
         FundingEmployerAccountId = learningEpisode.FundingEmployerAccountId;
         LegalEntityName = learningEpisode.LegalEntityName;
         TrainingCode = learningEpisode.TrainingCode;

@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Linq;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Factories.ApprenticeshipFactory;
@@ -40,6 +41,7 @@ public class WhenCreatingANewApprenticeship
             x.EpisodeKey == learningCreatedEvent.Episode.Key);
 
         episode.Should().NotBeNull();
+        episode!.EmployerType.Should().Be((EmployerType)learningCreatedEvent.Episode.EmployerType);
 
         var price = learningCreatedEvent.Episode.Prices.First();
         episode.Prices.Count.Should().Be(1);

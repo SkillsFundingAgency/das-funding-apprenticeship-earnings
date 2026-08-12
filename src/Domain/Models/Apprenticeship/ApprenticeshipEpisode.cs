@@ -28,7 +28,6 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public List<(ApprenticeshipPeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
 
-    public bool IsNonLevyFullyFunded => _entity.FundingType == FundingType.NonLevy && AgeAtStartOfApprenticeship < 22;
     public string FundingLineType => AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
