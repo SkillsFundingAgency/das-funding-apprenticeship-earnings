@@ -2,12 +2,11 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Text.Json;
 
@@ -20,20 +19,17 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
     private readonly ILearningFactory _learningFactory;
     private readonly ILearningRepository _learningRepository;
     private readonly ISystemClockService _systemClock;
-    private readonly IFundingBandMaximumService _fundingBandMaximumService;
 
     public CreateUnapprovedApprenticeshipLearningCommandHandler(
         ILogger<CreateUnapprovedApprenticeshipLearningCommandHandler> logger,
         ILearningFactory learningFactory,
         ILearningRepository learningRepository,
-        ISystemClockService systemClock,
-        IFundingBandMaximumService fundingBandMaximumService)
+        ISystemClockService systemClock)
     {
         _logger = logger;
         _learningFactory = learningFactory;
         _learningRepository = learningRepository;
         _systemClock = systemClock;
-        _fundingBandMaximumService = fundingBandMaximumService;
     }
 
     public async Task Handle(
@@ -44,14 +40,18 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
 
         _logger.LogInformation("Handling CreateUnapprovedApprenticeshipLearningCommand for learning {LearningKey}", request.LearningKey);
 
-        var fundingBandMaximum = await GetFundingBandMaximum(request);
+        var fundingBandMaximum = request.OnProgramme.FundingBandMaximum
+                                 ?? throw new ArgumentException(
+                                     $"FundingBandMaximum is required for draft apprenticeship learning. LearningKey: {request.LearningKey}");
         var learning = await _learningRepository.GetApprenticeshipLearning(request.LearningKey);
 
+        //existing learning, existing episode
         if (learning != null && learning.HasEpisode(request.EpisodeKey))
         {
             UpdateAndCalculate(learning, request, fundingBandMaximum);
             await _learningRepository.Update(learning);
         }
+        //existing learning, new episode
         else if (learning != null)
         {
             learning.AddUnapprovedEpisode(
@@ -62,6 +62,7 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
             UpdateAndCalculate(learning, request, fundingBandMaximum);
             await _learningRepository.Update(learning);
         }
+        //new learning & episode
         else
         {
             var newLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum);
@@ -103,27 +104,6 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         episode.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClock);
     }
 
-    private async Task<int> GetFundingBandMaximum(CreateUnapprovedApprenticeshipLearningRequest request)
-    {
-        if (request.OnProgramme.FundingBandMaximum.HasValue)
-        {
-            return request.OnProgramme.FundingBandMaximum.Value;
-        }
-
-        var startDate = request.Prices.Min(x => x.StartDate);
-        var courseCode = request.OnProgramme.TrainingCode;
-
-        var fundingBandMaximum = await _fundingBandMaximumService.GetFundingBandMaximum(courseCode, startDate);
-
-        if (!fundingBandMaximum.HasValue)
-        {
-            throw new Exception(
-                $"No funding band maximum found for course {courseCode} for given StartDate {startDate}. LearningKey: {request.LearningKey}");
-        }
-
-        return fundingBandMaximum.Value;
-    }
-
     private static List<EnglishAndMathsDomainModel> BuildEnglishAndMathsCourses(CreateUnapprovedApprenticeshipLearningRequest request)
     {
         var courses = new List<EnglishAndMathsDomainModel>();
@@ -140,26 +120,16 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
                 detail.CompletionDate,
                 detail.PauseDate,
                 detail.CombinedFundingAdjustmentPercentage,
-                detail.PeriodsInLearning.Select(x => new DraftPeriodInLearning(x.StartDate, x.EndDate, x.OriginalExpectedEndDate))));
+                detail.PeriodsInLearning.Select(x => new PeriodInLearningItem
+                {
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    OriginalExpectedEndDate = x.OriginalExpectedEndDate
+                })));
         }
 
         return courses;
     }
-}
-
-internal class DraftPeriodInLearning : IPeriodInLearning
-{
-    public DraftPeriodInLearning(DateTime startDate, DateTime? endDate, DateTime originalExpectedEndDate)
-    {
-        StartDate = startDate;
-        EndDate = endDate;
-        OriginalExpectedEndDate = originalExpectedEndDate;
-    }
-
-    public DateTime StartDate { get; }
-    public DateTime? EndDate { get; }
-    public DateTime OriginalExpectedEndDate { get; }
-    public DateTime EffectiveEndDate => EndDate ?? OriginalExpectedEndDate;
 }
 
 internal static class CreateUnapprovedApprenticeshipLearningRequestExtensions

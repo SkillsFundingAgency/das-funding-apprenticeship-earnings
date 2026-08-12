@@ -6,7 +6,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
@@ -19,7 +18,6 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     private Mock<ILogger<SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommandHandler>> _logger = null!;
     private Mock<ILearningRepository> _repository = null!;
     private Mock<ISystemClockService> _systemClock = null!;
-    private Mock<IFundingBandMaximumService> _fundingBandMaximumService = null!;
     private ILearningFactory _learningFactory = null!;
 
     [SetUp]
@@ -28,13 +26,9 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _logger = new Mock<ILogger<SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommandHandler>>();
         _repository = new Mock<ILearningRepository>();
         _systemClock = new Mock<ISystemClockService>();
-        _fundingBandMaximumService = new Mock<IFundingBandMaximumService>();
         _learningFactory = new LearningFactory();
 
         _systemClock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
-        _fundingBandMaximumService
-            .Setup(x => x.GetFundingBandMaximum(It.IsAny<string>(), It.IsAny<DateTime>()))
-            .ReturnsAsync(10000);
     }
 
     [Test]
@@ -112,8 +106,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
             _logger.Object,
             _learningFactory,
             _repository.Object,
-            _systemClock.Object,
-            _fundingBandMaximumService.Object);
+            _systemClock.Object);
     }
 
     private CreateUnapprovedApprenticeshipLearningRequest BuildRequest()
