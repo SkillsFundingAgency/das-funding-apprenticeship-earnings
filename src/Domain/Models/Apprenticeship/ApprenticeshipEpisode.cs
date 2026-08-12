@@ -128,12 +128,12 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         CalculateOnProgramme(learning, systemClock, calculationData);
     }
 
-    public void UpdateStaticLearningDetails(long ukprn, long employerAccountId, long? fundingEmployerAccountId, FundingType fundingType, string trainingCode, string legalEntityName)
+    public void UpdateStaticLearningDetails(long ukprn, long employerAccountId, long? fundingEmployerAccountId, EmployerType employerType, string trainingCode, string legalEntityName)
     {
         _entity.Ukprn = ukprn;
         _entity.EmployerAccountId = employerAccountId;
         _entity.FundingEmployerAccountId = fundingEmployerAccountId;
-        _entity.FundingType = fundingType;
+        _entity.EmployerType = employerType;
         _entity.TrainingCode = trainingCode;
         _entity.LegalEntityName = legalEntityName;
     }

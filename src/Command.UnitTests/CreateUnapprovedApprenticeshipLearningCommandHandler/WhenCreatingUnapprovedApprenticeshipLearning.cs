@@ -137,7 +137,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
                 EmployerAccountId = 100,
                 FundingEmployerAccountId = 200,
                 LegalEntityName = "Test Employer",
-                FundingType = FundingType.Levy,
+                EmployerType = EmployerType.Levy,
                 FundingBandMaximum = 10000
             },
             Prices =

@@ -59,7 +59,7 @@ public class LearningFactory : ILearningFactory
             Ukprn = request.OnProgramme.Ukprn,
             EmployerAccountId = request.OnProgramme.EmployerAccountId,
             FundingEmployerAccountId = request.OnProgramme.FundingEmployerAccountId,
-            FundingType = request.OnProgramme.FundingType,
+            EmployerType = request.OnProgramme.EmployerType,
             TrainingCode = request.OnProgramme.TrainingCode,
             LegalEntityName = request.OnProgramme.LegalEntityName,
             FundingBandMaximum = fundingBandMaximum,
