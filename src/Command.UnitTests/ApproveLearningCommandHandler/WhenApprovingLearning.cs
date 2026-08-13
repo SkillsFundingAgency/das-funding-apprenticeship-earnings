@@ -1,5 +1,6 @@
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
@@ -13,12 +14,14 @@ public class WhenApprovingLearning
 {
     private Fixture _fixture = null!;
     private Mock<ILearningDomainService> _mockDomainService = null!;
+    private Mock<ILogger<Command.ApproveLearningCommand.ApproveLearningCommandHandler>> _mockLogger = null!;
 
     [SetUp]
     public void SetUp()
     {
         _fixture = new Fixture();
         _mockDomainService = new Mock<ILearningDomainService>();
+        _mockLogger = new Mock<ILogger<Command.ApproveLearningCommand.ApproveLearningCommandHandler>>();
     }
 
     [Test]
@@ -82,14 +85,25 @@ public class WhenApprovingLearning
     }
 
     [Test]
-    public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
+    public async Task ThenNoExceptionIsThrownWhenLearningIsNotFound()
     {
         var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().NotThrowAsync();
+    }
+
+    [Test]
+    public async Task AndLearningIsNotFound_ThenUpdateIsNeverCalled()
+    {
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
+        _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
+
+        await CreateHandler().Handle(command);
+
+        _mockDomainService.Verify(x => x.Update(It.IsAny<BaseLearning>()), Times.Never);
     }
 
     private ShortCourseLearning BuildLearning(bool isApproved = true)
@@ -121,5 +135,5 @@ public class WhenApprovingLearning
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
 
     private Command.ApproveLearningCommand.ApproveLearningCommandHandler CreateHandler()
-        => new(_mockDomainService.Object);
+        => new(_mockDomainService.Object, _mockLogger.Object);
 }
