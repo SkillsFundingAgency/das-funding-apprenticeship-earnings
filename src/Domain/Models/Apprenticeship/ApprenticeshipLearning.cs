@@ -19,7 +19,7 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
     }
 
     public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef) =>
-        throw new NotSupportedException("Apprenticeship approval is not yet implemented.");
+        GetEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
     public override ApprenticeshipEpisode GetEpisode(Guid episodeKey)
     {
