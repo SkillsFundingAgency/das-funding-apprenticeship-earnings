@@ -298,5 +298,15 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _entity.FundingBandMaximum = fundingBandMaximum;
     }
 
-    public override void Approve(long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef) => _earningsProfile!.Approve();
+    public override void Approve(long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef)
+    {
+        _earningsProfile!.Approve();
+        _entity.EmployerAccountId = employerAccountId;
+        _entity.FundingEmployerAccountId = fundingAccountId;
+    }
+
+    public void SetEmployerType(EmployerType employerType)
+    {
+        _entity.EmployerType = employerType;
+    }
 }

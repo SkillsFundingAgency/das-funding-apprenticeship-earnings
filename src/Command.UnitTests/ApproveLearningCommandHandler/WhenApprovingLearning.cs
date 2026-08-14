@@ -2,8 +2,10 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -73,6 +75,30 @@ public class WhenApprovingLearning
     }
 
     [Test]
+    public async Task ThenTheApprovalsApprenticeshipIdIsUpdatedForApprenticeshipLearning()
+    {
+        var learning = BuildApprenticeshipLearning();
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.ApprovalsApprenticeshipId.Should().Be(command.ApprovalsApprenticeshipId);
+    }
+
+    [Test]
+    public async Task ThenTheEmployerTypeIsUpdatedForApprenticeshipLearning()
+    {
+        var learning = BuildApprenticeshipLearning();
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.Episodes.Single().EmployerType.Should().Be(command.EmployerType);
+    }
+
+    [Test]
     public async Task ThenUpdateIsCalledWithTheLearning()
     {
         var learning = BuildLearning();
@@ -128,10 +154,35 @@ public class WhenApprovingLearning
         return ShortCourseLearning.Get(entity);
     }
 
+    private ApprenticeshipLearning BuildApprenticeshipLearning()
+    {
+        var episodeEntity = _fixture
+            .Build<ApprenticeshipEpisodeEntity>()
+            .With(x => x.EarningsProfile, _fixture
+                .Build<ApprenticeshipEarningsProfileEntity>()
+                .With(x => x.IsApproved, false)
+                .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
+                .Create())
+            .Create();
+
+        var entity = _fixture
+            .Build<ApprenticeshipLearningEntity>()
+            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
+            .Create();
+
+        return ApprenticeshipLearning.Get(entity);
+    }
+
     private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
         => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
 
+    private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning)
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
+
     private void SetupDomainService(ShortCourseLearning learning)
+        => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
+
+    private void SetupDomainService(ApprenticeshipLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
 
     private Command.ApproveLearningCommand.ApproveLearningCommandHandler CreateHandler()

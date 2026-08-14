@@ -21,6 +21,12 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
     public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef) =>
         GetEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
+    public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
+        => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
+
+    public void SetEmployerType(Guid episodeKey, EmployerType employerType)
+        => GetEpisode(episodeKey).SetEmployerType(employerType);
+
     public override ApprenticeshipEpisode GetEpisode(Guid episodeKey)
     {
         var episode = _episodes.SingleOrDefault(e => e.EpisodeKey == episodeKey);

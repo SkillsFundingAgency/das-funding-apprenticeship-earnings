@@ -39,4 +39,25 @@ public class WhenApprovingApprenticeship
 
         episode.EarningsProfile!.IsApproved.Should().BeTrue();
     }
+
+    [Test]
+    public void ThenTheEmployerAccountIdAndFundingEmployerAccountIdAreSet()
+    {
+        var apprenticeship = _fixture.CreateLearning();
+        apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
+        var episode = apprenticeship.Episodes.Single();
+
+        var employerAccountId = _fixture.Create<long>();
+        var fundingAccountId = _fixture.Create<long>();
+
+        apprenticeship.Approve(
+            episode.EpisodeKey,
+            employerAccountId,
+            fundingAccountId,
+            _fixture.Create<Guid>(),
+            _fixture.Create<string>());
+
+        episode.EmployerAccountId.Should().Be(employerAccountId);
+        episode.FundingEmployerAccountId.Should().Be(fundingAccountId);
+    }
 }
