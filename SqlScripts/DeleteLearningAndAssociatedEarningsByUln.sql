@@ -25,7 +25,7 @@ END
 
 IF @HasData = 0
 BEGIN
-    RAISERROR('No apprenticeship or short course learning rows found for the supplied ULN.', 16, 1);
+    PRINT CONCAT('No records found for ULN ', @Uln, '. Nothing to delete.');
     RETURN;
 END
 
