@@ -18,6 +18,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal FundingBandMaximum => _entity.FundingBandMaximum;
     public bool IsRemoved => _entity.IsRemoved;
+    public bool IsApproved => _earningsProfile?.IsApproved ?? false;
     public long EmployerAccountId => _entity.EmployerAccountId;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
@@ -71,7 +72,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         UpdatePeriodsInLearning([]);
     }
 
-    public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
+    public void CalculateOnProgramme(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData, bool initialGenerationIsApproved = true)
     {
         _entity.IsRemoved = false;
 
@@ -98,11 +99,16 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         if (_earningsProfile == null)
         {
-            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<EnglishAndMaths.EnglishAndMaths>(), completionPayment, EpisodeKey, true, calculationData);
+            _earningsProfile = this.CreateEarningsProfile(onProgramTotal, instalments, additionalPayments, new List<EnglishAndMaths.EnglishAndMaths>(), completionPayment, EpisodeKey, initialGenerationIsApproved, calculationData);
             _entity.EarningsProfile = _earningsProfile.GetModel();
         }
         else
         {
+            if (!initialGenerationIsApproved && _earningsProfile.IsApproved)
+            {
+                _earningsProfile.SetApprovalStatus(false);
+            }
+
             additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
             _earningsProfile.Update(systemClock,
                 instalments: instalments,
@@ -115,6 +121,21 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         {
             AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
         }
+    }
+
+    public void CalculateOnProgram(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData)
+    {
+        CalculateOnProgramme(learning, systemClock, calculationData);
+    }
+
+    public void UpdateStaticLearningDetails(long ukprn, long employerAccountId, long? fundingEmployerAccountId, EmployerType employerType, string trainingCode, string legalEntityName)
+    {
+        _entity.Ukprn = ukprn;
+        _entity.EmployerAccountId = employerAccountId;
+        _entity.FundingEmployerAccountId = fundingEmployerAccountId;
+        _entity.EmployerType = employerType;
+        _entity.TrainingCode = trainingCode;
+        _entity.LegalEntityName = legalEntityName;
     }
 
     /// <summary>

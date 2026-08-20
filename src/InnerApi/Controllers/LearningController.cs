@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.Controllers;
 
@@ -18,6 +20,26 @@ public class LearningController: ControllerBase
     {
         _logger = logger;
         _commandDispatcher = commandDispatcher;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateUnapprovedApprenticeshipLearning(CreateUnapprovedApprenticeshipLearningRequest request)
+    {
+        _logger.LogInformation("Received request to create unapproved apprenticeship learning {learningKey}", request?.LearningKey);
+
+        try
+        {
+            var command = new CreateUnapprovedApprenticeshipLearningCommand(request);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating unapproved apprenticeship learning {learningKey}", request?.LearningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully created unapproved apprenticeship learning {learningKey}", request?.LearningKey);
+        return Ok();
     }
 
     [Route("{learningKey}/learning-support")]

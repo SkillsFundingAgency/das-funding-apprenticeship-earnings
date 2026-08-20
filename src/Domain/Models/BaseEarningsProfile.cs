@@ -52,6 +52,11 @@ public class BaseEarningsProfile<T> : BaseEarningsProfile where T : BaseEarnings
         Entity.IsApproved = true;
     }
 
+    public void SetApprovalStatus(bool isApproved)
+    {
+        Entity.IsApproved = isApproved;
+    }
+
     public T GetModel()
     {
         return Entity;
