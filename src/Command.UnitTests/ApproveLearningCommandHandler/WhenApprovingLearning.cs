@@ -1,8 +1,11 @@
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -13,12 +16,14 @@ public class WhenApprovingLearning
 {
     private Fixture _fixture = null!;
     private Mock<ILearningDomainService> _mockDomainService = null!;
+    private Mock<ILogger<Command.ApproveLearningCommand.ApproveLearningCommandHandler>> _mockLogger = null!;
 
     [SetUp]
     public void SetUp()
     {
         _fixture = new Fixture();
         _mockDomainService = new Mock<ILearningDomainService>();
+        _mockLogger = new Mock<ILogger<Command.ApproveLearningCommand.ApproveLearningCommandHandler>>();
     }
 
     [Test]
@@ -70,6 +75,30 @@ public class WhenApprovingLearning
     }
 
     [Test]
+    public async Task ThenTheApprovalsApprenticeshipIdIsUpdatedForApprenticeshipLearning()
+    {
+        var learning = BuildApprenticeshipLearning();
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.ApprovalsApprenticeshipId.Should().Be(command.ApprovalsApprenticeshipId);
+    }
+
+    [Test]
+    public async Task ThenTheEmployerTypeIsUpdatedForApprenticeshipLearning()
+    {
+        var learning = BuildApprenticeshipLearning();
+        var command = BuildCommand(learning);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.Episodes.Single().EmployerType.Should().Be(command.EmployerType);
+    }
+
+    [Test]
     public async Task ThenUpdateIsCalledWithTheLearning()
     {
         var learning = BuildLearning();
@@ -82,14 +111,25 @@ public class WhenApprovingLearning
     }
 
     [Test]
-    public async Task ThenAnExceptionIsThrownWhenLearningIsNotFound()
+    public async Task ThenNoExceptionIsThrownWhenLearningIsNotFound()
     {
         var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
         _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
 
         var act = async () => await CreateHandler().Handle(command);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().NotThrowAsync();
+    }
+
+    [Test]
+    public async Task AndLearningIsNotFound_ThenUpdateIsNeverCalled()
+    {
+        var command = new ApproveLearningCommand.ApproveLearningCommand(Guid.NewGuid(), Guid.NewGuid(), _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
+        _mockDomainService.Setup(x => x.GetLearning(command.LearningKey)).ReturnsAsync((BaseLearning?)null);
+
+        await CreateHandler().Handle(command);
+
+        _mockDomainService.Verify(x => x.Update(It.IsAny<BaseLearning>()), Times.Never);
     }
 
     private ShortCourseLearning BuildLearning(bool isApproved = true)
@@ -114,12 +154,37 @@ public class WhenApprovingLearning
         return ShortCourseLearning.Get(entity);
     }
 
+    private ApprenticeshipLearning BuildApprenticeshipLearning()
+    {
+        var episodeEntity = _fixture
+            .Build<ApprenticeshipEpisodeEntity>()
+            .With(x => x.EarningsProfile, _fixture
+                .Build<ApprenticeshipEarningsProfileEntity>()
+                .With(x => x.IsApproved, false)
+                .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
+                .Create())
+            .Create();
+
+        var entity = _fixture
+            .Build<ApprenticeshipLearningEntity>()
+            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
+            .Create();
+
+        return ApprenticeshipLearning.Get(entity);
+    }
+
     private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ShortCourseLearning learning)
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
+
+    private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning)
         => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<Types.EmployerType>());
 
     private void SetupDomainService(ShortCourseLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
 
+    private void SetupDomainService(ApprenticeshipLearning learning)
+        => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
+
     private Command.ApproveLearningCommand.ApproveLearningCommandHandler CreateHandler()
-        => new(_mockDomainService.Object);
+        => new(_mockDomainService.Object, _mockLogger.Object);
 }
