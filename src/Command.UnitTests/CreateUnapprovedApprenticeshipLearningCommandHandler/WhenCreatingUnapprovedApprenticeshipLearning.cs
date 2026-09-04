@@ -55,7 +55,8 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _repository.Verify(x => x.Add(It.Is<ApprenticeshipLearning>(l =>
             l.HasEpisode(request.EpisodeKey) &&
             l.GetEpisode(request.EpisodeKey).EarningsProfile != null &&
-            !l.GetEpisode(request.EpisodeKey).EarningsProfile!.IsApproved)), Times.Once);
+            !l.GetEpisode(request.EpisodeKey).EarningsProfile!.IsApproved &&
+            l.GetEpisode(request.EpisodeKey).FundingPlatform == Types.FundingPlatform.DAS)), Times.Once);
         _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 
@@ -103,7 +104,8 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
 
         _repository.Verify(x => x.Update(It.Is<ApprenticeshipLearning>(l =>
             l.HasEpisode(existingRequest.EpisodeKey) &&
-            l.HasEpisode(request.EpisodeKey))), Times.Once);
+            l.HasEpisode(request.EpisodeKey) &&
+            l.GetEpisode(request.EpisodeKey).FundingPlatform == Types.FundingPlatform.SLD)), Times.Once);
         _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 

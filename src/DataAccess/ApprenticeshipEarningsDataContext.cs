@@ -105,6 +105,11 @@ internal static class ModelBuilderExtensions
             .HasDefaultValue(EmployerType.NonLevy);
 
         builder
+            .Property(p => p.FundingPlatform)
+            .HasConversion<int>()
+            .HasDefaultValue(Types.FundingPlatform.SLD);
+
+        builder
             .HasMany(a => a.Prices)
             .WithOne()
             .HasForeignKey(x => x.EpisodeKey);
