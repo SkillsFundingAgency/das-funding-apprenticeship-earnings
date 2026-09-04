@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +26,6 @@ public class RemoveLearnerStepDefinitions
     [When("the learner is removed")]
     public async Task SendWithdrawalRequest()
     {
-        await _testContext.TestInnerApi.Delete($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}");
+        await _testContext.TestInnerApi.Delete($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}");
     }
 }

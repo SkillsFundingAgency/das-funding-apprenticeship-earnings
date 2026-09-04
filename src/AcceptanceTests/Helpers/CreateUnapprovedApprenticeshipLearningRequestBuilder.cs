@@ -1,11 +1,11 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 
-public class LearningCreatedEventBuilder
+public class CreateUnapprovedApprenticeshipLearningRequestBuilder
 {
     private Guid _learningKey = Guid.NewGuid();
     private string _uln = new Random().Next().ToString();
@@ -14,46 +14,38 @@ public class LearningCreatedEventBuilder
     private DateTime _startDate = new DateTime(2019, 01, 01);
     private DateTime _endDate = new DateTime(2021, 1, 1);
     private int _ageAtStart = 21;
-    private Learning.Enums.FundingPlatform _fundingPlatform = Learning.Enums.FundingPlatform.DAS;
     private decimal _totalPrice = 15000m;
     private decimal _trainingPrice = 12000m;
     private decimal _epaPrice = 3000m;
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
-    private TestSystemClock _systemClock = new TestSystemClock();
 
-    public LearningCreatedEventBuilder WithStartDate(DateTime startDate)
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithStartDate(DateTime startDate)
     {
         _startDate = startDate;
         return this;
     }
 
-    public LearningCreatedEventBuilder WithEndDate(DateTime endDate)
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithEndDate(DateTime endDate)
     {
         _endDate = endDate;
         return this;
     }
 
-    public LearningCreatedEventBuilder WithAgeAtStart(int age)
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithAgeAtStart(int age)
     {
         _ageAtStart = age;
         return this;
     }
 
-    public LearningCreatedEventBuilder WithFundingPlatform(Learning.Enums.FundingPlatform platform)
-    {
-        _fundingPlatform = platform;
-        return this;
-    }
-
-    public LearningCreatedEventBuilder WithPrices(List<LearningEpisodePrice> prices)
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithPrices(List<LearningEpisodePrice> prices)
     {
         _prices = prices;
         return this;
     }
 
-    public LearningCreatedEventBuilder WithDataFromSetupModel(ApprenticeshipCreatedSetupModel model)
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithDataFromSetupModel(ApprenticeshipCreatedSetupModel model)
     {
         if (model.Age.HasValue) _ageAtStart = model.Age.Value;
         if (model.StartDate.HasValue) _startDate = model.StartDate.Value;
@@ -76,7 +68,7 @@ public class LearningCreatedEventBuilder
         return this;
     }
 
-    public LearningCreatedEventBuilder WithPricesFromSetupModels(List<PriceEpisodeSetupModel> models)
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithPricesFromSetupModels(List<PriceEpisodeSetupModel> models)
     {
         _prices = models.Select(x => new LearningEpisodePrice
         {
@@ -93,41 +85,52 @@ public class LearningCreatedEventBuilder
         return this;
     }
 
-    public LearningCreatedEvent Build()
+    public CreateUnapprovedApprenticeshipLearningRequest Build(int? fundingBandMaximum)
     {
-        var learningCreatedEvent = new LearningCreatedEvent
+        var prices = _prices.Any() ? _prices : new List<LearningEpisodePrice>
         {
-            LearningKey = _learningKey,
-            Uln = _uln,
-            ApprovalsApprenticeshipId = _approvalsApprenticeshipId,
-            DateOfBirth = CalculateDateOfBirth(_startDate, _ageAtStart),
-            Episode = new LearningEpisode
+            new LearningEpisodePrice
             {
-                Key = _episodeKey,
-                Prices = _prices.Any() ? _prices : new List<LearningEpisodePrice>
-                {
-                    new LearningEpisodePrice
-                    {
-                        Key = _priceKey,
-                        TotalPrice = _totalPrice,
-                        StartDate = _startDate,
-                        EndDate = _endDate,
-                        TrainingPrice = _trainingPrice,
-                        EndPointAssessmentPrice = _epaPrice
-                    }
-                },
-                EmployerAccountId = _employerAccountId,
-                EmployerType = Learning.Enums.EmployerType.Levy,
-                Ukprn = 116,
-                TrainingCode = "AbleSeafarer",
-                FundingEmployerAccountId = null,
-                LegalEntityName = "MyTrawler",
-                FundingPlatform = _fundingPlatform,
-                AgeAtStartOfLearning = _ageAtStart
+                Key = _priceKey,
+                TotalPrice = _totalPrice,
+                StartDate = _startDate,
+                EndDate = _endDate,
+                TrainingPrice = _trainingPrice,
+                EndPointAssessmentPrice = _epaPrice
             }
         };
 
-        return learningCreatedEvent;
+        return new CreateUnapprovedApprenticeshipLearningRequest
+        {
+            LearningKey = _learningKey,
+            EpisodeKey = _episodeKey,
+            ApprovalsApprenticeshipId = _approvalsApprenticeshipId,
+            Learner = new DraftApprenticeshipLearner
+            {
+                DateOfBirth = CalculateDateOfBirth(_startDate, _ageAtStart),
+                Uln = _uln,
+                Care = new DraftCare()
+            },
+            OnProgramme = new DraftApprenticeshipOnProgramme
+            {
+                TrainingCode = "AbleSeafarer",
+                Ukprn = 116,
+                EmployerAccountId = _employerAccountId,
+                FundingEmployerAccountId = null,
+                LegalEntityName = "MyTrawler",
+                EmployerType = EmployerType.Levy,
+                FundingBandMaximum = fundingBandMaximum
+            },
+            Prices = prices,
+            PeriodsInLearning = prices
+                .Select(price => new ApprenticeshipPeriodInLearningItem
+                {
+                    StartDate = price.StartDate,
+                    EndDate = null,
+                    OriginalExpectedEndDate = price.EndDate
+                })
+                .ToList()
+        };
     }
 
     private static DateTime CalculateDateOfBirth(DateTime startDate, int age)

@@ -9,7 +9,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -30,7 +29,7 @@ public class EarningsDBAssertionStepDefinitions
     [Then(@"Earnings are generated with the correct learning amounts")]
     public async Task AssertEarningsLearningAmounts()
     {
-        var learningKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var learningKey = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey;
         var expectedAmount = (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount];
 
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
@@ -46,7 +45,7 @@ public class EarningsDBAssertionStepDefinitions
     [Then(@"the instalments are balanced as follows")]
     public async Task ThenOnProgrammeEarningsArePersistedAsFollows(Table table)
     {
-        await AssertApprenticeshipOnProgrammeEarnings(table, _scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        await AssertApprenticeshipOnProgrammeEarnings(table, _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey);
     }
 
     private async Task AssertApprenticeshipOnProgrammeEarnings(Table table, Guid learningKey)
@@ -73,7 +72,7 @@ public class EarningsDBAssertionStepDefinitions
     [Then(@"no on programme earnings are persisted")]
     public async Task ThenNoOnProgrammeEarningsArePersisted()
     {
-        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var learningKeyKey = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
@@ -83,7 +82,7 @@ public class EarningsDBAssertionStepDefinitions
     [Then(@"(\d+) regular on programme earnings are persisted")]
     public async Task ThenXOnProgrammeEarningsArePersisted(int expectedEarningsCount)
     {
-        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var learningKeyKey = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments.Where(x => string.Equals(x.Type, nameof(InstalmentType.Regular), StringComparison.CurrentCultureIgnoreCase));
 
@@ -93,7 +92,7 @@ public class EarningsDBAssertionStepDefinitions
     [Then(@"the total amount of on programme earnings is (.*)")]
     public async Task ThenTheTotalAmountOfOnProgrammeEarningsIs(decimal expectedTotalAmount)
     {
-        var learningKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var learningKey = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
         var earningsInDb = updatedEntity.Episodes.First().EarningsProfile.Instalments;
 
