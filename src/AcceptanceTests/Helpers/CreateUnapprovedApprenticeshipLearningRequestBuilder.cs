@@ -21,27 +21,9 @@ public class CreateUnapprovedApprenticeshipLearningRequestBuilder
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
 
-    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithStartDate(DateTime startDate)
-    {
-        _startDate = startDate;
-        return this;
-    }
-
     public CreateUnapprovedApprenticeshipLearningRequestBuilder WithEndDate(DateTime endDate)
     {
         _endDate = endDate;
-        return this;
-    }
-
-    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithAgeAtStart(int age)
-    {
-        _ageAtStart = age;
-        return this;
-    }
-
-    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithPrices(List<LearningEpisodePrice> prices)
-    {
-        _prices = prices;
         return this;
     }
 
