@@ -5,7 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
-using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,11 +34,11 @@ public class UpdateOnProgrammeStepDefinitions
         var data = GetUpdateOnProgrammeModel(table);
 
         var updateOnProgrammeRequest = _scenarioContext.GetUpdateOnProgrammeRequestBuilder()
-            .WithExistingApprenticeshipData(_scenarioContext.Get<LearningCreatedEvent>())
+            .WithExistingApprenticeshipData(_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>())
             .WithDataFromSetupModel(data)
             .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/on-programme", updateOnProgrammeRequest);
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/on-programme", updateOnProgrammeRequest);
 
         var apprenticeshipEntity = await GetLearningEntity();
         
@@ -116,7 +116,7 @@ public class UpdateOnProgrammeStepDefinitions
 
     private async Task<ApprenticeshipLearningEntity> GetLearningEntity()
     {
-        return await _testContext.SqlDatabase.GetApprenticeshipLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        return await _testContext.SqlDatabase.GetApprenticeshipLearning(_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey);
     }
 
 }

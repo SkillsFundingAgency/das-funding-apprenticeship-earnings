@@ -3,7 +3,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
@@ -74,12 +73,12 @@ public class RecalculateEarningsStepDefinitions
     [Then(@"Earnings are not recalculated for that apprenticeship")]
     public async Task AssertNoEarningsGeneratedEvent()
     {
-        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<LearningCreatedEvent>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
+        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().Any(x => x.ApprenticeshipKey == _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey), "Found published ApprenticeshipEarningsRecalculatedEvent event when expecting no earnings to be recalculated", TimeSpan.FromSeconds(10));
     }
 
     private async Task<ApprenticeshipLearningEntity> GetLearningEntity()
     {
-        return await _testContext.SqlDatabase.GetApprenticeshipLearning(_scenarioContext.Get<LearningCreatedEvent>().LearningKey);
+        return await _testContext.SqlDatabase.GetApprenticeshipLearning(_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey);
     }
 
     private async Task<bool> EnsureRecalculationHasHappened()
