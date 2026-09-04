@@ -17,6 +17,14 @@ public class ApplicationSettings
     public string LearningTransportStorageDirectory { get; set; }
     public PaymentsConfiguration PaymentsConfiguration { get; set; }
     public EarningOuterApiConfiguration EarningOuterApiConfiguration { get; set; }
+    public ApprenticeshipOptInConfiguration ApprenticeshipOptInConfiguration { get; set; }
+}
+
+[ExcludeFromCodeCoverage]
+public class ApprenticeshipOptInConfiguration
+{
+    public DateTime StartDate { get; set; }
+    public List<long> Providers { get; set; } = [];
 }
 
 [ExcludeFromCodeCoverage]

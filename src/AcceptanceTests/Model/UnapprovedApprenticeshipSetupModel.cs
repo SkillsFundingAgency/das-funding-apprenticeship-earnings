@@ -9,6 +9,7 @@ public class UnapprovedApprenticeshipSetupModel
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public decimal? TotalPrice { get; set; }
+    public long? Ukprn { get; set; }
 }
 
 public static class UnapprovedApprenticeshipSetupModelExtensions
@@ -19,6 +20,7 @@ public static class UnapprovedApprenticeshipSetupModelExtensions
         var startDate = model.StartDate ?? new DateTime(2025, 08, 01);
         var endDate = model.EndDate ?? new DateTime(2027, 07, 31);
         var totalPrice = model.TotalPrice ?? 12000;
+        var ukprn = model.Ukprn ?? 12345678;
 
         return new CreateUnapprovedApprenticeshipLearningRequest
         {
@@ -39,7 +41,7 @@ public static class UnapprovedApprenticeshipSetupModelExtensions
             OnProgramme = new DraftApprenticeshipOnProgramme
             {
                 TrainingCode = "123",
-                Ukprn = 12345678,
+                Ukprn = ukprn,
                 EmployerAccountId = 0,
                 FundingEmployerAccountId = null,
                 LegalEntityName = string.Empty,

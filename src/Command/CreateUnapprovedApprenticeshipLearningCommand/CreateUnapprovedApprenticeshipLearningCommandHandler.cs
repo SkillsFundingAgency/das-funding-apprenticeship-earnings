@@ -7,6 +7,7 @@ using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Text.Json;
 
@@ -19,17 +20,20 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
     private readonly ILearningFactory _learningFactory;
     private readonly ILearningRepository _learningRepository;
     private readonly ISystemClockService _systemClock;
+    private readonly ApprenticeshipOptInConfiguration _apprenticeshipOptInConfiguration;
 
     public CreateUnapprovedApprenticeshipLearningCommandHandler(
         ILogger<CreateUnapprovedApprenticeshipLearningCommandHandler> logger,
         ILearningFactory learningFactory,
         ILearningRepository learningRepository,
-        ISystemClockService systemClock)
+        ISystemClockService systemClock,
+        ApprenticeshipOptInConfiguration apprenticeshipOptInConfiguration)
     {
         _logger = logger;
         _learningFactory = learningFactory;
         _learningRepository = learningRepository;
         _systemClock = systemClock;
+        _apprenticeshipOptInConfiguration = apprenticeshipOptInConfiguration;
     }
 
     public async Task Handle(
@@ -48,12 +52,33 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         //existing learning, existing episode
         if (learning != null && learning.HasEpisode(request.EpisodeKey))
         {
+            if (!AreOptInCriteriaMet(request))
+            {
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
+
+                //remove the existing unapproved episode in this scenario instead of updating it (FLP-2012 AC5)
+                var episode = learning.GetEpisode(request.EpisodeKey);
+                if (!episode.IsApproved)
+                {
+                    episode.Remove(learning, _systemClock);
+                    await _learningRepository.Update(learning);
+                }
+
+                return;
+            }
+
             UpdateAndCalculate(learning, request, fundingBandMaximum);
             await _learningRepository.Update(learning);
         }
         //existing learning, new episode
         else if (learning != null)
         {
+            if (!AreOptInCriteriaMet(request))
+            {
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
+                return;
+            }
+
             learning.AddUnapprovedEpisode(
                 request,
                 fundingBandMaximum,
@@ -65,6 +90,12 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         //new learning & episode
         else
         {
+            if (!AreOptInCriteriaMet(request))
+            {
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
+                return;
+            }
+
             var newLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum);
 
             UpdateAndCalculate(newLearning, request, fundingBandMaximum);
@@ -74,6 +105,12 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         _logger.LogInformation(
             "Successfully handled CreateUnapprovedApprenticeshipLearningCommand for learning {LearningKey}",
             request.LearningKey);
+    }
+
+    private bool AreOptInCriteriaMet(CreateUnapprovedApprenticeshipLearningRequest request)
+    {
+        return _apprenticeshipOptInConfiguration.StartDate <= request.PeriodsInLearning.Min(x => x.StartDate)
+            && _apprenticeshipOptInConfiguration.Providers.Contains(request.OnProgramme.Ukprn);
     }
 
     private void UpdateAndCalculate(

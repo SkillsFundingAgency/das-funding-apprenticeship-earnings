@@ -15,6 +15,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Queries;
@@ -46,6 +47,11 @@ public class TestInnerApi : IDisposable
                 services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
                 services.AddSingleton<IMessageSession>(_testContext.MessageSession);
                 services.AddSingleton<IFundingBandMaximumService>(_testContext.FundingBandMaximumService);
+                services.AddSingleton(new ApprenticeshipOptInConfiguration
+                {
+                    StartDate = new DateTime(2018, 1, 1),
+                    Providers = [12345678, 116]
+                });
 
                 AddEntityFrameworkForApprenticeships(services, testContext.SqlDatabase?.DatabaseInfo.ConnectionString!);
             })

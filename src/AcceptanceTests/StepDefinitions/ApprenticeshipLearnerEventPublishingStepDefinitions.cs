@@ -31,12 +31,14 @@ public class LearningCreatedEventPublishingStepDefinitions
     {
         var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
 
-        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
+        var request = learningCreatedEvent.ToCreateUnapprovedApprenticeshipLearningRequest(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
+        await _testContext.TestInnerApi.Post("/learning", request);
+
         _scenarioContext.Set(learningCreatedEvent);
 
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = EventBuilderSharedDefaults.ExpectedDeliveryPeriodLearningAmount;
 
-        await _testContext.TestInnerApi.PublishEvent(learningCreatedEvent);
+        await ApproveLearning(learningCreatedEvent);
     }
 
     [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
@@ -92,8 +94,29 @@ public class LearningCreatedEventPublishingStepDefinitions
     {
         var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
 
-        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
+        var request = learningCreatedEvent.ToCreateUnapprovedApprenticeshipLearningRequest(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
+        await _testContext.TestInnerApi.Post("/learning", request);
+
         _scenarioContext.Set(learningCreatedEvent);
+
+        await ApproveLearning(learningCreatedEvent);
+    }
+
+    private async Task ApproveLearning(LearningCreatedEvent learningCreatedEvent)
+    {
+        var learningApprovedEvent = new LearningApprovedEvent
+        {
+            LearningKey = learningCreatedEvent.LearningKey,
+            EpisodeKey = learningCreatedEvent.Episode.Key,
+            ApprovalsApprenticeshipId = _scenarioContext.GetApprovalsApprenticeshipId(),
+            EmployerAccountId = _scenarioContext.GetEmployerAccountId(),
+            FundingAccountId = _scenarioContext.GetFundingAccountId(),
+            LearnerKey = _scenarioContext.GetLearnerKey(),
+            LearnerRef = _scenarioContext.GetLearnerRef(),
+            EmployerType = _scenarioContext.GetEmployerType()
+        };
+
+        await _testContext.TestFunction.PublishEvent(learningApprovedEvent);
     }
 
     private async Task<ApprenticeshipLearningEntity?> GetApprenticeshipLearningEntity()

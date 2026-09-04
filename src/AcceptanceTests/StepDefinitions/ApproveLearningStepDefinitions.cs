@@ -37,6 +37,14 @@ public class ApproveLearningStepDefinitions
         entity!.Episodes.Single(x => x.Key == request.EpisodeKey).EarningsProfile.IsApproved.Should().BeFalse();
     }
 
+    [Then("no apprenticeship earnings profile is created")]
+    public async Task ThenNoApprenticeshipEarningsProfileIsCreated()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+        entity.Should().BeNull();
+    }
+
     [Given("a LearningApproved event is received for the apprenticeship")]
     [When("a LearningApproved event is received for the apprenticeship")]
     public async Task WhenLearningApprovedEventReceivedForApprenticeship()

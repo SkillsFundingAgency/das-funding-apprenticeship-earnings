@@ -8,7 +8,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
-using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
@@ -16,12 +15,12 @@ using TechTalk.SpecFlow.Assist;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
 [Binding]
-public class EarningsGeneratedEventHandlingStepDefinitions
+public class EarningsDBAssertionStepDefinitions
 {
     private readonly ScenarioContext _scenarioContext;
     private readonly TestContext _testContext;
 
-    public EarningsGeneratedEventHandlingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
+    public EarningsDBAssertionStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
@@ -29,27 +28,18 @@ public class EarningsGeneratedEventHandlingStepDefinitions
 
     [Given(@"Earnings are generated with the correct learning amounts")]
     [Then(@"Earnings are generated with the correct learning amounts")]
-    public async Task AssertEarningsGeneratedEvent()
+    public async Task AssertEarningsLearningAmounts()
     {
-        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<LearningCreatedEvent>().Uln, (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount])), "Failed to find published EarningsGenerated event");
-    }
+        var learningKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var expectedAmount = (int)_scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount];
 
-    [Then(@"Earnings are not generated for that apprenticeship")]
-    public async Task AssertNoEarningsGeneratedEvent()
-    {
-        await WaitHelper.WaitForUnexpected(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.Uln == _scenarioContext.Get<LearningCreatedEvent>().Uln), "Found published EarningsGenerated event when expecting no earnings to be generated", TimeSpan.FromSeconds(10));
-    }
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKey);
+        var regularInstalments = updatedEntity.Episodes.First().EarningsProfile.Instalments
+            .Where(x => string.Equals(x.Type, nameof(InstalmentType.Regular), StringComparison.CurrentCultureIgnoreCase))
+            .ToList();
 
-    [Then(@"the funding line type 16-18 must be used in the calculation")]
-    public async Task ThenThe16To18FundingLineTypeIsUsed()
-    {
-        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<LearningCreatedEvent>().Uln, "16-18 Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
-    }
-
-    [Then(@"the funding line type 19 plus must be used in the calculation")]
-    public async Task ThenThe19AndOverFundingLineTypeIsUsed()
-    {
-        await WaitHelper.WaitForIt(() => _testContext.MessageSession.ReceivedEvents<EarningsGeneratedEvent>().Any(x => x.EventMatchesExpectation(_scenarioContext.Get<LearningCreatedEvent>().Uln, "19+ Apprenticeship (Employer on App Service)")), "Failed to find published EarningsGenerated event");
+        regularInstalments.Should().HaveCount(EventBuilderSharedDefaults.ExpectedDeliveryPeriodCount);
+        regularInstalments.Should().OnlyContain(x => x.Amount == expectedAmount);
     }
 
     [Then(@"On programme earnings are persisted as follows")]
