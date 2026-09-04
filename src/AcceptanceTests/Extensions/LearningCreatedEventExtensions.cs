@@ -11,6 +11,7 @@ public static class LearningCreatedEventExtensions
     {
         return new CreateUnapprovedApprenticeshipLearningRequest
         {
+            IsNewApprenticeshipLearner = true,
             LearningKey = learningCreatedEvent.LearningKey,
             EpisodeKey = learningCreatedEvent.Episode.Key,
             ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,

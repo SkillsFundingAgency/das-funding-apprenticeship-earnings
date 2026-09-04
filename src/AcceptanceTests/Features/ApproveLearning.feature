@@ -15,3 +15,11 @@ Scenario: Apprenticeship earnings are approved when LearningApproved event is re
 	And the apprenticeship earnings profile is not yet approved
 	When a LearningApproved event is received for the apprenticeship
 	Then the apprenticeship earnings profile is marked as approved
+
+Scenario: No apprenticeship earnings are created when learner is not a new apprenticeship learner
+	Given an apprenticeship learning request is prepared with the following information
+		| StartDate  | EndDate    | TotalPrice |
+		| 2025-08-01 | 2027-07-31 |      12000 |
+	And the apprenticeship is marked as not a new apprenticeship learner
+	When the apprenticeship creation request is submitted
+	Then no apprenticeship earnings profile is created

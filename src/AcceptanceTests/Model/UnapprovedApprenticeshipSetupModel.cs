@@ -24,6 +24,7 @@ public static class UnapprovedApprenticeshipSetupModelExtensions
 
         return new CreateUnapprovedApprenticeshipLearningRequest
         {
+            IsNewApprenticeshipLearner = true,
             LearningKey = learningKey ?? Guid.NewGuid(),
             EpisodeKey = episodeKey ?? Guid.NewGuid(),
             ApprovalsApprenticeshipId = 0,
