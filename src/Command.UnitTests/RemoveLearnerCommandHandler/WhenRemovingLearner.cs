@@ -140,4 +140,22 @@ public class WhenRemovingLearner
         // Assert
         updated.GetCurrentEpisode(_mockSystemClock.Object).EpisodePeriodsInLearning.Should().BeEmpty();
     }
+
+    [Test]
+    public async Task ThenNoExceptionIsThrownWhenNoEarningsHaveBeenGeneratedForTheLearner()
+    {
+        // Arrange
+        var learningKey = _fixture.Create<Guid>();
+        var command = new RemoveLearnerCommand.RemoveLearnerCommand(learningKey);
+        var handler = new RemoveLearnerCommand.RemoveLearnerCommandHandler(_mockRepository.Object, _mockSystemClock.Object);
+
+        _mockRepository.Setup(repo => repo.GetApprenticeshipLearning(It.IsAny<Guid>())).ReturnsAsync((ApprenticeshipLearning)null!);
+
+        // Act
+        Func<Task> act = () => handler.Handle(command);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+        _mockRepository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+    }
 }
