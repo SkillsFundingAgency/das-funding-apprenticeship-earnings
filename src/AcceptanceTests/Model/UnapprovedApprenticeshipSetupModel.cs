@@ -10,6 +10,8 @@ public class UnapprovedApprenticeshipSetupModel
     public DateTime? EndDate { get; set; }
     public decimal? TotalPrice { get; set; }
     public long? Ukprn { get; set; }
+    public DateTime? CompletionDate { get; set; }
+    public DateTime? AchievementDate { get; set; }
 }
 
 public static class UnapprovedApprenticeshipSetupModelExtensions
@@ -27,6 +29,8 @@ public static class UnapprovedApprenticeshipSetupModelExtensions
             LearningKey = learningKey ?? Guid.NewGuid(),
             EpisodeKey = episodeKey ?? Guid.NewGuid(),
             ApprovalsApprenticeshipId = 0,
+            CompletionDate = model.CompletionDate,
+            AchievementDate = model.AchievementDate,
             Learner = new DraftApprenticeshipLearner
             {
                 DateOfBirth = startDate.AddYears(age * -1),
