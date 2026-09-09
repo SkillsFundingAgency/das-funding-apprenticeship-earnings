@@ -303,6 +303,24 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _earningsProfile!.Approve();
         _entity.EmployerAccountId = employerAccountId;
         _entity.FundingEmployerAccountId = fundingAccountId;
+
+        // FLP-2003: only push to Payments when this approval came from an ILR-led draft (LearnerRef present).
+        // A manual-add apprenticeship (added directly in Approvals, no prior LearnerData/ILR record) never has
+        // a LearnerRef, so this also structurally satisfies "do not send earnings to Payments for a manual add
+        // journey" per the FLP-2003 ticket. See the "Earnings to Payments Events" design doc's trigger condition:
+        // publish only when IsApproved = true AND LearnerRef is present.
+        if (!string.IsNullOrWhiteSpace(learnerRef))
+        {
+            AddEvent(new ApprenticeshipPayableEarningsUpdatedEvent
+            {
+                LearningKey = _entity.LearningKey,
+                EpisodeKey = EpisodeKey,
+                EmployerAccountId = employerAccountId,
+                FundingAccountId = fundingAccountId,
+                LearnerKey = learnerKey,
+                LearnerRef = learnerRef
+            });
+        }
     }
 
     public void SetEmployerType(EmployerType employerType)
