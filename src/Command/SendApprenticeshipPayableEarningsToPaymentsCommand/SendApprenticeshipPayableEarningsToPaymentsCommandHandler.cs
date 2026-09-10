@@ -64,12 +64,6 @@ public class SendApprenticeshipPayableEarningsToPaymentsCommandHandler : IComman
 
         await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
 
-        // FLP-2003's ticket description explicitly says English & Maths is OUT of scope (it has its own ticket,
-        // FLP-2021), but a comment on the same Jira ticket from a different contributor says E&M IS in scope
-        // ("In Scope: ... E&M, LS and Incentives!"). Implementing the E&M push here per explicit instruction so
-        // it isn't silently dropped, but this is a genuine scope conflict in the ticket itself - confirm with the
-        // ticket owner whether this belongs here or should be pulled out into FLP-2021, and revisit this block
-        // once that's resolved. Learning Support and Incentives are NOT implemented here; only English & Maths.
         if (episode.EarningsProfile != null)
         {
             foreach (var course in episode.EarningsProfile.MathsAndEnglishCourses.Where(c => c.Instalments.Any()))
