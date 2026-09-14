@@ -14,7 +14,7 @@ public class ApprenticeshipPayableEarningsUpdatedEventHandler(
 {
     public async Task Handle(ApprenticeshipPayableEarningsUpdatedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("{FunctionName} processing LearningKey: {LearningKey}", nameof(ApprenticeshipPayableEarningsUpdatedEventHandler), message.LearningKey);
+        logger.LogInformation("{HandlerName} processing LearningKey: {LearningKey}", nameof(ApprenticeshipPayableEarningsUpdatedEventHandler), message.LearningKey);
 
         await sendApprenticeshipPayableEarningsToPaymentsCommandHandler.Handle(new SendApprenticeshipPayableEarningsToPaymentsCommand(message), context.CancellationToken);
     }

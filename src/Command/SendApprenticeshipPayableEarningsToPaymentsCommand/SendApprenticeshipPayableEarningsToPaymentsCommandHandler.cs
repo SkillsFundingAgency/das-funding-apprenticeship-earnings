@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -30,16 +29,16 @@ public class SendApprenticeshipPayableEarningsToPaymentsCommandHandler : IComman
 
     public async Task Handle(SendApprenticeshipPayableEarningsToPaymentsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("{Handler} - Started for LearningKey: {LearningKey}", nameof(SendApprenticeshipPayableEarningsToPaymentsCommandHandler), command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey);
+        _logger.LogInformation("{HandlerName} - Started for LearningKey: {LearningKey}", nameof(SendApprenticeshipPayableEarningsToPaymentsCommandHandler), command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey);
 
         var learning = await _learningRepository.GetApprenticeshipLearning(command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey);
-        if (learning == null)
+        if (learning is null)
         {
             throw new InvalidOperationException($"Apprenticeship learning not found for key: {command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey}");
         }
 
         var episode = learning.Episodes.SingleOrDefault(x => x.EpisodeKey == command.ApprenticeshipPayableEarningsUpdatedEvent.EpisodeKey);
-        if (episode == null)
+        if (episode is null)
         {
             throw new InvalidOperationException($"Apprenticeship episode not found for EpisodeKey: {command.ApprenticeshipPayableEarningsUpdatedEvent.EpisodeKey} on LearningKey: {command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey}");
         }
@@ -64,16 +63,17 @@ public class SendApprenticeshipPayableEarningsToPaymentsCommandHandler : IComman
 
         await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
 
-        if (episode.EarningsProfile != null)
-        {
-            foreach (var course in episode.EarningsProfile.MathsAndEnglishCourses.Where(c => c.Instalments.Any()))
-            {
-                var englishAndMathsPaymentEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, employerAccountId, fundingAccountId, learnerKey, learnerRef);
-                await _messageSession.Send(englishAndMathsPaymentEvent, options, cancellationToken);
-                await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = englishAndMathsPaymentEvent }, cancellationToken: cancellationToken);
-            }
-        }
+        //TODO[HS]: This is commented out for now as for ticket FLP-2003, E&M isn't in scope and will be implemented in a future ticket. Once implemented, this code will need to be uncommented and tested.
+        //if (episode.EarningsProfile is not null)
+        //{
+        //    foreach (var course in episode.EarningsProfile.MathsAndEnglishCourses.Where(c => c.Instalments.Any()))
+        //    {
+        //        var englishAndMathsPaymentEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, employerAccountId, fundingAccountId, learnerKey, learnerRef);
+        //        await _messageSession.Send(englishAndMathsPaymentEvent, options, cancellationToken);
+        //        await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = englishAndMathsPaymentEvent }, cancellationToken: cancellationToken);
+        //    }
+        //}
 
-        _logger.LogInformation("{Handler} - Successfully processed and published event for LearningKey: {LearningKey}", nameof(SendApprenticeshipPayableEarningsToPaymentsCommandHandler), command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey);
+        _logger.LogInformation("{HandlerName} - Successfully processed and published event for LearningKey: {LearningKey}", nameof(SendApprenticeshipPayableEarningsToPaymentsCommandHandler), command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey);
     }
 }
