@@ -27,9 +27,11 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         
         var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
 
-        if(learningDomainModel == null)
-            throw new InvalidOperationException($"Learning domain model not found for LearningKey: {command.LearningKey}");
-
+        if (learningDomainModel == null)
+        {
+            _logger.LogInformation("No Learning domain model found for LearningKey: {LearningKey}; skipping UpdateOnProgrammeCommand", command.LearningKey);
+            return;
+        }
 
         var episode = learningDomainModel.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
         var request = command.Request;

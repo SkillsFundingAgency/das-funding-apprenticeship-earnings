@@ -17,7 +17,9 @@ public class RemoveLearnerCommandHandler : ICommandHandler<RemoveLearnerCommand>
     public async Task Handle(RemoveLearnerCommand command, CancellationToken cancellationToken = default)
     {
         var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
-        learningDomainModel!.Remove(_systemClock);
+        if (learningDomainModel == null) return;
+
+        learningDomainModel.Remove(_systemClock);
 
         await _learningRepository.Update(learningDomainModel);
     }

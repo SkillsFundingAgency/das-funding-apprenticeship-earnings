@@ -34,6 +34,12 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
 
         var learningDomainModel = await GetDomainApprenticeship(command.LearningKey);
 
+        if (learningDomainModel == null)
+        {
+            _logger.LogInformation("No Learning domain model found for LearningKey: {LearningKey}; skipping UpdateLearningSupportCommand", command.LearningKey);
+            return;
+        }
+
         learningDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
 
         await _learningRepository.Update(learningDomainModel);
