@@ -31,8 +31,8 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
 
         if (learningDomainModel == null)
         {
-            _logger.LogError("No learning found for {LearningKey}", command.LearningKey);
-            throw new Exception($"No learning found for {command.LearningKey} when handling {nameof(UpdateEnglishAndMathsCommand)}");
+            _logger.LogInformation("No Learning domain model found for LearningKey: {LearningKey}; skipping UpdateEnglishAndMathsCommand", command.LearningKey);
+            return;
         }
 
         learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);
