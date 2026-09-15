@@ -4,7 +4,7 @@ Scenario: Short course earnings are returned for a given learning key and ukprn
 	Given a short course has been created with the following information
 		| StartDate  | ExpectedEndDate | TotalPrice |
 		| 2021-01-01 | 2021-06-25      |       2000 |
-	When I request the short course earnings
+	When I request the short course earnings for year 2021
 	Then the earnings response contains
 		| CollectionYear | CollectionPeriod | Amount | Type                          |
 		| 2021           | 7                | 600    | ThirtyPercentLearningComplete |
