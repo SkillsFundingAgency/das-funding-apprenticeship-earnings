@@ -32,7 +32,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _apprenticeshipOptInConfiguration = new ApprenticeshipOptInConfiguration
         {
             StartDate = new DateTime(2020, 1, 1),
-            Providers = [12345678]
+            EarningsOptedInProviders = [12345678]
         };
 
         _systemClock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
@@ -114,7 +114,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     public async Task Then_New_Episode_Is_Not_Added_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
     {
         _apprenticeshipOptInConfiguration.StartDate = startDateOptedIn ? new DateTime(2020, 1, 1) : new DateTime(2030, 1, 1);
-        _apprenticeshipOptInConfiguration.Providers = providerOptedIn ? [12345678] : [];
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = providerOptedIn ? [12345678] : [];
 
         var existingRequest = BuildRequest();
         var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(existingRequest, 10000);
@@ -142,7 +142,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     public async Task Then_New_Draft_Learning_Is_Not_Added_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
     {
         _apprenticeshipOptInConfiguration.StartDate = startDateOptedIn ? new DateTime(2020, 1, 1) : new DateTime(2030, 1, 1);
-        _apprenticeshipOptInConfiguration.Providers = providerOptedIn ? [12345678] : [];
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = providerOptedIn ? [12345678] : [];
 
         var request = BuildRequest();
         var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
@@ -173,7 +173,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
             .ReturnsAsync(existingLearning);
 
         _apprenticeshipOptInConfiguration.StartDate = startDateOptedIn ? new DateTime(2020, 1, 1) : new DateTime(2030, 1, 1);
-        _apprenticeshipOptInConfiguration.Providers = providerOptedIn ? [12345678] : [];
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = providerOptedIn ? [12345678] : [];
 
         var sut = BuildHandler();
 

@@ -110,7 +110,7 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
     private bool AreOptInCriteriaMet(CreateUnapprovedApprenticeshipLearningRequest request)
     {
         return _apprenticeshipOptInConfiguration.StartDate <= request.PeriodsInLearning.Min(x => x.StartDate)
-            && _apprenticeshipOptInConfiguration.Providers.Contains(request.OnProgramme.Ukprn);
+            && _apprenticeshipOptInConfiguration.EarningsOptedInProviders.Contains(request.OnProgramme.Ukprn);
     }
 
     private void UpdateAndCalculate(
