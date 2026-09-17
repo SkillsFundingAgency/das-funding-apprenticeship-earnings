@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
 
@@ -27,8 +28,9 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         var academicYearEnd = searchDate.Month >= 8 ? new DateTime(searchDate.Year + 1, 7, 31) : new DateTime(searchDate.Year, 7, 31);
 
         var dbQuery = _dbContext.ApprenticeshipLearnings
-            .Where(x => x.Episodes.Any(e => e.Ukprn == query.Ukprn))
+            .Where(x => x.Episodes.Any(e => e.Ukprn == query.Ukprn && e.FundingPlatform == FundingPlatform.SLD))
             .Where(x => x.Episodes.Any(e =>
+                e.FundingPlatform == FundingPlatform.SLD &&
                 e.Prices.Any(p => p.StartDate <= academicYearEnd) &&
                 !(e.WithdrawalDate.HasValue && e.WithdrawalDate.Value < academicYearStart) &&
                 !(e.CompletionDate.HasValue && e.CompletionDate.Value < academicYearStart)))
@@ -53,9 +55,10 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         var learnings = await dbQuery.ToListAsync(cancellationToken);
 
         var apprenticeships = learnings
-            .Select(l => (learning: l, currentEpisode: GetCurrentEpisode(l.Episodes, searchDate)))
+            .Select(l => (learning: l, sldEpisodes: l.Episodes.Where(e => e.FundingPlatform == FundingPlatform.SLD).ToList()))
+            .Select(x => (x.learning, x.sldEpisodes, currentEpisode: GetCurrentEpisode(x.sldEpisodes, searchDate)))
             .Where(x => x.currentEpisode?.Ukprn == query.Ukprn)
-            .Select(x => MapApprenticeship(x.learning, x.currentEpisode!))
+            .Select(x => MapApprenticeship(x.learning, x.sldEpisodes, x.currentEpisode!))
             .ToList();
 
         if (!apprenticeships.Any())
@@ -67,7 +70,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         return new GetFm36DataResponse { Apprenticeships = apprenticeships };
     }
 
-    private static Apprenticeship MapApprenticeship(ApprenticeshipLearningEntity learning, ApprenticeshipEpisodeEntity currentEpisode)
+    private static Apprenticeship MapApprenticeship(ApprenticeshipLearningEntity learning, List<ApprenticeshipEpisodeEntity> sldEpisodes, ApprenticeshipEpisodeEntity currentEpisode)
     {
         var priceStartDate = currentEpisode.Prices.Min(p => p.StartDate);
         var ageAtStart = learning.DateOfBirth.CalculateAgeAtDate(priceStartDate);
@@ -80,7 +83,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             Key = learning.LearningKey,
             Ukprn = currentEpisode.Ukprn,
             FundingLineType = fundingLineType,
-            Episodes = learning.Episodes.Select(MapEpisode).ToList()
+            Episodes = sldEpisodes.Select(MapEpisode).ToList()
         };
     }
 

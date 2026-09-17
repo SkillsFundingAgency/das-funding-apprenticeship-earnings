@@ -22,6 +22,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public long EmployerAccountId => _entity.EmployerAccountId;
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
+    public Types.FundingPlatform FundingPlatform => _entity.FundingPlatform;
 
     public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
     public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
