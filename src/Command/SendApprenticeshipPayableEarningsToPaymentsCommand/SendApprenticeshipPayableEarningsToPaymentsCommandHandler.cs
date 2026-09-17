@@ -43,6 +43,13 @@ public class SendApprenticeshipPayableEarningsToPaymentsCommandHandler : IComman
             throw new InvalidOperationException($"Apprenticeship episode not found for EpisodeKey: {command.ApprenticeshipPayableEarningsUpdatedEvent.EpisodeKey} on LearningKey: {command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey}");
         }
 
+        // FLP-2003: only send earnings to Payments where the FundingSource/FundingPlatform is DAS (on the pilot).
+        if (episode.FundingPlatform != FundingPlatform.DAS)
+        {
+            _logger.LogInformation("{HandlerName} - Skipped for LearningKey: {LearningKey} as FundingPlatform is not DAS", nameof(SendApprenticeshipPayableEarningsToPaymentsCommandHandler), command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey);
+            return;
+        }
+
         var employerAccountId = command.ApprenticeshipPayableEarningsUpdatedEvent.EmployerAccountId;
         var fundingAccountId = command.ApprenticeshipPayableEarningsUpdatedEvent.FundingAccountId;
         var learnerKey = command.ApprenticeshipPayableEarningsUpdatedEvent.LearnerKey;
