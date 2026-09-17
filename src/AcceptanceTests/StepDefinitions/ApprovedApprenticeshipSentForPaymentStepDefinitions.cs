@@ -118,5 +118,75 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
         {
             _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().Should().BeEmpty();
         }
+
+        [Then("the payments event is sent to pv2 with the correct 16-18 incentive earnings for the apprenticeship")]
+        public async Task ThenThePaymentsEventIsSentToPv2WithTheCorrect1618IncentiveEarningsForTheApprenticeship()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
+            paymentsEvent.Should().NotBeNull();
+
+            var incentivePayments = episode.EarningsProfile!.AdditionalPayments
+                .Where(x => x.AdditionalPaymentType == "ProviderIncentive" || x.AdditionalPaymentType == "EmployerIncentive")
+                .ToList();
+
+            // Sanity-check the scenario data actually exercises incentive payments, rather than passing vacuously
+            incentivePayments.Should().NotBeEmpty("this scenario expects a 16-18 apprentice to have generated incentive payments");
+
+            var allPeriods = paymentsEvent!.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).ToList();
+
+            foreach (var group in incentivePayments.GroupBy(x => x.AdditionalPaymentType))
+            {
+                var orderedPayments = group.OrderBy(x => x.DueDate).ToList();
+                for (var i = 0; i < orderedPayments.Count; i++)
+                {
+                    var payment = orderedPayments[i];
+                    var expectedEarningType = (group.Key, i) switch
+                    {
+                        ("ProviderIncentive", 0) => EarningType.First16To18ProviderIncentive,
+                        ("ProviderIncentive", 1) => EarningType.Second16To18ProviderIncentive,
+                        ("EmployerIncentive", 0) => EarningType.First16To18EmployerIncentive,
+                        ("EmployerIncentive", 1) => EarningType.Second16To18EmployerIncentive,
+                        _ => throw new InvalidOperationException($"Unexpected incentive occurrence in test data: {group.Key} #{i}")
+                    };
+
+                    var matchingPeriod = allPeriods.SingleOrDefault(p => p.EarningType == expectedEarningType && p.Amount == payment.Amount && p.DeliveryPeriod == payment.DeliveryPeriod);
+                    matchingPeriod.Should().NotBeNull($"expected a {expectedEarningType} earning period for delivery period {payment.DeliveryPeriod}");
+                }
+            }
+        }
+
+        [Then("the payments event is sent to pv2 with no 16-18 incentive earnings for the apprenticeship")]
+        public async Task ThenThePaymentsEventIsSentToPv2WithNo1618IncentiveEarningsForTheApprenticeship()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+
+            // Sanity-check the scenario data actually generated incentive payments (for a 19-24 disadvantaged
+            // apprentice), so the assertion below is proving the exclusion, not passing vacuously
+            episode.EarningsProfile!.AdditionalPayments
+                .Where(x => x.AdditionalPaymentType == "ProviderIncentive" || x.AdditionalPaymentType == "EmployerIncentive")
+                .Should().NotBeEmpty("this scenario expects a 19-24 disadvantaged apprentice to have generated incentive payments");
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
+            paymentsEvent.Should().NotBeNull();
+
+            var incentiveEarningTypes = new[]
+            {
+                EarningType.First16To18ProviderIncentive,
+                EarningType.First16To18EmployerIncentive,
+                EarningType.Second16To18ProviderIncentive,
+                EarningType.Second16To18EmployerIncentive
+            };
+
+            var allPeriods = paymentsEvent!.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).ToList();
+            allPeriods.Should().NotContain(p => incentiveEarningTypes.Contains(p.EarningType));
+        }
     }
 }

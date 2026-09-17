@@ -37,7 +37,9 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         long fundingEmployerAccountId = 0,
         EmployerType employerType = EmployerType.NonLevy,
         List<ApprenticeshipEpisodePriceEntity>? additionalPrices = null,
-        Guid? priceKey = null)
+        Guid? priceKey = null,
+        DateTime? dateOfBirth = null,
+        List<ApprenticeshipAdditionalPaymentEntity>? additionalPayments = null)
     {
         var resolvedPriceKey = priceKey ?? Guid.NewGuid();
         var price = new ApprenticeshipEpisodePriceEntity
@@ -64,12 +66,14 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.Prices, prices)
             .With(x => x.EarningsProfile, _fixture.Build<ApprenticeshipEarningsProfileEntity>()
                 .With(p => p.Instalments, instalments ?? new List<ApprenticeshipInstalmentEntity>())
+                .With(p => p.ApprenticeshipAdditionalPayments, additionalPayments ?? new List<ApprenticeshipAdditionalPaymentEntity>())
                 .With(p => p.EnglishAndMathsCourses, new List<EnglishAndMathsEntity>())
                 .Create())
             .Create();
 
         var learningEntity = _fixture.Build<ApprenticeshipLearningEntity>()
             .With(x => x.Uln, "1234567890")
+            .With(x => x.DateOfBirth, dateOfBirth ?? startDate.AddYears(-18))
             .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
             .Create();
 
@@ -346,5 +350,166 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         period.EarningType.Should().Be(expectedEarningType);
         period.Amount.Should().Be(40m);
         period.DeliveryPeriod.Should().Be(3);
+    }
+
+    [Test]
+    public void ThenAC1_FLP2030_BothIncentiveMilestonesMapToCorrectEarningTypes()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "ProviderIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "EmployerIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 10, Amount = 500m, DueDate = new DateTime(2024, 6, 1), AdditionalPaymentType = "ProviderIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 10, Amount = 500m, DueDate = new DateTime(2024, 6, 1), AdditionalPaymentType = "EmployerIncentive" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments, priceKey: priceKey, dateOfBirth: startDate.AddYears(-18));
+
+        var employerAccountId = _fixture.Create<long>();
+        var fundingAccountId = _fixture.Create<long>();
+
+        var result = _sut.Build(episode, learning, employerAccountId, fundingAccountId, _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().HaveCount(1);
+        var pricePeriod = result.Earnings.Single().PricePeriods.Single();
+        pricePeriod.Periods.Should().HaveCount(4);
+
+        var firstProvider = pricePeriod.Periods.Single(p => p.EarningType == EarningType.First16To18ProviderIncentive);
+        firstProvider.Amount.Should().Be(500m);
+        firstProvider.DeliveryPeriod.Should().Be(3);
+        firstProvider.LearningId.Should().Be(learning.ApprovalsApprenticeshipId);
+        firstProvider.Employer.AccountId.Should().Be(employerAccountId);
+        firstProvider.Employer.FundingAccountId.Should().Be(fundingAccountId);
+
+        var firstEmployer = pricePeriod.Periods.Single(p => p.EarningType == EarningType.First16To18EmployerIncentive);
+        firstEmployer.Amount.Should().Be(500m);
+        firstEmployer.DeliveryPeriod.Should().Be(3);
+
+        var secondProvider = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Second16To18ProviderIncentive);
+        secondProvider.Amount.Should().Be(500m);
+        secondProvider.DeliveryPeriod.Should().Be(10);
+
+        var secondEmployer = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Second16To18EmployerIncentive);
+        secondEmployer.Amount.Should().Be(500m);
+        secondEmployer.DeliveryPeriod.Should().Be(10);
+    }
+
+    [Test]
+    public void ThenAC1_FLP2030_OnlyFirstIncentiveMilestonePresent_MapsToFirstEarningTypesOnly()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "ProviderIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "EmployerIncentive" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments, priceKey: priceKey, dateOfBirth: startDate.AddYears(-18));
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods;
+        periods.Should().HaveCount(2);
+        periods.Select(p => p.EarningType).Should().BeEquivalentTo(new[]
+        {
+            EarningType.First16To18ProviderIncentive,
+            EarningType.First16To18EmployerIncentive
+        });
+    }
+
+    [Test]
+    public void WhenApprenticeIsAged19To24_ThenIncentivePaymentsAreExcludedFromPayload()
+    {
+        // Age 19-24 EHCP/care leaver incentives are persisted using the same ProviderIncentive/EmployerIncentive
+        // additional payment types as 16-18 incentives (see IncentivePayments.Generate19To24IncentivePayments),
+        // but FLP-2030 only covers the four 16-18 earning types, so these must not be sent to Payments as such.
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "ProviderIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "EmployerIncentive" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments, priceKey: priceKey, dateOfBirth: startDate.AddYears(-20));
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().BeEmpty();
+    }
+
+    [Test]
+    public void WhenLearningSupportAdditionalPaymentPresent_ThenExcludedFromIncentiveMapping()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "ProviderIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 5, Amount = 150m, DueDate = new DateTime(2024, 1, 1), AdditionalPaymentType = "LearningSupport" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments, priceKey: priceKey, dateOfBirth: startDate.AddYears(-18));
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods;
+        periods.Should().HaveCount(1);
+        periods.Single().EarningType.Should().Be(EarningType.First16To18ProviderIncentive);
+    }
+
+    [Test]
+    public void WhenIncentiveDueDateFallsWithinASecondPricePeriod_ThenItIsMappedToThatPrice()
+    {
+        var firstPriceStart = new DateTime(2023, 9, 1);
+        var firstPriceEnd = new DateTime(2024, 7, 31);
+        var secondPriceStart = new DateTime(2024, 8, 1);
+        var secondPriceEnd = new DateTime(2025, 6, 30);
+
+        var secondPriceKey = Guid.NewGuid();
+        var secondPrice = new ApprenticeshipEpisodePriceEntity
+        {
+            Key = secondPriceKey,
+            StartDate = secondPriceStart,
+            EndDate = secondPriceEnd,
+            AgreedPrice = 9000m
+        };
+
+        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 500m, DueDate = new DateTime(2024, 8, 30), AdditionalPaymentType = "ProviderIncentive" }
+        };
+
+        var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPayments: additionalPayments,
+            additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey, dateOfBirth: firstPriceStart.AddYears(-18));
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().HaveCount(1);
+        var earning = result.Earnings.Single();
+        earning.AcademicYear.Should().Be(2425);
+
+        var pricePeriod = earning.PricePeriods.Single();
+        pricePeriod.Price.Should().Be(9000m);
+        pricePeriod.StartDate.Should().Be(secondPriceStart);
+        pricePeriod.EndDate.Should().Be(secondPriceEnd);
+        pricePeriod.Periods.Single().EarningType.Should().Be(EarningType.First16To18ProviderIncentive);
     }
 }
