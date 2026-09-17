@@ -30,7 +30,7 @@ public class LearningFactory : ILearningFactory
         return ApprenticeshipLearning.Get(model);
     }
 
-    public ApprenticeshipLearning CreateNewUnapprovedApprenticeship(CreateUnapprovedApprenticeshipLearningRequest request, int fundingBandMaximum)
+    public ApprenticeshipLearning CreateNewUnapprovedApprenticeship(CreateUnapprovedApprenticeshipLearningRequest request, int fundingBandMaximum, Types.FundingPlatform fundingPlatform)
     {
         if (request.Prices.Count == 0)
         {
@@ -69,7 +69,7 @@ public class LearningFactory : ILearningFactory
             PauseDate = request.PauseDate,
             Prices = episodePrices,
             PeriodsInLearning = periodsInLearning,
-            FundingPlatform = Types.FundingPlatform.DAS
+            FundingPlatform = fundingPlatform
         };
 
         var model = new ApprenticeshipLearningEntity

@@ -32,7 +32,8 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _apprenticeshipOptInConfiguration = new ApprenticeshipOptInConfiguration
         {
             StartDate = new DateTime(2020, 1, 1),
-            EarningsOptedInProviders = [12345678]
+            EarningsOptedInProviders = [12345678],
+            PaymentsOptedInProviders = [12345678]
         };
 
         _systemClock.Setup(x => x.UtcNow).Returns(DateTime.UtcNow);
@@ -61,11 +62,31 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     }
 
     [Test]
+    public async Task Then_New_Draft_Learning_Has_SLD_FundingPlatform_When_Provider_Not_Opted_Into_Payments()
+    {
+        _apprenticeshipOptInConfiguration.PaymentsOptedInProviders = [];
+
+        var request = BuildRequest();
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+
+        var sut = BuildHandler();
+
+        await sut.Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Add(It.Is<ApprenticeshipLearning>(l =>
+            l.GetEpisode(request.EpisodeKey).FundingPlatform == Types.FundingPlatform.SLD)), Times.Once);
+    }
+
+    [Test]
     public async Task Then_Existing_Learning_Is_Updated_When_Episode_Exists()
     {
         var request = BuildRequest();
         var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
-        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000);
+        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000, Types.FundingPlatform.SLD);
 
         _repository
             .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
@@ -86,7 +107,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     public async Task Then_New_Episode_Is_Added_When_Learning_Exists_But_Episode_Is_New()
     {
         var existingRequest = BuildRequest();
-        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(existingRequest, 10000);
+        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(existingRequest, 10000, Types.FundingPlatform.SLD);
 
         var request = BuildRequest();
         request.LearningKey = existingRequest.LearningKey;
@@ -117,7 +138,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _apprenticeshipOptInConfiguration.EarningsOptedInProviders = providerOptedIn ? [12345678] : [];
 
         var existingRequest = BuildRequest();
-        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(existingRequest, 10000);
+        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(existingRequest, 10000, Types.FundingPlatform.SLD);
 
         var request = BuildRequest();
         request.LearningKey = existingRequest.LearningKey;
@@ -165,7 +186,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     {
         var request = BuildRequest();
         var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
-        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000);
+        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000, Types.FundingPlatform.SLD);
         existingLearning.Calculate(_systemClock.Object, "{}", request.EpisodeKey, initialGenerationIsApproved: false);
 
         _repository

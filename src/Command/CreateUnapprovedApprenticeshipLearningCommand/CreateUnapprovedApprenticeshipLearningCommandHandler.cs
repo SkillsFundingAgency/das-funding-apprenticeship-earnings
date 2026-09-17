@@ -52,7 +52,7 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         //existing learning, existing episode
         if (learning != null && learning.HasEpisode(request.EpisodeKey))
         {
-            if (!AreOptInCriteriaMet(request))
+            if (!IsOptedIntoEarnings(request))
             {
                 _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
 
@@ -73,7 +73,7 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         //existing learning, new episode
         else if (learning != null)
         {
-            if (!AreOptInCriteriaMet(request))
+            if (!IsOptedIntoEarnings(request))
             {
                 _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
                 return;
@@ -90,13 +90,14 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         //new learning & episode
         else
         {
-            if (!AreOptInCriteriaMet(request))
+            if (!IsOptedIntoEarnings(request))
             {
                 _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
                 return;
             }
 
-            var newLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum);
+            var fundingPlatform = IsOptedIntoPayments(request) ? FundingPlatform.DAS : FundingPlatform.SLD;
+            var newLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum, fundingPlatform);
 
             UpdateAndCalculate(newLearning, request, fundingBandMaximum);
             await _learningRepository.Add(newLearning);
@@ -107,10 +108,15 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
             request.LearningKey);
     }
 
-    private bool AreOptInCriteriaMet(CreateUnapprovedApprenticeshipLearningRequest request)
+    private bool IsOptedIntoEarnings(CreateUnapprovedApprenticeshipLearningRequest request)
     {
         return _apprenticeshipOptInConfiguration.StartDate <= request.PeriodsInLearning.Min(x => x.StartDate)
             && _apprenticeshipOptInConfiguration.EarningsOptedInProviders.Contains(request.OnProgramme.Ukprn);
+    }
+
+    private bool IsOptedIntoPayments(CreateUnapprovedApprenticeshipLearningRequest request)
+    {
+        return _apprenticeshipOptInConfiguration.PaymentsOptedInProviders.Contains(request.OnProgramme.Ukprn);
     }
 
     private void UpdateAndCalculate(
