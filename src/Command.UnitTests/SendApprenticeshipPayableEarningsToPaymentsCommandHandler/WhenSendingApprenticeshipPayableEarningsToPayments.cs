@@ -48,11 +48,12 @@ public class WhenSendingApprenticeshipPayableEarningsToPayments
     }
 
     private (ApprenticeshipLearning learning, ApprenticeshipEpisodeEntity episodeEntity) BuildLearning(
-        Guid learningKey, Guid episodeKey, List<EnglishAndMathsEntity>? englishAndMathsCourses = null)
+        Guid learningKey, Guid episodeKey, List<EnglishAndMathsEntity>? englishAndMathsCourses = null, FundingPlatform fundingPlatform = FundingPlatform.DAS)
     {
         var episodeEntity = _fixture.Build<ApprenticeshipEpisodeEntity>()
             .With(x => x.Key, episodeKey)
             .With(x => x.LearningKey, learningKey)
+            .With(x => x.FundingPlatform, fundingPlatform)
             .With(x => x.EarningsProfile, _fixture.Build<ApprenticeshipEarningsProfileEntity>()
                 .With(x => x.Instalments, new List<ApprenticeshipInstalmentEntity>())
                 .With(x => x.EnglishAndMathsCourses, englishAndMathsCourses ?? new List<EnglishAndMathsEntity>())
@@ -120,6 +121,27 @@ public class WhenSendingApprenticeshipPayableEarningsToPayments
                 apprenticeshipPayableEarningsUpdatedEvent.LearnerRef), Times.Once);
         _mockMessageSession.Verify(x => x.Send(paymentEvent, It.IsAny<SendOptions>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == paymentEvent), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenFundingPlatformIsNotDas_ThenNoPaymentEventIsSentOrPublished()
+    {
+        var apprenticeshipPayableEarningsUpdatedEvent = _fixture.Create<ApprenticeshipPayableEarningsUpdatedEvent>();
+        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendApprenticeshipPayableEarningsToPaymentsCommand.SendApprenticeshipPayableEarningsToPaymentsCommand(apprenticeshipPayableEarningsUpdatedEvent);
+
+        var (learning, _) = BuildLearning(
+            apprenticeshipPayableEarningsUpdatedEvent.LearningKey,
+            apprenticeshipPayableEarningsUpdatedEvent.EpisodeKey,
+            fundingPlatform: FundingPlatform.SLD);
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey))
+            .ReturnsAsync(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Never);
     }
 
     [Test]
