@@ -427,11 +427,12 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
     }
 
     [Test]
-    public void WhenApprenticeIsAged19To24_ThenIncentivePaymentsAreExcludedFromPayload()
+    public void WhenApprenticeIsAged19To24_ThenIncentivePaymentsStillMapToTheSame1618EarningTypes()
     {
         // Age 19-24 EHCP/care leaver incentives are persisted using the same ProviderIncentive/EmployerIncentive
-        // additional payment types as 16-18 incentives (see IncentivePayments.Generate19To24IncentivePayments),
-        // but FLP-2030 only covers the four 16-18 earning types, so these must not be sent to Payments as such.
+        // additional payment types as 16-18 incentives (see IncentivePayments.Generate19To24IncentivePayments).
+        // There's no separate PV2 earning type for that cohort, so these still map to the "16To18" types -
+        // the mapping is not age-gated.
         var startDate = new DateTime(2023, 9, 1);
         var endDate = new DateTime(2024, 6, 30);
 
@@ -447,7 +448,12 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
-        result.Earnings.Should().BeEmpty();
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods;
+        periods.Select(p => p.EarningType).Should().BeEquivalentTo(new[]
+        {
+            EarningType.First16To18ProviderIncentive,
+            EarningType.First16To18EmployerIncentive
+        });
     }
 
     [Test]

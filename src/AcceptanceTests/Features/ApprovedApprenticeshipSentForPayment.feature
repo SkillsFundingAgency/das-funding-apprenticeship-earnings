@@ -24,7 +24,7 @@ Scenario: Approved apprenticeship for a 16-18 apprentice sends incentive earning
 	And a LearningApproved event is received for the apprenticeship
 	Then the payments event is sent to pv2 with the correct 16-18 incentive earnings for the apprenticeship
 
-Scenario: Approved apprenticeship for a 19-24 disadvantaged apprentice does not send 16-18 incentive types
+Scenario: Approved apprenticeship for a 19-24 disadvantaged apprentice also sends incentive earnings using the 16-18 types
 	Given an apprenticeship has been created as a draft with the following information
 		| StartDate  | EndDate    | TotalPrice | Age |
 		| 2021-01-01 | 2021-12-31 |      12000 | 20  |
@@ -34,4 +34,4 @@ Scenario: Approved apprenticeship for a 19-24 disadvantaged apprentice does not 
 		| IsCareLeaver                   | true  |
 		| HasEHCP                        | false |
 	And a LearningApproved event is received for the apprenticeship
-	Then the payments event is sent to pv2 with no 16-18 incentive earnings for the apprenticeship
+	Then the payments event is sent to pv2 with the correct 16-18 incentive earnings for the apprenticeship

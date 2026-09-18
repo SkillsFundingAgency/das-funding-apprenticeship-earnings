@@ -105,9 +105,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 instalment.DeliveryPeriod,
                 instalment.Amount));
 
-        var incentiveEntries = episode.AgeAtStartOfApprenticeship <= 18
-            ? GetIncentiveEntries(episode, prices)
-            : Enumerable.Empty<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)>();
+        var incentiveEntries = GetIncentiveEntries(episode);
 
         return onProgrammeEntries.Concat(incentiveEntries)
             .GroupBy(x => x.AcademicYear)
@@ -145,8 +143,13 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             .ToList();
     }
 
+    // FLP-2030: the PV2 earning types are named "16To18" but the same ProviderIncentive/EmployerIncentive
+    // additional payments are also generated for 19-24 EHCP/care leaver apprentices (see
+    // IncentivePayments.Generate19To24IncentivePayments) - there's no separate PV2 type for that cohort, and
+    // the domain doesn't persist which age band a payment came from, so all incentive payments map to these
+    // four types regardless of age. Which is "first" vs "second" is determined purely by due date order.
     private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetIncentiveEntries(
-        ApprenticeshipEpisode episode, IReadOnlyDictionary<Guid, ApprenticeshipPrice> prices)
+        ApprenticeshipEpisode episode)
     {
         foreach (var incentiveType in new[] { InstalmentTypes.ProviderIncentive, InstalmentTypes.EmployerIncentive })
         {
@@ -158,7 +161,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             for (var i = 0; i < payments.Count; i++)
             {
                 var payment = payments[i];
-                var price = GetPriceForDate(prices.Values, payment.DueDate);
+                var price = episode.GetPriceAt(payment.DueDate);
 
                 yield return (
                     payment.AcademicYear,
@@ -168,12 +171,6 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                     payment.Amount);
             }
         }
-    }
-
-    private static ApprenticeshipPrice GetPriceForDate(IEnumerable<ApprenticeshipPrice> prices, DateTime date)
-    {
-        return prices.FirstOrDefault(p => p.StartDate <= date && date <= p.EndDate)
-            ?? prices.OrderBy(p => p.StartDate).Last(p => p.StartDate <= date);
     }
 
     private static EarningType GetIncentiveEarningType(string additionalPaymentType, int occurrenceIndex)
