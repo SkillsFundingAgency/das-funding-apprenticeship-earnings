@@ -27,12 +27,20 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
     {
         _logger.LogInformation("Handling UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
 
-        var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=> 
+        var learningDomainModel = await GetDomainApprenticeship(command.LearningKey);
+
+        if (learningDomainModel == null)
+        {
+            _logger.LogInformation(
+                "No draft Earnings found for LearningKey {LearningKey} on update - expected when earnings generation is disabled",
+                command.LearningKey);
+            return;
+        }
+
+        var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=>
             LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
             .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
             .ToList();
-
-        var learningDomainModel = await GetDomainApprenticeship(command.LearningKey);
 
         learningDomainModel.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClockService);
 
@@ -41,7 +49,7 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
         _logger.LogInformation("Successfully handled UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
     }
 
-    private async Task<ApprenticeshipLearning> GetDomainApprenticeship(Guid LearningKey)
+    private async Task<ApprenticeshipLearning?> GetDomainApprenticeship(Guid LearningKey)
     {
         try
         {
