@@ -88,7 +88,7 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
             await _learningRepository.Update(learning);
         }
         //new learning & episode
-        else
+        else if (request.IsNewApprenticeshipLearner)
         {
             if (!AreOptInCriteriaMet(request))
             {
