@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
@@ -61,5 +62,26 @@ public class WhenSaveLearningSupport
 
         // Assert
         _mockRepository.Verify(repo => repo.Update(learning), Times.Once);
+    }
+
+    [Test]
+    public async Task ThenNoExceptionIsThrownWhenNoEarningsHaveBeenGeneratedForTheLearner()
+    {
+        // Arrange
+        var command = new SaveCommand(
+            _fixture.Create<Guid>(),
+            new UpdateLearningSupportRequest { LearningSupport =[ new LearningSupportItem { StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now} ]}
+            );
+
+        _mockRepository
+            .Setup(repo => repo.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning)null!);
+
+        // Act
+        var act = async () => await _handler.Handle(command);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+        _mockRepository.Verify(repo => repo.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 }
