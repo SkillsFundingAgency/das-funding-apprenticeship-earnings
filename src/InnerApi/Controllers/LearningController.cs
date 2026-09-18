@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReleaseEarningsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
@@ -102,6 +103,27 @@ public class LearningController: ControllerBase
         }
 
         _logger.LogInformation("Successfully updated on-programme for apprenticeship {learningKey}", learningKey);
+        return Ok();
+    }
+
+    [Route("{learningKey}/release-earnings")]
+    [HttpPost]
+    public async Task<IActionResult> ReleaseEarnings(Guid learningKey, ReleaseEarningsRequest request)
+    {
+        _logger.LogInformation("Received request to release earnings for apprenticeship {learningKey}", learningKey);
+
+        try
+        {
+            var command = new ReleaseEarningsCommand(learningKey, request);
+            await _commandDispatcher.Send(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error releasing earnings for apprenticeship {learningKey}", learningKey);
+            return StatusCode(500);
+        }
+
+        _logger.LogInformation("Successfully released earnings for apprenticeship {learningKey}", learningKey);
         return Ok();
     }
 
