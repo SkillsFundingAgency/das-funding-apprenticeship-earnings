@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<ILearningFactory, LearningFactory>()
             .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>()
             .AddScoped<IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder, ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder>()
+            .AddScoped<IApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder, ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder>()
             .AddTransient<ISystemClockService, SystemClockService>();
         return serviceCollection;
     }
