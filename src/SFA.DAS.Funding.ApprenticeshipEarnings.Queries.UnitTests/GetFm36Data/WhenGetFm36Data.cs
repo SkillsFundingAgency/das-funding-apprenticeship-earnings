@@ -290,6 +290,123 @@ public class WhenGetFm36Data
         result.Apprenticeships.Single().Key.Should().Be(learningKey);
     }
 
+    [Test]
+    public async Task Handle_ApprenticeshipHasOnlyDasEpisode_ReturnsEmptyResponse()
+    {
+        const long ukprn = 10005077;
+        var learningKey = Guid.NewGuid();
+
+        var learning = BuildLearning(learningKey, ukprn,
+            priceStartDate: SearchDate.AddMonths(-6),
+            priceEndDate: SearchDate.AddMonths(12),
+            fundingPlatform: Types.FundingPlatform.DAS);
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var query = new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid> { learningKey });
+
+        var result = await _queryHandler.Handle(query, CancellationToken.None);
+
+        result.Apprenticeships.Should().BeNull();
+    }
+
+    [Test]
+    public async Task Handle_ApprenticeshipHasBothDasAndSldEpisodes_OnlyReturnsSldEpisode()
+    {
+        const long ukprn = 10005077;
+        var learningKey = Guid.NewGuid();
+
+        var sldEpisode = BuildEpisode(learningKey, ukprn,
+            priceStartDate: SearchDate.AddMonths(-6),
+            priceEndDate: SearchDate.AddMonths(12),
+            fundingPlatform: Types.FundingPlatform.SLD);
+
+        var dasEpisode = BuildEpisode(learningKey, ukprn,
+            priceStartDate: SearchDate.AddMonths(-6),
+            priceEndDate: SearchDate.AddMonths(12),
+            fundingPlatform: Types.FundingPlatform.DAS);
+
+        var learning = new ApprenticeshipLearningEntity
+        {
+            LearningKey = learningKey,
+            Uln = "1234567890",
+            DateOfBirth = new DateTime(1990, 1, 1),
+            Episodes = [sldEpisode, dasEpisode]
+        };
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var query = new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid> { learningKey });
+
+        var result = await _queryHandler.Handle(query, CancellationToken.None);
+
+        result.Apprenticeships.Should().HaveCount(1);
+        var apprenticeship = result.Apprenticeships.Single();
+        apprenticeship.Episodes.Should().ContainSingle(e => e.Key == sldEpisode.Key);
+    }
+
+    private static ApprenticeshipEpisodeEntity BuildEpisode(
+        Guid learningKey,
+        long ukprn,
+        DateTime priceStartDate,
+        DateTime priceEndDate,
+        ApprenticeshipInstalmentEntity? instalment = null,
+        ApprenticeshipAdditionalPaymentEntity? additionalPayment = null,
+        EnglishAndMathsEntity? englishAndMaths = null,
+        decimal onProgramTotal = 0m,
+        decimal completionPayment = 0m,
+        DateTime? withdrawalDate = null,
+        DateTime? completionDate = null,
+        Types.FundingPlatform fundingPlatform = Types.FundingPlatform.SLD)
+    {
+        var episodeKey = Guid.NewGuid();
+        var profileId = Guid.NewGuid();
+        var priceKey = Guid.NewGuid();
+
+        if (instalment != null) instalment.EarningsProfileId = profileId;
+        if (additionalPayment != null) additionalPayment.EarningsProfileId = profileId;
+        if (englishAndMaths != null) englishAndMaths.EarningsProfileId = profileId;
+
+        var profile = new ApprenticeshipEarningsProfileEntity
+        {
+            EarningsProfileId = profileId,
+            EpisodeKey = episodeKey,
+            CalculationData = "{}",
+            OnProgramTotal = onProgramTotal,
+            CompletionPayment = completionPayment,
+            Instalments = instalment != null ? [instalment] : [],
+            ApprenticeshipAdditionalPayments = additionalPayment != null ? [additionalPayment] : [],
+            EnglishAndMathsCourses = englishAndMaths != null ? [englishAndMaths] : []
+        };
+
+        return new ApprenticeshipEpisodeEntity
+        {
+            Key = episodeKey,
+            LearningKey = learningKey,
+            Ukprn = ukprn,
+            LegalEntityName = "Test Employer",
+            TrainingCode = "ST0001",
+            EmployerType = EmployerType.Levy,
+            FundingPlatform = fundingPlatform,
+            EarningsProfile = profile,
+            WithdrawalDate = withdrawalDate,
+            CompletionDate = completionDate,
+            Prices =
+            [
+                new ApprenticeshipEpisodePriceEntity
+                {
+                    Key = priceKey,
+                    EpisodeKey = episodeKey,
+                    StartDate = priceStartDate,
+                    EndDate = priceEndDate,
+                    AgreedPrice = 5000m
+                }
+            ]
+        };
+    }
+
     private static ApprenticeshipLearningEntity BuildLearning(
         Guid learningKey,
         long ukprn,
@@ -302,7 +419,8 @@ public class WhenGetFm36Data
         decimal onProgramTotal = 0m,
         decimal completionPayment = 0m,
         DateTime? withdrawalDate = null,
-        DateTime? completionDate = null)
+        DateTime? completionDate = null,
+        Types.FundingPlatform fundingPlatform = Types.FundingPlatform.SLD)
     {
         var episodeKey = Guid.NewGuid();
         var profileId = Guid.NewGuid();
@@ -333,6 +451,7 @@ public class WhenGetFm36Data
             LegalEntityName = "Test Employer",
             TrainingCode = "ST0001",
             EmployerType = EmployerType.Levy,
+            FundingPlatform = fundingPlatform,
             EarningsProfile = profile,
             WithdrawalDate = withdrawalDate,
             CompletionDate = completionDate,
