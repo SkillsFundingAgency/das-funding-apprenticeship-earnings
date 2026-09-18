@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
@@ -59,5 +60,56 @@ public class WhenApprovingApprenticeship
 
         episode.EmployerAccountId.Should().Be(employerAccountId);
         episode.FundingEmployerAccountId.Should().Be(fundingAccountId);
+    }
+
+    [Test]
+    public void ThenApprenticeshipPayableEarningsUpdatedEventIsQueuedWhenLearnerRefIsPresent()
+    {
+        var apprenticeship = _fixture.CreateLearning();
+        apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
+        var episode = apprenticeship.Episodes.Single();
+        apprenticeship.FlushEvents();
+
+        var employerAccountId = _fixture.Create<long>();
+        var fundingAccountId = _fixture.Create<long>();
+        var learnerKey = _fixture.Create<Guid>();
+        var learnerRef = _fixture.Create<string>();
+
+        apprenticeship.Approve(
+            episode.EpisodeKey,
+            employerAccountId,
+            fundingAccountId,
+            learnerKey,
+            learnerRef);
+
+        var @event = apprenticeship.FlushEvents().OfType<ApprenticeshipPayableEarningsUpdatedEvent>().Single();
+
+        @event.LearningKey.Should().Be(apprenticeship.LearningKey);
+        @event.EpisodeKey.Should().Be(episode.EpisodeKey);
+        @event.EmployerAccountId.Should().Be(employerAccountId);
+        @event.FundingAccountId.Should().Be(fundingAccountId);
+        @event.LearnerKey.Should().Be(learnerKey);
+        @event.LearnerRef.Should().Be(learnerRef);
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public void ThenApprenticeshipPayableEarningsUpdatedEventIsNotQueuedWhenLearnerRefIsAbsent(string? learnerRef)
+    {
+        var apprenticeship = _fixture.CreateLearning();
+        apprenticeship.Calculate(_mockSystemClock.Object, string.Empty);
+        var episode = apprenticeship.Episodes.Single();
+        apprenticeship.FlushEvents();
+
+        apprenticeship.Approve(
+            episode.EpisodeKey,
+            _fixture.Create<long>(),
+            _fixture.Create<long>(),
+            _fixture.Create<Guid>(),
+            learnerRef!);
+
+        var events = apprenticeship.FlushEvents();
+        events.OfType<ApprenticeshipPayableEarningsUpdatedEvent>().Should().BeEmpty();
     }
 }

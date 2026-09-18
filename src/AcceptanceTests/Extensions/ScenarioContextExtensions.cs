@@ -1,15 +1,14 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 
 public static class ScenarioContextExtensions
 {
-    public static LearningCreatedEventBuilder GetLearningCreatedEventBuilder(this ScenarioContext context)
+    public static CreateUnapprovedApprenticeshipLearningRequestBuilder GetCreateUnapprovedApprenticeshipLearningRequestBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out LearningCreatedEventBuilder builder)) return builder;
+        if (context.TryGetValue(out CreateUnapprovedApprenticeshipLearningRequestBuilder builder)) return builder;
 
-        builder = new LearningCreatedEventBuilder();
+        builder = new CreateUnapprovedApprenticeshipLearningRequestBuilder();
         context.Set(builder);
         return builder;
     }
@@ -64,6 +63,16 @@ public static class ScenarioContextExtensions
         learnerRef = $"LR-{Guid.NewGuid():N}";
         context.Set<string>(learnerRef, "LearnerRef");
         return learnerRef;
+    }
+
+    /// <summary>
+    /// Forces an empty LearnerRef for this scenario, simulating a manual-add apprenticeship
+    /// (one with no prior ILR-led LearnerData record). Must be called before GetLearnerRef()
+    /// is first used in the scenario, otherwise a generated value will already be cached.
+    /// </summary>
+    public static void SetNoLearnerRef(this ScenarioContext context)
+    {
+        context.Set<string>(string.Empty, "LearnerRef");
     }
 
     public static long GetApprovalsApprenticeshipId(this ScenarioContext context)

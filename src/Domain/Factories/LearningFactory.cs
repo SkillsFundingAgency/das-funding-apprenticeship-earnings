@@ -68,7 +68,8 @@ public class LearningFactory : ILearningFactory
             AchievementDate = request.AchievementDate,
             PauseDate = request.PauseDate,
             Prices = episodePrices,
-            PeriodsInLearning = periodsInLearning
+            PeriodsInLearning = periodsInLearning,
+            FundingPlatform = Types.FundingPlatform.DAS
         };
 
         var model = new ApprenticeshipLearningEntity
