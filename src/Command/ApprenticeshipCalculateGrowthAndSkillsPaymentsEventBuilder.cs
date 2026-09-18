@@ -105,10 +105,6 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 instalment.DeliveryPeriod,
                 instalment.Amount));
 
-        // FLP-2030: only the four 16-18 incentive earning types are in scope. The same ProviderIncentive/
-        // EmployerIncentive additional payments are also generated for 19-24 EHCP/care leaver apprentices
-        // (see IncentivePayments.Generate19To24IncentivePayments), but there is no equivalent PV2 earning
-        // type for those in this ticket, so they're deliberately excluded here based on age at start.
         var incentiveEntries = episode.AgeAtStartOfApprenticeship <= 18
             ? GetIncentiveEntries(episode, prices)
             : Enumerable.Empty<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)>();
