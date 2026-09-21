@@ -41,6 +41,12 @@ public static class ScenarioContextExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Returns learner key from the scenario context. If it does not exist, a new one is generated and stored in the context.
+    /// </summary>
+    /// <remarks>
+    /// Only for use with single learner scenarios
+    /// </remarks>a
     public static Guid GetLearnerKey(this ScenarioContext context)
     {
         if(context.TryGetValue("LearnerKey", out Guid learnerKey)) return learnerKey;
@@ -59,11 +65,6 @@ public static class ScenarioContextExtensions
         return learnerRef;
     }
 
-    /// <summary>
-    /// Forces an empty LearnerRef for this scenario, simulating a manual-add apprenticeship
-    /// (one with no prior ILR-led LearnerData record). Must be called before GetLearnerRef()
-    /// is first used in the scenario, otherwise a generated value will already be cached.
-    /// </summary>
     public static void SetNoLearnerRef(this ScenarioContext context)
     {
         context.Set<string>(string.Empty, "LearnerRef");
