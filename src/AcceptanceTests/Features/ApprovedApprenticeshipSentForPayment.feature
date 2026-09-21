@@ -1,7 +1,5 @@
 Feature: Approved apprenticeship sent for payment
 
-Covers the sending of correct events to pv2 for approved apprenticeships (FLP-2003)
-
 Scenario: Approved apprenticeship with on-programme, completion and balancing earnings
 	Given an apprenticeship has been created as a draft with the following information
 		| StartDate  | EndDate    | TotalPrice | CompletionDate | AchievementDate |

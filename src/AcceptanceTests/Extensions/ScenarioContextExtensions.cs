@@ -41,12 +41,6 @@ public static class ScenarioContextExtensions
         return builder;
     }
 
-    /// <summary>
-    /// Returns learner key from the scenario context. If it does not exist, a new one is generated and stored in the context.
-    /// </summary>
-    /// <remarks>
-    /// Only for use with single learner scenarios
-    /// </remarks>
     public static Guid GetLearnerKey(this ScenarioContext context)
     {
         if(context.TryGetValue("LearnerKey", out Guid learnerKey)) return learnerKey;
