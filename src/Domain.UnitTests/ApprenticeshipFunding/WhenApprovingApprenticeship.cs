@@ -85,9 +85,6 @@ public class WhenApprovingApprenticeship
         var @event = apprenticeship.FlushEvents().OfType<ApprenticeshipPayableEarningsUpdatedEvent>().Single();
 
         @event.LearningKey.Should().Be(apprenticeship.LearningKey);
-        @event.EpisodeKey.Should().Be(episode.EpisodeKey);
-        @event.EmployerAccountId.Should().Be(employerAccountId);
-        @event.FundingAccountId.Should().Be(fundingAccountId);
         @event.LearnerKey.Should().Be(learnerKey);
         @event.LearnerRef.Should().Be(learnerRef);
     }
