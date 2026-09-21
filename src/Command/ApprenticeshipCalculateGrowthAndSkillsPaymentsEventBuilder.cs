@@ -1,3 +1,4 @@
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -96,13 +97,23 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
     {
         var prices = episode.Prices.ToDictionary(p => p.PriceKey);
 
-        return episode.EarningsProfile!.Instalments
-            .GroupBy(i => i.AcademicYear)
+        var onProgrammeEntries = episode.EarningsProfile!.Instalments
+            .Select(instalment => (
+                instalment.AcademicYear,
+                EpisodePriceKey: instalment.EpisodePriceKey,
+                EarningType: GetEarningType(instalment.Type),
+                instalment.DeliveryPeriod,
+                instalment.Amount));
+
+        var incentiveEntries = GetIncentiveEntries(episode);
+
+        return onProgrammeEntries.Concat(incentiveEntries)
+            .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
             {
                 AcademicYear = yearGroup.Key,
                 PricePeriods = yearGroup
-                    .GroupBy(i => i.EpisodePriceKey)
+                    .GroupBy(x => x.EpisodePriceKey)
                     .Select(priceGroup =>
                     {
                         var price = prices[priceGroup.Key];
@@ -111,12 +122,12 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                             Price = price.AgreedPrice,
                             StartDate = price.StartDate,
                             EndDate = price.EndDate,
-                            Periods = priceGroup.Select(instalment => new EarningPeriod
+                            Periods = priceGroup.Select(x => new EarningPeriod
                             {
-                                EarningType = GetEarningType(instalment.Type),
-                                DeliveryPeriod = instalment.DeliveryPeriod,
+                                EarningType = x.EarningType,
+                                DeliveryPeriod = x.DeliveryPeriod,
                                 LearningId = learning.ApprovalsApprenticeshipId,
-                                Amount = instalment.Amount,
+                                Amount = x.Amount,
                                 Employer = new Employer
                                 {
                                     AccountId = employerAccountId,
@@ -130,6 +141,43 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             })
             .OrderBy(e => e.AcademicYear)
             .ToList();
+    }
+
+    private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetIncentiveEntries(
+        ApprenticeshipEpisode episode)
+    {
+        foreach (var incentiveType in new[] { InstalmentTypes.ProviderIncentive, InstalmentTypes.EmployerIncentive })
+        {
+            var payments = episode.EarningsProfile!.AdditionalPayments
+                .Where(x => x.AdditionalPaymentType == incentiveType)
+                .OrderBy(x => x.DueDate)
+                .ToList();
+
+            for (var i = 0; i < payments.Count; i++)
+            {
+                var payment = payments[i];
+                var price = episode.GetPriceAt(payment.DueDate);
+
+                yield return (
+                    payment.AcademicYear,
+                    price.PriceKey,
+                    GetIncentiveEarningType(incentiveType, i),
+                    payment.DeliveryPeriod,
+                    payment.Amount);
+            }
+        }
+    }
+
+    private static EarningType GetIncentiveEarningType(string additionalPaymentType, int occurrenceIndex)
+    {
+        return (additionalPaymentType, occurrenceIndex) switch
+        {
+            (InstalmentTypes.ProviderIncentive, 0) => EarningType.First16To18ProviderIncentive,
+            (InstalmentTypes.ProviderIncentive, 1) => EarningType.Second16To18ProviderIncentive,
+            (InstalmentTypes.EmployerIncentive, 0) => EarningType.First16To18EmployerIncentive,
+            (InstalmentTypes.EmployerIncentive, 1) => EarningType.Second16To18EmployerIncentive,
+            _ => throw new ArgumentException($"Unexpected {additionalPaymentType} incentive occurrence: {occurrenceIndex}")
+        };
     }
 
     private static IList<Earnings> BuildEnglishAndMathsEarnings(ApprenticeshipEpisode episode, EnglishAndMathsDomainModel course, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
