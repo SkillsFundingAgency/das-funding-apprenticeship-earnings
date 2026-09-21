@@ -46,7 +46,7 @@ public static class ScenarioContextExtensions
     /// </summary>
     /// <remarks>
     /// Only for use with single learner scenarios
-    /// </remarks>a
+    /// </remarks>
     public static Guid GetLearnerKey(this ScenarioContext context)
     {
         if(context.TryGetValue("LearnerKey", out Guid learnerKey)) return learnerKey;
