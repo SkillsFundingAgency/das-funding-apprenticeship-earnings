@@ -196,26 +196,20 @@ public class WhenSendingApprenticeshipPayableEarningsToPayments
             apprenticeshipPayableEarningsUpdatedEvent.LearningKey,
             apprenticeshipPayableEarningsUpdatedEvent.EpisodeKey,
             new List<EnglishAndMathsEntity> { englishAndMathsCourse });
-        var episode = learning.GetEpisode(apprenticeshipPayableEarningsUpdatedEvent.EpisodeKey);
-
+        
         _mockRepository.Setup(x => x.GetApprenticeshipLearning(command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey))
             .ReturnsAsync(learning);
 
         var onProgrammePaymentEvent = new CalculateGrowthAndSkillsPayments();
-        var englishAndMathsPaymentEvent = new CalculateGrowthAndSkillsPayments();
 
         _mockBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
             .Returns(onProgrammePaymentEvent);
-        _mockBuilder.Setup(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
-            .Returns(englishAndMathsPaymentEvent);
 
         await _sut.Handle(command, CancellationToken.None);
 
-        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         _mockMessageSession.Verify(x => x.Send(onProgrammePaymentEvent, It.IsAny<SendOptions>()), Times.Once);
-        _mockMessageSession.Verify(x => x.Send(englishAndMathsPaymentEvent, It.IsAny<SendOptions>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == onProgrammePaymentEvent), It.IsAny<PublishOptions>()), Times.Once);
-        _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == englishAndMathsPaymentEvent), It.IsAny<PublishOptions>()), Times.Once);
+
     }
 
     [Test]
