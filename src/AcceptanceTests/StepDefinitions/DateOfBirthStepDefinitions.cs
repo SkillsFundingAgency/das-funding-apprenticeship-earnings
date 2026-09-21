@@ -1,5 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ public class DateOfBirthStepDefinitions
     [Then(@"date of birth is updated to (.*)")]
     public async Task ThenDateOfBirthIsUpdatedTo(DateTime dateOfBirth)
     {
-        var learningKeyKey = _scenarioContext.Get<LearningCreatedEvent>().LearningKey;
+        var learningKeyKey = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey;
         var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningKeyKey);
         updatedEntity.DateOfBirth.Should().Be(dateOfBirth);
     }

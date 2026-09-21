@@ -5,7 +5,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -30,15 +29,15 @@ public class AdditionalPaymentsStepDefinitions
         {
             LearningSupport = learningSupportItems
         };
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/learning-support", request);
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/learning-support", request);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]
     public void ThenRecalculateEventIsSentWithTheFollowingIncentives(Table table)
     {
         var data = table.CreateSet<AdditionalPaymentExpectationModel>().ToList();
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == learningCreatedEvent.LearningKey);
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        var recalculateEvent = _testContext.MessageSession.ReceivedEvents<ApprenticeshipEarningsRecalculatedEvent>().SingleOrDefault(x => x.ApprenticeshipKey == request.LearningKey);
 
         foreach (var expectedAdditionalPayment in data)
         {
@@ -55,9 +54,9 @@ public class AdditionalPaymentsStepDefinitions
     {
         var data = table.CreateSet<AdditionalPaymentDbExpectationModel>().ToList();
 
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
 
         var additionalPaymentsInDb = updatedEntity.Episodes.First().EarningsProfile.ApprenticeshipAdditionalPayments;
 
@@ -75,9 +74,9 @@ public class AdditionalPaymentsStepDefinitions
     [Then(@"no Additional Payments are persisted")]
     public async Task ThenNoAdditionalPaymentsArePersisted()
     {
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
 
         updatedEntity.Episodes.First().EarningsProfile.ApprenticeshipAdditionalPayments.Should().BeEmpty();
     }

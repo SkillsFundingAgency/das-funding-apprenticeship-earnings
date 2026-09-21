@@ -2,7 +2,7 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
-using SFA.DAS.Learning.Types;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
@@ -35,7 +35,7 @@ public class EnglishAndMathsStepDefinitions
         {
             EnglishAndMaths = items
         };
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/english-and-maths", request);
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
     }
 
     [Given(@"the following English and maths request is sent")]
@@ -49,7 +49,7 @@ public class EnglishAndMathsStepDefinitions
             .WithDataFromSetupModel(data)
             .Build();
 
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<LearningCreatedEvent>().LearningKey}/english-and-maths", request);
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
     }
 
     [Then(@"english and maths instalments are persisted as follows")]
@@ -57,9 +57,9 @@ public class EnglishAndMathsStepDefinitions
     {
         var data = table.CreateSet<MathsAndEnglishInstalmentDbExpectationModel>().ToList();
 
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
 
         var mathsAndEnglishCoursesInDb = updatedEntity.Episodes.First().EarningsProfile.EnglishAndMathsCourses;
 
@@ -96,9 +96,9 @@ public class EnglishAndMathsStepDefinitions
     [Then(@"no english and maths earnings are persisted")]
     public async Task ThenNoMathsAndEnglishInstalmentsArePersisted()
     {
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
 
-        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
 
         var mathsAndEnglishInstalmentsInDb = updatedEntity.Episodes.First().EarningsProfile.EnglishAndMathsCourses.SelectMany(x => x.Instalments);
 
