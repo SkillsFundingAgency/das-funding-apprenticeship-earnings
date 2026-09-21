@@ -196,13 +196,11 @@ public class WhenSendingApprenticeshipPayableEarningsToPayments
             apprenticeshipPayableEarningsUpdatedEvent.LearningKey,
             apprenticeshipPayableEarningsUpdatedEvent.EpisodeKey,
             new List<EnglishAndMathsEntity> { englishAndMathsCourse });
-        var episode = learning.GetEpisode(apprenticeshipPayableEarningsUpdatedEvent.EpisodeKey);
 
         _mockRepository.Setup(x => x.GetApprenticeshipLearning(command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey))
             .ReturnsAsync(learning);
 
         var onProgrammePaymentEvent = new CalculateGrowthAndSkillsPayments();
-        var englishAndMathsPaymentEvent = new CalculateGrowthAndSkillsPayments();
 
         _mockBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
             .Returns(onProgrammePaymentEvent);
