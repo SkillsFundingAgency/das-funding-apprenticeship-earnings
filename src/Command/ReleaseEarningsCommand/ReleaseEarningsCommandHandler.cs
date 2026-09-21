@@ -31,6 +31,15 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
     {
         _logger.LogInformation("{Handler} - Started for LearningKey: {LearningKey}", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
 
+        var learnerKey = command.Request.LearnerKey;
+        var learnerRef = command.Request.LearnerRef;
+
+        if (string.IsNullOrWhiteSpace(learnerRef))
+        {
+            _logger.LogInformation("{Handler} - Skipped for LearningKey: {LearningKey} as LearnerRef is not set", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
+            return;
+        }
+
         var learning = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
         if (learning is null)
         {
@@ -41,18 +50,21 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
         options.DoNotEnforceBestPractices();
         options.SetDestination(_paymentsConfiguration.PaymentsEndpoint);
 
-        var learnerKey = command.Request.LearnerKey;
-        var learnerRef = command.Request.LearnerRef;
-
         foreach (var episode in learning.Episodes.Where(e => !e.IsRemoved && e.IsApproved && e.EarningsProfile != null))
         {
+            if (episode.FundingPlatform is not FundingPlatform.DAS)
+            {
+                _logger.LogInformation("{Handler} - Skipped EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as FundingPlatform is not DAS", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, command.LearningKey);
+                continue;
+            }
+
             var paymentEvent = _eventBuilder.Build(episode, learning, episode.EmployerAccountId,
                 episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
 
             await _messageSession.Send(paymentEvent, options, cancellationToken);
             await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
 
-            //TODO[HS]: Do not need this right now as we will be doing this as a separate ticket.
+            //TODO[HS]: This is commented out for now as for ticket FLP-2003, E&M isn't in scope and will be implemented in a future ticket. Once implemented, this code will need to be uncommented and tested.
             //foreach (var course in episode.EarningsProfile.MathsAndEnglishCourses.Where(c => c.Instalments.Any()))
             //{
             //    var englishAndMathsEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, episode.EmployerAccountId,
