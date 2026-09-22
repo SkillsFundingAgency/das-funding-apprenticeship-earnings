@@ -61,6 +61,8 @@ public static class EnglishAndMathsPayments
             var lastCensusDate = periodInLearning.OriginalExpectedEndDate.LastCensusDate();
             
             var numberOfInstalments = CalculateNumberOfInstalments(paymentDate, lastCensusDate);
+            if (numberOfInstalments <= 0)
+                numberOfInstalments = 1;
 
             var monthlyAmount = context.AmountOutStanding / numberOfInstalments;
 
