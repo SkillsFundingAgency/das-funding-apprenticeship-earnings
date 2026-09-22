@@ -84,6 +84,7 @@ public class CreateUnapprovedApprenticeshipLearningRequestBuilder
 
         return new CreateUnapprovedApprenticeshipLearningRequest
         {
+            IsNewApprenticeshipLearner = true,
             LearningKey = _learningKey,
             EpisodeKey = _episodeKey,
             ApprovalsApprenticeshipId = _approvalsApprenticeshipId,

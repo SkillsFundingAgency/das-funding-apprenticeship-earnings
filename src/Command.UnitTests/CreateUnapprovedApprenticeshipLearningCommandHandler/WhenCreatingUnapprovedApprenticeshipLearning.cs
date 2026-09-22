@@ -43,13 +43,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     public async Task Then_New_Draft_Learning_Is_Added_When_Learning_Does_Not_Exist()
     {
         var request = BuildRequest();
-        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request)
-        {
-            Request =
-            {
-                IsNewApprenticeshipLearner = true
-            }
-        };
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
 
         _repository
             .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
@@ -253,6 +247,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
 
         return new CreateUnapprovedApprenticeshipLearningRequest
         {
+            IsNewApprenticeshipLearner = true,
             LearningKey = Guid.NewGuid(),
             EpisodeKey = Guid.NewGuid(),
             ApprovalsApprenticeshipId = _fixture.Create<long>(),
