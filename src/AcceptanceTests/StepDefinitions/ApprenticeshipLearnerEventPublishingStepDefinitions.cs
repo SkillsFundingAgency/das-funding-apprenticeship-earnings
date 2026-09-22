@@ -4,19 +4,19 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 using TechTalk.SpecFlow.Assist;
-using FundingPlatform = SFA.DAS.Learning.Enums.FundingPlatform;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions;
 
 [Binding]
-public class LearningCreatedEventPublishingStepDefinitions
+public class ApprenticeshipLearnerEventPublishingStepDefinitions
 {
     private readonly ScenarioContext _scenarioContext;
     private readonly TestContext _testContext;
 
-    public LearningCreatedEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
+    public ApprenticeshipLearnerEventPublishingStepDefinitions(ScenarioContext scenarioContext, TestContext testContext)
     {
         _scenarioContext = scenarioContext;
         _testContext = testContext;
@@ -27,29 +27,18 @@ public class LearningCreatedEventPublishingStepDefinitions
     [Given(@"the apprenticeship commitment is approved")]
     [When(@"the apprenticeship commitment is approved")]
     [Given(@"the earnings for the apprenticeship are calculated")]
-    public async Task PublishLearningCreatedEvent()
+    public async Task CreateUnapprovedApprenticeshipLearning()
     {
-        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
+        var request = _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder()
+            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
-        var request = learningCreatedEvent.ToCreateUnapprovedApprenticeshipLearningRequest(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
         await _testContext.TestInnerApi.Post("/learning", request);
 
-        _scenarioContext.Set(learningCreatedEvent);
+        _scenarioContext.Set(request);
 
         _scenarioContext[ContextKeys.ExpectedDeliveryPeriodLearningAmount] = EventBuilderSharedDefaults.ExpectedDeliveryPeriodLearningAmount;
 
-        await ApproveLearning(learningCreatedEvent);
-    }
-
-    [Given("An apprenticeship not on the pilot has been created as part of the approvals journey")]
-    public async Task PublishNonPilotLearningCreatedEvent()
-    {
-        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder()
-            .WithFundingPlatform(FundingPlatform.SLD)
-            .Build();
-
-        await _testContext.TestFunction.PublishEvent(learningCreatedEvent);
-        _scenarioContext.Set(learningCreatedEvent);
+        await ApproveLearning(request);
     }
 
     [When(@"the adjusted price has been calculated")]
@@ -63,14 +52,14 @@ public class LearningCreatedEventPublishingStepDefinitions
     {
         var entity = await GetApprenticeshipLearningEntity();
         var currentEpisode = entity.GetCurrentEpisode(TestSystemClock.Instance());
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(learningCreatedEvent.Episode.Prices.First().TotalPrice * .2m);
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        currentEpisode.EarningsProfile.CompletionPayment.Should().Be(request.Prices.First().TotalPrice * .2m);
     }
 
     [Given(@"an apprenticeship has been created with the following information")]
     public void GivenAnApprenticeshipHasBeenCreatedWithTheFollowingInformation(Table table)
     {
-        _scenarioContext.GetLearningCreatedEventBuilder()
+        _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder()
             .WithDataFromSetupModel(table.CreateSet<ApprenticeshipCreatedSetupModel>().Single());
     }
 
@@ -83,7 +72,7 @@ public class LearningCreatedEventPublishingStepDefinitions
     [Given(@"the following Price Episodes")]
     public void GivenTheFollowingPriceEpisodes(Table table)
     {
-        _scenarioContext.GetLearningCreatedEventBuilder()
+        _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder()
             .WithPricesFromSetupModels(table.CreateSet<PriceEpisodeSetupModel>().ToList());
     }
 
@@ -92,22 +81,22 @@ public class LearningCreatedEventPublishingStepDefinitions
     [When(@"earnings are calculated")]
     public async Task EarningsAreCalculated()
     {
-        var learningCreatedEvent = _scenarioContext.GetLearningCreatedEventBuilder().Build();
+        var request = _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder()
+            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
 
-        var request = learningCreatedEvent.ToCreateUnapprovedApprenticeshipLearningRequest(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
         await _testContext.TestInnerApi.Post("/learning", request);
 
-        _scenarioContext.Set(learningCreatedEvent);
+        _scenarioContext.Set(request);
 
-        await ApproveLearning(learningCreatedEvent);
+        await ApproveLearning(request);
     }
 
-    private async Task ApproveLearning(LearningCreatedEvent learningCreatedEvent)
+    private async Task ApproveLearning(CreateUnapprovedApprenticeshipLearningRequest request)
     {
         var learningApprovedEvent = new LearningApprovedEvent
         {
-            LearningKey = learningCreatedEvent.LearningKey,
-            EpisodeKey = learningCreatedEvent.Episode.Key,
+            LearningKey = request.LearningKey,
+            EpisodeKey = request.EpisodeKey,
             ApprovalsApprenticeshipId = _scenarioContext.GetApprovalsApprenticeshipId(),
             EmployerAccountId = _scenarioContext.GetEmployerAccountId(),
             FundingAccountId = _scenarioContext.GetFundingAccountId(),
@@ -121,8 +110,8 @@ public class LearningCreatedEventPublishingStepDefinitions
 
     private async Task<ApprenticeshipLearningEntity?> GetApprenticeshipLearningEntity()
     {
-        var learningCreatedEvent = _scenarioContext.Get<LearningCreatedEvent>();
-        return await _testContext.SqlDatabase.GetApprenticeshipLearning(learningCreatedEvent.LearningKey);
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        return await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
     }
 
     private async Task<bool> EnsureApprenticeshipExists()
