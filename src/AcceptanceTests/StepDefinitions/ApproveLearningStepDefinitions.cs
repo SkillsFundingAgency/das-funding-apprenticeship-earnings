@@ -29,6 +29,28 @@ public class ApproveLearningStepDefinitions
         await _testContext.TestInnerApi.Post("/learning", request);
     }
 
+    [Given("an apprenticeship learning request is prepared with the following information")]
+    public void GivenAnApprenticeshipLearningRequestIsPreparedWithTheFollowingInformation(Table table)
+    {
+        var request = table.CreateInstance<UnapprovedApprenticeshipSetupModel>().ToApiRequest();
+        _scenarioContext.Set(request);
+    }
+
+    [Given("the apprenticeship is marked as not a new apprenticeship learner")]
+    public void GivenTheApprenticeshipIsMarkedAsNotANewApprenticeshipLearner()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        request.IsNewApprenticeshipLearner = false;
+        _scenarioContext.Set(request);
+    }
+
+    [When("the apprenticeship creation request is submitted")]
+    public async Task WhenTheApprenticeshipCreationRequestIsSubmitted()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        await _testContext.TestInnerApi.Post("/learning", request);
+    }
+
     [Given("the apprenticeship earnings profile is not yet approved")]
     public async Task GivenTheApprenticeshipEarningsProfileIsNotYetApproved()
     {
