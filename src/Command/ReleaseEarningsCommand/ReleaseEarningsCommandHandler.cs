@@ -31,6 +31,15 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
     {
         _logger.LogInformation("{Handler} - Started for LearningKey: {LearningKey}", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
 
+        var learnerKey = command.Request.LearnerKey;
+        var learnerRef = command.Request.LearnerRef;
+
+        if (string.IsNullOrWhiteSpace(learnerRef))
+        {
+            _logger.LogInformation("{Handler} - Skipped for LearningKey: {LearningKey} as LearnerRef is not set", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
+            return;
+        }
+
         var learning = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
         if (learning is null)
         {
@@ -41,11 +50,14 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
         options.DoNotEnforceBestPractices();
         options.SetDestination(_paymentsConfiguration.PaymentsEndpoint);
 
-        var learnerKey = command.Request.LearnerKey;
-        var learnerRef = command.Request.LearnerRef;
-
         foreach (var episode in learning.Episodes.Where(e => !e.IsRemoved && e.IsApproved && e.EarningsProfile != null))
         {
+            if (episode.FundingPlatform is not FundingPlatform.DAS)
+            {
+                _logger.LogInformation("{Handler} - Skipped EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as FundingPlatform is not DAS", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, command.LearningKey);
+                continue;
+            }
+
             var paymentEvent = _eventBuilder.Build(episode, learning, episode.EmployerAccountId,
                 episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
 

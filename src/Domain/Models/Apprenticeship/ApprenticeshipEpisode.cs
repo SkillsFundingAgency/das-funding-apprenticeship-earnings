@@ -310,9 +310,6 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             AddEvent(new ApprenticeshipPayableEarningsUpdatedEvent
             {
                 LearningKey = _entity.LearningKey,
-                EpisodeKey = EpisodeKey,
-                EmployerAccountId = employerAccountId,
-                FundingAccountId = fundingAccountId,
                 LearnerKey = learnerKey,
                 LearnerRef = learnerRef
             });

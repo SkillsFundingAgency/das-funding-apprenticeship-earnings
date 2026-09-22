@@ -43,7 +43,13 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     public async Task Then_New_Draft_Learning_Is_Added_When_Learning_Does_Not_Exist()
     {
         var request = BuildRequest();
-        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request)
+        {
+            Request =
+            {
+                IsNewApprenticeshipLearner = true
+            }
+        };
 
         _repository
             .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
@@ -58,6 +64,30 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
             l.GetEpisode(request.EpisodeKey).EarningsProfile != null &&
             !l.GetEpisode(request.EpisodeKey).EarningsProfile!.IsApproved &&
             l.GetEpisode(request.EpisodeKey).FundingPlatform == Types.FundingPlatform.DAS)), Times.Once);
+        _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Once);
+    }
+
+    [Test]
+    public async Task Then_Nothing_Happens_When_Learning_Does_Not_Exist_And_IsNotNewApprenticeshipLearner()
+    {
+        var request = BuildRequest();
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request)
+        {
+            Request =
+            {
+                IsNewApprenticeshipLearner = false
+            }
+        };
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+
+        var sut = BuildHandler();
+
+        await sut.Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Never);
         _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 
@@ -67,6 +97,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _apprenticeshipOptInConfiguration.PaymentsOptedInProviders = [];
 
         var request = BuildRequest();
+        request.IsNewApprenticeshipLearner = true;
         var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
 
         _repository
