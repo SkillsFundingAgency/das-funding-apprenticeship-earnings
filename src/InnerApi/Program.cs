@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Api.Common.AppStart;
 using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Api.Common.Infrastructure;
@@ -20,6 +22,10 @@ builder.Configuration.AddAzureTableStorage(options =>
     options.EnvironmentName = builder.Configuration["EnvironmentName"];
     options.PreFixConfigurationKeys = false;
 });
+
+// Ensure ILogger traces are sent to Application Insights at Information level
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
 
 builder.Services.AddApplicationInsightsTelemetry();
 
