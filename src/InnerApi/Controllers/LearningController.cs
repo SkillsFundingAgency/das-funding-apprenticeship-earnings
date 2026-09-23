@@ -110,7 +110,7 @@ public class LearningController: ControllerBase
     [HttpPost]
     public async Task<IActionResult> ReleaseEarnings(Guid learningKey, ReleaseEarningsRequest request)
     {
-        _logger.LogInformation("Received request to release earnings for apprenticeship {learningKey}", learningKey);
+        _logger.LogInformation("Received request to release earnings for apprenticeship {LearningKey}", learningKey);
 
         try
         {
@@ -119,11 +119,11 @@ public class LearningController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error releasing earnings for apprenticeship {learningKey}", learningKey);
+            _logger.LogError(ex, "Error releasing earnings for apprenticeship {LearningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully released earnings for apprenticeship {learningKey}", learningKey);
+        _logger.LogInformation("Successfully released earnings for apprenticeship {LearningKey}", learningKey);
         return Ok();
     }
 

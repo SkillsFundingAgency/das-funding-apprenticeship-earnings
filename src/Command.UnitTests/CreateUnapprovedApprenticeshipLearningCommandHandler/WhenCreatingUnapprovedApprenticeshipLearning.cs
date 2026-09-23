@@ -91,6 +91,7 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _apprenticeshipOptInConfiguration.PaymentsOptedInProviders = [];
 
         var request = BuildRequest();
+        request.IsNewApprenticeshipLearner = true;
         var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
 
         _repository

@@ -73,7 +73,9 @@ internal class TestStartup
                 new KeyValuePair<string, string>("ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString!),
                 new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:StartDate", "2018-01-01"),
                 new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:EarningsOptedInProviders:0", "12345678"),
-                new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:EarningsOptedInProviders:1", "116")
+                new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:EarningsOptedInProviders:1", "116"),
+                new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:PaymentsOptedInProviders:0", "12345678"),
+                new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:PaymentsOptedInProviders:1", "116")
             }
         };
 
