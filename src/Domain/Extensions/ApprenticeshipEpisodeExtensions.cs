@@ -80,6 +80,15 @@ public static class ApprenticeshipEpisodeExtensions
                 mathsAndEnglishInstalment.Amount,
                 currentEpisode.FundingLineType,
                 InstalmentTypes.MathsAndEnglish)));
+
+            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.MathsAndEnglishCourses.SelectMany(course => course.AdditionalPayments.Select(additionalPayment => new DeliveryPeriod(
+                additionalPayment.DeliveryPeriod.ToCalendarMonth(),
+                additionalPayment.AcademicYear.ToCalendarYear(additionalPayment.DeliveryPeriod),
+                additionalPayment.DeliveryPeriod,
+                additionalPayment.AcademicYear,
+                additionalPayment.Amount,
+                currentEpisode.FundingLineType,
+                additionalPayment.AdditionalPaymentType))));
         }
 
         return deliveryPeriods;
