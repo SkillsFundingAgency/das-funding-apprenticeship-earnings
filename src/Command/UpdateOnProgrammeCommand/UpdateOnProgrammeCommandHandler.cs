@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using System.Text.Json;
@@ -55,6 +57,16 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         ExecuteAndLog(() => learningDomainModel.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
 
         ExecuteAndLog(() => learningDomainModel.Calculate(_systemClock, JsonSerializer.Serialize(command.Request), request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
+
+        ExecuteAndLog(() =>
+        {
+            var learningSupportPayments = request.LearningSupport
+                .SelectMany(x => LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
+                .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+                .ToList();
+
+            episode.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClock);
+        }, "update Learning Support");
 
         _logger.LogInformation("Updating LearningKey: {LearningKey} in repository", command.LearningKey);
         await _learningRepository.Update(learningDomainModel);

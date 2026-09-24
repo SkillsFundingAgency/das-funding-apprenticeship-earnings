@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -18,6 +19,7 @@ public class UpdateOnProgrammeRequest
     public List<LearningEpisodePrice> Prices { get; set; } = [];
     public List<PeriodInLearningItem> PeriodsInLearning { get; set; } = [];
     public Care Care { get; set; }
+    public List<LearningSupportItem> LearningSupport { get; set; } = [];
 }
 
 public class PeriodInLearningItem : IPeriodInLearning

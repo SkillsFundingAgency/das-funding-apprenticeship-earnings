@@ -4,7 +4,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprentices
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReleaseEarningsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -40,27 +39,6 @@ public class LearningController: ControllerBase
         }
 
         _logger.LogInformation("Successfully created unapproved apprenticeship learning {learningKey}", request?.LearningKey);
-        return Ok();
-    }
-
-    [Route("{learningKey}/learning-support")]
-    [HttpPut]
-    public async Task<IActionResult> UpdateLearningSupport(Guid learningKey, UpdateLearningSupportRequest request)
-    {
-        _logger.LogInformation("Received request to update learning support for apprenticeship {learningKey}", learningKey);
-
-        try
-        {
-            var command = new UpdateLearningSupportCommand(learningKey, request);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating learning support for apprenticeship {learningKey}", learningKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully updated learning support for apprenticeship {learningKey}", learningKey);
         return Ok();
     }
 

@@ -28,6 +28,7 @@ public class ApprenticeshipEarningsDataContext : DbContext
     public virtual DbSet<ApprenticeshipEarningsProfileHistoryEntity> EarningsProfileHistories2 { get; set; }
     public virtual DbSet<ShortCourseEarningsProfileHistoryEntity> ShortCourseEarningsProfileHistories { get; set; }
     public virtual DbSet<EnglishAndMathsPeriodInLearningEntity> MathsAndEnglishPeriodsInLearning { get; set; }
+    public virtual DbSet<EnglishAndMathsAdditionalPaymentEntity> EnglishAndMathsAdditionalPayments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +45,7 @@ public class ApprenticeshipEarningsDataContext : DbContext
         modelBuilder.Entity<EnglishAndMathsEntity>().Configure();
         modelBuilder.Entity<EnglishAndMathsInstalmentEntity>().HasKey(x => x.Key);
         modelBuilder.Entity<EnglishAndMathsPeriodInLearningEntity>().HasKey(x => x.Key);
+        modelBuilder.Entity<EnglishAndMathsAdditionalPaymentEntity>().HasKey(x => x.Key);
 
         //  Apprenticeship History
         modelBuilder.Entity<ApprenticeshipEarningsProfileHistoryEntity>().HasKey(x => x.Key);
@@ -157,6 +159,11 @@ internal static class ModelBuilderExtensions
 
         builder
             .HasMany(x => x.PeriodsInLearning)
+            .WithOne()
+            .HasForeignKey(fk => fk.EnglishAndMathsKey);
+
+        builder
+            .HasMany(x => x.AdditionalPayments)
             .WithOne()
             .HasForeignKey(fk => fk.EnglishAndMathsKey);
 
