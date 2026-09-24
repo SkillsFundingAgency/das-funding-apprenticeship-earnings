@@ -67,10 +67,10 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             Training = new Training
             {
                 LearningKey = learning.LearningKey,
-                CourseType = CourseType.Apprenticeship,
+                CourseType = CourseType.FunctionalSkill,
                 LearningType = LearningType.MathsAndEnglish,
-                CourseCode = course.LearnAimRef, //todo this is not LARs code, needs to change
-                CourseReference = course.LearnAimRef, // per design doc: for EnglishAndMaths this is the LearnAimRef for the course
+                CourseCode = course.LearnAimRef.Trim(), // LearnAimRef is the LARS code for E&M
+                CourseReference = course.LearnAimRef.Trim(), // per design doc: for EnglishAndMaths this is the LearnAimRef for the course
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = course.StartDate,
                 PlannedEndDate = course.EndDate,
