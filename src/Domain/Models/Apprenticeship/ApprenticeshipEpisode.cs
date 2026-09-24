@@ -91,9 +91,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             instalments = BalancingInstalments.BalanceInstalmentsForCompletion(_entity.CompletionDate.Value, instalments, _entity.Prices.MaxBy(x => x.EndDate), EpisodePeriodsInLearning, onProgramTotal);
         }
 
-        if (_entity.AchievementDate != null)
+        if (_entity.AchievementDate != null && completionPayment > 0)
         {
-            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.AchievementDate.Value, completionPayment, instalments.MaxBy(x => x.AcademicYear + x.DeliveryPeriod)!.EpisodePriceKey);
+            var completionInstalment = CompletionInstalments.GenerationCompletionInstalment(_entity.AchievementDate.Value, completionPayment, _entity.Prices.MaxBy(x => x.EndDate)!.Key);
             instalments = instalments.Append(completionInstalment).ToList();
         }
 
