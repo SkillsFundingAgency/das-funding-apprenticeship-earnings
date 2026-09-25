@@ -205,6 +205,32 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 
+    [Test]
+    public async Task Then_EnglishAndMaths_LearningSupport_Is_Added_To_The_Specific_EnglishAndMaths_Course()
+    {
+        var request = BuildRequest();
+        request.EnglishAndMaths[0].LearningSupport =
+        [
+            new LearningSupportItem { StartDate = new DateTime(2025, 9, 1), EndDate = new DateTime(2025, 11, 30) }
+        ];
+        request.LearningSupport = [];
+
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+
+        var sut = BuildHandler();
+
+        await sut.Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Add(It.Is<ApprenticeshipLearning>(l =>
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.MathsAndEnglishCourses
+                .Single(c => c.LearnAimRef == "ENG001").AdditionalPayments.Count == 3 &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.AdditionalPayments.Count == 0)), Times.Once);
+    }
+
     [TestCase(false, true, TestName = "Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
     [TestCase(true, false, TestName = "Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
     public async Task Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
