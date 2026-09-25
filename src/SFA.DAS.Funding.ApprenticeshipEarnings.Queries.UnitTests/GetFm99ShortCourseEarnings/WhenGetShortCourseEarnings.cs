@@ -38,7 +38,7 @@ public class WhenGetShortCourseEarnings
     [Test]
     public async Task Handle_LearningNotFound_ReturnsEmptyEarnings()
     {
-        var query = new GetFm99ShortCourseEarningsRequest(Guid.NewGuid(), 10005077);
+        var query = new GetFm99ShortCourseEarningsRequest(Guid.NewGuid(), 10005077, 2021);
 
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
@@ -50,7 +50,7 @@ public class WhenGetShortCourseEarnings
     {
         var learningKey = Guid.NewGuid();
         const long ukprn = 10005077;
-        var query = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn);
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn, 2021);
 
         await SeedEpisodeWithInstalments(learningKey, ukprn, new List<ShortCourseInstalmentEntity>
         {
@@ -77,7 +77,7 @@ public class WhenGetShortCourseEarnings
     public async Task Handle_UkprnDoesNotMatch_ReturnsEmptyEarnings()
     {
         var learningKey = Guid.NewGuid();
-        var query = new GetFm99ShortCourseEarningsRequest(learningKey, 99999999);
+        var query = new GetFm99ShortCourseEarningsRequest(learningKey, 99999999, 2021);
 
         await SeedEpisodeWithInstalments(learningKey, 10005077, new List<ShortCourseInstalmentEntity>());
 

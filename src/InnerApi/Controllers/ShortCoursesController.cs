@@ -59,7 +59,7 @@ public class ShortCoursesController : ControllerBase
     }
 
     [HttpGet("/fm99/{learningKey}/shortCourses")]
-    public async Task<IActionResult> GetFm99ShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn)
+    public async Task<IActionResult> GetFm99ShortCourseEarnings(Guid learningKey, [FromQuery] long ukprn, [FromQuery] short collectionYear)
     {
         _logger.LogInformation(
             "Received request to get fm99 short course earnings for LearningKey {LearningKey} and Ukprn {Ukprn}",
@@ -67,7 +67,7 @@ public class ShortCoursesController : ControllerBase
 
         try
         {
-            var request = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn);
+            var request = new GetFm99ShortCourseEarningsRequest(learningKey, ukprn, collectionYear);
             var response = await _queryDispatcher.Send<GetFm99ShortCourseEarningsRequest, GetFm99ShortCourseEarningsResponse>(request);
             return Ok(response);
         }

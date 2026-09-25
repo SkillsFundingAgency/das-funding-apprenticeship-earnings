@@ -26,6 +26,12 @@ public static class ApprenticeshipEpisodeExtensions
         return price;
     }
 
+    public static ApprenticeshipPrice GetPriceAt(this ApprenticeshipEpisode episode, DateTime date)
+    {
+        return episode.Prices.FirstOrDefault(p => p.StartDate <= date && date <= p.EndDate)
+            ?? episode.Prices.OrderBy(p => p.StartDate).Last(p => p.StartDate <= date);
+    }
+
     public static ApprenticeshipEarningsProfile GetEarningsProfileFromModel(this ApprenticeshipEpisode episode, ApprenticeshipEarningsProfileEntity entity)
     {
         return ApprenticeshipEarningsProfile.Get(episode, entity);
