@@ -304,6 +304,16 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _earningsProfile!.Approve();
         _entity.EmployerAccountId = employerAccountId;
         _entity.FundingEmployerAccountId = fundingAccountId;
+
+        if (!string.IsNullOrWhiteSpace(learnerRef))
+        {
+            AddEvent(new ApprenticeshipPayableEarningsUpdatedEvent
+            {
+                LearningKey = _entity.LearningKey,
+                LearnerKey = learnerKey,
+                LearnerRef = learnerRef
+            });
+        }
     }
 
     public void SetEmployerType(EmployerType employerType)

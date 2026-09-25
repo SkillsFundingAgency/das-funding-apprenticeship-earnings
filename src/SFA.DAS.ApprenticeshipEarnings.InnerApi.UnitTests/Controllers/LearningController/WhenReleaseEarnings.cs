@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -5,14 +8,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
-using System;
-using System.Threading.Tasks;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReleaseEarningsCommand;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.InnerApi.UnitTests.Controllers.LearningController;
 
-public class WhenCreatingUnapprovedApprenticeshipLearning
+public class WhenReleaseEarnings
 {
     private Mock<ILogger<InnerApi.Controllers.LearningController>> _loggerMock = null!;
     private Mock<ICommandDispatcher> _commandDispatcherMock = null!;
@@ -31,24 +31,26 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
     [Test]
     public async Task Then_Returns_Ok_On_Success()
     {
-        var request = _fixture.Create<CreateUnapprovedApprenticeshipLearningRequest>();
+        var learningKey = Guid.NewGuid();
+        var request = _fixture.Create<ReleaseEarningsRequest>();
 
-        var result = await _controller.CreateUnapprovedApprenticeshipLearning(request);
+        var result = await _controller.ReleaseEarnings(learningKey, request);
 
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<CreateUnapprovedApprenticeshipLearningCommand>(), default), Times.Once);
+        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None), Times.Once);
         result.Should().BeOfType<OkResult>();
     }
 
     [Test]
     public async Task Then_Returns_InternalServerError_On_Exception()
     {
-        var request = _fixture.Create<CreateUnapprovedApprenticeshipLearningRequest>();
+        var learningKey = Guid.NewGuid();
+        var request = _fixture.Create<ReleaseEarningsRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<CreateUnapprovedApprenticeshipLearningCommand>(), default))
+            .Setup(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None))
             .ThrowsAsync(new Exception("Test exception"));
 
-        var result = await _controller.CreateUnapprovedApprenticeshipLearning(request);
+        var result = await _controller.ReleaseEarnings(learningKey, request);
 
         result.Should().BeOfType<StatusCodeResult>();
         var statusCodeResult = result as StatusCodeResult;
