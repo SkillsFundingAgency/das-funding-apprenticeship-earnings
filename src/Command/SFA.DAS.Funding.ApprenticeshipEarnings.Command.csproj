@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Infrastructure\SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SendApprenticeshipPayableEarningsToPaymentsCommand\" />
+  </ItemGroup>
+
 </Project>
