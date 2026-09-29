@@ -65,6 +65,7 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
             await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
 
             //TODO[HS]: Do not need this right now as we will be doing this as a separate ticket.
+            //TODO[HS]: This is commented out for now as for ticket FLP-2003, E&M isn't in scope and will be implemented in a future ticket. Once implemented, this code will need to be uncommented and tested.
             //foreach (var course in episode.EarningsProfile.MathsAndEnglishCourses.Where(c => c.Instalments.Any()))
             //{
             //    var englishAndMathsEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, episode.EmployerAccountId,
