@@ -95,6 +95,7 @@ public class Startup
         services.AddEntityFrameworkForApprenticeships(ApplicationSettings);
         services.AddSingleton(x => ApplicationSettings);
         services.AddSingleton(x => ApplicationSettings.PaymentsConfiguration);
+        services.AddSingleton(x => ApplicationSettings.ApprenticeshipOptInConfiguration);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();

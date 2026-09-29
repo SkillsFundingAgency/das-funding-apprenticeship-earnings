@@ -25,9 +25,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection
             .AddScoped<ILearningFactory, LearningFactory>()
-            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
             .AddScoped<IFundingBandMaximumService, FundingBandMaximumService>()
-            .AddSingleton<IEarningsGeneratedEventBuilder, EarningsGeneratedEventBuilder>()
             .AddScoped<IShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder, ShortCourseCalculateGrowthAndSkillsPaymentsEventBuilder>()
             .AddTransient<ISystemClockService, SystemClockService>();
         return serviceCollection;

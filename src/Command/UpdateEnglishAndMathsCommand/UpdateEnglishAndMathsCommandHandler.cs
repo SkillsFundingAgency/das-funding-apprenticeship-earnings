@@ -31,8 +31,10 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
 
         if (learningDomainModel == null)
         {
-            _logger.LogError("No learning found for {LearningKey}", command.LearningKey);
-            throw new Exception($"No learning found for {command.LearningKey} when handling {nameof(UpdateEnglishAndMathsCommand)}");
+            _logger.LogInformation(
+                "No draft Earnings found for LearningKey {LearningKey} on update - expected when earnings generation is disabled",
+                command.LearningKey);
+            return;
         }
 
         learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);

@@ -1,15 +1,14 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
-using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 
 public static class ScenarioContextExtensions
 {
-    public static LearningCreatedEventBuilder GetLearningCreatedEventBuilder(this ScenarioContext context)
+    public static CreateUnapprovedApprenticeshipLearningRequestBuilder GetCreateUnapprovedApprenticeshipLearningRequestBuilder(this ScenarioContext context)
     {
-        if (context.TryGetValue(out LearningCreatedEventBuilder builder)) return builder;
+        if (context.TryGetValue(out CreateUnapprovedApprenticeshipLearningRequestBuilder builder)) return builder;
 
-        builder = new LearningCreatedEventBuilder();
+        builder = new CreateUnapprovedApprenticeshipLearningRequestBuilder();
         context.Set(builder);
         return builder;
     }

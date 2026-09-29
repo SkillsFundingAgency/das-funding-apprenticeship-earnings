@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Api.Common.AppStart;
 using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Api.Common.Infrastructure;
@@ -21,6 +23,10 @@ builder.Configuration.AddAzureTableStorage(options =>
     options.PreFixConfigurationKeys = false;
 });
 
+// Ensure ILogger traces are sent to Application Insights at Information level
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+
 builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddControllers();
@@ -32,6 +38,7 @@ builder.Configuration.Bind(nameof(ApplicationSettings), applicationSettings);
 builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings);
 builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.AddSingleton(x => applicationSettings.PaymentsConfiguration);
+builder.Services.AddSingleton(x => applicationSettings.ApprenticeshipOptInConfiguration);
 builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
 builder.Services.AddApplicationHealthChecks(applicationSettings);

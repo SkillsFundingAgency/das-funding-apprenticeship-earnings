@@ -1,5 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
@@ -76,19 +77,19 @@ public class UpdateOnProgrammeRequestBuilder
         return this;
     }
 
-    public UpdateOnProgrammeRequestBuilder WithExistingApprenticeshipData(LearningCreatedEvent apprenticeship)
+    public UpdateOnProgrammeRequestBuilder WithExistingApprenticeshipData(CreateUnapprovedApprenticeshipLearningRequest apprenticeship)
     {
-        _episodeKey = apprenticeship.Episode.Key;
+        _episodeKey = apprenticeship.EpisodeKey;
 
-        _priceStartDate = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).First().StartDate;
+        _priceStartDate = apprenticeship.Prices.OrderBy(x => x.StartDate).First().StartDate;
 
-        var lastEpisodePrice = apprenticeship.Episode.Prices.OrderBy(x => x.StartDate).Last();
+        var lastEpisodePrice = apprenticeship.Prices.OrderBy(x => x.StartDate).Last();
         _priceEndDate = lastEpisodePrice.EndDate;
         _newTrainingPrice = lastEpisodePrice.TrainingPrice.Value;
         _newAssessmentPrice = lastEpisodePrice.EndPointAssessmentPrice.Value;
 
-        _existingPrices = apprenticeship.Episode.Prices;
-        _dateOfBirth = apprenticeship.DateOfBirth;
+        _existingPrices = apprenticeship.Prices;
+        _dateOfBirth = apprenticeship.Learner.DateOfBirth;
         _periodsInLearning =
         [
             new PeriodInLearningItem
