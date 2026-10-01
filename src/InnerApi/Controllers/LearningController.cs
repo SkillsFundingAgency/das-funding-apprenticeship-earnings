@@ -47,63 +47,63 @@ public class LearningController: ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateLearningSupport(Guid learningKey, UpdateLearningSupportRequest request)
     {
-        _logger.LogInformation("Received request to update learning support for apprenticeship {learningKey}", learningKey);
-
+        _logger.LogInformation("Received request to update learning support for apprenticeship {LearningKey}", learningKey);
+        UpdateLearningSupportResult result;
         try
         {
             var command = new UpdateLearningSupportCommand(learningKey, request);
-            await _commandDispatcher.Send(command);
+            result = await _commandDispatcher.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating learning support for apprenticeship {learningKey}", learningKey);
+            _logger.LogError(ex, "Error updating learning support for apprenticeship {LearningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully updated learning support for apprenticeship {learningKey}", learningKey);
-        return Ok();
+        _logger.LogInformation("Successfully updated learning support for apprenticeship {LearningKey}", learningKey);
+        return Ok(result);
     }
 
     [Route("{learningKey}/english-and-maths")]
     [HttpPut]
     public async Task<IActionResult> SaveMathsAndEnglish(Guid learningKey, UpdateEnglishAndMathsRequest saveMathsAndEnglishRequest)
     {
-        _logger.LogInformation("Received request to update english and maths for apprenticeship {learningKey}", learningKey);
-
+        _logger.LogInformation("Received request to update english and maths for apprenticeship {LearningKey}", learningKey);
+        UpdateEnglishAndMathsResult result;
         try
         {
             var command = new UpdateEnglishAndMathsCommand(learningKey, saveMathsAndEnglishRequest);
-            await _commandDispatcher.Send(command);
+            result = await _commandDispatcher.Send<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating english and maths for apprenticeship {learningKey}", learningKey);
+            _logger.LogError(ex, "Error updating english and maths for apprenticeship {LearningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully updated english and maths for apprenticeship {learningKey}", learningKey);
-        return Ok();
+        _logger.LogInformation("Successfully updated english and maths for apprenticeship {LearningKey}", learningKey);
+        return Ok(result);
     }
 
     [Route("{learningKey}/on-programme")]
     [HttpPut]
     public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateOnProgrammeRequest updateOnProgrammeRequest)
     {
-        _logger.LogInformation("Received request to update on-programme for apprenticeship {learningKey}", learningKey);
-
+        _logger.LogInformation("Received request to update on-programme for apprenticeship {LearningKey}", learningKey);
+        UpdateOnProgrammeResult result;
         try
         {
             var command = new UpdateOnProgrammeCommand(learningKey, updateOnProgrammeRequest);
-            await _commandDispatcher.Send(command);
+            result = await _commandDispatcher.Send<UpdateOnProgrammeCommand, UpdateOnProgrammeResult>(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating on-programme for apprenticeship {learningKey}", learningKey);
+            _logger.LogError(ex, "Error updating on-programme for apprenticeship {LearningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully updated on-programme for apprenticeship {learningKey}", learningKey);
-        return Ok();
+        _logger.LogInformation("Successfully updated on-programme for apprenticeship {LearningKey}", learningKey);
+        return Ok(result);
     }
 
     [Route("{learningKey}/release-earnings")]
