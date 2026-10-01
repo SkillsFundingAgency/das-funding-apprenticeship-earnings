@@ -73,13 +73,13 @@ public class ShortCourseStepDefinitions
             .Should().BeEquivalentTo(request);
     }
 
-    [When("I request the short course earnings")]
-    public async Task WhenIRequestTheShortCourseEarnings()
+    [When("I request the short course earnings for year (.*)")]
+    public async Task WhenIRequestTheShortCourseEarnings(string collectionYear)
     {
         var request = _scenarioContext.Get<CreateUnapprovedShortCourseLearningRequest>();
 
         var response = await _testContext.TestInnerApi.Get<GetFm99ShortCourseEarningsResponse>(
-            $"/fm99/{request.LearningKey}/shortCourses?ukprn={request.OnProgramme.Ukprn}");
+            $"/fm99/{request.LearningKey}/shortCourses?ukprn={request.OnProgramme.Ukprn}&collectionYear={collectionYear}");
 
         _scenarioContext.Set(response);
     }

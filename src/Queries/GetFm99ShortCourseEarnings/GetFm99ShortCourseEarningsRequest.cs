@@ -6,10 +6,12 @@ public class GetFm99ShortCourseEarningsRequest : IQuery
 {
     public Guid LearningKey { get; }
     public long Ukprn { get; }
+    public short CollectionYear { get; }
 
-    public GetFm99ShortCourseEarningsRequest(Guid learningKey, long ukprn)
+    public GetFm99ShortCourseEarningsRequest(Guid learningKey, long ukprn, short collectionYear)
     {
         LearningKey = learningKey;
         Ukprn = ukprn;
+        CollectionYear = collectionYear;
     }
 }

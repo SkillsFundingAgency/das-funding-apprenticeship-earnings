@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm99ShortCourseEarnings;
@@ -24,6 +25,7 @@ public class GetFm99ShortCourseEarningsQueryHandler : IQueryHandler<GetFm99Short
             .Where(e => e.LearningKey == query.LearningKey && e.Ukprn == query.Ukprn)
             .Where(e => e.EarningsProfile != null)
             .SelectMany(e => e.EarningsProfile!.Instalments)
+            .Where(i => i.AcademicYear == query.CollectionYear)
             .Select(i => new GetFm99ShortCourseEarningsResponse.Earning
             {
                 CollectionYear = i.AcademicYear,

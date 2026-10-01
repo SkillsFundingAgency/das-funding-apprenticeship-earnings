@@ -50,7 +50,7 @@ public class WhenGetFm99ShortCourseEarnings
                 It.Is<GetFm99ShortCourseEarningsRequest>(r => r.LearningKey == learningKey && r.Ukprn == ukprn)))
             .ReturnsAsync(expectedResponse);
 
-        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
+        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn, 2021);
 
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
@@ -68,7 +68,7 @@ public class WhenGetFm99ShortCourseEarnings
                 It.IsAny<GetFm99ShortCourseEarningsRequest>()))
             .ThrowsAsync(new Exception("Test exception"));
 
-        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn);
+        var result = await _controller.GetFm99ShortCourseEarnings(learningKey, ukprn, 2021);
 
         result.Should().BeOfType<StatusCodeResult>();
         ((StatusCodeResult)result).StatusCode.Should().Be(500);

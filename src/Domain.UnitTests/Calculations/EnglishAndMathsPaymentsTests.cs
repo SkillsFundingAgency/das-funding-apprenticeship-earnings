@@ -164,6 +164,43 @@ public class EnglishAndMathsPaymentsTests
 
     }
 
+    [Test(Description = "Test for minimal fix of return from BiL ending on the same non-month-end day")]
+    public void GenerateMathsAndEnglishPayments_ShouldNotThrow_WhenAPeriodInLearningStartsAndEndsOnTheSameNonMonthEndDay()
+    {
+        // Arrange
+        var model = new EnglishAndMathsEntity
+        {
+            Key = Guid.NewGuid(),
+            Course = "M101",
+            LearnAimRef = "M101",
+            StartDate = new DateTime(2027, 1, 6),
+            EndDate = new DateTime(2027, 3, 20),
+            Amount = 300,
+            PeriodsInLearning =
+            [
+                new EnglishAndMathsPeriodInLearningEntity
+                {
+                    StartDate = new DateTime(2027, 1, 6),
+                    EndDate = new DateTime(2027, 2, 7),
+                    OriginalExpectedEndDate = new DateTime(2027, 2, 7)
+                },
+                new EnglishAndMathsPeriodInLearningEntity
+                {
+                    StartDate = new DateTime(2027, 3, 20),
+                    EndDate = new DateTime(2027, 3, 20),
+                    OriginalExpectedEndDate = new DateTime(2027, 3, 20)
+                }
+            ]
+        };
+        var course = EnglishAndMaths.Get(model);
+
+        // Act
+        var act = () => EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        act.Should().NotThrow<DivideByZeroException>();
+    }
+
     private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, decimal? combinedFundingAdjustmentPercentage = null, DateTime? completionDate = null)
     {
         var model = new EnglishAndMathsEntity

@@ -29,7 +29,9 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
         if (learningDomainModel == null)
         {
-            _logger.LogInformation("No Learning domain model found for LearningKey: {LearningKey}; skipping UpdateOnProgrammeCommand", command.LearningKey);
+            _logger.LogInformation(
+                "No draft Earnings found for LearningKey {LearningKey} on update - expected when earnings generation is disabled",
+                command.LearningKey);
             return;
         }
 

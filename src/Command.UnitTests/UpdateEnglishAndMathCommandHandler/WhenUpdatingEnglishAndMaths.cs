@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
@@ -56,6 +57,34 @@ public class WhenUpdatingEnglishAndMaths
         // Assert
         _mockRepository.Verify(x => x.GetApprenticeshipLearning(command.LearningKey), Times.Once);
         _mockRepository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Once);
+    }
+
+    [Test]
+    public async Task ThenNoExceptionIsThrownWhenNoEarningsHaveBeenGeneratedForTheLearner()
+    {
+        // Arrange
+        var learningDomainModel = BuildLearning();
+
+        SetupMocks();
+
+        var command = BuildCommand(learningDomainModel);
+
+        _mockRepository
+            .Setup(x => x.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning)null!);
+
+        var sut = new UpdateEnglishAndMathsCommandHandler(
+            _mockLogger.Object,
+            _mockRepository.Object,
+            _mockSystemClock.Object
+        );
+
+        // Act
+        var act = async () => await sut.Handle(command);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+        _mockRepository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 
     private ApprenticeshipLearning BuildLearning()
