@@ -42,8 +42,8 @@ public class WhenSaveLearningSupportPayments
         var result = await _controller.UpdateLearningSupport(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateLearningSupportCommand>(), default), Times.Once);
-        result.Should().BeOfType<OkResult>();
+        _commandDispatcherMock.Verify(x => x.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(It.IsAny<UpdateLearningSupportCommand>(), default), Times.Once);
+        result.Should().BeOfType<OkObjectResult>();
     }
 
     [Test]
@@ -53,7 +53,7 @@ public class WhenSaveLearningSupportPayments
         var learningKey = Guid.NewGuid();
         var request = _fixture.Create<UpdateLearningSupportRequest>();
 
-        _commandDispatcherMock.Setup(x => x.Send(It.IsAny<UpdateLearningSupportCommand>(), default))
+        _commandDispatcherMock.Setup(x => x.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(It.IsAny<UpdateLearningSupportCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
