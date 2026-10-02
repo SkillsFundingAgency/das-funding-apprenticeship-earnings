@@ -47,11 +47,11 @@ public class LearningController: ControllerBase
     public async Task<IActionResult> SaveMathsAndEnglish(Guid learningKey, UpdateEnglishAndMathsRequest saveMathsAndEnglishRequest)
     {
         _logger.LogInformation("Received request to update english and maths for apprenticeship {learningKey}", learningKey);
-        UpdateLearningSupportResult result;
+        UpdateEnglishAndMathsResult result;
         try
         {
             var command = new UpdateEnglishAndMathsCommand(learningKey, saveMathsAndEnglishRequest);
-            result = await _commandDispatcher.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(command);
+            result = await _commandDispatcher.Send<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>(command);
         }
         catch (Exception ex)
         {
@@ -68,11 +68,11 @@ public class LearningController: ControllerBase
     public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateOnProgrammeRequest updateOnProgrammeRequest)
     {
         _logger.LogInformation("Received request to update on-programme for apprenticeship {learningKey}", learningKey);
-        UpdateEnglishAndMathsResult result;
+        UpdateOnProgrammeResult result;
         try
         {
             var command = new UpdateOnProgrammeCommand(learningKey, updateOnProgrammeRequest);
-            result = await _commandDispatcher.Send<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>(command);
+            result = await _commandDispatcher.Send<UpdateOnProgrammeCommand, UpdateOnProgrammeResult>(command);
         }
         catch (Exception ex)
         {
@@ -89,11 +89,10 @@ public class LearningController: ControllerBase
     public async Task<IActionResult> ReleaseEarnings(Guid learningKey, ReleaseEarningsRequest request)
     {
         _logger.LogInformation("Received request to release earnings for apprenticeship {LearningKey}", learningKey);
-        UpdateOnProgrammeResult result;
         try
         {
             var command = new ReleaseEarningsCommand(learningKey, request);
-            result = await _commandDispatcher.Send<UpdateOnProgrammeCommand, UpdateOnProgrammeResult>(command);
+            await _commandDispatcher.Send<ReleaseEarningsCommand>(command);
         }
         catch (Exception ex)
         {
@@ -102,27 +101,6 @@ public class LearningController: ControllerBase
         }
 
         _logger.LogInformation("Successfully updated on-programme for apprenticeship {LearningKey}", learningKey);
-        return Ok(result);
-    }
-
-    [Route("{learningKey}/release-earnings")]
-    [HttpPost]
-    public async Task<IActionResult> ReleaseEarnings(Guid learningKey, ReleaseEarningsRequest request)
-    {
-        _logger.LogInformation("Received request to release earnings for apprenticeship {LearningKey}", learningKey);
-
-        try
-        {
-            var command = new ReleaseEarningsCommand(learningKey, request);
-            await _commandDispatcher.Send(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error releasing earnings for apprenticeship {LearningKey}", learningKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully released earnings for apprenticeship {LearningKey}", learningKey);
         return Ok();
     }
 
