@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 
-public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearningSupportCommand>
+public record UpdateLearningSupportResult(bool HasNewEarningsProfileVersionBeenGenerated);
+
+public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearningSupportCommand, UpdateLearningSupportResult>
 {
     private readonly ILogger<UpdateLearningSupportCommandHandler> _logger;
     private readonly ILearningRepository _learningRepository;
@@ -23,7 +26,7 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
         _systemClockService = systemClock;
     }
 
-    public async Task Handle(UpdateLearningSupportCommand command, CancellationToken cancellationToken = default)
+    public async Task<UpdateLearningSupportResult> Handle(UpdateLearningSupportCommand command, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Handling UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
 
@@ -34,7 +37,7 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
             _logger.LogInformation(
                 "No draft Earnings found for LearningKey {LearningKey} on update - expected when earnings generation is disabled",
                 command.LearningKey);
-            return;
+            return new UpdateLearningSupportResult(false);
         }
 
         var learningSupportPayments = command.LearningSupportPayments.SelectMany(x=>
@@ -47,6 +50,7 @@ public class UpdateLearningSupportCommandHandler : ICommandHandler<UpdateLearnin
         await _learningRepository.Update(learningDomainModel);
 
         _logger.LogInformation("Successfully handled UpdateLearningSupportCommand for apprenticeship {LearningKey}", command.LearningKey);
+        return new UpdateLearningSupportResult(learningDomainModel.GetCurrentEpisode(_systemClockService).HasEarningsProfileVersionUpdate);
     }
 
     private async Task<ApprenticeshipLearning?> GetDomainApprenticeship(Guid LearningKey)

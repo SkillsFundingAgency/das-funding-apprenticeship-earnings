@@ -29,6 +29,8 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public List<(ApprenticeshipPeriodInLearning, List<PriceInPeriod>)> PeriodsInLearningWithMatchedPrices => EpisodePeriodsInLearning.Select(x => GetPricesForPeriod(x, Prices.ToList())).ToList(); //todo don't need this but some of the linked code (extensions) will be useful
     public DateTime? LastDayOfLearning => this.GetLastDayOfLearning();
 
+    public bool HasEarningsProfileVersionUpdate { get; set; }
+
     public string FundingLineType => AgeAtStartOfApprenticeship < 19
             ? "16-18 Apprenticeship (Employer on App Service)"
             : "19+ Apprenticeship (Employer on App Service)";
@@ -76,7 +78,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public void CalculateOnProgramme(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData, bool initialGenerationIsApproved = true)
     {
         _entity.IsRemoved = false;
-
+        
         var (instalments, additionalPayments, onProgramTotal, completionPayment) = GenerateBasicEarnings(learning);
    
         // Qualifying period logic must happen before completion and balancing
@@ -121,6 +123,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration)) // if earnings were updated, raise recalculated event except on initial generation, which is handled by the EarningsGenerationEvent publishing logic elsewhere (this is done here instead of in earningProfile as here we have access to the apprenticeship)
         {
             AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
+            HasEarningsProfileVersionUpdate = true;
         }
     }
 
@@ -159,6 +162,11 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _earningsProfile!.Update(
             systemClock,
             additionalPayments: existingAdditionalPayments);
+
+        if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration))
+        {
+            HasEarningsProfileVersionUpdate = true;
+        }
     }
 
     public void RemoveAdditionalEarnings(ISystemClockService systemClock)
@@ -173,6 +181,11 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public void UpdateEnglishAndMaths(List<EnglishAndMaths.EnglishAndMaths> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
+
+        if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration))
+        {
+            HasEarningsProfileVersionUpdate = true;
+        }
     }
 
     public void UpdatePrices(List<LearningEpisodePrice> updatedPrices)
@@ -304,6 +317,16 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         _earningsProfile!.Approve();
         _entity.EmployerAccountId = employerAccountId;
         _entity.FundingEmployerAccountId = fundingAccountId;
+
+        if (!string.IsNullOrWhiteSpace(learnerRef))
+        {
+            AddEvent(new ApprenticeshipPayableEarningsUpdatedEvent
+            {
+                LearningKey = _entity.LearningKey,
+                LearnerKey = learnerKey,
+                LearnerRef = learnerRef
+            });
+        }
     }
 
     public void SetEmployerType(EmployerType employerType)

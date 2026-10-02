@@ -5,7 +5,9 @@ using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 
-public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgrammeCommand>
+public record UpdateOnProgrammeResult(bool HasNewEarningsProfileVersionBeenGenerated);
+
+public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgrammeCommand, UpdateOnProgrammeResult>
 {
     private readonly ILogger<UpdateOnProgrammeCommandHandler> _logger;
     private readonly ILearningRepository _learningRepository;
@@ -21,7 +23,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         _systemClock = systemClock;
     }
 
-    public async Task Handle(UpdateOnProgrammeCommand command, CancellationToken cancellationToken = default)
+    public async Task<UpdateOnProgrammeResult> Handle(UpdateOnProgrammeCommand command, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Handling UpdateOnProgrammeCommand for LearningKey: {LearningKey}", command.LearningKey);
         
@@ -32,7 +34,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
             _logger.LogInformation(
                 "No draft Earnings found for LearningKey {LearningKey} on update - expected when earnings generation is disabled",
                 command.LearningKey);
-            return;
+            return new UpdateOnProgrammeResult(false);
         }
 
         var episode = learningDomainModel.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
@@ -54,12 +56,14 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
         ExecuteAndLog(() => learningDomainModel.UpdateCareDetails(request.Care.HasEHCP, request.Care.IsCareLeaver, request.Care.CareLeaverEmployerConsentGiven, _systemClock), "update Care Details");
 
-        ExecuteAndLog(() => learningDomainModel.Calculate(_systemClock, JsonSerializer.Serialize(command.Request), request.ApprenticeshipEpisodeKey), "calculation onprogramme earnings");
+        ExecuteAndLog(() => learningDomainModel.Calculate(_systemClock, JsonSerializer.Serialize(command.Request)), "calculation onprogramme earnings");
 
         _logger.LogInformation("Updating LearningKey: {LearningKey} in repository", command.LearningKey);
         await _learningRepository.Update(learningDomainModel);
 
         _logger.LogInformation("Completed handling UpdateOnProgrammeCommand for LearningKey: {LearningKey}", command.LearningKey);
+
+        return new UpdateOnProgrammeResult(episode.HasEarningsProfileVersionUpdate);
     }
 
     private void ExecuteAndLog(Action action, string actionDescription)

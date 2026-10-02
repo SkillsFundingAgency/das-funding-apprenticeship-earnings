@@ -65,6 +65,11 @@ public static class ScenarioContextExtensions
         return learnerRef;
     }
 
+    public static void SetNoLearnerRef(this ScenarioContext context)
+    {
+        context.Set<string>(string.Empty, "LearnerRef");
+    }
+
     public static long GetApprovalsApprenticeshipId(this ScenarioContext context)
     {
         if (context.TryGetValue("ApprovalsApprenticeshipId", out long approvalsApprenticeshipId)) return approvalsApprenticeshipId;
