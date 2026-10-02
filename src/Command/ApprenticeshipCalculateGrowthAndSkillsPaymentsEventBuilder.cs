@@ -106,8 +106,9 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 instalment.Amount));
 
         var incentiveEntries = GetIncentiveEntries(episode);
+        var learningSupportEntries = GetLearningSupportEntries(episode);
 
-        return onProgrammeEntries.Concat(incentiveEntries)
+        return onProgrammeEntries.Concat(incentiveEntries).Concat(learningSupportEntries)
             .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
             {
@@ -166,6 +167,20 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                     payment.Amount);
             }
         }
+    }
+
+    private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetLearningSupportEntries(
+        ApprenticeshipEpisode episode)
+    {
+        return episode.EarningsProfile!.AdditionalPayments
+            .Where(x => x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
+            .OrderBy(x => x.DueDate)
+            .Select(payment => (
+                payment.AcademicYear,
+                episode.GetPriceAt(payment.DueDate).PriceKey,
+                EarningType.LearningSupport,
+                payment.DeliveryPeriod,
+                payment.Amount));
     }
 
     private static EarningType GetIncentiveEarningType(string additionalPaymentType, int occurrenceIndex)

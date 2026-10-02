@@ -113,6 +113,65 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             });
         }
 
+        [When("the earnings are released to payments")]
+        public async Task WhenTheEarningsAreReleasedToPayments()
+        {
+            // (the outer does this when an update response reports a new earnings profile version)
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            await _testContext.TestInnerApi.Post($"/learning/{request.LearningKey}/release-earnings", new
+            {
+                LearnerKey = _scenarioContext.GetLearnerKey(),
+                LearnerRef = _scenarioContext.GetLearnerRef()
+            });
+        }
+
+        [Then(@"the payments event is sent to pv2 with (\d+) learning support earnings matching the stored learning support")]
+        public async Task ThenThePaymentsEventIsSentToPv2WithLearningSupportEarnings(int expectedCount)
+        {
+            var (paymentsEvent, storedLearningSupport) = await GetLatestPaymentsEventAndStoredLearningSupport();
+
+            storedLearningSupport.Should().HaveCount(expectedCount);
+
+            var sentLearningSupport = paymentsEvent.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+                .Where(p => p.EarningType == EarningType.LearningSupport).ToList();
+
+            sentLearningSupport.Should().HaveCount(expectedCount);
+            foreach (var stored in storedLearningSupport)
+            {
+                sentLearningSupport.Should().ContainSingle(p => p.Amount == stored.Amount && p.DeliveryPeriod == stored.DeliveryPeriod);
+            }
+        }
+
+        [Then("the payments event is sent to pv2 with no learning support earnings")]
+        public async Task ThenThePaymentsEventIsSentToPv2WithNoLearningSupportEarnings()
+        {
+            var (paymentsEvent, storedLearningSupport) = await GetLatestPaymentsEventAndStoredLearningSupport();
+
+            storedLearningSupport.Should().BeEmpty();
+            paymentsEvent.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+                .Should().NotContain(p => p.EarningType == EarningType.LearningSupport);
+        }
+
+        private async Task<(CalculateGrowthAndSkillsPayments PaymentsEvent, System.Collections.Generic.List<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship.AdditionalPayment> StoredLearningSupport)> GetLatestPaymentsEventAndStoredLearningSupport()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
+            paymentsEvent.Should().NotBeNull("a payments event should have been sent");
+
+            // The latest event must reflect the current earnings profile, not an earlier version
+            paymentsEvent!.EarningsId.Should().Be(episode.EarningsProfile!.Version);
+
+            var storedLearningSupport = episode.EarningsProfile.AdditionalPayments
+                .Where(x => x.AdditionalPaymentType == SFA.DAS.Funding.ApprenticeshipEarnings.Domain.InstalmentTypes.LearningSupport)
+                .ToList();
+
+            return (paymentsEvent, storedLearningSupport);
+        }
+
         [Then("no payments event is sent to pv2")]
         public void ThenNoPaymentsEventIsSentToPv2()
         {

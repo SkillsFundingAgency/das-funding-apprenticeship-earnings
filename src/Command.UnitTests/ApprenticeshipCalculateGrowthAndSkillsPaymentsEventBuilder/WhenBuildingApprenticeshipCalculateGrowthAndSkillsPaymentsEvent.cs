@@ -457,7 +457,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
     }
 
     [Test]
-    public void WhenLearningSupportAdditionalPaymentPresent_ThenExcludedFromIncentiveMapping()
+    public void WhenLearningSupportAdditionalPaymentPresent_ThenMappedToLearningSupportAlongsideIncentives()
     {
         var startDate = new DateTime(2023, 9, 1);
         var endDate = new DateTime(2024, 6, 30);
@@ -475,8 +475,51 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
         var periods = result.Earnings.Single().PricePeriods.Single().Periods;
-        periods.Should().HaveCount(1);
-        periods.Single().EarningType.Should().Be(EarningType.First16To18ProviderIncentive);
+        periods.Should().HaveCount(2);
+        periods.Single(p => p.EarningType == EarningType.First16To18ProviderIncentive).Amount.Should().Be(500m);
+        var learningSupport = periods.Single(p => p.EarningType == EarningType.LearningSupport);
+        learningSupport.Amount.Should().Be(150m);
+        learningSupport.DeliveryPeriod.Should().Be(5);
+    }
+
+    [Test]
+    public void WhenMultipleLearningSupportPaymentsPresent_ThenEachMapsToLearningSupport()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 4, Amount = 150m, DueDate = new DateTime(2023, 11, 30), AdditionalPaymentType = "LearningSupport" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 5, Amount = 150m, DueDate = new DateTime(2023, 12, 31), AdditionalPaymentType = "LearningSupport" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments, priceKey: priceKey);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods
+            .Where(p => p.EarningType == EarningType.LearningSupport).ToList();
+        periods.Should().HaveCount(3);
+        periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 3, 4, 5 });
+        periods.Should().OnlyContain(p => p.Amount == 150m);
+    }
+
+    [Test]
+    public void WhenNoLearningSupportPaymentsPresent_ThenNoLearningSupportEarningsSent()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: new List<ApprenticeshipAdditionalPaymentEntity>());
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+            .Should().NotContain(p => p.EarningType == EarningType.LearningSupport);
     }
 
     [Test]
