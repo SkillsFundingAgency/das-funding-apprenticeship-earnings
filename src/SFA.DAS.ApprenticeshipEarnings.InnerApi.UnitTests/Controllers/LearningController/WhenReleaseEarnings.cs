@@ -48,7 +48,8 @@ public class WhenReleaseEarnings
 
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None));
+            .Setup(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None))
+            .ThrowsAsync(new Exception("Test exception"));
 
         var result = await _controller.ReleaseEarnings(learningKey, request);
 
