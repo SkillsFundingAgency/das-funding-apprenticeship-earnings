@@ -51,7 +51,7 @@ public class TestInnerApi : IDisposable
                 {
                     StartDate = new DateTime(2018, 1, 1),
                     EarningsOptedInProviders = [12345678, 116],
-                    PaymentsOptedInProviders = [12345678]
+                    PaymentsOptedInProviders = [12345678, 116]
                 });
 
                 AddEntityFrameworkForApprenticeships(services, testContext.SqlDatabase?.DatabaseInfo.ConnectionString!);

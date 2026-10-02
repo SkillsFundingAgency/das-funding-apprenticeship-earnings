@@ -28,6 +28,13 @@ public class UpdateOnProgrammeRequestBuilder
     private bool _hasEHCP = false;
     private bool _isCareLeaver = false;
     private bool _careLeaverEmployerConsentGiven = false;
+    private List<LearningSupportItem> _learningSupport = new List<LearningSupportItem>();
+
+    public UpdateOnProgrammeRequestBuilder WithLearningSupport(List<LearningSupportItem> learningSupport)
+    {
+        _learningSupport = learningSupport;
+        return this;
+    }
 
 
     public UpdateOnProgrammeRequestBuilder WithDataFromSetupModel(UpdateOnProgrammeModel model)
@@ -138,7 +145,8 @@ public class UpdateOnProgrammeRequestBuilder
                 CareLeaverEmployerConsentGiven = _careLeaverEmployerConsentGiven,
                 HasEHCP = _hasEHCP,
                 IsCareLeaver = _isCareLeaver
-            }
+            },
+            LearningSupport = _learningSupport
         };
     }
 }

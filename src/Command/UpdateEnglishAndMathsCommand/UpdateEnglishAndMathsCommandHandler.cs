@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
@@ -55,7 +56,13 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         var courses = new List<EnglishAndMaths>();
         foreach (var detail in command.EnglishAndMathsDetails)
         {
-            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.CombinedFundingAdjustmentPercentage, detail.PeriodsInLearning);
+            var learningSupportPayments = detail.LearningSupport
+                .SelectMany(x => LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
+                .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+                .Select(p => new EnglishAndMathsAdditionalPayment(p.AcademicYear, p.DeliveryPeriod, p.Amount, p.DueDate, p.AdditionalPaymentType))
+                .ToList();
+
+            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.CombinedFundingAdjustmentPercentage, detail.PeriodsInLearning, learningSupportPayments);
             courses.Add(course);
         }
 

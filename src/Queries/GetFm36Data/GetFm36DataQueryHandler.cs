@@ -44,6 +44,10 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 .ThenInclude(x=> x.EarningsProfile)
                     .ThenInclude(x => x.EnglishAndMathsCourses)
                         .ThenInclude(x => x.Instalments)
+            .Include(x => x.Episodes)
+                .ThenInclude(x=> x.EarningsProfile)
+                    .ThenInclude(x => x.EnglishAndMathsCourses)
+                        .ThenInclude(x => x.AdditionalPayments)
             .AsNoTracking()
             .AsSplitQuery();
 
@@ -100,14 +104,24 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 EpisodePriceKey = i.EpisodePriceKey,
                 InstalmentType = i.Type
             }).ToList(),
-            AdditionalPayments = (profile?.ApprenticeshipAdditionalPayments ?? []).Select(p => new AdditionalPayment
-            {
-                AcademicYear = p.AcademicYear,
-                DeliveryPeriod = p.DeliveryPeriod,
-                Amount = p.Amount,
-                AdditionalPaymentType = p.AdditionalPaymentType,
-                DueDate = p.DueDate
-            }).ToList(),
+            AdditionalPayments = (profile?.ApprenticeshipAdditionalPayments ?? [])
+                .Select(p => new AdditionalPayment
+                {
+                    AcademicYear = p.AcademicYear,
+                    DeliveryPeriod = p.DeliveryPeriod,
+                    Amount = p.Amount,
+                    AdditionalPaymentType = p.AdditionalPaymentType,
+                    DueDate = p.DueDate
+                })
+                .Concat((profile?.EnglishAndMathsCourses ?? []).SelectMany(em => em.AdditionalPayments ?? []).Select(p => new AdditionalPayment
+                {
+                    AcademicYear = p.AcademicYear,
+                    DeliveryPeriod = p.DeliveryPeriod,
+                    Amount = p.Amount,
+                    AdditionalPaymentType = p.AdditionalPaymentType,
+                    DueDate = p.DueDate
+                }))
+                .ToList(),
             CompletionPayment = profile?.CompletionPayment ?? 0,
             OnProgramTotal = profile?.OnProgramTotal ?? 0,
             EnglishAndMaths = (profile?.EnglishAndMathsCourses ?? []).Select(em => new EnglishAndMaths

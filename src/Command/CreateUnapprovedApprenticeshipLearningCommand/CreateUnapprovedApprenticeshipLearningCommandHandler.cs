@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
+using EnglishAndMathsAdditionalPayment = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMathsAdditionalPayment;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -153,6 +154,12 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
 
         foreach (var detail in request.EnglishAndMaths)
         {
+            var learningSupportPayments = detail.LearningSupport
+                .SelectMany(x => LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
+                .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+                .Select(p => new EnglishAndMathsAdditionalPayment(p.AcademicYear, p.DeliveryPeriod, p.Amount, p.DueDate, p.AdditionalPaymentType))
+                .ToList();
+
             courses.Add(new EnglishAndMathsDomainModel(
                 detail.StartDate,
                 detail.EndDate,
@@ -168,7 +175,8 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     OriginalExpectedEndDate = x.OriginalExpectedEndDate
-                })));
+                }),
+                learningSupportPayments));
         }
 
         return courses;
