@@ -38,8 +38,8 @@ public class WhenUpdatingEnglishAndMaths
         var result = await _controller.SaveMathsAndEnglish(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateEnglishAndMathsCommand>(), default), Times.Once);
-        result.Should().BeOfType<OkResult>();
+        _commandDispatcherMock.Verify(x => x.Send<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>(It.IsAny<UpdateEnglishAndMathsCommand>(), default), Times.Once);
+        result.Should().BeOfType<OkObjectResult>();
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class WhenUpdatingEnglishAndMaths
         var request = _fixture.Create<UpdateEnglishAndMathsRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<UpdateEnglishAndMathsCommand>(), default))
+            .Setup(x => x.Send<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>(It.IsAny<UpdateEnglishAndMathsCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act

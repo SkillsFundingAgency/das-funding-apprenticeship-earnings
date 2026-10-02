@@ -36,8 +36,14 @@ public class WhenReleaseEarnings
 
         var result = await _controller.ReleaseEarnings(learningKey, request);
 
+<<<<<<<< HEAD:src/SFA.DAS.ApprenticeshipEarnings.InnerApi.UnitTests/Controllers/LearningController/WhenReleaseEarnings.cs
         _commandDispatcherMock.Verify(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None), Times.Once);
         result.Should().BeOfType<OkResult>();
+========
+        // Assert
+        _commandDispatcherMock.Verify(x => x.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(It.IsAny<UpdateLearningSupportCommand>(), default), Times.Once);
+        result.Should().BeOfType<OkObjectResult>();
+>>>>>>>> flp-2030-incentives-payment:src/SFA.DAS.ApprenticeshipEarnings.InnerApi.UnitTests/Controllers/LearningController/WhenSaveLearningSupportPayments.cs
     }
 
     [Test]
@@ -46,8 +52,12 @@ public class WhenReleaseEarnings
         var learningKey = Guid.NewGuid();
         var request = _fixture.Create<ReleaseEarningsRequest>();
 
+<<<<<<<< HEAD:src/SFA.DAS.ApprenticeshipEarnings.InnerApi.UnitTests/Controllers/LearningController/WhenReleaseEarnings.cs
         _commandDispatcherMock
             .Setup(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None))
+========
+        _commandDispatcherMock.Setup(x => x.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(It.IsAny<UpdateLearningSupportCommand>(), default))
+>>>>>>>> flp-2030-incentives-payment:src/SFA.DAS.ApprenticeshipEarnings.InnerApi.UnitTests/Controllers/LearningController/WhenSaveLearningSupportPayments.cs
             .ThrowsAsync(new Exception("Test exception"));
 
         var result = await _controller.ReleaseEarnings(learningKey, request);
