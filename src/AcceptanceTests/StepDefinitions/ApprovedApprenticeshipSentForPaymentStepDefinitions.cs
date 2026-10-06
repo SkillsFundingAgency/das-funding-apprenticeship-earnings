@@ -172,6 +172,46 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             return (paymentsEvent, storedLearningSupport);
         }
 
+        [Then(@"the english and maths payments event is sent to pv2 with (\d+) learning support earnings matching the stored learning support")]
+        public async Task ThenTheEnglishAndMathsPaymentsEventIsSentToPv2WithLearningSupportEarnings(int expectedCount)
+        {
+            var (paymentsEvent, storedLearningSupport) = await GetLatestEnglishAndMathsPaymentsEventAndStoredLearningSupport();
+
+            storedLearningSupport.Should().HaveCount(expectedCount);
+
+            var sentLearningSupport = paymentsEvent.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+                .Where(p => p.EarningType == EarningType.LearningSupport).ToList();
+
+            sentLearningSupport.Should().HaveCount(expectedCount);
+            foreach (var stored in storedLearningSupport)
+            {
+                sentLearningSupport.Should().ContainSingle(p => p.Amount == stored.Amount && p.DeliveryPeriod == stored.DeliveryPeriod);
+            }
+        }
+
+        private async Task<(CalculateGrowthAndSkillsPayments PaymentsEvent, System.Collections.Generic.List<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMathsAdditionalPayment> StoredLearningSupport)> GetLatestEnglishAndMathsPaymentsEventAndStoredLearningSupport()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+            var course = episode.EarningsProfile!.MathsAndEnglishCourses.Single();
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+                .Where(e => e.Training.LearningType == LearningType.MathsAndEnglish && e.Training.CourseReference == course.LearnAimRef.Trim())
+                .LastOrDefault();
+            paymentsEvent.Should().NotBeNull("an english and maths payments event should have been sent");
+
+            // The latest event must reflect the current earnings profile, not an earlier snapshot
+            paymentsEvent!.EarningsId.Should().Be(episode.EarningsProfile.Version);
+
+            var storedLearningSupport = course.AdditionalPayments
+                .Where(x => x.AdditionalPaymentType == SFA.DAS.Funding.ApprenticeshipEarnings.Domain.InstalmentTypes.LearningSupport)
+                .ToList();
+
+            return (paymentsEvent, storedLearningSupport);
+        }
+
         [Then("no payments event is sent to pv2")]
         public void ThenNoPaymentsEventIsSentToPv2()
         {
