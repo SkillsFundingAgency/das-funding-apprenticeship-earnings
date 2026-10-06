@@ -293,6 +293,107 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
     }
 
     [Test]
+    public void BuildForEnglishAndMaths_WhenLearningSupportPresent_ThenMappedToLearningSupportAlongsideInstalments()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.Amount, 480m)
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" }
+            })
+            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 4, Amount = 150m, DueDate = new DateTime(2023, 11, 30), AdditionalPaymentType = "LearningSupport" }
+            })
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods;
+        periods.Should().HaveCount(3);
+        periods.Count(p => p.EarningType == EarningType.OnProgrammeMathsAndEnglish).Should().Be(1);
+        var learningSupport = periods.Where(p => p.EarningType == EarningType.LearningSupport).ToList();
+        learningSupport.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 3, 4 });
+        learningSupport.Should().OnlyContain(p => p.Amount == 150m);
+    }
+
+    [Test]
+    public void BuildForEnglishAndMaths_WhenOnlyLearningSupportPresent_ThenLearningSupportStillSent()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
+            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" }
+            })
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var period = result.Earnings.Single().PricePeriods.Single().Periods.Single();
+        period.EarningType.Should().Be(EarningType.LearningSupport);
+        period.Amount.Should().Be(150m);
+        period.DeliveryPeriod.Should().Be(3);
+    }
+
+    [Test]
+    public void BuildForEnglishAndMaths_WhenNoLearningSupportPresent_ThenNoLearningSupportEarningsSent()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" }
+            })
+            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>())
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+            .Should().NotContain(p => p.EarningType == EarningType.LearningSupport);
+    }
+
+    [Test]
     public void BuildForEnglishAndMaths_ThenBasicInformationCorrectlySet()
     {
         var startDate = new DateTime(2023, 9, 1);
