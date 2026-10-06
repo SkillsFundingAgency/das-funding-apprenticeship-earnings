@@ -4,7 +4,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprentices
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReleaseEarningsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.RemoveLearnerCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
@@ -43,32 +42,11 @@ public class LearningController: ControllerBase
         return Ok();
     }
 
-    [Route("{learningKey}/learning-support")]
-    [HttpPut]
-    public async Task<IActionResult> UpdateLearningSupport(Guid learningKey, UpdateLearningSupportRequest request)
-    {
-        _logger.LogInformation("Received request to update learning support for apprenticeship {LearningKey}", learningKey);
-        UpdateLearningSupportResult result;
-        try
-        {
-            var command = new UpdateLearningSupportCommand(learningKey, request);
-            result = await _commandDispatcher.Send<UpdateLearningSupportCommand, UpdateLearningSupportResult>(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating learning support for apprenticeship {LearningKey}", learningKey);
-            return StatusCode(500);
-        }
-
-        _logger.LogInformation("Successfully updated learning support for apprenticeship {LearningKey}", learningKey);
-        return Ok(result);
-    }
-
     [Route("{learningKey}/english-and-maths")]
     [HttpPut]
     public async Task<IActionResult> SaveMathsAndEnglish(Guid learningKey, UpdateEnglishAndMathsRequest saveMathsAndEnglishRequest)
     {
-        _logger.LogInformation("Received request to update english and maths for apprenticeship {LearningKey}", learningKey);
+        _logger.LogInformation("Received request to update english and maths for apprenticeship {learningKey}", learningKey);
         UpdateEnglishAndMathsResult result;
         try
         {
@@ -77,11 +55,11 @@ public class LearningController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating english and maths for apprenticeship {LearningKey}", learningKey);
+            _logger.LogError(ex, "Error updating english and maths for apprenticeship {learningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully updated english and maths for apprenticeship {LearningKey}", learningKey);
+        _logger.LogInformation("Successfully updated english and maths for apprenticeship {learningKey}", learningKey);
         return Ok(result);
     }
 
@@ -89,7 +67,7 @@ public class LearningController: ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateOnProgramme(Guid learningKey, UpdateOnProgrammeRequest updateOnProgrammeRequest)
     {
-        _logger.LogInformation("Received request to update on-programme for apprenticeship {LearningKey}", learningKey);
+        _logger.LogInformation("Received request to update on-programme for apprenticeship {learningKey}", learningKey);
         UpdateOnProgrammeResult result;
         try
         {
@@ -98,11 +76,11 @@ public class LearningController: ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating on-programme for apprenticeship {LearningKey}", learningKey);
+            _logger.LogError(ex, "Error updating on-programme for apprenticeship {learningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully updated on-programme for apprenticeship {LearningKey}", learningKey);
+        _logger.LogInformation("Successfully updated on-programme for apprenticeship {learningKey}", learningKey);
         return Ok(result);
     }
 
@@ -111,19 +89,18 @@ public class LearningController: ControllerBase
     public async Task<IActionResult> ReleaseEarnings(Guid learningKey, ReleaseEarningsRequest request)
     {
         _logger.LogInformation("Received request to release earnings for apprenticeship {LearningKey}", learningKey);
-
         try
         {
             var command = new ReleaseEarningsCommand(learningKey, request);
-            await _commandDispatcher.Send(command);
+            await _commandDispatcher.Send<ReleaseEarningsCommand>(command);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error releasing earnings for apprenticeship {LearningKey}", learningKey);
+            _logger.LogError(ex, "Error updating on-programme for apprenticeship {LearningKey}", learningKey);
             return StatusCode(500);
         }
 
-        _logger.LogInformation("Successfully released earnings for apprenticeship {LearningKey}", learningKey);
+        _logger.LogInformation("Successfully updated on-programme for apprenticeship {LearningKey}", learningKey);
         return Ok();
     }
 

@@ -46,6 +46,7 @@ public class WhenReleaseEarnings
         var learningKey = Guid.NewGuid();
         var request = _fixture.Create<ReleaseEarningsRequest>();
 
+
         _commandDispatcherMock
             .Setup(x => x.Send(It.IsAny<ReleaseEarningsCommand>(), CancellationToken.None))
             .ThrowsAsync(new Exception("Test exception"));

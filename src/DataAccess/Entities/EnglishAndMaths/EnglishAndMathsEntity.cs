@@ -28,5 +28,6 @@ public class EnglishAndMathsEntity
 
     public List<EnglishAndMathsInstalmentEntity> Instalments { get; set; } = [];
     public List<EnglishAndMathsPeriodInLearningEntity> PeriodsInLearning { get; set; } = [];
+    public List<EnglishAndMathsAdditionalPaymentEntity> AdditionalPayments { get; set; } = [];
 
 }
