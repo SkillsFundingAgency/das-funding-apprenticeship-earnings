@@ -44,7 +44,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 StartDate = episode.Prices.Min(p => p.StartDate),
                 PlannedEndDate = episode.LastDayOfLearning ?? episode.Prices.Max(p => p.EndDate),
                 ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
-                TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate)
+                TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
             Earnings = BuildEarnings(episode, learning, employerAccountId, fundingAccountId)
@@ -67,28 +67,37 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             Training = new Training
             {
                 LearningKey = learning.LearningKey,
-                CourseType = CourseType.Apprenticeship,
+                CourseType = CourseType.FunctionalSkill,
                 LearningType = LearningType.MathsAndEnglish,
-                CourseCode = course.LearnAimRef, //todo this is not LARs code, needs to change
-                CourseReference = course.LearnAimRef, // per design doc: for EnglishAndMaths this is the LearnAimRef for the course
+                CourseCode = course.LearnAimRef.Trim(),
+                CourseReference = course.LearnAimRef.Trim(),
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = course.StartDate,
                 PlannedEndDate = course.EndDate,
                 ActualEndDate = course.ActualEndDate,
-                TrainingStatus = GetTrainingStatus(course.WithdrawalDate, course.CompletionDate)
+                TrainingStatus = GetTrainingStatus(course.WithdrawalDate, course.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
             Earnings = BuildEnglishAndMathsEarnings(episode, course, learning, employerAccountId, fundingAccountId)
         };
     }
 
-    private static TrainingStatus GetTrainingStatus(DateTime? withdrawalDate, DateTime? completionDate)
+    private static TrainingStatus GetTrainingStatus(DateTime? withdrawalDate, DateTime? completionDate, DateTime? pauseDate)
     {
         if (withdrawalDate != null)
+        {
             return TrainingStatus.Withdrawn;
+        }
 
         if (completionDate != null)
+        {
             return TrainingStatus.Completed;
+        }
+
+        if (pauseDate != null)
+        {
+            return TrainingStatus.BreakInLearning;
+        }
 
         return TrainingStatus.Continuing;
     }
