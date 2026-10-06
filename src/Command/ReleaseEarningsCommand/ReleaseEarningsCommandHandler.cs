@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -58,23 +59,31 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
                 continue;
             }
 
-            var paymentEvent = _eventBuilder.Build(episode, learning, episode.EmployerAccountId,
-                episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
-
-            await _messageSession.Send(paymentEvent, options, cancellationToken);
-            await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
-
-            //TODO[HS]: This is commented out for now as for ticket FLP-2003, E&M isn't in scope and will be implemented in a future ticket. Once implemented, this code will need to be uncommented and tested.
-            //foreach (var course in episode.EarningsProfile.MathsAndEnglishCourses.Where(c => c.Instalments.Any()))
-            //{
-            //    var englishAndMathsEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, episode.EmployerAccountId,
-            //        episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
-
-            //    await _messageSession.Send(englishAndMathsEvent, options, cancellationToken);
-            //    await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = englishAndMathsEvent }, cancellationToken: cancellationToken);
-            //}
+            await SendOnProgramme(episode, learning, learnerKey, learnerRef, options, cancellationToken);
+            await SendEnglishAndMaths(episode, learning, learnerKey, learnerRef, options, cancellationToken);
         }
 
         _logger.LogInformation("{Handler} - Successfully processed and published events for LearningKey: {LearningKey}", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
+    }
+
+    private async Task SendOnProgramme(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, Guid learnerKey, string learnerRef, SendOptions options, CancellationToken cancellationToken)
+    {
+        var paymentEvent = _eventBuilder.Build(episode, learning, episode.EmployerAccountId,
+            episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
+
+        await _messageSession.Send(paymentEvent, options, cancellationToken);
+        await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
+    }
+
+    private async Task SendEnglishAndMaths(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, Guid learnerKey, string learnerRef, SendOptions options, CancellationToken cancellationToken)
+    {
+        foreach (var course in episode.EarningsProfile!.MathsAndEnglishCourses)
+        {
+            var englishAndMathsEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, episode.EmployerAccountId,
+                episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
+
+            await _messageSession.Send(englishAndMathsEvent, options, cancellationToken);
+            await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = englishAndMathsEvent }, cancellationToken: cancellationToken);
+        }
     }
 }

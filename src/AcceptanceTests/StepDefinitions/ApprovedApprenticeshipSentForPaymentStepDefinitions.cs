@@ -45,7 +45,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             var employerAccountId = _scenarioContext.GetEmployerAccountId();
             var fundingAccountId = _scenarioContext.GetFundingAccountId();
 
-            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().FirstOrDefault(x => x.Training.CourseType == CourseType.Apprenticeship);
             paymentsEvent.Should().NotBeNull();
 
             paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.Version);

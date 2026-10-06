@@ -33,6 +33,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         List<ApprenticeshipInstalmentEntity>? instalments = null,
         DateTime? withdrawalDate = null,
         DateTime? completionDate = null,
+        DateTime? pauseDate = null,
         long employerAccountId = 0,
         long fundingEmployerAccountId = 0,
         EmployerType employerType = EmployerType.NonLevy,
@@ -58,7 +59,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, withdrawalDate)
             .With(x => x.CompletionDate, completionDate)
             .With(x => x.AchievementDate, (DateTime?)null)
-            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.PauseDate, pauseDate)
             .With(x => x.EmployerAccountId, employerAccountId)
             .With(x => x.FundingEmployerAccountId, fundingEmployerAccountId)
             .With(x => x.EmployerType, employerType)
@@ -117,10 +118,11 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.PlannedEndDate.Should().Be(endDate);
     }
 
-    [TestCase(false, false, TrainingStatus.Continuing)]
-    [TestCase(false, true, TrainingStatus.Completed)]
-    [TestCase(true, false, TrainingStatus.Withdrawn)]
-    public void ThenTrainingStatusIsMappedCorrectly(bool withdrawn, bool completed, TrainingStatus expected)
+    [TestCase(false, false, false, TrainingStatus.Continuing)]
+    [TestCase(false, true, false, TrainingStatus.Completed)]
+    [TestCase(true, false, false, TrainingStatus.Withdrawn)]
+    [TestCase(false, false, true, TrainingStatus.BreakInLearning)]
+    public void ThenTrainingStatusIsMappedCorrectly(bool withdrawn, bool completed, bool paused, TrainingStatus expected)
     {
         var startDate = new DateTime(2023, 9, 1);
         var endDate = new DateTime(2024, 6, 30);
@@ -128,7 +130,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var (learning, episode, _) = BuildLearning(
             startDate, endDate, 15000m,
             withdrawalDate: withdrawn ? new DateTime(2024, 1, 1) : null,
-            completionDate: completed ? new DateTime(2024, 5, 1) : null);
+            completionDate: completed ? new DateTime(2024, 5, 1) : null,
+            pauseDate: paused ? new DateTime(2024, 5, 1) : null);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -311,11 +314,90 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
+        result.Training.CourseType.Should().Be(CourseType.FunctionalSkill);
         result.Training.LearningType.Should().Be(LearningType.MathsAndEnglish);
         result.Training.CourseCode.Should().Be("ENG12345");
         result.Training.CourseReference.Should().Be("ENG12345");
         result.Training.StartDate.Should().Be(courseEntity.StartDate);
         result.Training.PlannedEndDate.Should().Be(courseEntity.EndDate);
+    }
+
+    [Test]
+    public void BuildForEnglishAndMaths_ThenLearnAimRefIsTrimmed()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345   ") // learning stores this in a fixed-width column
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.CourseCode.Should().Be("ENG12345");
+        result.Training.CourseReference.Should().Be("ENG12345");
+    }
+
+    [TestCase(false, false, TrainingStatus.Continuing)]
+    [TestCase(false, true, TrainingStatus.Completed)]
+    [TestCase(true, false, TrainingStatus.Withdrawn)]
+    public void BuildForEnglishAndMaths_ThenTrainingStatusIsMappedCorrectly(bool withdrawn, bool completed, TrainingStatus expected)
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, withdrawn ? new DateTime(2024, 1, 1) : (DateTime?)null)
+            .With(x => x.CompletionDate, completed ? new DateTime(2024, 5, 1) : (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.TrainingStatus.Should().Be(expected);
+    }
+
+    [Test]
+    public void BuildForEnglishAndMaths_WhenCourseHasNoInstalments_ThenEarningsAreEmptyButMessageStillBuilds()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, new DateTime(2023, 9, 15)) // withdrawn before qualifying period clears all instalments
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().BeEmpty();
     }
 
     [TestCase("Regular", EarningType.OnProgrammeMathsAndEnglish)]
@@ -350,6 +432,37 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         period.EarningType.Should().Be(expectedEarningType);
         period.Amount.Should().Be(40m);
         period.DeliveryPeriod.Should().Be(3);
+    }
+
+    [Test]
+    public void BuildForEnglishAndMaths_WhenInstalmentsSpanMultipleAcademicYears_ThenGroupedIntoSeparateEarnings()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.Amount, 480m)
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 40m, Type = "Regular" }
+            })
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().HaveCount(2);
+        result.Earnings.Select(e => e.AcademicYear).Should().BeEquivalentTo(new short[] { 2324, 2425 });
     }
 
     [Test]
