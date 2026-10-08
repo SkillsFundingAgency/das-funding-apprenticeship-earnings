@@ -115,8 +115,9 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 instalment.Amount));
 
         var incentiveEntries = GetIncentiveEntries(episode);
+        var learningSupportEntries = GetLearningSupportEntries(episode);
 
-        return onProgrammeEntries.Concat(incentiveEntries)
+        return onProgrammeEntries.Concat(incentiveEntries).Concat(learningSupportEntries)
             .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
             {
@@ -177,6 +178,20 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
         }
     }
 
+    private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetLearningSupportEntries(
+        ApprenticeshipEpisode episode)
+    {
+        return episode.EarningsProfile!.AdditionalPayments
+            .Where(x => x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
+            .OrderBy(x => x.DueDate)
+            .Select(payment => (
+                payment.AcademicYear,
+                episode.GetPriceAt(payment.DueDate).PriceKey,
+                EarningType: EarningType.LearningSupport,
+                payment.DeliveryPeriod,
+                payment.Amount));
+    }
+
     private static EarningType GetIncentiveEarningType(string additionalPaymentType, int occurrenceIndex)
     {
         return (additionalPaymentType, occurrenceIndex) switch
@@ -191,8 +206,24 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
 
     private static IList<Earnings> BuildEnglishAndMathsEarnings(ApprenticeshipEpisode episode, EnglishAndMathsDomainModel course, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
     {
-        return course.Instalments
-            .GroupBy(i => i.AcademicYear)
+        var instalmentEntries = course.Instalments
+            .Select(instalment => (
+                instalment.AcademicYear,
+                EarningType: GetEnglishAndMathsEarningType(instalment.Type),
+                instalment.DeliveryPeriod,
+                instalment.Amount));
+
+        var learningSupportEntries = course.AdditionalPayments
+            .Where(x => x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
+            .OrderBy(x => x.DueDate)
+            .Select(payment => (
+                payment.AcademicYear,
+                EarningType: EarningType.LearningSupport,
+                payment.DeliveryPeriod,
+                payment.Amount));
+
+        return instalmentEntries.Concat(learningSupportEntries)
+            .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
             {
                 AcademicYear = yearGroup.Key,
@@ -203,12 +234,12 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                         Price = course.Amount,
                         StartDate = course.StartDate,
                         EndDate = course.EndDate,
-                        Periods = yearGroup.Select(instalment => new EarningPeriod
+                        Periods = yearGroup.Select(x => new EarningPeriod
                         {
-                            EarningType = GetEnglishAndMathsEarningType(instalment.Type),
-                            DeliveryPeriod = instalment.DeliveryPeriod,
+                            EarningType = x.EarningType,
+                            DeliveryPeriod = x.DeliveryPeriod,
                             LearningId = learning.ApprovalsApprenticeshipId,
-                            Amount = instalment.Amount,
+                            Amount = x.Amount,
                             Employer = new Employer
                             {
                                 AccountId = employerAccountId,

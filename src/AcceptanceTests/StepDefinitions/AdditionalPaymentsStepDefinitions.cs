@@ -22,6 +22,7 @@ public class AdditionalPaymentsStepDefinitions
     }
 
     [Given(@"the following learning support payment information is provided")]
+    [When(@"the following learning support payment information is provided")]
     public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
     {
         var learningSupportItems = table.CreateSet<LearningSupportItem>().ToList();
