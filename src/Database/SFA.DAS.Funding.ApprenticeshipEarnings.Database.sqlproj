@@ -80,6 +80,7 @@
     <Build Include="Tables\ShortCourseEarningsProfile.sql" />
     <Build Include="Tables\ShortCourseInstalment.sql" />
     <Build Include="Tables\ShortCourseEarningsProfileHistory.sql" />
+    <Build Include="Tables\EnglishAndMathsEarningsProfileHistory.sql" />
     <Build Include="Tables\ApprenticeshipLearning.sql" />
     <Build Include="Tables\ShortCourseLearning.sql" />
   </ItemGroup>

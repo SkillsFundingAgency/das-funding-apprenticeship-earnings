@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -60,6 +61,17 @@ internal static class ApprenticeshipEarningsProfileExtensions
             .ToList();
     }
 
+    internal static EnglishAndMathsEarningsProfileUpdatedEvent CreateEnglishAndMathsEarningsProfileUpdatedEvent(this EnglishAndMathsEntity englishAndMaths, Guid earningsProfileId)
+    {
+        return new EnglishAndMathsEarningsProfileUpdatedEvent
+        {
+            EarningsProfileId = earningsProfileId,
+            EnglishAndMathsKey = englishAndMaths.Key,
+            Version = englishAndMaths.Version,
+            EnglishAndMaths = englishAndMaths.ToEnglishAndMaths()
+        };
+    }
+
     internal static List<EnglishAndMaths> GetMathsAndEnglish(this ApprenticeshipEarningsProfileEntity earningsProfile)
     {
         if (earningsProfile.EnglishAndMathsCourses == null || !earningsProfile.EnglishAndMathsCourses.Any())
@@ -67,20 +79,27 @@ internal static class ApprenticeshipEarningsProfileExtensions
             return new List<EnglishAndMaths>();
         }
 
-        return earningsProfile.EnglishAndMathsCourses.Select(me => new EnglishAndMaths
+        return earningsProfile.EnglishAndMathsCourses.Select(ToEnglishAndMaths).ToList();
+    }
+
+    private static EnglishAndMaths ToEnglishAndMaths(this EnglishAndMathsEntity englishAndMaths)
+    {
+        return new EnglishAndMaths
         {
-            EnglishAndMathsKey = me.Key,
-            StartDate = me.StartDate,
-            EndDate = me.EndDate,
-            Course = me.Course,
-            Amount = me.Amount,
-            Instalments = me.Instalments.Select(i => new EnglishAndMathsInstalments
+            EnglishAndMathsKey = englishAndMaths.Key,
+            StartDate = englishAndMaths.StartDate,
+            EndDate = englishAndMaths.EndDate,
+            Course = englishAndMaths.Course,
+            Amount = englishAndMaths.Amount,
+            LearnAimRef = englishAndMaths.LearnAimRef,
+            IsRemoved = englishAndMaths.IsRemoved,
+            Instalments = englishAndMaths.Instalments.Select(i => new EnglishAndMathsInstalments
             {
                 AcademicYear = i.AcademicYear,
                 DeliveryPeriod = i.DeliveryPeriod,
                 Amount = i.Amount
             }).OrderBy(x => x.AcademicYear).ThenBy(x => x.DeliveryPeriod)
                 .ToList()
-        }).ToList();
+        };
     }
 }

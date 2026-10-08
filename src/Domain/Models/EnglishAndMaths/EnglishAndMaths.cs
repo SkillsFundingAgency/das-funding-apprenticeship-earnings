@@ -3,6 +3,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 using System.Collections.ObjectModel;
+using UUIDNext;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
@@ -23,6 +24,8 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
     public DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? PauseDate;
     public DateTime? PauseDate => _entity.PauseDate;
     public decimal? CombinedFundingAdjustmentPercentage => _entity.CombinedFundingAdjustmentPercentage;
+    public bool IsRemoved => _entity.IsRemoved;
+    public Guid Version => _entity.Version;
     public IReadOnlyCollection<EnglishAndMathsInstalment> Instalments => new ReadOnlyCollection<EnglishAndMathsInstalment>(_instalments);
     public IReadOnlyCollection<EnglishAndMathsPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<EnglishAndMathsPeriodInLearning>(_entity.PeriodsInLearning.Select(EnglishAndMathsPeriodInLearning.Get).ToList());
     public IReadOnlyCollection<EnglishAndMathsAdditionalPayment> AdditionalPayments => new ReadOnlyCollection<EnglishAndMathsAdditionalPayment>(_additionalPayments);
@@ -49,6 +52,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
     {
         _entity = new EnglishAndMathsEntity();
         _entity.Key = Guid.NewGuid();
+        _entity.Version = Uuid.NewDatabaseFriendly(Database.SqlServer);
         _entity.StartDate = startDate;
         _entity.EndDate = endDate;
         _entity.Course = course;
@@ -97,6 +101,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
                WithdrawalDate == compare.WithdrawalDate &&
                PauseDate == compare.PauseDate &&
                CombinedFundingAdjustmentPercentage == compare.CombinedFundingAdjustmentPercentage &&
+               IsRemoved == compare.IsRemoved &&
                Instalments.AreSame(compare.Instalments) &&
                AdditionalPayments.AreSame(compare.AdditionalPayments);
     }

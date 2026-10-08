@@ -33,6 +33,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         _instalments = instalments;
 
         AddEvent(Entity.CreatedEarningsProfileUpdatedEvent(true));
+        Entity.EnglishAndMathsCourses.ForEach(x => AddEvent(x.CreateEnglishAndMathsEarningsProfileUpdatedEvent(EarningsProfileId)));
     }
 
     public ApprenticeshipEarningsProfile(ApprenticeshipEarningsProfileEntity model, Action<AggregateComponent> addChildToRoot) : base(model, addChildToRoot)
@@ -70,9 +71,8 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
             versionChanged = true;
         }
 
-        if (mathsAndEnglishCourses != null && !mathsAndEnglishCourses.AreSame(Entity.EnglishAndMathsCourses))
+        if (mathsAndEnglishCourses != null && UpdateEnglishAndMathsCourses(mathsAndEnglishCourses))
         {
-            UpdateEnglishAndMathsCourses(mathsAndEnglishCourses);
             versionChanged = true;
         }
 
@@ -131,70 +131,122 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         return profile;
     }
 
-    private void UpdateEnglishAndMathsCourses(List<EnglishAndMathsDomainModel> updatedCourses)
+    /// <summary>
+    /// Syncs the English and Maths courses against the supplied courses, matched on (LearnAimRef, StartDate).
+    /// Matched courses are updated (and reinstated if previously removed), unmatched supplied courses are added,
+    /// and any existing courses not supplied are soft deleted by setting IsRemoved and clearing their earnings.
+    /// Each course that changes is given a new version and raises its own archive event.
+    /// Returns true if any course has changed.
+    /// </summary>
+    private bool UpdateEnglishAndMathsCourses(List<EnglishAndMathsDomainModel> updatedCourses)
     {
         Entity.EnglishAndMathsCourses ??= new List<EnglishAndMathsEntity>();
 
-        // 1. If nothing remains, clear everything
-        if (updatedCourses.Count == 0)
+        var changed = false;
+        var updatedLookup = updatedCourses.ToDictionary(c => (c.LearnAimRef, c.StartDate));
+
+        // 1. Soft delete any courses no longer present
+        foreach (var existing in Entity.EnglishAndMathsCourses.Where(c => !updatedLookup.ContainsKey((c.LearnAimRef, c.StartDate))))
         {
-            Entity.EnglishAndMathsCourses.Clear();
-            return;
+            if (!RemoveEnglishAndMathsCourse(existing))
+                continue;
+
+            OnEnglishAndMathsCourseChanged(existing);
+            changed = true;
         }
 
-        // 2. Sync courses by (LearnAimRef, StartDate)
-        Entity.EnglishAndMathsCourses.SyncByKey(
-            updatedCourses,
-            existingKey: c => (c.LearnAimRef, c.StartDate),
-            updatedKey: c => (c.LearnAimRef, c.StartDate),
-            updateExisting: (existing, updated) =>
+        // 2. Update matched courses (reinstating any that were removed) and add new ones
+        foreach (var updated in updatedCourses)
+        {
+            var existing = Entity.EnglishAndMathsCourses.FirstOrDefault(c => c.LearnAimRef == updated.LearnAimRef && c.StartDate == updated.StartDate);
+
+            if (existing == null)
             {
-                existing.StartDate = updated.StartDate;
-                existing.EndDate = updated.EndDate;
-                existing.Amount = updated.Amount;
-                existing.WithdrawalDate = updated.WithdrawalDate;
-                existing.CompletionDate = updated.CompletionDate;
-                existing.PauseDate = updated.PauseDate;
-                existing.CombinedFundingAdjustmentPercentage = updated.CombinedFundingAdjustmentPercentage;
+                var newCourse = updated.GetEntity();
+                newCourse.EarningsProfileId = EarningsProfileId;
+                Entity.EnglishAndMathsCourses.Add(newCourse);
+                OnEnglishAndMathsCourseChanged(newCourse, generateNewVersion: false);
+                changed = true;
+                continue;
+            }
 
-                // 3a. Sync Instalments
-                existing.Instalments.SyncByKey(
-                    updated.Instalments,
-                    existingKey: i => (i.AcademicYear, i.DeliveryPeriod, i.Type),
-                    updatedKey: i => (i.AcademicYear, i.DeliveryPeriod, i.Type.ToString()),
-                    updateExisting: (ex, up) =>
-                    {
-                        ex.Amount = up.Amount;
-                    },
-                    createNew: up => up.GetEntity()
-                );
+            if (updated.AreSame(existing))
+                continue;
 
-                // 3b. Sync Periods in Learning
-                existing.PeriodsInLearning.SyncByKey(
-                    updated.PeriodsInLearning,
-                    existingKey: p => p.StartDate.Date,
-                    updatedKey: p => p.StartDate.Date,
-                    updateExisting: (ex, up) =>
-                    {
-                        ex.EndDate = up.EndDate;
-                        ex.OriginalExpectedEndDate = up.OriginalExpectedEndDate;
-                    },
-                    createNew: up => up.GetEntity()
-                );
+            UpdateEnglishAndMathsCourse(existing, updated);
+            OnEnglishAndMathsCourseChanged(existing);
+            changed = true;
+        }
 
-                // 3c. Sync Additional Payments (e.g. Learning Support)
-                existing.AdditionalPayments.SyncByKey(
-                    updated.AdditionalPayments,
-                    existingKey: p => (p.AcademicYear, p.DeliveryPeriod, p.DueDate, p.AdditionalPaymentType),
-                    updatedKey: p => (p.AcademicYear, p.DeliveryPeriod, p.DueDate, p.AdditionalPaymentType),
-                    updateExisting: (ex, up) =>
-                    {
-                        ex.Amount = up.Amount;
-                    },
-                    createNew: up => up.GetEntity()
-                );
+        return changed;
+    }
+
+    private void OnEnglishAndMathsCourseChanged(EnglishAndMathsEntity course, bool generateNewVersion = true)
+    {
+        if (generateNewVersion)
+            course.Version = Uuid.NewDatabaseFriendly(Database.SqlServer);
+
+        PurgeEventsOfType<EnglishAndMathsEarningsProfileUpdatedEvent>(x => x.EnglishAndMathsKey == course.Key);// Remove previous update events for this course so only the latest is kept
+        AddEvent(course.CreateEnglishAndMathsEarningsProfileUpdatedEvent(EarningsProfileId));
+    }
+
+    private static bool RemoveEnglishAndMathsCourse(EnglishAndMathsEntity course)
+    {
+        if (course.IsRemoved && !course.Instalments.Any() && !course.AdditionalPayments.Any())
+            return false;
+
+        course.IsRemoved = true;
+        course.Instalments.Clear();
+        course.AdditionalPayments.Clear();
+        return true;
+    }
+
+    private static void UpdateEnglishAndMathsCourse(EnglishAndMathsEntity existing, EnglishAndMathsDomainModel updated)
+    {
+        existing.StartDate = updated.StartDate;
+        existing.EndDate = updated.EndDate;
+        existing.Amount = updated.Amount;
+        existing.WithdrawalDate = updated.WithdrawalDate;
+        existing.CompletionDate = updated.CompletionDate;
+        existing.PauseDate = updated.PauseDate;
+        existing.CombinedFundingAdjustmentPercentage = updated.CombinedFundingAdjustmentPercentage;
+        existing.IsRemoved = updated.IsRemoved;
+
+        // Sync Instalments
+        existing.Instalments.SyncByKey(
+            updated.Instalments,
+            existingKey: i => (i.AcademicYear, i.DeliveryPeriod, i.Type),
+            updatedKey: i => (i.AcademicYear, i.DeliveryPeriod, i.Type.ToString()),
+            updateExisting: (ex, up) =>
+            {
+                ex.Amount = up.Amount;
             },
-            createNew: updated => updated.GetEntity()
+            createNew: up => up.GetEntity()
+        );
+
+        // Sync Periods in Learning
+        existing.PeriodsInLearning.SyncByKey(
+            updated.PeriodsInLearning,
+            existingKey: p => p.StartDate.Date,
+            updatedKey: p => p.StartDate.Date,
+            updateExisting: (ex, up) =>
+            {
+                ex.EndDate = up.EndDate;
+                ex.OriginalExpectedEndDate = up.OriginalExpectedEndDate;
+            },
+            createNew: up => up.GetEntity()
+        );
+
+        // Sync Additional Payments (e.g. Learning Support)
+        existing.AdditionalPayments.SyncByKey(
+            updated.AdditionalPayments,
+            existingKey: p => (p.AcademicYear, p.DeliveryPeriod, p.DueDate, p.AdditionalPaymentType),
+            updatedKey: p => (p.AcademicYear, p.DeliveryPeriod, p.DueDate, p.AdditionalPaymentType),
+            updateExisting: (ex, up) =>
+            {
+                ex.Amount = up.Amount;
+            },
+            createNew: up => up.GetEntity()
         );
     }
 }

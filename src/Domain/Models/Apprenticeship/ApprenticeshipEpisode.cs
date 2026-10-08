@@ -176,7 +176,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     /// <summary>
     /// Updates earnings for Maths and English courses to an apprenticeship.
-    /// Overwrites any existing Maths and English courses' earnings.
+    /// Existing courses not present in the supplied list are marked as removed rather than deleted.
     /// </summary>
     public void UpdateEnglishAndMaths(List<EnglishAndMaths.EnglishAndMaths> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
