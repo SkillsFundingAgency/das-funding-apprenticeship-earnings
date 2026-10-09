@@ -31,10 +31,27 @@ public class EnglishAndMathsStepDefinitions
             item.PeriodsInLearning = [new PeriodInLearningItem { StartDate = item.StartDate, EndDate = item.EndDate, OriginalExpectedEndDate = item.EndDate }];
         }
 
+        _scenarioContext.Set(items, "EnglishAndMathsItems");
+
         var request = new UpdateEnglishAndMathsRequest
         {
             EnglishAndMaths = items
         };
+        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
+    }
+
+    [Given(@"the english and maths course has the following learning support")]
+    [When(@"the english and maths course has the following learning support")]
+    public async Task GivenTheEnglishAndMathsCourseHasTheFollowingLearningSupport(Table table)
+    {
+        var learningSupport = table.CreateSet<LearningSupportItem>().ToList();
+        var items = _scenarioContext.Get<List<EnglishAndMathsItem>>("EnglishAndMathsItems");
+        foreach (var item in items)
+        {
+            item.LearningSupport = learningSupport;
+        }
+
+        var request = new UpdateEnglishAndMathsRequest { EnglishAndMaths = items };
         await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
     }
 
