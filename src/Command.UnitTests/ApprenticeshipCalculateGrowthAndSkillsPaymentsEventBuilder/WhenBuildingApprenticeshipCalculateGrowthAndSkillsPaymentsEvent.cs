@@ -314,6 +314,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
+        result.EarningsId.Should().Be(courseEntity.Version);
+        result.EarningsId.Should().NotBe(episode.EarningsProfile!.Version);
         result.Training.CourseType.Should().Be(CourseType.FunctionalSkill);
         result.Training.LearningType.Should().Be(LearningType.MathsAndEnglish);
         result.Training.CourseCode.Should().Be("ENG12345");

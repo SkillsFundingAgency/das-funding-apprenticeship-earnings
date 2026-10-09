@@ -282,6 +282,61 @@ public class WhenUpdateEnglishAndMathsCourses
         events.Single().EnglishAndMaths.Amount.Should().Be(400);
     }
 
+    [Test]
+    public void UpdateMathsAndEnglishCourses_ShouldRecordCreatedChangedRemovedAndReinstatedCourseKeys()
+    {
+        // Arrange
+        var sut = CreateApprenticeship();
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M101"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), 450, "M103")
+        }, _mockSystemClockService.Object);
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M101"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102")
+        }, _mockSystemClockService.Object);
+        var keys = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.ToDictionary(x => x.LearnAimRef, x => x.Key);
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 350, "M102"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), 450, "M103"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 6, 1), new DateTime(2021, 7, 31), 200, "M104")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        var profile = sut.Episodes.First().EarningsProfile!;
+        var changes = profile.EnglishAndMathsCourseChanges;
+        changes.Created.Should().BeEquivalentTo(new[] { profile.MathsAndEnglishCourses.Single(x => x.LearnAimRef == "M104").Key });
+        changes.Changed.Should().BeEquivalentTo(new[] { keys["M102"] });
+        changes.Removed.Should().BeEquivalentTo(new[] { keys["M101"] });
+        changes.Reinstated.Should().BeEquivalentTo(new[] { keys["M103"] });
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenNothingChanges_ShouldRecordNoCourseKeys()
+    {
+        // Arrange
+        var sut = CreateApprenticeship();
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        sut.Episodes.First().EarningsProfile!.EnglishAndMathsCourseChanges.HasChanges.Should().BeFalse();
+    }
+
     private ApprenticeshipLearning CreateApprenticeship()
     {
         var sut = _fixture.CreateLearningWithApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice);

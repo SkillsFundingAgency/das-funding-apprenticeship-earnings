@@ -56,7 +56,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
     {
         return new CalculateGrowthAndSkillsPayments
         {
-            EarningsId = episode.EarningsProfile!.Version,
+            EarningsId = course.Version,
             UKPRN = episode.UKPRN,
             Learner = new Learner
             {

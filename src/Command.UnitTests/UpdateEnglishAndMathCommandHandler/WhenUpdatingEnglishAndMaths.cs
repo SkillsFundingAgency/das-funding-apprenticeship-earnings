@@ -6,6 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsComman
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -85,6 +86,68 @@ public class WhenUpdatingEnglishAndMaths
         // Assert
         await act.Should().NotThrowAsync();
         _mockRepository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ThenTheCreatedCourseKeyIsReturned()
+    {
+        // Arrange
+        var learningDomainModel = BuildLearning();
+
+        SetupMocks();
+
+        var command = BuildCommand(learningDomainModel);
+
+        _mockRepository
+            .Setup(x => x.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
+
+        var sut = new UpdateEnglishAndMathsCommandHandler(
+            _mockLogger.Object,
+            _mockRepository.Object,
+            _mockSystemClock.Object
+        );
+
+        // Act
+        var result = await sut.Handle(command);
+
+        // Assert
+        var course = learningDomainModel.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile!.MathsAndEnglishCourses.Single();
+        result.CreatedCourseKeys.Should().BeEquivalentTo(new[] { course.Key });
+        result.ChangedCourseKeys.Should().BeEmpty();
+        result.RemovedCourseKeys.Should().BeEmpty();
+        result.ReinstatedCourseKeys.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task ThenNoCourseKeysAreReturnedWhenNoEarningsHaveBeenGeneratedForTheLearner()
+    {
+        // Arrange
+        var learningDomainModel = BuildLearning();
+
+        SetupMocks();
+
+        var command = BuildCommand(learningDomainModel);
+
+        _mockRepository
+            .Setup(x => x.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning)null!);
+
+        var sut = new UpdateEnglishAndMathsCommandHandler(
+            _mockLogger.Object,
+            _mockRepository.Object,
+            _mockSystemClock.Object
+        );
+
+        // Act
+        var result = await sut.Handle(command);
+
+        // Assert
+        result.HasNewEarningsProfileVersionBeenGenerated.Should().BeFalse();
+        result.CreatedCourseKeys.Should().BeEmpty();
+        result.ChangedCourseKeys.Should().BeEmpty();
+        result.RemovedCourseKeys.Should().BeEmpty();
+        result.ReinstatedCourseKeys.Should().BeEmpty();
     }
 
     private ApprenticeshipLearning BuildLearning()

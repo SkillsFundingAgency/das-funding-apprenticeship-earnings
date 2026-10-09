@@ -5,6 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using System.Collections.ObjectModel;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -16,6 +17,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     public IReadOnlyCollection<ApprenticeshipInstalment> Instalments => new ReadOnlyCollection<ApprenticeshipInstalment>(_instalments);
     public IReadOnlyCollection<AdditionalPayment> AdditionalPayments => Entity.ApprenticeshipAdditionalPayments.Select(AdditionalPayment.Get).ToList().AsReadOnly();
     public IReadOnlyCollection<EnglishAndMathsDomainModel> MathsAndEnglishCourses => Entity.EnglishAndMathsCourses.Select(EnglishAndMathsDomainModel.Get).ToList().AsReadOnly();
+    public EnglishAndMathsCourseChanges EnglishAndMathsCourseChanges { get; private set; } = new();
 
     public ApprenticeshipEarningsProfile(decimal onProgramTotal,
         List<ApprenticeshipInstalment> instalments,
@@ -136,13 +138,14 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     /// Matched courses are updated (and reinstated if previously removed), unmatched supplied courses are added,
     /// and any existing courses not supplied are soft deleted by setting IsRemoved and clearing their earnings.
     /// Each course that changes is given a new version and raises its own archive event.
+    /// The keys of affected courses are recorded in EnglishAndMathsCourseChanges.
     /// Returns true if any course has changed.
     /// </summary>
     private bool UpdateEnglishAndMathsCourses(List<EnglishAndMathsDomainModel> updatedCourses)
     {
         Entity.EnglishAndMathsCourses ??= new List<EnglishAndMathsEntity>();
 
-        var changed = false;
+        EnglishAndMathsCourseChanges = new EnglishAndMathsCourseChanges();
         var updatedLookup = updatedCourses.ToDictionary(c => (c.LearnAimRef, c.StartDate));
 
         // 1. Soft delete any courses no longer present
@@ -152,7 +155,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
                 continue;
 
             OnEnglishAndMathsCourseChanged(existing);
-            changed = true;
+            EnglishAndMathsCourseChanges.Removed.Add(existing.Key);
         }
 
         // 2. Update matched courses (reinstating any that were removed) and add new ones
@@ -166,19 +169,25 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
                 newCourse.EarningsProfileId = EarningsProfileId;
                 Entity.EnglishAndMathsCourses.Add(newCourse);
                 OnEnglishAndMathsCourseChanged(newCourse, generateNewVersion: false);
-                changed = true;
+                EnglishAndMathsCourseChanges.Created.Add(newCourse.Key);
                 continue;
             }
 
             if (updated.AreSame(existing))
                 continue;
 
+            var isReinstated = existing.IsRemoved && !updated.IsRemoved;
+
             UpdateEnglishAndMathsCourse(existing, updated);
             OnEnglishAndMathsCourseChanged(existing);
-            changed = true;
+
+            if (isReinstated)
+                EnglishAndMathsCourseChanges.Reinstated.Add(existing.Key);
+            else
+                EnglishAndMathsCourseChanges.Changed.Add(existing.Key);
         }
 
-        return changed;
+        return EnglishAndMathsCourseChanges.HasChanges;
     }
 
     private void OnEnglishAndMathsCourseChanged(EnglishAndMathsEntity course, bool generateNewVersion = true)
