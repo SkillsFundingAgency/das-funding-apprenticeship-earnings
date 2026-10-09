@@ -42,7 +42,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 CourseReference = ApprenticeshipCourseReference,
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.Prices.Min(p => p.StartDate),
-                PlannedEndDate = episode.LastDayOfLearning ?? episode.Prices.Max(p => p.EndDate),
+                PlannedEndDate = episode.EpisodePeriodsInLearning.OrderByDescending(o => o.StartDate).FirstOrDefault()!.OriginalExpectedEndDate,
                 ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
                 TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate, episode.PauseDate)
             },
@@ -127,11 +127,15 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                     .Select(priceGroup =>
                     {
                         var price = prices[priceGroup.Key];
+
                         return new PricePeriod
                         {
                             Price = price.AgreedPrice,
                             StartDate = price.StartDate,
                             EndDate = price.EndDate,
+                            CompletionAmount = episode.EarningsProfile.CompletionPayment,
+                            InstalmentAmount = episode.EarningsProfile.Instalments.Count > 0 ? episode.EarningsProfile.Instalments.Max(o => o.Amount) : 0,
+                            NumberOfInstalments = episode.EarningsProfile.Instalments.Count,
                             Periods = priceGroup.Select(x => new EarningPeriod
                             {
                                 EarningType = x.EarningType,
@@ -234,12 +238,15 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                         Price = course.Amount,
                         StartDate = course.StartDate,
                         EndDate = course.EndDate,
-                        Periods = yearGroup.Select(x => new EarningPeriod
+                        CompletionAmount = 0,
+                        InstalmentAmount = course.Instalments.Count > 0 ? course.Instalments.Max(o => o.Amount) : 0,
+                        NumberOfInstalments = course.Instalments.Count,
+                        Periods = yearGroup.Select(instalment => new EarningPeriod
                         {
-                            EarningType = x.EarningType,
-                            DeliveryPeriod = x.DeliveryPeriod,
+                            EarningType = instalment.EarningType,
+                            DeliveryPeriod = instalment.DeliveryPeriod,
                             LearningId = learning.ApprovalsApprenticeshipId,
-                            Amount = x.Amount,
+                            Amount = instalment.Amount,
                             Employer = new Employer
                             {
                                 AccountId = employerAccountId,

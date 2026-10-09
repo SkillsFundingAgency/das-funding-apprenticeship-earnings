@@ -115,7 +115,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.CourseReference.Should().Be("ZPROG0001");
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(startDate);
-        result.Training.PlannedEndDate.Should().Be(endDate);
+        result.Training.PlannedEndDate.Should().Be(episode.EpisodePeriodsInLearning.Max(o => o.OriginalExpectedEndDate));
     }
 
     [TestCase(false, false, false, TrainingStatus.Continuing)]
