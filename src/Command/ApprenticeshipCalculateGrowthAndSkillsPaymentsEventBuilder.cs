@@ -239,7 +239,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                         StartDate = course.StartDate,
                         EndDate = course.EndDate,
                         CompletionAmount = 0,
-                        InstalmentAmount = course.Instalments.Max(o => o.Amount),
+                        InstalmentAmount = course.Instalments.Count > 0 ? course.Instalments.Max(o => o.Amount) : 0,
                         NumberOfInstalments = course.Instalments.Count,
                         Periods = yearGroup.Select(instalment => new EarningPeriod
                         {
