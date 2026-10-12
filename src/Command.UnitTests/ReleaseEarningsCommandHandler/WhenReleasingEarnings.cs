@@ -1,19 +1,13 @@
+using System.Text.Json;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ReleaseEarningsCommandTests;
 
@@ -26,6 +20,7 @@ public class WhenReleasingEarnings
     private Mock<IMessageSession> _mockMessageSession = null!;
     private PaymentsConfiguration _paymentsConfiguration = null!;
     private ReleaseEarningsCommand.ReleaseEarningsCommandHandler _sut = null!;
+    private static JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
 
     [SetUp]
     public void SetUp()
@@ -468,7 +463,7 @@ public class WhenReleasingEarnings
         var courseKey = Guid.NewGuid();
         var json = $"{{\"learnerKey\":\"{Guid.NewGuid()}\",\"learnerRef\":\"ref\",\"releaseType\":\"{releaseType}\",\"englishAndMathsCourseKeys\":[\"{courseKey}\"]}}";
 
-        var result = System.Text.Json.JsonSerializer.Deserialize<ReleaseEarningsCommand.ReleaseEarningsRequest>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var result = System.Text.Json.JsonSerializer.Deserialize<ReleaseEarningsCommand.ReleaseEarningsRequest>(json, _serializerOptions);
 
         result!.ReleaseType.Should().Be(expected);
         result.EnglishAndMathsCourseKeys.Should().BeEquivalentTo(new[] { courseKey });
@@ -479,7 +474,7 @@ public class WhenReleasingEarnings
     {
         var json = $"{{\"learnerKey\":\"{Guid.NewGuid()}\",\"learnerRef\":\"ref\"}}";
 
-        var result = System.Text.Json.JsonSerializer.Deserialize<ReleaseEarningsCommand.ReleaseEarningsRequest>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var result = System.Text.Json.JsonSerializer.Deserialize<ReleaseEarningsCommand.ReleaseEarningsRequest>(json, _serializerOptions);
 
         result!.ReleaseType.Should().Be(ReleaseEarningsCommand.ReleaseType.All);
         result.EnglishAndMathsCourseKeys.Should().BeEmpty();

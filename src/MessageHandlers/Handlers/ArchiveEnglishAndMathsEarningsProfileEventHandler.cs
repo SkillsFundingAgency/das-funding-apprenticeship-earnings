@@ -14,7 +14,7 @@ public class ArchiveEnglishAndMathsEarningsProfileEventHandler(
 {
     public async Task Handle(EnglishAndMathsEarningsProfileUpdatedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("{functionName} processing...", nameof(EnglishAndMathsEarningsProfileUpdatedEvent));
+        logger.LogInformation("{Handler} processing...", nameof(EnglishAndMathsEarningsProfileUpdatedEvent));
 
         logger.LogInformation("EarningsProfileId: {Key} EnglishAndMathsKey: {EnglishAndMathsKey} Received {EventName}",
             message.EarningsProfileId,

@@ -201,7 +201,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
 
     private static bool RemoveEnglishAndMathsCourse(EnglishAndMathsEntity course)
     {
-        if (course.IsRemoved && !course.Instalments.Any() && !course.AdditionalPayments.Any())
+        if (course is { IsRemoved: true, Instalments.Count: 0, AdditionalPayments.Count: 0 })
             return false;
 
         course.IsRemoved = true;

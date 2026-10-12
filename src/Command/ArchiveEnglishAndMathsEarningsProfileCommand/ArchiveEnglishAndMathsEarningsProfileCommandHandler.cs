@@ -9,12 +9,17 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEnglishAndMathsE
 public class ArchiveEnglishAndMathsEarningsProfileCommandHandler(IEarningsProfileHistoryRepository repository, ILogger<ArchiveEnglishAndMathsEarningsProfileCommandHandler> logger)
     : ICommandHandler<ArchiveEnglishAndMathsEarningsProfileCommand>
 {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        WriteIndented = true
+    };
+
     public async Task Handle(ArchiveEnglishAndMathsEarningsProfileCommand command, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("{handler} - Started", nameof(ArchiveEnglishAndMathsEarningsProfileCommandHandler));
+        logger.LogInformation("{Handler} - Started", nameof(ArchiveEnglishAndMathsEarningsProfileCommandHandler));
 
         var updatedEvent = command.EnglishAndMathsEarningsProfileUpdatedEvent;
-        var json = JsonSerializer.Serialize(updatedEvent.EnglishAndMaths, new JsonSerializerOptions { WriteIndented = true });
+        var json = JsonSerializer.Serialize(updatedEvent.EnglishAndMaths, JsonSerializerOptions);
 
         var history = new EnglishAndMathsEarningsProfileHistoryEntity
         {

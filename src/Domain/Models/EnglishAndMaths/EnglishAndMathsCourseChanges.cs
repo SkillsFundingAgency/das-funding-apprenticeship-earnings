@@ -10,5 +10,5 @@ public class EnglishAndMathsCourseChanges
     public List<Guid> Removed { get; } = [];
     public List<Guid> Reinstated { get; } = [];
 
-    public bool HasChanges => Created.Any() || Changed.Any() || Removed.Any() || Reinstated.Any();
+    public bool HasChanges => Created.Count > 0 || Changed.Count > 0 || Removed.Count > 0 || Reinstated.Count > 0;
 }
