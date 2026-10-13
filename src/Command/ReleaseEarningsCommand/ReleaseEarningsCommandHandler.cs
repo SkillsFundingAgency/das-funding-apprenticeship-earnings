@@ -53,7 +53,7 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
         options.DoNotEnforceBestPractices();
         options.SetDestination(_paymentsConfiguration.PaymentsEndpoint);
 
-        foreach (var episode in learning.Episodes.Where(e => !e.IsRemoved && e.IsApproved && e.EarningsProfile != null))
+        foreach (var episode in GetEpisodesToRelease(learning))
         {
             if (episode.FundingPlatform is not FundingPlatform.DAS)
             {
@@ -73,6 +73,18 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
         }
 
         _logger.LogInformation("{Handler} - Successfully processed and published events for LearningKey: {LearningKey}", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
+    }
+
+    /// <summary>
+    /// Removed episodes are only released when the learning has no approved episode still active, so payments are told
+    /// that all earnings have been removed without overriding the earnings of an episode still active on the same learning.
+    /// </summary>
+    private static List<ApprenticeshipEpisode> GetEpisodesToRelease(ApprenticeshipLearning learning)
+    {
+        var approvedEpisodes = learning.Episodes.Where(e => e.IsApproved && e.EarningsProfile != null).ToList();
+        var activeEpisodes = approvedEpisodes.Where(e => !e.IsRemoved).ToList();
+
+        return activeEpisodes.Count > 0 ? activeEpisodes : approvedEpisodes;
     }
 
     private async Task SendOnProgramme(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, Guid learnerKey, string learnerRef, SendOptions options, CancellationToken cancellationToken)
