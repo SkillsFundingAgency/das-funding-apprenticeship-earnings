@@ -192,7 +192,7 @@ public class WhenUpdateEnglishAndMathsCourses
 
         // Assert
         var course = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single();
-        var events = sut.FlushEvents().OfType<Types.EnglishAndMathsEarningsProfileUpdatedEvent>().ToList();
+        var events = sut.FlushEvents().OfType<Types.EarningsProfileForEnglishAndMathsUpdatedEvent>().ToList();
         events.Should().ContainSingle();
         events.Single().EnglishAndMathsKey.Should().Be(course.Key);
         events.Single().Version.Should().Be(course.Version);
@@ -226,7 +226,7 @@ public class WhenUpdateEnglishAndMathsCourses
         var changedCourse = courses.Single(x => x.LearnAimRef == "M103");
         changedCourse.Version.Should().NotBe(originalCourses["M103"]);
 
-        var events = sut.FlushEvents().OfType<Types.EnglishAndMathsEarningsProfileUpdatedEvent>().ToList();
+        var events = sut.FlushEvents().OfType<Types.EarningsProfileForEnglishAndMathsUpdatedEvent>().ToList();
         events.Should().ContainSingle();
         events.Single().EnglishAndMathsKey.Should().Be(changedCourse.Key);
         events.Single().Version.Should().Be(changedCourse.Version);
@@ -251,7 +251,7 @@ public class WhenUpdateEnglishAndMathsCourses
         var course = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single();
         course.Version.Should().NotBe(originalVersion);
 
-        var events = sut.FlushEvents().OfType<Types.EnglishAndMathsEarningsProfileUpdatedEvent>().ToList();
+        var events = sut.FlushEvents().OfType<Types.EarningsProfileForEnglishAndMathsUpdatedEvent>().ToList();
         events.Should().ContainSingle();
         events.Single().Version.Should().Be(course.Version);
         events.Single().EnglishAndMaths.IsRemoved.Should().BeTrue();
@@ -276,7 +276,7 @@ public class WhenUpdateEnglishAndMathsCourses
 
         // Assert
         var course = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single();
-        var events = sut.FlushEvents().OfType<Types.EnglishAndMathsEarningsProfileUpdatedEvent>().ToList();
+        var events = sut.FlushEvents().OfType<Types.EarningsProfileForEnglishAndMathsUpdatedEvent>().ToList();
         events.Should().ContainSingle();
         events.Single().Version.Should().Be(course.Version);
         events.Single().EnglishAndMaths.Amount.Should().Be(400);

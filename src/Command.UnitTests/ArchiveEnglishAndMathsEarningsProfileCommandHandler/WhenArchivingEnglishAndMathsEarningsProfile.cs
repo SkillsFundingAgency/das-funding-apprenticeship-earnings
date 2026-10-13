@@ -27,7 +27,7 @@ public class WhenArchivingEnglishAndMathsEarningsProfile
     public async Task Handle_ShouldAddHistoryForEnglishAndMathsCourse()
     {
         // Arrange
-        var updatedEvent = _fixture.Create<EnglishAndMathsEarningsProfileUpdatedEvent>();
+        var updatedEvent = _fixture.Create<EarningsProfileForEnglishAndMathsUpdatedEvent>();
 
         EnglishAndMathsEarningsProfileHistoryEntity history = null!;
         _mockRepository

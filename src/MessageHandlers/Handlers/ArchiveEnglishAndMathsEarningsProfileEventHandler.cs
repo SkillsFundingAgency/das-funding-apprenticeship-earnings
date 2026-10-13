@@ -10,16 +10,16 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.MessageHandlers.Handlers;
 public class ArchiveEnglishAndMathsEarningsProfileEventHandler(
     ICommandHandler<ArchiveEnglishAndMathsEarningsProfileCommand> englishAndMathsArchiveCommandHandler,
     ILogger<ArchiveEnglishAndMathsEarningsProfileEventHandler> logger)
-    : IHandleMessages<EnglishAndMathsEarningsProfileUpdatedEvent>
+    : IHandleMessages<EarningsProfileForEnglishAndMathsUpdatedEvent>
 {
-    public async Task Handle(EnglishAndMathsEarningsProfileUpdatedEvent message, IMessageHandlerContext context)
+    public async Task Handle(EarningsProfileForEnglishAndMathsUpdatedEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("{Handler} processing...", nameof(EnglishAndMathsEarningsProfileUpdatedEvent));
+        logger.LogInformation("{Handler} processing...", nameof(EarningsProfileForEnglishAndMathsUpdatedEvent));
 
         logger.LogInformation("EarningsProfileId: {Key} EnglishAndMathsKey: {EnglishAndMathsKey} Received {EventName}",
             message.EarningsProfileId,
             message.EnglishAndMathsKey,
-            nameof(EnglishAndMathsEarningsProfileUpdatedEvent));
+            nameof(EarningsProfileForEnglishAndMathsUpdatedEvent));
 
         await englishAndMathsArchiveCommandHandler.Handle(new ArchiveEnglishAndMathsEarningsProfileCommand(message), context.CancellationToken);
     }

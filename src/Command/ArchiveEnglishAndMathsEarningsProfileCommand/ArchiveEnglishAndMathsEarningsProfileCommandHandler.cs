@@ -5,7 +5,6 @@ using System.Text.Json;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEnglishAndMathsEarningsProfileCommand;
 
-
 public class ArchiveEnglishAndMathsEarningsProfileCommandHandler(IEarningsProfileHistoryRepository repository, ILogger<ArchiveEnglishAndMathsEarningsProfileCommandHandler> logger)
     : ICommandHandler<ArchiveEnglishAndMathsEarningsProfileCommand>
 {
@@ -18,7 +17,7 @@ public class ArchiveEnglishAndMathsEarningsProfileCommandHandler(IEarningsProfil
     {
         logger.LogInformation("{Handler} - Started", nameof(ArchiveEnglishAndMathsEarningsProfileCommandHandler));
 
-        var updatedEvent = command.EnglishAndMathsEarningsProfileUpdatedEvent;
+        var updatedEvent = command.EarningsProfileForEnglishAndMathsUpdatedEvent;
         var json = JsonSerializer.Serialize(updatedEvent.EnglishAndMaths, JsonSerializerOptions);
 
         var history = new EnglishAndMathsEarningsProfileHistoryEntity

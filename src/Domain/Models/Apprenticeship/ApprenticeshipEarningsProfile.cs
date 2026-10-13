@@ -120,7 +120,9 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     public IReadOnlyCollection<EnglishAndMathsDomainModel> PersistentMathsAndEnglishCourses()
     {
         if (Entity.EnglishAndMathsCourses == null)
+        {
             return new List<EnglishAndMathsDomainModel>();
+        }
 
         return Entity.EnglishAndMathsCourses
             .Select(EnglishAndMathsDomainModel.Get)
@@ -133,17 +135,9 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         return profile;
     }
 
-    /// <summary>
-    /// Syncs the English and Maths courses against the supplied courses, matched on (LearnAimRef, StartDate).
-    /// Matched courses are updated (and reinstated if previously removed), unmatched supplied courses are added,
-    /// and any existing courses not supplied are soft deleted by setting IsRemoved and clearing their earnings.
-    /// Each course that changes is given a new version and raises its own archive event.
-    /// The keys of affected courses are recorded in EnglishAndMathsCourseChanges.
-    /// Returns true if any course has changed.
-    /// </summary>
     private bool UpdateEnglishAndMathsCourses(List<EnglishAndMathsDomainModel> updatedCourses)
     {
-        Entity.EnglishAndMathsCourses ??= new List<EnglishAndMathsEntity>();
+        Entity.EnglishAndMathsCourses ??= [];
 
         EnglishAndMathsCourseChanges = new EnglishAndMathsCourseChanges();
         var updatedLookup = updatedCourses.ToDictionary(c => (c.LearnAimRef, c.StartDate));
@@ -152,7 +146,9 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         foreach (var existing in Entity.EnglishAndMathsCourses.Where(c => !updatedLookup.ContainsKey((c.LearnAimRef, c.StartDate))))
         {
             if (!RemoveEnglishAndMathsCourse(existing))
+            {
                 continue;
+            }
 
             OnEnglishAndMathsCourseChanged(existing);
             EnglishAndMathsCourseChanges.Removed.Add(existing.Key);
@@ -163,7 +159,7 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         {
             var existing = Entity.EnglishAndMathsCourses.FirstOrDefault(c => c.LearnAimRef == updated.LearnAimRef && c.StartDate == updated.StartDate);
 
-            if (existing == null)
+            if (existing is null)
             {
                 var newCourse = updated.GetEntity();
                 newCourse.EarningsProfileId = EarningsProfileId;
@@ -174,7 +170,9 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
             }
 
             if (updated.AreSame(existing))
+            {
                 continue;
+            }
 
             var isReinstated = existing.IsRemoved && !updated.IsRemoved;
 
@@ -182,9 +180,13 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
             OnEnglishAndMathsCourseChanged(existing);
 
             if (isReinstated)
+            {
                 EnglishAndMathsCourseChanges.Reinstated.Add(existing.Key);
+            }
             else
+            {
                 EnglishAndMathsCourseChanges.Changed.Add(existing.Key);
+            }
         }
 
         return EnglishAndMathsCourseChanges.HasChanges;
@@ -193,16 +195,20 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     private void OnEnglishAndMathsCourseChanged(EnglishAndMathsEntity course, bool generateNewVersion = true)
     {
         if (generateNewVersion)
+        {
             course.Version = Uuid.NewDatabaseFriendly(Database.SqlServer);
+        }
 
-        PurgeEventsOfType<EnglishAndMathsEarningsProfileUpdatedEvent>(x => x.EnglishAndMathsKey == course.Key);// Remove previous update events for this course so only the latest is kept
+        PurgeEventsOfType<EarningsProfileForEnglishAndMathsUpdatedEvent>(x => x.EnglishAndMathsKey == course.Key);// Remove previous update events for this course so only the latest is kept
         AddEvent(course.CreateEnglishAndMathsEarningsProfileUpdatedEvent(EarningsProfileId));
     }
 
     private static bool RemoveEnglishAndMathsCourse(EnglishAndMathsEntity course)
     {
         if (course is { IsRemoved: true, Instalments.Count: 0, AdditionalPayments.Count: 0 })
+        {
             return false;
+        }
 
         course.IsRemoved = true;
         course.Instalments.Clear();

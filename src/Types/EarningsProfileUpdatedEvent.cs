@@ -27,7 +27,7 @@ public class EarningsProfileUpdatedEvent
     public bool InitialGeneration { get; set; }
 }
 
-public class EnglishAndMathsEarningsProfileUpdatedEvent
+public class EarningsProfileForEnglishAndMathsUpdatedEvent
 {
     public Guid EarningsProfileId { get; set; }
     public Guid EnglishAndMathsKey { get; set; }

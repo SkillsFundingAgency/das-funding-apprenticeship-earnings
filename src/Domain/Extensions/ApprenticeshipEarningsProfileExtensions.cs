@@ -61,9 +61,9 @@ internal static class ApprenticeshipEarningsProfileExtensions
             .ToList();
     }
 
-    internal static EnglishAndMathsEarningsProfileUpdatedEvent CreateEnglishAndMathsEarningsProfileUpdatedEvent(this EnglishAndMathsEntity englishAndMaths, Guid earningsProfileId)
+    internal static EarningsProfileForEnglishAndMathsUpdatedEvent CreateEnglishAndMathsEarningsProfileUpdatedEvent(this EnglishAndMathsEntity englishAndMaths, Guid earningsProfileId)
     {
-        return new EnglishAndMathsEarningsProfileUpdatedEvent
+        return new EarningsProfileForEnglishAndMathsUpdatedEvent
         {
             EarningsProfileId = earningsProfileId,
             EnglishAndMathsKey = englishAndMaths.Key,

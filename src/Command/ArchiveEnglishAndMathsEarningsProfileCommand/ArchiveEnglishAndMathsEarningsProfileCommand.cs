@@ -5,10 +5,10 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.ArchiveEnglishAndMathsE
 
 public class ArchiveEnglishAndMathsEarningsProfileCommand : ICommand
 {
-    public ArchiveEnglishAndMathsEarningsProfileCommand(EnglishAndMathsEarningsProfileUpdatedEvent englishAndMathsEarningsProfileUpdatedEvent)
+    public ArchiveEnglishAndMathsEarningsProfileCommand(EarningsProfileForEnglishAndMathsUpdatedEvent earningsProfileForEnglishAndMathsUpdatedEvent)
     {
-        EnglishAndMathsEarningsProfileUpdatedEvent = englishAndMathsEarningsProfileUpdatedEvent;
+        EarningsProfileForEnglishAndMathsUpdatedEvent = earningsProfileForEnglishAndMathsUpdatedEvent;
     }
 
-    public EnglishAndMathsEarningsProfileUpdatedEvent EnglishAndMathsEarningsProfileUpdatedEvent { get; }
+    public EarningsProfileForEnglishAndMathsUpdatedEvent EarningsProfileForEnglishAndMathsUpdatedEvent { get; }
 }
