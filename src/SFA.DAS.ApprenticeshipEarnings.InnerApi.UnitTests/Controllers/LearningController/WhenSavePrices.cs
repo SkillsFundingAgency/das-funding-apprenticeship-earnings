@@ -38,8 +38,8 @@ public class WhenSavePrices
         var result = await _controller.UpdateOnProgramme(learningKey, request);
 
         // Assert
-        _commandDispatcherMock.Verify(x => x.Send(It.IsAny<UpdateOnProgrammeCommand>(), default), Times.Once);
-        result.Should().BeOfType<OkResult>();
+        _commandDispatcherMock.Verify(x => x.Send<UpdateOnProgrammeCommand, UpdateOnProgrammeResult>(It.IsAny<UpdateOnProgrammeCommand>(), default), Times.Once);
+        result.Should().BeOfType<OkObjectResult>();
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class WhenSavePrices
         var request = _fixture.Create<UpdateOnProgrammeRequest>();
 
         _commandDispatcherMock
-            .Setup(x => x.Send(It.IsAny<UpdateOnProgrammeCommand>(), default))
+            .Setup(x => x.Send<UpdateOnProgrammeCommand, UpdateOnProgrammeResult>(It.IsAny<UpdateOnProgrammeCommand>(), default))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act

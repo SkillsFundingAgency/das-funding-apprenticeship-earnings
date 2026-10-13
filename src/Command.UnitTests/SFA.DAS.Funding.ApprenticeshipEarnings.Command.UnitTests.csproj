@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <Folder Include="PauseCommandHandler\" />
+    <Folder Include="SendApprenticeshipPayableEarningsToPaymentsCommandHandler\" />
   </ItemGroup>
 
 </Project>

@@ -181,6 +181,18 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
                     },
                     createNew: up => up.GetEntity()
                 );
+
+                // 3c. Sync Additional Payments (e.g. Learning Support)
+                existing.AdditionalPayments.SyncByKey(
+                    updated.AdditionalPayments,
+                    existingKey: p => (p.AcademicYear, p.DeliveryPeriod, p.DueDate, p.AdditionalPaymentType),
+                    updatedKey: p => (p.AcademicYear, p.DeliveryPeriod, p.DueDate, p.AdditionalPaymentType),
+                    updateExisting: (ex, up) =>
+                    {
+                        ex.Amount = up.Amount;
+                    },
+                    createNew: up => up.GetEntity()
+                );
             },
             createNew: updated => updated.GetEntity()
         );

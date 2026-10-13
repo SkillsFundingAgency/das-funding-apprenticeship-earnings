@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
@@ -19,4 +20,5 @@ public class EnglishAndMathsItem
     public DateTime? WithdrawalDate { get; set; }
     public DateTime? CompletionDate { get; set; }
     public List<PeriodInLearningItem> PeriodsInLearning { get; set; } = [];
+    public List<LearningSupportItem> LearningSupport { get; set; } = [];
 }

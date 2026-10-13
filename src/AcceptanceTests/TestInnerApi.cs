@@ -47,10 +47,12 @@ public class TestInnerApi : IDisposable
                 services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
                 services.AddSingleton<IMessageSession>(_testContext.MessageSession);
                 services.AddSingleton<IFundingBandMaximumService>(_testContext.FundingBandMaximumService);
+                services.AddSingleton(new PaymentsConfiguration { PaymentsEndpoint = "payments-queue-name" });
                 services.AddSingleton(new ApprenticeshipOptInConfiguration
                 {
                     StartDate = new DateTime(2018, 1, 1),
-                    EarningsOptedInProviders = [12345678, 116]
+                    EarningsOptedInProviders = [12345678, 116],
+                    PaymentsOptedInProviders = [12345678, 116]
                 });
 
                 AddEntityFrameworkForApprenticeships(services, testContext.SqlDatabase?.DatabaseInfo.ConnectionString!);

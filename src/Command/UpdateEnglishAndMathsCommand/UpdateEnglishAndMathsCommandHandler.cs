@@ -1,11 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
-public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglishAndMathsCommand>
+public record UpdateEnglishAndMathsResult(bool HasNewEarningsProfileVersionBeenGenerated);
+
+public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>
 {
     private readonly ILogger<UpdateEnglishAndMathsCommandHandler> _logger;
     private readonly ILearningRepository _learningRepository;
@@ -21,7 +25,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         _systemClock = systemClock;
     }
 
-    public async Task Handle(UpdateEnglishAndMathsCommand command, CancellationToken cancellationToken = default)
+    public async Task<UpdateEnglishAndMathsResult> Handle(UpdateEnglishAndMathsCommand command, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for learning {LearningKey}", command.LearningKey);
 
@@ -34,7 +38,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
             _logger.LogInformation(
                 "No draft Earnings found for LearningKey {LearningKey} on update - expected when earnings generation is disabled",
                 command.LearningKey);
-            return;
+            return new UpdateEnglishAndMathsResult(false);
         }
 
         learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);
@@ -42,6 +46,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         await _learningRepository.Update(learningDomainModel);
 
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.LearningKey);
+        return new UpdateEnglishAndMathsResult(learningDomainModel.GetCurrentEpisode(_systemClock).HasEarningsProfileVersionUpdate);
     }
 
     private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
@@ -51,7 +56,13 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         var courses = new List<EnglishAndMaths>();
         foreach (var detail in command.EnglishAndMathsDetails)
         {
-            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.CombinedFundingAdjustmentPercentage, detail.PeriodsInLearning);
+            var learningSupportPayments = detail.LearningSupport
+                .SelectMany(x => LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
+                .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+                .Select(p => new EnglishAndMathsAdditionalPayment(p.AcademicYear, p.DeliveryPeriod, p.Amount, p.DueDate, p.AdditionalPaymentType))
+                .ToList();
+
+            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.CombinedFundingAdjustmentPercentage, detail.PeriodsInLearning, learningSupportPayments);
             courses.Add(course);
         }
 

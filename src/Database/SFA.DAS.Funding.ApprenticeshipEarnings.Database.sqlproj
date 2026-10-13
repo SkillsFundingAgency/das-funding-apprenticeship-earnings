@@ -73,6 +73,7 @@
     <Build Include="Tables\ApprenticeshipEarningsProfileHistory.sql" />
     <Build Include="Schemas\History.sql" />
     <Build Include="Tables\EnglishAndMathsInstalment.sql" />
+    <Build Include="Tables\EnglishAndMathsAdditionalPayment.sql" />
     <Build Include="Tables\ApprenticeshipPeriodInLearning.sql" />
     <Build Include="Tables\EnglishAndMathsPeriodInLearning.sql" />
     <Build Include="Tables\ShortCourseEpisode.sql" />

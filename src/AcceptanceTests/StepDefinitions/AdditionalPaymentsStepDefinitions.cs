@@ -1,6 +1,6 @@
-﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Helpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateLearningSupportCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
@@ -22,14 +22,18 @@ public class AdditionalPaymentsStepDefinitions
     }
 
     [Given(@"the following learning support payment information is provided")]
+    [When(@"the following learning support payment information is provided")]
     public async Task GivenTheFollowingLearningSupportPaymentInformationIsProvided(Table table)
     {
         var learningSupportItems = table.CreateSet<LearningSupportItem>().ToList();
-        var request = new UpdateLearningSupportRequest
-        {
-            LearningSupport = learningSupportItems
-        };
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/learning-support", request);
+        var apprenticeship = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+
+        var updateOnProgrammeRequest = _scenarioContext.GetUpdateOnProgrammeRequestBuilder()
+            .WithExistingApprenticeshipData(apprenticeship)
+            .WithLearningSupport(learningSupportItems)
+            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
+
+        await _testContext.TestInnerApi.Put($"/learning/{apprenticeship.LearningKey}/on-programme", updateOnProgrammeRequest);
     }
 
     [Then(@"recalculate event is sent with the following incentives")]

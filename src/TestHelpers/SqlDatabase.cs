@@ -51,6 +51,10 @@ public class SqlDatabase : IDisposable
                 .ThenInclude(y => y.EarningsProfile)
                 .ThenInclude(y => y.EnglishAndMathsCourses)
                 .ThenInclude(y => y.Instalments)
+            .Include(x => x.Episodes)
+                .ThenInclude(y => y.EarningsProfile)
+                .ThenInclude(y => y.EnglishAndMathsCourses)
+                .ThenInclude(y => y.AdditionalPayments)
             .SingleOrDefaultAsync(x => x.LearningKey == learningKey);
 
         return learningEntity;

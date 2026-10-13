@@ -10,6 +10,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
 {
     private EnglishAndMathsEntity _entity;
     private List<EnglishAndMathsInstalment> _instalments;
+    private List<EnglishAndMathsAdditionalPayment> _additionalPayments;
 
     public Guid Key => _entity.Key;
     public DateTime StartDate => _entity.StartDate;
@@ -24,24 +25,27 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
     public decimal? CombinedFundingAdjustmentPercentage => _entity.CombinedFundingAdjustmentPercentage;
     public IReadOnlyCollection<EnglishAndMathsInstalment> Instalments => new ReadOnlyCollection<EnglishAndMathsInstalment>(_instalments);
     public IReadOnlyCollection<EnglishAndMathsPeriodInLearning> PeriodsInLearning => new ReadOnlyCollection<EnglishAndMathsPeriodInLearning>(_entity.PeriodsInLearning.Select(EnglishAndMathsPeriodInLearning.Get).ToList());
+    public IReadOnlyCollection<EnglishAndMathsAdditionalPayment> AdditionalPayments => new ReadOnlyCollection<EnglishAndMathsAdditionalPayment>(_additionalPayments);
 
     private EnglishAndMaths(EnglishAndMathsEntity entity)
     {
         _entity = entity;
         _instalments = entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
+        _additionalPayments = entity.AdditionalPayments.Select(EnglishAndMathsAdditionalPayment.Get).ToList();
     }
 
     public EnglishAndMaths(
-        DateTime startDate, 
-        DateTime endDate, 
-        string course, 
-        string learnAimRef, 
-        decimal amount, 
-        DateTime? withdrawalDate, 
+        DateTime startDate,
+        DateTime endDate,
+        string course,
+        string learnAimRef,
+        decimal amount,
+        DateTime? withdrawalDate,
         DateTime? completionDate,
         DateTime? pauseDate,
         decimal? combinedFundingAdjustmentPercentage,
-        IEnumerable<IPeriodInLearning> periodsInLearning)
+        IEnumerable<IPeriodInLearning> periodsInLearning,
+        IEnumerable<EnglishAndMathsAdditionalPayment>? additionalPayments = null)
     {
         _entity = new EnglishAndMathsEntity();
         _entity.Key = Guid.NewGuid();
@@ -63,8 +67,10 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
             OriginalExpectedEndDate = pil.OriginalExpectedEndDate
         }).ToList();
         _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
+        _entity.AdditionalPayments = (additionalPayments ?? []).ToList().ToModels<EnglishAndMathsAdditionalPayment, EnglishAndMathsAdditionalPaymentEntity>();
 
         _instalments = _entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
+        _additionalPayments = _entity.AdditionalPayments.Select(EnglishAndMathsAdditionalPayment.Get).ToList();
     }
 
     public EnglishAndMathsEntity GetEntity()
@@ -91,6 +97,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
                WithdrawalDate == compare.WithdrawalDate &&
                PauseDate == compare.PauseDate &&
                CombinedFundingAdjustmentPercentage == compare.CombinedFundingAdjustmentPercentage &&
-               Instalments.AreSame(compare.Instalments);
+               Instalments.AreSame(compare.Instalments) &&
+               AdditionalPayments.AreSame(compare.AdditionalPayments);
     }
 }

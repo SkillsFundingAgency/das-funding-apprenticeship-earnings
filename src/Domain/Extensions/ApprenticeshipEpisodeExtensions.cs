@@ -26,6 +26,12 @@ public static class ApprenticeshipEpisodeExtensions
         return price;
     }
 
+    public static ApprenticeshipPrice GetPriceAt(this ApprenticeshipEpisode episode, DateTime date)
+    {
+        return episode.Prices.FirstOrDefault(p => p.StartDate <= date && date <= p.EndDate)
+            ?? episode.Prices.OrderBy(p => p.StartDate).Last(p => p.StartDate <= date);
+    }
+
     public static ApprenticeshipEarningsProfile GetEarningsProfileFromModel(this ApprenticeshipEpisode episode, ApprenticeshipEarningsProfileEntity entity)
     {
         return ApprenticeshipEarningsProfile.Get(episode, entity);
@@ -80,6 +86,15 @@ public static class ApprenticeshipEpisodeExtensions
                 mathsAndEnglishInstalment.Amount,
                 currentEpisode.FundingLineType,
                 InstalmentTypes.MathsAndEnglish)));
+
+            deliveryPeriods.AddRange(currentEpisode.EarningsProfile.MathsAndEnglishCourses.SelectMany(course => course.AdditionalPayments.Select(additionalPayment => new DeliveryPeriod(
+                additionalPayment.DeliveryPeriod.ToCalendarMonth(),
+                additionalPayment.AcademicYear.ToCalendarYear(additionalPayment.DeliveryPeriod),
+                additionalPayment.DeliveryPeriod,
+                additionalPayment.AcademicYear,
+                additionalPayment.Amount,
+                currentEpisode.FundingLineType,
+                additionalPayment.AdditionalPaymentType))));
         }
 
         return deliveryPeriods;
