@@ -79,7 +79,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
-        // todo double check we need this safety net: the current episode must also belong to this provider and be a DAS (opted-in) episode
+        // the current episode must also belong to this provider and be a DAS (opted-in) episode
         var apprenticeships = learnings
             .Select(l => (learning: l, currentEpisode: GetCurrentEpisode(l.Episodes, searchDate)))
             .Where(x => x.currentEpisode?.Ukprn == query.Ukprn && x.currentEpisode.FundingPlatform == FundingPlatform.DAS)
