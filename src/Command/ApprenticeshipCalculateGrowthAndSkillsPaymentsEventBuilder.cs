@@ -43,7 +43,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.Prices.Min(p => p.StartDate),
                 PlannedEndDate = episode.LastDayOfLearning ?? episode.Prices.Max(p => p.EndDate),
-                ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
+                ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate ?? episode.PauseDate,
                 TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
