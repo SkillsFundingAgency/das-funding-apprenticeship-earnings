@@ -62,7 +62,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             paymentsEvent.Training.CourseType.Should().Be(CourseType.Apprenticeship);
             paymentsEvent.Training.LearningType.Should().Be(LearningType.Apprenticeship);
             paymentsEvent.Training.CourseCode.Should().Be(request.OnProgramme.TrainingCode);
-            paymentsEvent.Training.CourseReference.Should().Be("ZPROG0001");
+            paymentsEvent.Training.CourseReference.Should().Be("ZPROG001");
             paymentsEvent.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
 
             var expectedTrainingStatus = TrainingStatus.Continuing;
