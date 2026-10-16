@@ -18,7 +18,7 @@ public interface IApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder
 
 public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    private const string ApprenticeshipCourseReference = "ZPROG0001";
+    private const string ApprenticeshipCourseReference = "ZPROG001";
 
     public CalculateGrowthAndSkillsPayments Build(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
         long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
