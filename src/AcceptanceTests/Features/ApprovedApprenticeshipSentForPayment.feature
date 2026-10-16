@@ -7,6 +7,14 @@ Scenario: Approved apprenticeship with on-programme, completion and balancing ea
 	And a LearningApproved event is received for the apprenticeship
 	Then the payments event is sent to pv2 with the correct information for the apprenticeship
 
+Scenario: Approved apprenticeship with no costs does not send £0 earnings to pv2
+	Given an apprenticeship has been created as a draft with the following information
+		| StartDate  | EndDate    | TotalPrice | Age |
+		| 2021-01-01 | 2021-12-31 |          0 | 25  |
+	And a LearningApproved event is received for the apprenticeship
+	Then the payments event is sent to pv2 with no earnings
+	And the £0 earnings are still stored for reporting on fm36
+
 Scenario: Manually-added apprenticeship with no LearnerRef is not sent for payment
 	Given the learner has no LearnerRef
 	And an apprenticeship has been created as a draft with the following information

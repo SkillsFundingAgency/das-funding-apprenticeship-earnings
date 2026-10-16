@@ -212,6 +212,26 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             return (paymentsEvent, storedLearningSupport);
         }
 
+        [Then("the payments event is sent to pv2 with no earnings")]
+        public void ThenThePaymentsEventIsSentToPv2WithNoEarnings()
+        {
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault();
+            paymentsEvent.Should().NotBeNull("a payments event should still be sent so any previously sent earnings are cleared");
+            paymentsEvent!.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).Should().BeEmpty();
+        }
+
+        [Then("the £0 earnings are still stored for reporting on fm36")]
+        public async Task ThenTheZeroEarningsAreStillStoredForReportingOnFm36()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+
+            episode.EarningsProfile!.Instalments.Should().NotBeEmpty();
+            episode.EarningsProfile.Instalments.Should().OnlyContain(i => i.Amount == 0);
+        }
+
         [Then("no payments event is sent to pv2")]
         public void ThenNoPaymentsEventIsSentToPv2()
         {
