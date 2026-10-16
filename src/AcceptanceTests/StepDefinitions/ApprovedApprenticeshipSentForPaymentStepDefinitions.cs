@@ -202,8 +202,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
                 .LastOrDefault();
             paymentsEvent.Should().NotBeNull("an english and maths payments event should have been sent");
 
-            // The latest event must reflect the current earnings profile, not an earlier snapshot
-            paymentsEvent!.EarningsId.Should().Be(episode.EarningsProfile.Version);
+            paymentsEvent!.EarningsId.Should().Be(course.Version);
 
             var storedLearningSupport = course.AdditionalPayments
                 .Where(x => x.AdditionalPaymentType == SFA.DAS.Funding.ApprenticeshipEarnings.Domain.InstalmentTypes.LearningSupport)

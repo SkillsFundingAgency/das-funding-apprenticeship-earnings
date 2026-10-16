@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -30,7 +31,8 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
 
     public async Task Handle(ReleaseEarningsCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("{Handler} - Started for LearningKey: {LearningKey}", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
+        _logger.LogInformation("{Handler} - Started for LearningKey: {LearningKey} with ReleaseType: {ReleaseType} and {CourseKeyCount} English and Maths course keys",
+            nameof(ReleaseEarningsCommandHandler), command.LearningKey, command.Request.ReleaseType, command.Request.EnglishAndMathsCourseKeys.Count);
 
         var learnerKey = command.Request.LearnerKey;
         var learnerRef = command.Request.LearnerRef;
@@ -59,8 +61,15 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
                 continue;
             }
 
-            await SendOnProgramme(episode, learning, learnerKey, learnerRef, options, cancellationToken);
-            await SendEnglishAndMaths(episode, learning, learnerKey, learnerRef, options, cancellationToken);
+            if (command.Request.ReleaseType is ReleaseType.All or ReleaseType.OnProgramme)
+            {
+                await SendOnProgramme(episode, learning, learnerKey, learnerRef, options, cancellationToken);
+            }
+
+            if (command.Request.ReleaseType is ReleaseType.All or ReleaseType.FunctionalSkill)
+            {
+                await SendEnglishAndMaths(episode, learning, learnerKey, learnerRef, command.Request, options, cancellationToken);
+            }
         }
 
         _logger.LogInformation("{Handler} - Successfully processed and published events for LearningKey: {LearningKey}", nameof(ReleaseEarningsCommandHandler), command.LearningKey);
@@ -75,9 +84,9 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
         await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
     }
 
-    private async Task SendEnglishAndMaths(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, Guid learnerKey, string learnerRef, SendOptions options, CancellationToken cancellationToken)
+    private async Task SendEnglishAndMaths(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, Guid learnerKey, string learnerRef, ReleaseEarningsRequest request, SendOptions options, CancellationToken cancellationToken)
     {
-        foreach (var course in episode.EarningsProfile!.MathsAndEnglishCourses)
+        foreach (var course in GetEnglishAndMathsCoursesToRelease(episode, request))
         {
             var englishAndMathsEvent = _eventBuilder.BuildForEnglishAndMaths(episode, learning, course, episode.EmployerAccountId,
                 episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
@@ -85,5 +94,19 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
             await _messageSession.Send(englishAndMathsEvent, options, cancellationToken);
             await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = englishAndMathsEvent }, cancellationToken: cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// When course keys are supplied only those courses are released.
+    /// When no course keys are supplied, all courses are released for a ReleaseType of All and none for FunctionalSkill.
+    /// </summary>
+    private static IEnumerable<EnglishAndMathsDomainModel> GetEnglishAndMathsCoursesToRelease(ApprenticeshipEpisode episode, ReleaseEarningsRequest request)
+    {
+        var courses = episode.EarningsProfile!.MathsAndEnglishCourses;
+
+        if (request.EnglishAndMathsCourseKeys.Count == 0)
+            return request.ReleaseType == ReleaseType.All ? courses : [];
+
+        return courses.Where(c => request.EnglishAndMathsCourseKeys.Contains(c.Key));
     }
 }
