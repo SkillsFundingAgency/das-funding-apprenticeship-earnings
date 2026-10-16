@@ -1,10 +1,12 @@
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using System;
 using System.Collections.Generic;
@@ -776,5 +778,42 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         pricePeriod.StartDate.Should().Be(secondPriceStart);
         pricePeriod.EndDate.Should().Be(secondPriceEnd);
         pricePeriod.Periods.Single().EarningType.Should().Be(EarningType.First16To18ProviderIncentive);
+    }
+
+    [Test]
+    public void WhenLearnerHasBeenRemoved_ThenNoEarningsAreSentUnderANewEarningsId()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1000m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Completion.ToString(), EpisodePriceKey = priceKey }
+        };
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "ProviderIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "EmployerIncentive" },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 5, Amount = 150m, DueDate = new DateTime(2024, 1, 1), AdditionalPaymentType = "LearningSupport" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, additionalPayments: additionalPayments, priceKey: priceKey, dateOfBirth: startDate.AddYears(-18));
+        var earningsIdBeforeRemoval = episode.EarningsProfile!.Version;
+
+        var systemClock = new Mock<ISystemClockService>();
+        systemClock.Setup(x => x.UtcNow).Returns(new DateTime(2024, 1, 15));
+        learning.Remove(systemClock.Object);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().BeEmpty();
+        result.EarningsId.Should().NotBe(earningsIdBeforeRemoval);
+        result.EarningsId.Should().Be(episode.EarningsProfile.Version);
+        result.Training.LearningKey.Should().Be(learning.LearningKey);
+        result.Training.StartDate.Should().Be(startDate);
+        result.Training.PlannedEndDate.Should().Be(endDate);
     }
 }
