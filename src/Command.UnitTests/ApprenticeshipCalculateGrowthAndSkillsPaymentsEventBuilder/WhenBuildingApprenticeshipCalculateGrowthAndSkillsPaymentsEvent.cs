@@ -186,6 +186,85 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
     }
 
     [Test]
+    public void WhenSomeInstalmentsAreZero_ThenOnlyNonZeroEarningsAreSent()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 0m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+        };
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, priceKey: priceKey);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var period = result.Earnings.Single().PricePeriods.Single().Periods.Single();
+        period.DeliveryPeriod.Should().Be(2);
+        period.Amount.Should().Be(500m);
+    }
+
+    [Test]
+    public void WhenAllEarningsAreZero_ThenEarningsAreEmptyButMessageStillBuilds()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 0m);
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 0m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+        };
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 0m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" }
+        };
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 0m, instalments, additionalPayments: additionalPayments, priceKey: priceKey);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().BeEmpty();
+    }
+
+    [Test]
+    public void BuildForEnglishAndMaths_WhenInstalmentsAreZero_ThenZeroEarningsAreNotSent()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.Amount, 0m)
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 0m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 4, Amount = 40m, Type = "Regular" }
+            })
+            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 0m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" }
+            })
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var period = result.Earnings.Single().PricePeriods.Single().Periods.Single();
+        period.DeliveryPeriod.Should().Be(4);
+        period.Amount.Should().Be(40m);
+    }
+
+    [Test]
     public void ThenAC3_WhenFundingAccountIdDiffersFromEmployerAccountId_LevyTransferInformationReachesPayload()
     {
         var startDate = new DateTime(2023, 9, 1);

@@ -118,6 +118,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
         var learningSupportEntries = GetLearningSupportEntries(episode);
 
         return onProgrammeEntries.Concat(incentiveEntries).Concat(learningSupportEntries)
+            .Where(x => x.Amount != 0) // £0 earnings are reported on FM36 but not sent to payments
             .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
             {
@@ -223,6 +224,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 payment.Amount));
 
         return instalmentEntries.Concat(learningSupportEntries)
+            .Where(x => x.Amount != 0) // £0 earnings are reported on FM36 but not sent to payments
             .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
             {
