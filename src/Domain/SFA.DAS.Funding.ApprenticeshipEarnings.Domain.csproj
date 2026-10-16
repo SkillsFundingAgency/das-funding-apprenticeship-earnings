@@ -11,8 +11,8 @@
 	<PackageReference Include="NServiceBus" Version="9.2.4" />
     <PackageReference Include="Scrutor" Version="6.0.1" />
     <PackageReference Include="SFA.DAS.Learning.Types" Version="8.15.67-prerelease-4" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="UUIDNext" Version="4.2.4" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>
