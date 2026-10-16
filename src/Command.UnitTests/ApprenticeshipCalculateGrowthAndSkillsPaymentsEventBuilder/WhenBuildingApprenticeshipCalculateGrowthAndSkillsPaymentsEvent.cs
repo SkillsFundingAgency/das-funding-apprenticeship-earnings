@@ -112,7 +112,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.CourseType.Should().Be(CourseType.Apprenticeship);
         result.Training.LearningType.Should().Be(LearningType.Apprenticeship);
         result.Training.CourseCode.Should().Be("123-1");
-        result.Training.CourseReference.Should().Be("ZPROG0001");
+        result.Training.CourseReference.Should().Be("ZPROG001");
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(startDate);
         result.Training.PlannedEndDate.Should().Be(episode.EpisodePeriodsInLearning.Max(o => o.OriginalExpectedEndDate));
