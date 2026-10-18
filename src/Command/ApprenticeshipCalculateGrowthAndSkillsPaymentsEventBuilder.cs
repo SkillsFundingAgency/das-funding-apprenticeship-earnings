@@ -1,4 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -74,7 +75,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = course.StartDate,
                 PlannedEndDate = course.EndDate,
-                ActualEndDate = course.ActualEndDate,
+                ActualEndDate = course.WithdrawalDate ?? course.CompletionDate,
                 TrainingStatus = GetTrainingStatus(course.WithdrawalDate, course.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
@@ -127,15 +128,18 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                     .Select(priceGroup =>
                     {
                         var price = prices[priceGroup.Key];
+                        var regularInstalmentsForPrice = episode.EarningsProfile.Instalments
+                            .Where(x => x.EpisodePriceKey == price.PriceKey && x.Type == InstalmentType.Regular)
+                            .ToList();
 
                         return new PricePeriod
                         {
                             Price = price.AgreedPrice,
                             StartDate = price.StartDate,
                             EndDate = price.EndDate,
-                            CompletionAmount = episode.EarningsProfile.CompletionPayment,
-                            InstalmentAmount = episode.EarningsProfile.Instalments.Count > 0 ? episode.EarningsProfile.Instalments.Max(o => o.Amount) : 0,
-                            NumberOfInstalments = episode.EarningsProfile.Instalments.Count,
+                            CompletionAmount = new ApprenticeshipFunding(price.AgreedPrice, episode.FundingBandMaximum).CompletionPayment,
+                            InstalmentAmount = regularInstalmentsForPrice.Count > 0 ? regularInstalmentsForPrice.Max(o => o.Amount) : 0,
+                            NumberOfInstalments = regularInstalmentsForPrice.Count,
                             Periods = priceGroup.Select(x => new EarningPeriod
                             {
                                 EarningType = x.EarningType,
@@ -151,6 +155,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                             }).ToList()
                         };
                     })
+                    .OrderBy(p => p.StartDate)
                     .ToList()
             })
             .OrderBy(e => e.AcademicYear)
