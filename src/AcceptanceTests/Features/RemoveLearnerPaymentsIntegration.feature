@@ -16,9 +16,11 @@ Scenario: Removed approved apprenticeship with english and maths is sent for pay
 		| StartDate  | EndDate    | TotalPrice |
 		| 2021-01-01 | 2021-12-31 |      12000 |
 	And the following english and maths course information is provided
-		| StartDate  | EndDate    | Course  | LearnAimRef | Amount |
-		| 2021-01-01 | 2021-12-31 | Maths 4 | 4A          |   4000 |
+		| StartDate  | EndDate    | Course    | LearnAimRef | Amount |
+		| 2021-01-01 | 2021-12-31 | Maths 4   | 4A          |   4000 |
+		| 2021-01-01 | 2021-12-31 | English 2 | 5B          |   3000 |
 	And a LearningApproved event is received for the apprenticeship
+	And payments had previously been sent earnings for each english and maths course
 	When the learner is removed
 	And the earnings are released to payments
 	Then the payments event is sent to pv2 with no earnings for the apprenticeship
@@ -32,6 +34,7 @@ Scenario: Removed approved apprenticeship with learning support is sent for paym
 		| StartDate  | EndDate    |
 		| 2021-01-01 | 2021-03-31 |
 	And a LearningApproved event is received for the apprenticeship
+	And payments had previously been sent "LearningSupport" earnings for the apprenticeship
 	When the learner is removed
 	And the earnings are released to payments
 	Then the payments event is sent to pv2 with no earnings for the apprenticeship
@@ -47,6 +50,7 @@ Scenario: Removed approved apprenticeship with english and maths learning suppor
 		| StartDate  | EndDate    |
 		| 2021-01-01 | 2021-03-31 |
 	And a LearningApproved event is received for the apprenticeship
+	And payments had previously been sent "LearningSupport" earnings for each english and maths course
 	When the learner is removed
 	And the earnings are released to payments
 	Then the english and maths payments event is sent to pv2 with no earnings
@@ -56,6 +60,8 @@ Scenario: Removed approved apprenticeship for a 16-18 apprentice is sent for pay
 		| StartDate  | EndDate    | TotalPrice | Age |
 		| 2021-01-01 | 2021-12-31 |      12000 | 18  |
 	And a LearningApproved event is received for the apprenticeship
+	And payments had previously been sent "First16To18EmployerIncentive" earnings for the apprenticeship
+	And payments had previously been sent "First16To18ProviderIncentive" earnings for the apprenticeship
 	When the learner is removed
 	And the earnings are released to payments
 	Then the payments event is sent to pv2 with no earnings for the apprenticeship

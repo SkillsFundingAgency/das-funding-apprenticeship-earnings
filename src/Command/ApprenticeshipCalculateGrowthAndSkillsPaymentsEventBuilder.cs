@@ -43,7 +43,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 CourseReference = ApprenticeshipCourseReference,
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.Prices.Min(p => p.StartDate),
-                PlannedEndDate = episode.EpisodePeriodsInLearning.OrderByDescending(o => o.StartDate).FirstOrDefault()!.OriginalExpectedEndDate,
+                PlannedEndDate = GetPlannedEndDate(episode),
                 ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
                 TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate, episode.PauseDate)
             },
@@ -81,6 +81,16 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             EmployerContribution = 0,
             Earnings = BuildEnglishAndMathsEarnings(episode, course, learning, employerAccountId, fundingAccountId)
         };
+    }
+
+    /// <summary>
+    /// Periods in learning are cleared when a learner is removed from the ILR, in which case the latest price end date is used instead.
+    /// </summary>
+    private static DateTime GetPlannedEndDate(ApprenticeshipEpisode episode)
+    {
+        var latestPeriodInLearning = episode.EpisodePeriodsInLearning.MaxBy(o => o.StartDate);
+
+        return latestPeriodInLearning?.OriginalExpectedEndDate ?? episode.Prices.Max(p => p.EndDate);
     }
 
     private static TrainingStatus GetTrainingStatus(DateTime? withdrawalDate, DateTime? completionDate, DateTime? pauseDate)

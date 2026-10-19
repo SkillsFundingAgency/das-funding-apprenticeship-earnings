@@ -43,7 +43,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         Guid? priceKey = null,
         DateTime? dateOfBirth = null,
         List<ApprenticeshipAdditionalPaymentEntity>? additionalPayments = null,
-        decimal? fundingBandMaximum = null)
+        decimal? fundingBandMaximum = null,
+        List<ApprenticeshipPeriodInLearningEntity>? periodsInLearning = null)
     {
         var resolvedPriceKey = priceKey ?? Guid.NewGuid();
         var price = new ApprenticeshipEpisodePriceEntity
@@ -68,6 +69,10 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.EmployerType, employerType)
             .With(x => x.TrainingCode, "123-1")
             .With(x => x.Prices, prices)
+            .With(x => x.PeriodsInLearning, periodsInLearning ?? new List<ApprenticeshipPeriodInLearningEntity>
+            {
+                new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = endDate, OriginalExpectedEndDate = endDate }
+            })
             .With(x => x.FundingBandMaximum, fundingBandMaximum ?? _fixture.Create<decimal>())
             .With(x => x.EarningsProfile, _fixture.Build<ApprenticeshipEarningsProfileEntity>()
                 .With(p => p.Instalments, instalments ?? new List<ApprenticeshipInstalmentEntity>())
@@ -119,7 +124,28 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.CourseReference.Should().Be("ZPROG001");
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(startDate);
-        result.Training.PlannedEndDate.Should().Be(episode.EpisodePeriodsInLearning.Max(o => o.OriginalExpectedEndDate));
+        result.Training.PlannedEndDate.Should().Be(endDate);
+    }
+
+    [Test]
+    public void WhenThereHasBeenABreakInLearning_ThenPlannedEndDateIsTakenFromTheLatestPeriodInLearning()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var returnDate = new DateTime(2024, 1, 1);
+        var revisedEndDate = new DateTime(2024, 8, 31);
+
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
+        {
+            new() { Key = Guid.NewGuid(), StartDate = returnDate, EndDate = revisedEndDate, OriginalExpectedEndDate = revisedEndDate },
+            new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = new DateTime(2023, 11, 30), OriginalExpectedEndDate = endDate }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, periodsInLearning: periodsInLearning);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.PlannedEndDate.Should().Be(revisedEndDate);
     }
 
     [TestCase(false, false, false, TrainingStatus.Continuing)]

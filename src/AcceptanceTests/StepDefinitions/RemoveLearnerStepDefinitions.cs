@@ -85,6 +85,51 @@ public class RemoveLearnerStepDefinitions
         }
     }
 
+    [Given(@"payments had previously been sent ""(.*)"" earnings for the apprenticeship")]
+    public void GivenPaymentsHadPreviouslyBeenSentEarningsForTheApprenticeship(EarningType earningType)
+    {
+        var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+            .LastOrDefault(x => x.Training.LearningType == LearningType.Apprenticeship);
+
+        paymentsEvent.Should().NotBeNull("payments should have been sent earnings when the apprenticeship was approved");
+        GetEarningTypes(paymentsEvent!).Should().Contain(earningType);
+    }
+
+    [Given(@"payments had previously been sent earnings for each english and maths course")]
+    public void GivenPaymentsHadPreviouslyBeenSentEarningsForEachEnglishAndMathsCourse()
+    {
+        foreach (var paymentsEvent in GetLatestEnglishAndMathsPaymentsEvents())
+        {
+            paymentsEvent.Earnings.Should().NotBeEmpty($"payments should have been sent earnings for {paymentsEvent.Training.CourseReference} when the apprenticeship was approved");
+        }
+    }
+
+    [Given(@"payments had previously been sent ""(.*)"" earnings for each english and maths course")]
+    public void GivenPaymentsHadPreviouslyBeenSentEarningsForEachEnglishAndMathsCourse(EarningType earningType)
+    {
+        foreach (var paymentsEvent in GetLatestEnglishAndMathsPaymentsEvents())
+        {
+            GetEarningTypes(paymentsEvent).Should().Contain(earningType);
+        }
+    }
+
+    private List<CalculateGrowthAndSkillsPayments> GetLatestEnglishAndMathsPaymentsEvents()
+    {
+        var paymentsEvents = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+            .Where(x => x.Training.LearningType == LearningType.MathsAndEnglish)
+            .GroupBy(x => x.Training.CourseReference)
+            .Select(x => x.Last())
+            .ToList();
+
+        paymentsEvents.Should().NotBeEmpty("payments should have been sent english and maths earnings when the apprenticeship was approved");
+        return paymentsEvents;
+    }
+
+    private static IEnumerable<EarningType> GetEarningTypes(CalculateGrowthAndSkillsPayments paymentsEvent)
+    {
+        return paymentsEvent.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).Select(p => p.EarningType);
+    }
+
     private async Task<ApprenticeshipEpisode> GetEpisode()
     {
         var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
