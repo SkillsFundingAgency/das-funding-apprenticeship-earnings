@@ -109,15 +109,19 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
     }
 
     /// <summary>
-    /// When course keys are supplied only those courses are released.
-    /// When no course keys are supplied, all courses are released for a ReleaseType of All and none for FunctionalSkill.
+    /// When course keys are supplied only those courses are released, including any that have been removed
+    /// (e.g. omitted from the latest submission) so that payments can clear the earnings previously sent for them.
+    /// When no course keys are supplied (e.g. on approval), all active courses are released for a ReleaseType of All
+    /// and none for FunctionalSkill. Removed courses are not released in this case as payments has never received them.
     /// </summary>
     private static IEnumerable<EnglishAndMathsDomainModel> GetEnglishAndMathsCoursesToRelease(ApprenticeshipEpisode episode, ReleaseEarningsRequest request)
     {
         var courses = episode.EarningsProfile!.MathsAndEnglishCourses;
 
         if (request.EnglishAndMathsCourseKeys.Count == 0)
-            return request.ReleaseType == ReleaseType.All ? courses : [];
+        {
+            return request.ReleaseType == ReleaseType.All ? courses.Where(c => !c.IsRemoved) : [];
+        }
 
         return courses.Where(c => request.EnglishAndMathsCourseKeys.Contains(c.Key));
     }

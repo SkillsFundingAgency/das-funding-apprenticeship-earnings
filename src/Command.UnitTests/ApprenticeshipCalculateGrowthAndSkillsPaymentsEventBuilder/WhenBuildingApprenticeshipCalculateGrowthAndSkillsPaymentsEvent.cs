@@ -1,12 +1,12 @@
 using AutoFixture;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using Moq;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using System;
 using System.Collections.Generic;
@@ -42,7 +42,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         List<ApprenticeshipEpisodePriceEntity>? additionalPrices = null,
         Guid? priceKey = null,
         DateTime? dateOfBirth = null,
-        List<ApprenticeshipAdditionalPaymentEntity>? additionalPayments = null)
+        List<ApprenticeshipAdditionalPaymentEntity>? additionalPayments = null,
+        decimal? fundingBandMaximum = null)
     {
         var resolvedPriceKey = priceKey ?? Guid.NewGuid();
         var price = new ApprenticeshipEpisodePriceEntity
@@ -67,6 +68,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.EmployerType, employerType)
             .With(x => x.TrainingCode, "123-1")
             .With(x => x.Prices, prices)
+            .With(x => x.FundingBandMaximum, fundingBandMaximum ?? _fixture.Create<decimal>())
             .With(x => x.EarningsProfile, _fixture.Build<ApprenticeshipEarningsProfileEntity>()
                 .With(p => p.Instalments, instalments ?? new List<ApprenticeshipInstalmentEntity>())
                 .With(p => p.ApprenticeshipAdditionalPayments, additionalPayments ?? new List<ApprenticeshipAdditionalPaymentEntity>())
@@ -117,7 +119,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.CourseReference.Should().Be("ZPROG001");
         result.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
         result.Training.StartDate.Should().Be(startDate);
-        result.Training.PlannedEndDate.Should().Be(endDate);
+        result.Training.PlannedEndDate.Should().Be(episode.EpisodePeriodsInLearning.Max(o => o.OriginalExpectedEndDate));
     }
 
     [TestCase(false, false, false, TrainingStatus.Continuing)]
@@ -505,6 +507,42 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Earnings.Should().BeEmpty();
     }
 
+    [Test]
+    public void BuildForEnglishAndMaths_WhenBalancingInstalmentPresent_ThenInstalmentAmountAndNumberOfInstalmentsOnlyUseRegularInstalments()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.Amount, 480m)
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, new DateTime(2024, 1, 15))
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 6, Amount = 240m, Type = "Balancing" }
+            })
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var pricePeriod = result.Earnings.Single().PricePeriods.Single();
+        pricePeriod.InstalmentAmount.Should().Be(40m);
+        pricePeriod.NumberOfInstalments.Should().Be(3);
+        pricePeriod.CompletionAmount.Should().Be(0);
+        pricePeriod.Periods.Should().Contain(p => p.EarningType == EarningType.BalancingMathsAndEnglish && p.Amount == 240m);
+    }
+
     [TestCase("Regular", EarningType.OnProgrammeMathsAndEnglish)]
     [TestCase("Balancing", EarningType.BalancingMathsAndEnglish)]
     public void BuildForEnglishAndMaths_ThenInstalmentTypeMapsToCorrectEarningType(string instalmentType, EarningType expectedEarningType)
@@ -778,6 +816,262 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         pricePeriod.StartDate.Should().Be(secondPriceStart);
         pricePeriod.EndDate.Should().Be(secondPriceEnd);
         pricePeriod.Periods.Single().EarningType.Should().Be(EarningType.First16To18ProviderIncentive);
+    }
+
+    [Test]
+    public void WhenPriceChangesPartWayThroughTheYear_ThenEachPricePeriodIsScopedToItsOwnPriceEpisode()
+    {
+        var firstPriceStart = new DateTime(2024, 8, 1);
+        var firstPriceEnd = new DateTime(2025, 1, 31);
+        var secondPriceStart = new DateTime(2025, 2, 1);
+        var secondPriceEnd = new DateTime(2025, 7, 31);
+
+        var secondPriceKey = Guid.NewGuid();
+        var secondPrice = new ApprenticeshipEpisodePriceEntity
+        {
+            Key = secondPriceKey,
+            StartDate = secondPriceStart,
+            EndDate = secondPriceEnd,
+            AgreedPrice = 18000m
+        };
+
+        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 15000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+
+        var instalments = new List<ApprenticeshipInstalmentEntity>();
+        for (byte period = 1; period <= 6; period++)
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = firstPriceKey });
+        for (byte period = 7; period <= 12; period++)
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1400m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = secondPriceKey });
+        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 12, Amount = 3600m, Type = InstalmentType.Completion.ToString(), EpisodePriceKey = secondPriceKey });
+
+        var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 15000m, instalments,
+            additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey, fundingBandMaximum: 20000m);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var earning = result.Earnings.Single();
+        earning.PricePeriods.Should().HaveCount(2);
+
+        var firstPricePeriod = earning.PricePeriods.Single(p => p.StartDate == firstPriceStart);
+        firstPricePeriod.Price.Should().Be(15000m);
+        firstPricePeriod.StartDate.Should().Be(firstPriceStart);
+        firstPricePeriod.EndDate.Should().Be(firstPriceEnd);
+        firstPricePeriod.InstalmentAmount.Should().Be(1000m);
+        firstPricePeriod.NumberOfInstalments.Should().Be(6);
+        firstPricePeriod.CompletionAmount.Should().Be(3000m);
+        firstPricePeriod.Periods.Should().HaveCount(6);
+        firstPricePeriod.Periods.Should().OnlyContain(p => p.EarningType == EarningType.Learning && p.Amount == 1000m && p.DeliveryPeriod >= 1 && p.DeliveryPeriod <= 6);
+
+        var secondPricePeriod = earning.PricePeriods.Single(p => p.StartDate == secondPriceStart);
+        secondPricePeriod.Price.Should().Be(18000m);
+        secondPricePeriod.StartDate.Should().Be(secondPriceStart);
+        secondPricePeriod.EndDate.Should().Be(secondPriceEnd);
+        secondPricePeriod.InstalmentAmount.Should().Be(1400m);
+        secondPricePeriod.NumberOfInstalments.Should().Be(6);
+        secondPricePeriod.CompletionAmount.Should().Be(3600m);
+        secondPricePeriod.Periods.Should().HaveCount(7);
+        secondPricePeriod.Periods.Where(p => p.EarningType == EarningType.Learning)
+            .Should().HaveCount(6).And.OnlyContain(p => p.Amount == 1400m && p.DeliveryPeriod >= 7 && p.DeliveryPeriod <= 12);
+        secondPricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion).Amount.Should().Be(3600m);
+    }
+
+    [Test]
+    public void WhenSinglePriceSpansAcademicYears_ThenInstalmentCountReflectsTheWholePriceEpisode()
+    {
+        var startDate = new DateTime(2024, 6, 1);
+        var endDate = new DateTime(2024, 9, 30);
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 10000m);
+
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 1, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 10000m, instalments, priceKey: priceKey, fundingBandMaximum: 20000m);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().HaveCount(2);
+        result.Earnings.Should().OnlyContain(e => e.PricePeriods.Single().Periods.Count() == 2);
+        result.Earnings.Select(e => e.PricePeriods.Single()).Should().OnlyContain(p =>
+            p.NumberOfInstalments == 4 && p.InstalmentAmount == 2000m && p.CompletionAmount == 2000m);
+    }
+
+    [TestCase(false, false, false, null)]
+    [TestCase(false, true, false, "2024-05-01")]
+    [TestCase(true, false, false, "2024-01-01")]
+    [TestCase(false, false, true, null)]
+    [TestCase(true, false, true, "2024-01-01")]
+    public void ThenActualEndDateIsWithdrawalOrCompletionDateAndIgnoresPauseDate(bool withdrawn, bool completed, bool paused, string? expected)
+    {
+        var (learning, episode, _) = BuildLearning(
+            new DateTime(2023, 9, 1), new DateTime(2024, 6, 30), 15000m,
+            withdrawalDate: withdrawn ? new DateTime(2024, 1, 1) : null,
+            completionDate: completed ? new DateTime(2024, 5, 1) : null,
+            pauseDate: paused ? new DateTime(2023, 12, 1) : null);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.ActualEndDate.Should().Be(expected == null ? null : DateTime.Parse(expected));
+    }
+
+    [TestCase(false, false, false, null)]
+    [TestCase(false, true, false, "2024-05-01")]
+    [TestCase(true, false, false, "2024-01-01")]
+    [TestCase(false, false, true, null)]
+    [TestCase(true, false, true, "2024-01-01")]
+    public void BuildForEnglishAndMaths_ThenActualEndDateIsWithdrawalOrCompletionDateAndIgnoresPauseDate(bool withdrawn, bool completed, bool paused, string? expected)
+    {
+        var (learning, episode, _) = BuildLearning(new DateTime(2023, 9, 1), new DateTime(2024, 6, 30), 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, withdrawn ? new DateTime(2024, 1, 1) : (DateTime?)null)
+            .With(x => x.CompletionDate, completed ? new DateTime(2024, 5, 1) : (DateTime?)null)
+            .With(x => x.PauseDate, paused ? new DateTime(2023, 12, 1) : (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.ActualEndDate.Should().Be(expected == null ? null : DateTime.Parse(expected));
+    }
+
+    [Test]
+    public void WhenPriceChangesWithDifferentInstalmentCounts_ThenEachPricePeriodHasItsOwnInstalmentCountAmountAndCompletionAmount()
+    {
+        var firstPriceStart = new DateTime(2024, 8, 1);
+        var firstPriceEnd = new DateTime(2024, 11, 30);
+        var secondPriceStart = new DateTime(2024, 12, 1);
+        var secondPriceEnd = new DateTime(2025, 7, 31);
+
+        var secondPriceKey = Guid.NewGuid();
+        var secondPrice = new ApprenticeshipEpisodePriceEntity
+        {
+            Key = secondPriceKey,
+            StartDate = secondPriceStart,
+            EndDate = secondPriceEnd,
+            AgreedPrice = 15000m
+        };
+
+        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 12000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+
+        var instalments = new List<ApprenticeshipInstalmentEntity>();
+        for (byte period = 1; period <= 4; period++)
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 800m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = firstPriceKey });
+        for (byte period = 5; period <= 12; period++)
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1100m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = secondPriceKey });
+        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 12, Amount = 3000m, Type = InstalmentType.Completion.ToString(), EpisodePriceKey = secondPriceKey });
+
+        var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 12000m, instalments,
+            additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey, fundingBandMaximum: 20000m);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var pricePeriods = result.Earnings.Single().PricePeriods.ToList();
+        pricePeriods.Should().HaveCount(2);
+
+        var firstPricePeriod = pricePeriods[0];
+        firstPricePeriod.Price.Should().Be(12000m);
+        firstPricePeriod.StartDate.Should().Be(firstPriceStart);
+        firstPricePeriod.EndDate.Should().Be(firstPriceEnd);
+        firstPricePeriod.NumberOfInstalments.Should().Be(4);
+        firstPricePeriod.InstalmentAmount.Should().Be(800m);
+        firstPricePeriod.CompletionAmount.Should().Be(2400m);
+        firstPricePeriod.Periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 1, 2, 3, 4 });
+        firstPricePeriod.Periods.Should().OnlyContain(p => p.EarningType == EarningType.Learning && p.Amount == 800m);
+
+        var secondPricePeriod = pricePeriods[1];
+        secondPricePeriod.Price.Should().Be(15000m);
+        secondPricePeriod.StartDate.Should().Be(secondPriceStart);
+        secondPricePeriod.EndDate.Should().Be(secondPriceEnd);
+        secondPricePeriod.NumberOfInstalments.Should().Be(8);
+        secondPricePeriod.InstalmentAmount.Should().Be(1100m);
+        secondPricePeriod.CompletionAmount.Should().Be(3000m);
+        secondPricePeriod.Periods.Where(p => p.EarningType == EarningType.Learning).Select(p => p.DeliveryPeriod)
+            .Should().BeEquivalentTo(new byte[] { 5, 6, 7, 8, 9, 10, 11, 12 });
+        secondPricePeriod.Periods.Where(p => p.EarningType == EarningType.Learning).Should().OnlyContain(p => p.Amount == 1100m);
+        secondPricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion).Amount.Should().Be(3000m);
+    }
+
+    [Test]
+    public void WhenEarningsAreCalculatedForAPriceChange_ThenPricePeriodsAlignWithTheCalculatedPriceEpisodes()
+    {
+        var firstPrice = new ApprenticeshipEpisodePriceEntity { Key = Guid.NewGuid(), StartDate = new DateTime(2025, 1, 1), EndDate = new DateTime(2025, 4, 30), AgreedPrice = 12000m };
+        var secondPrice = new ApprenticeshipEpisodePriceEntity { Key = Guid.NewGuid(), StartDate = new DateTime(2025, 5, 1), EndDate = new DateTime(2025, 12, 31), AgreedPrice = 15000m };
+
+        var episodeEntity = _fixture.Build<ApprenticeshipEpisodeEntity>()
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, (DateTime?)null)
+            .With(x => x.AchievementDate, (DateTime?)null)
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.TrainingCode, "123")
+            .With(x => x.FundingBandMaximum, 20000m)
+            .With(x => x.Prices, new List<ApprenticeshipEpisodePriceEntity> { firstPrice, secondPrice })
+            .With(x => x.PeriodsInLearning, new List<ApprenticeshipPeriodInLearningEntity>
+            {
+                new() { Key = Guid.NewGuid(), StartDate = firstPrice.StartDate, EndDate = secondPrice.EndDate, OriginalExpectedEndDate = secondPrice.EndDate }
+            })
+            .Without(x => x.EarningsProfile)
+            .Create();
+
+        var learningEntity = _fixture.Build<ApprenticeshipLearningEntity>()
+            .With(x => x.Uln, "1234567890")
+            .With(x => x.DateOfBirth, new DateTime(2000, 1, 1))
+            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
+            .Create();
+
+        var learning = ApprenticeshipLearning.Get(learningEntity);
+        var episode = (ApprenticeshipEpisode)learning.GetEpisode(episodeEntity.Key);
+        var systemClock = new Mock<ISystemClockService>();
+        systemClock.Setup(x => x.UtcNow).Returns(new DateTime(2025, 2, 1));
+        episode.CalculateOnProgramme(learning, systemClock.Object, "{}");
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        // First price spans 2425 only, second price spans the 2425/2526 boundary so appears under both years
+        var firstYear = result.Earnings.Single(e => e.AcademicYear == 2425).PricePeriods.ToList();
+        var secondYear = result.Earnings.Single(e => e.AcademicYear == 2526).PricePeriods.ToList();
+        firstYear.Should().HaveCount(2);
+        secondYear.Should().HaveCount(1);
+
+        var firstPricePeriod = firstYear.Single(p => p.StartDate == firstPrice.StartDate);
+        firstPricePeriod.Price.Should().Be(12000m);
+        firstPricePeriod.EndDate.Should().Be(firstPrice.EndDate);
+        firstPricePeriod.NumberOfInstalments.Should().Be(4);
+        firstPricePeriod.InstalmentAmount.Should().Be(800m);
+        firstPricePeriod.CompletionAmount.Should().Be(2400m);
+        firstPricePeriod.Periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 6, 7, 8, 9 });
+
+        foreach (var secondPricePeriod in new[] { firstYear.Single(p => p.StartDate == secondPrice.StartDate), secondYear.Single() })
+        {
+            secondPricePeriod.Price.Should().Be(15000m);
+            secondPricePeriod.StartDate.Should().Be(secondPrice.StartDate);
+            secondPricePeriod.EndDate.Should().Be(secondPrice.EndDate);
+            secondPricePeriod.NumberOfInstalments.Should().Be(8);
+            secondPricePeriod.InstalmentAmount.Should().Be(1100m);
+            secondPricePeriod.CompletionAmount.Should().Be(3000m);
+            secondPricePeriod.Periods.Should().OnlyContain(p => p.EarningType == EarningType.Learning && p.Amount == 1100m);
+        }
+        firstYear.Single(p => p.StartDate == secondPrice.StartDate).Periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 10, 11, 12 });
+        secondYear.Single().Periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 1, 2, 3, 4, 5 });
+
+        // Every calculated instalment is sent exactly once under the price period of its own price episode
+        var sentLearningAmount = result.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+            .Where(p => p.EarningType == EarningType.Learning).Sum(p => p.Amount);
+        sentLearningAmount.Should().Be(episode.EarningsProfile!.Instalments.Sum(i => i.Amount));
+
+        // Latest price's completion amount matches the stored profile value, earlier price's is recalculated
+        episode.EarningsProfile.CompletionPayment.Should().Be(3000m);
     }
 
     [Test]
