@@ -507,6 +507,42 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Earnings.Should().BeEmpty();
     }
 
+    [Test]
+    public void BuildForEnglishAndMaths_WhenBalancingInstalmentPresent_ThenInstalmentAmountAndNumberOfInstalmentsOnlyUseRegularInstalments()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m);
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.Amount, 480m)
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, new DateTime(2024, 1, 15))
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
+            {
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" },
+                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 6, Amount = 240m, Type = "Balancing" }
+            })
+            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .Create();
+
+        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var pricePeriod = result.Earnings.Single().PricePeriods.Single();
+        pricePeriod.InstalmentAmount.Should().Be(40m);
+        pricePeriod.NumberOfInstalments.Should().Be(3);
+        pricePeriod.CompletionAmount.Should().Be(0);
+        pricePeriod.Periods.Should().Contain(p => p.EarningType == EarningType.BalancingMathsAndEnglish && p.Amount == 240m);
+    }
+
     [TestCase("Regular", EarningType.OnProgrammeMathsAndEnglish)]
     [TestCase("Balancing", EarningType.BalancingMathsAndEnglish)]
     public void BuildForEnglishAndMaths_ThenInstalmentTypeMapsToCorrectEarningType(string instalmentType, EarningType expectedEarningType)

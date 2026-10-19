@@ -37,7 +37,7 @@ public class EnglishAndMathsStepDefinitions
         {
             EnglishAndMaths = items
         };
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
+        await PutEnglishAndMaths(request);
     }
 
     [Given(@"the english and maths course has the following learning support")]
@@ -52,7 +52,7 @@ public class EnglishAndMathsStepDefinitions
         }
 
         var request = new UpdateEnglishAndMathsRequest { EnglishAndMaths = items };
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
+        await PutEnglishAndMaths(request);
     }
 
     [Given(@"the following English and maths request is sent")]
@@ -66,7 +66,14 @@ public class EnglishAndMathsStepDefinitions
             .WithDataFromSetupModel(data)
             .Build();
 
-        await _testContext.TestInnerApi.Put($"/learning/{_scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey}/english-and-maths", request);
+        await PutEnglishAndMaths(request);
+    }
+
+    private async Task PutEnglishAndMaths(UpdateEnglishAndMathsRequest request)
+    {
+        var learningKey = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>().LearningKey;
+        var response = await _testContext.TestInnerApi.Put<UpdateEnglishAndMathsRequest, UpdateEnglishAndMathsResponseModel>($"/learning/{learningKey}/english-and-maths", request);
+        _scenarioContext.Set(response, nameof(UpdateEnglishAndMathsResponseModel));
     }
 
     [Then(@"english and maths instalments are persisted as follows")]

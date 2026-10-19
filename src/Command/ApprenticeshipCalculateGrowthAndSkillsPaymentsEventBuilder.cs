@@ -215,6 +215,10 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
 
     private static IList<Earnings> BuildEnglishAndMathsEarnings(ApprenticeshipEpisode episode, EnglishAndMathsDomainModel course, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
     {
+        var regularInstalments = course.Instalments
+            .Where(x => x.Type == EnglishAndMathsInstalmentType.Regular)
+            .ToList();
+
         var instalmentEntries = course.Instalments
             .Select(instalment => (
                 instalment.AcademicYear,
@@ -244,8 +248,8 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                         StartDate = course.StartDate,
                         EndDate = course.EndDate,
                         CompletionAmount = 0,
-                        InstalmentAmount = course.Instalments.Count > 0 ? course.Instalments.Max(o => o.Amount) : 0,
-                        NumberOfInstalments = course.Instalments.Count,
+                        InstalmentAmount = regularInstalments.Count > 0 ? regularInstalments.Max(o => o.Amount) : 0,
+                        NumberOfInstalments = regularInstalments.Count,
                         Periods = yearGroup.Select(instalment => new EarningPeriod
                         {
                             EarningType = instalment.EarningType,
