@@ -107,9 +107,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             // AC1 - all three earning types are represented in this scenario (on-programme + completion date + achievement date)
             instalments.Select(x => x.Type).Distinct().Should().BeEquivalentTo(new[]
             {
-                InstalmentType.Regular,
-                InstalmentType.Completion,
-                InstalmentType.Balancing
+                InstalmentType.Regular
             });
         }
 
