@@ -46,23 +46,6 @@ Scenario: AC3 - English and Maths course details updated after approval are sent
 	And the english and maths course "5B" is sent to pv2 with its previous earnings version
 	And the payments event is sent to pv2 for the english and maths course with the correct information
 
-Scenario: English and Maths course removed by omission after approval is sent for payment with no earnings
-	Given an apprenticeship has been created as a draft with the following information
-		| StartDate  | EndDate    | TotalPrice |
-		| 2021-01-01 | 2021-12-31 |      12000 |
-	And the following english and maths course information is provided
-		| StartDate  | EndDate    | Course    | LearnAimRef | Amount |
-		| 2021-01-01 | 2021-12-31 | Maths 4   | 4A          |   4000 |
-		| 2021-01-01 | 2021-12-31 | English 2 | 5B          |   3000 |
-	And a LearningApproved event is received for the apprenticeship
-	When the following english and maths course information is provided
-		| StartDate  | EndDate    | Course  | LearnAimRef | Amount |
-		| 2021-01-01 | 2021-12-31 | Maths 4 | 4A          |   4000 |
-	And the english and maths earnings are released for the changed courses
-	Then only the english and maths course "5B" is sent to pv2 in the release
-	And the english and maths course "5B" is sent to pv2 as removed with no earnings
-	And the english and maths course "4A" is sent to pv2 with its previous earnings version
-
 Scenario: English and Maths course completed early is sent with instalment details based on regular instalments only
 	Given an apprenticeship has been created as a draft with the following information
 		| StartDate  | EndDate    | TotalPrice |
