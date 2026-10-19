@@ -27,7 +27,7 @@ Scenario: english and maths earnings for a brand new course
 		| Maths1 | 100    | 2122         | 1              | Regular |
 		| Maths1 | 100    | 2122         | 2              | Regular |
 		| Maths1 | 100    | 2122         | 3              | Regular |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 
 Scenario: english and maths earnings past the end of the apprenticeship
 	Given an apprenticeship has been created with the following information
@@ -51,7 +51,7 @@ Scenario: english and maths earnings past the end of the apprenticeship
 		| LateEnglish | 100    | 2122         | 3              | Regular |
 		| LateEnglish | 100    | 2122         | 4              | Regular |
 		| LateEnglish | 100    | 2122         | 5              | Regular |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 	
 Scenario: english and maths before the start of the apprenticeship
 	Given an apprenticeship has been created with the following information
@@ -75,7 +75,7 @@ Scenario: english and maths before the start of the apprenticeship
 		| EarlyMaths | 50     | 2021         | 3              | Regular |
 		| EarlyMaths | 50     | 2021         | 4              | Regular |
 		| EarlyMaths | 50     | 2021         | 5              | Regular |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 
 Scenario: english and maths earnings for a course which does not span a census date
 	Given an apprenticeship has been created with the following information
@@ -88,7 +88,7 @@ Scenario: english and maths earnings for a course which does not span a census d
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| Maths1 | 900    | 2021         | 7              | Regular |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 		
 Scenario: english and maths completion earnings
 	Given an apprenticeship has been created with the following information
@@ -107,7 +107,7 @@ Scenario: english and maths completion earnings
 		| Maths1 | 100    | 2021         | 2              | Regular   |
 		| Maths1 | 100    | 2021         | 3              | Regular   |
 		| Maths1 | 1200   | 2021         | 4              | Balancing |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 
 Scenario: english and maths earnings for a course with prior learning
 	Given an apprenticeship has been created with the following information
@@ -134,4 +134,4 @@ Scenario: english and maths earnings for a course with prior learning
 		| Maths1 | 63     | 2122         | 1              | Regular |
 		| Maths1 | 63     | 2122         | 2              | Regular |
 		| Maths1 | 63     | 2122         | 3              | Regular |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained

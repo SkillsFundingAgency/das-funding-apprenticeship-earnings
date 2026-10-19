@@ -63,11 +63,12 @@ public class WhenUpdateEnglishAndMathsCourses
     }
 
     [Test]
-    public void UpdateMathsAndEnglishCourses_ShouldRaiseEarningsProfileArchivedEvent()
+    public void UpdateMathsAndEnglishCourses_ShouldNotGenerateANewEarningsProfileVersionOrArchiveTheEarningsProfile()
     {
         // Arrange
         var sut = CreateApprenticeship();
-        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>(), _mockSystemClockService.Object); // first update
+        sut.FlushEvents();
+        var initialVersion = sut.Episodes.First().EarningsProfile!.Version;
 
         var courses = new List<EnglishAndMaths>
         {
@@ -79,7 +80,142 @@ public class WhenUpdateEnglishAndMathsCourses
 
         // Assert
         var events = sut.FlushEvents().ToList();
-        events.Any(x => x is Types.EarningsProfileUpdatedEvent).Should().BeTrue();
+        events.Should().NotContain(x => x is Types.EarningsProfileUpdatedEvent);
+        events.Should().ContainSingle(x => x is Types.EarningsProfileForEnglishAndMathsUpdatedEvent);
+        sut.Episodes.First().EarningsProfile!.Version.Should().Be(initialVersion);
+        sut.Episodes.First().HasEarningsProfileVersionUpdate.Should().BeFalse();
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenCourseNoLongerSuppliedBeforeApproval_ShouldHardDeleteCourse()
+    {
+        // Arrange
+        var sut = CreateApprenticeship(isApproved: false);
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), 450, "M103")
+        }, _mockSystemClockService.Object);
+        var removedCourseKey = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single(x => x.LearnAimRef == "M103").Key;
+        sut.FlushEvents();
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        var profile = sut.Episodes.First().EarningsProfile!;
+        profile.MathsAndEnglishCourses.Should().ContainSingle(x => x.LearnAimRef == "M102" && !x.IsRemoved);
+        profile.EnglishAndMathsCourseChanges.Removed.Should().BeEquivalentTo([removedCourseKey]);
+        sut.FlushEvents().OfType<Types.EarningsProfileForEnglishAndMathsUpdatedEvent>().Should().BeEmpty();
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenOnlyTheStartDateChangesBeforeApproval_ShouldKeepTheLatestCourseAndHardDeleteThePreviousOne()
+    {
+        // Arrange
+        var sut = CreateApprenticeship(isApproved: false);
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 7, 31), 300, "M102")
+        }, _mockSystemClockService.Object);
+        var previousCourseKey = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single().Key;
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 3, 1), new DateTime(2021, 7, 31), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        var profile = sut.Episodes.First().EarningsProfile!;
+        var course = profile.MathsAndEnglishCourses.Should().ContainSingle().Subject;
+        course.StartDate.Should().Be(new DateTime(2021, 3, 1));
+        course.IsRemoved.Should().BeFalse();
+        course.Key.Should().NotBe(previousCourseKey);
+        profile.EnglishAndMathsCourseChanges.Removed.Should().BeEquivalentTo([previousCourseKey]);
+        profile.EnglishAndMathsCourseChanges.Created.Should().BeEquivalentTo([course.Key]);
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenAnUnapprovedLearningHasAPreviouslyRemovedCourseAndOnlyTheStartDateChanges_ShouldLeaveOnlyTheLatestCourse()
+    {
+        // Arrange - a course left soft deleted on a learning which is now unapproved
+        var sut = CreateApprenticeshipWithRemovedCourseThenUnapproved(new DateTime(2021, 2, 1), "M102");
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 3, 1), new DateTime(2021, 7, 31), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        var course = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Should().ContainSingle().Subject;
+        course.StartDate.Should().Be(new DateTime(2021, 3, 1));
+        course.IsRemoved.Should().BeFalse();
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenAnUnapprovedLearningHasAPreviouslyRemovedCourseThatIsSuppliedAgain_ShouldReinstateItRatherThanCreateANewEntry()
+    {
+        // Arrange - a course left soft deleted on a learning which is now unapproved
+        var sut = CreateApprenticeshipWithRemovedCourseThenUnapproved(new DateTime(2021, 2, 1), "M102");
+        var removedCourseKey = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single().Key;
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 7, 31), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        var course = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Should().ContainSingle().Subject;
+        course.Key.Should().Be(removedCourseKey);
+        course.IsRemoved.Should().BeFalse();
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenOnlyTheStartDateChangesAfterApproval_ShouldSoftDeleteThePreviousCourse()
+    {
+        // Arrange
+        var sut = CreateApprenticeship();
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 7, 31), 300, "M102")
+        }, _mockSystemClockService.Object);
+        var previousCourseKey = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Single().Key;
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 3, 1), new DateTime(2021, 7, 31), 300, "M102")
+        }, _mockSystemClockService.Object);
+
+        // Assert
+        var courses = sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses;
+        courses.Should().HaveCount(2);
+        courses.Single(x => x.Key == previousCourseKey).IsRemoved.Should().BeTrue();
+        courses.Single(x => x.Key != previousCourseKey).Should().Match<EnglishAndMaths>(x => !x.IsRemoved && x.StartDate == new DateTime(2021, 3, 1));
+    }
+
+    [Test]
+    public void UpdateMathsAndEnglishCourses_WhenNoCoursesSuppliedBeforeApproval_ShouldHardDeleteAllCourses()
+    {
+        // Arrange
+        var sut = CreateApprenticeship(isApproved: false);
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(new DateTime(2021, 2, 1), new DateTime(2021, 4, 30), 300, "M102"),
+            CreateMathsAndEnglishCourse(new DateTime(2021, 5, 1), new DateTime(2021, 7, 31), 450, "M103")
+        }, _mockSystemClockService.Object);
+
+        // Act
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>(), _mockSystemClockService.Object);
+
+        // Assert
+        sut.Episodes.First().EarningsProfile!.MathsAndEnglishCourses.Should().BeEmpty();
     }
 
     [Test]
@@ -337,10 +473,27 @@ public class WhenUpdateEnglishAndMathsCourses
         sut.Episodes.First().EarningsProfile!.EnglishAndMathsCourseChanges.HasChanges.Should().BeFalse();
     }
 
-    private ApprenticeshipLearning CreateApprenticeship()
+    private ApprenticeshipLearning CreateApprenticeship(bool isApproved = true)
     {
         var sut = _fixture.CreateLearningWithApprenticeship(_actualStartDate, _plannedEndDate, _agreedPrice);
-        sut.Calculate(_mockSystemClockService.Object, string.Empty);
+        sut.Calculate(_mockSystemClockService.Object, string.Empty, initialGenerationIsApproved: isApproved);
+        return sut;
+    }
+
+    private ApprenticeshipLearning CreateApprenticeshipWithRemovedCourseThenUnapproved(DateTime courseStartDate, string learnAimRef)
+    {
+        var sut = CreateApprenticeship();
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>
+        {
+            CreateMathsAndEnglishCourse(courseStartDate, new DateTime(2021, 7, 31), 300, learnAimRef)
+        }, _mockSystemClockService.Object);
+        sut.UpdateEnglishAndMathsCourses(new List<EnglishAndMaths>(), _mockSystemClockService.Object);
+        sut.Calculate(_mockSystemClockService.Object, string.Empty, initialGenerationIsApproved: false);
+
+        var profile = sut.Episodes.First().EarningsProfile!;
+        profile.IsApproved.Should().BeFalse();
+        profile.MathsAndEnglishCourses.Should().ContainSingle(x => x.IsRemoved);
+
         return sut;
     }
 

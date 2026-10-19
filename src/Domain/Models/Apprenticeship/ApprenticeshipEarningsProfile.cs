@@ -73,9 +73,10 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
             versionChanged = true;
         }
 
-        if (mathsAndEnglishCourses != null && UpdateEnglishAndMathsCourses(mathsAndEnglishCourses))
+        // English and Maths courses are versioned and archived individually, so changes to them do not generate a new earnings profile version
+        if (mathsAndEnglishCourses != null)
         {
-            versionChanged = true;
+            UpdateEnglishAndMathsCourses(mathsAndEnglishCourses);
         }
 
         if (completionPayment.HasValue && Entity.CompletionPayment != completionPayment.Value)
@@ -142,9 +143,18 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         EnglishAndMathsCourseChanges = new EnglishAndMathsCourseChanges();
         var updatedLookup = updatedCourses.ToDictionary(c => (c.LearnAimRef, c.StartDate));
 
-        // 1. Soft delete any courses no longer present
-        foreach (var existing in Entity.EnglishAndMathsCourses.Where(c => !updatedLookup.ContainsKey((c.LearnAimRef, c.StartDate))))
+        // 1. Remove any courses no longer present. These are hard deleted until the learning is approved, as payments
+        // will never have been sent them, and soft deleted after approval so payments can be told their earnings are removed
+        foreach (var existing in Entity.EnglishAndMathsCourses.Where(c => !updatedLookup.ContainsKey((c.LearnAimRef, c.StartDate))).ToList())
         {
+            if (!IsApproved)
+            {
+                Entity.EnglishAndMathsCourses.Remove(existing);
+                PurgeEventsOfType<EarningsProfileForEnglishAndMathsUpdatedEvent>(x => x.EnglishAndMathsKey == existing.Key);
+                EnglishAndMathsCourseChanges.Removed.Add(existing.Key);
+                continue;
+            }
+
             if (!RemoveEnglishAndMathsCourse(existing))
             {
                 continue;

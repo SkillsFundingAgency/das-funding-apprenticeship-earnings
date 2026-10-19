@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using System.Data;
 
@@ -78,6 +79,14 @@ public class SqlDatabase : IDisposable
     {
         return await DbContext.EarningsProfileHistories2
             .Where(x => x.EarningsProfileId == earningsProfileId)
+            .OrderByDescending(x => x.CreatedOn)
+            .ToListAsync();
+    }
+
+    public async Task<List<EnglishAndMathsEarningsProfileHistoryEntity>> GetEnglishAndMathsHistory(Guid englishAndMathsKey)
+    {
+        return await DbContext.EnglishAndMathsEarningsProfileHistories
+            .Where(x => x.EnglishAndMathsKey == englishAndMathsKey)
             .OrderByDescending(x => x.CreatedOn)
             .ToListAsync();
     }

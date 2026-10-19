@@ -2,6 +2,7 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
+using SFA.DAS.Funding.ApprenticeshipEarnings.TestHelpers;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using TechTalk.SpecFlow.Assist;
 
@@ -115,6 +116,34 @@ public class EnglishAndMathsStepDefinitions
                               && x.DeliveryPeriod == expectedInstalment.DeliveryPeriod
                               && x.Type == expectedInstalment.Type);
         }
+    }
+
+    [Then(@"the english and maths earnings history is maintained")]
+    public async Task ThenTheEnglishAndMathsEarningsHistoryIsMaintained()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+
+        await WaitHelper.WaitForItAsync(async () =>
+        {
+            var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var courses = updatedEntity!.Episodes.First().EarningsProfile.EnglishAndMathsCourses;
+
+            if (courses.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var course in courses)
+            {
+                var history = await _testContext.SqlDatabase.GetEnglishAndMathsHistory(course.Key);
+                if (history.FirstOrDefault()?.Version != course.Version)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }, "English and maths earnings history was not archived for the latest version of each course");
     }
 
     [Then(@"no english and maths earnings are persisted")]

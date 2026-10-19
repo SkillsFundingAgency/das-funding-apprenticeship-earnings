@@ -176,16 +176,12 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
     /// <summary>
     /// Updates earnings for Maths and English courses to an apprenticeship.
-    /// Existing courses not present in the supplied list are marked as removed rather than deleted.
+    /// Existing courses not present in the supplied list are marked as removed once the learning is approved, and deleted before then.
+    /// Each course is versioned individually, so this does not generate a new earnings profile version.
     /// </summary>
     public void UpdateEnglishAndMaths(List<EnglishAndMaths.EnglishAndMaths> mathsAndEnglishCourses, ISystemClockService systemClock)
     {
         _earningsProfile!.Update(systemClock, mathsAndEnglishCourses: mathsAndEnglishCourses);
-
-        if (_earningsProfile.HasEvent<EarningsProfileUpdatedEvent>(x => !x.InitialGeneration))
-        {
-            HasEarningsProfileVersionUpdate = true;
-        }
     }
 
     public void UpdatePrices(List<LearningEpisodePrice> updatedPrices)

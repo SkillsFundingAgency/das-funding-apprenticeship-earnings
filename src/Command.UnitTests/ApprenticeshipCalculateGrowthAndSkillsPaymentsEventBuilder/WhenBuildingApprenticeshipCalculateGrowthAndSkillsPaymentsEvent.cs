@@ -128,6 +128,27 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
     }
 
     [Test]
+    public void WhenTheLearnerHasWithdrawn_ThenPlannedEndDateIsNotResetToTheWithdrawalDate()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var withdrawalDate = new DateTime(2024, 1, 15);
+
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
+        {
+            new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = withdrawalDate, OriginalExpectedEndDate = endDate }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, withdrawalDate: withdrawalDate, periodsInLearning: periodsInLearning);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.PlannedEndDate.Should().Be(endDate);
+        result.Training.ActualEndDate.Should().Be(withdrawalDate);
+        result.Training.TrainingStatus.Should().Be(TrainingStatus.Withdrawn);
+    }
+
+    [Test]
     public void WhenThereHasBeenABreakInLearning_ThenPlannedEndDateIsTakenFromTheLatestPeriodInLearning()
     {
         var startDate = new DateTime(2023, 9, 1);
