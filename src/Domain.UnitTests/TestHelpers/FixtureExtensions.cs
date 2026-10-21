@@ -21,14 +21,22 @@ internal static class FixtureExtensions
     internal static ApprenticeshipLearning CreateLearning(
         this Fixture fixture,
         EmployerType employerType = EmployerType.Levy,
-        byte age = 17)
+        byte age = 17,
+        Types.FundingPlatform fundingPlatform = Types.FundingPlatform.SLD)
     {
-        return fixture.CreateLearningWithApprenticeship(
+        var learning = fixture.CreateLearningWithApprenticeship(
             new DateTime(2021, 1, 15),
-            new DateTime(2022, 1, 31), 
+            new DateTime(2022, 1, 31),
             7000,
-            employerType, 
+            employerType,
             age);
+
+        foreach (var episode in ((ApprenticeshipLearningEntity)learning.GetModel()).Episodes)
+        {
+            episode.FundingPlatform = fundingPlatform;
+        }
+
+        return learning;
     }
 
     internal static ApprenticeshipLearning CreateLearningWithApprenticeship(
