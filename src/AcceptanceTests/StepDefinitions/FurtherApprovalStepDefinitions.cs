@@ -1,6 +1,8 @@
 using FluentAssertions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using System.Linq;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
@@ -49,5 +51,36 @@ public class FurtherApprovalStepDefinitions
         @event.CourseCode.Should().Be(request.OnProgramme.TrainingCode);
         @event.LearningType.Should().Be(LearningType.Apprenticeship);
         @event.CourseType.Should().Be(CourseType.Apprenticeship);
+    }
+
+    [Then("no on-programme payments event is sent to pv2 for the current earnings")]
+    public async Task ThenNoOnProgrammePaymentsEventIsSentForTheCurrentEarnings()
+    {
+        var currentVersion = await GetCurrentEarningsProfileVersion();
+
+        var onProgrammeEvents = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+            .Where(x => x.Training.CourseType == CourseType.Apprenticeship)
+            .ToList();
+
+        onProgrammeEvents.Should().NotBeEmpty("the earnings sent on approval should have been recorded"); // Earnings were sent on approval
+        onProgrammeEvents.Should().NotContain(x => x.EarningsId == currentVersion); // No earnings for this version, because the episode is withheld
+    }
+
+    [Then("an english and maths payments event is sent to pv2 for the current earnings")]
+    public async Task ThenAnEnglishAndMathsPaymentsEventIsSentForTheCurrentEarnings()
+    {
+        var currentVersion = await GetCurrentEarningsProfileVersion();
+
+        _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+            .Should().Contain(x => x.Training.LearningType == LearningType.MathsAndEnglish && x.EarningsId == currentVersion);
+    }
+
+    private async Task<Guid> GetCurrentEarningsProfileVersion()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+        var episode = ApprenticeshipLearning.Get(dbEntity!).GetEpisode(request.EpisodeKey);
+
+        return episode.EarningsProfile!.Version;
     }
 }
