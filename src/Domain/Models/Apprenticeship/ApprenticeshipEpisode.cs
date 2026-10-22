@@ -23,6 +23,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
     public Types.FundingPlatform FundingPlatform => _entity.FundingPlatform;
+    public bool FurtherApprovalNeeded => _entity.FurtherApprovalNeeded;
 
     public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
     public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
@@ -213,6 +214,28 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             .ToList();
         _entity.Prices.AddRange(newPrices.Select(x => x.GetEntity()));
         _prices.AddRange(newPrices);
+    }
+
+    /// <summary>
+    /// Records whether a change to this episode is waiting for further approval
+    /// </summary>
+    public void UpdateFurtherApprovalNeeded(ApprenticeshipLearning learning, bool furtherApprovalNeeded)
+    {
+        var isFlagSet = furtherApprovalNeeded && !_entity.FurtherApprovalNeeded;
+        _entity.FurtherApprovalNeeded = furtherApprovalNeeded;
+
+        if (isFlagSet && FundingPlatform is Types.FundingPlatform.DAS)
+        {
+            AddEvent(new WithholdPaymentsForLearningEvent
+            {
+                UKPRN = UKPRN,
+                ULN = long.Parse(learning.Uln),
+                LearningKey = learning.LearningKey,
+                CourseCode = TrainingCode.Trim(),
+                LearningType = Payments.EarningEvents.Messages.External.LearningType.Apprenticeship,
+                CourseType = Payments.EarningEvents.Messages.External.CourseType.Apprenticeship
+            });
+        }
     }
 
     public void UpdatePause(DateTime? pauseDate)

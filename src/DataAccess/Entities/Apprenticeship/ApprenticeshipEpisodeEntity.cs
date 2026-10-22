@@ -19,6 +19,7 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
     public decimal FundingBandMaximum { get; set; }
     public bool IsRemoved { get; set; }
     public Types.FundingPlatform FundingPlatform { get; set; } = Types.FundingPlatform.SLD;
+    public bool FurtherApprovalNeeded { get; set; }
 
     public ApprenticeshipEpisodeEntity()
     {
