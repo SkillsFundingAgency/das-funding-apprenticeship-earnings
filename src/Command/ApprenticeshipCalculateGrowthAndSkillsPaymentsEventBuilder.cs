@@ -67,7 +67,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             },
             Training = new Training
             {
-                LearningKey = learning.LearningKey,
+                LearningKey = course.Key,
                 CourseType = CourseType.FunctionalSkill,
                 LearningType = LearningType.MathsAndEnglish,
                 CourseCode = course.LearnAimRef.Trim(),

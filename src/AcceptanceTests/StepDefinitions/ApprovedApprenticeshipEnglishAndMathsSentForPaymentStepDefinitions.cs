@@ -198,7 +198,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
                 paymentsEvent.Learner.ULN.Should().Be(long.Parse(request.Learner.Uln));
                 paymentsEvent.Learner.Reference.Should().Be(_scenarioContext.GetLearnerRef());
 
-                paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey);
+                paymentsEvent.Training.LearningKey.Should().Be(course.Key);
                 paymentsEvent.Training.CourseType.Should().Be(CourseType.FunctionalSkill);
                 paymentsEvent.Training.LearningType.Should().Be(LearningType.MathsAndEnglish);
                 paymentsEvent.Training.CourseCode.Should().Be(learnAimRef);

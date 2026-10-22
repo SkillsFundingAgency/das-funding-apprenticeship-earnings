@@ -79,7 +79,7 @@ public class RemoveLearnerStepDefinitions
 
             paymentsEvent.Should().NotBeNull($"expected an English & Maths payments event for {learnAimRef}");
             paymentsEvent!.EarningsId.Should().Be(course.Version);
-            paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey);
+            paymentsEvent.Training.LearningKey.Should().Be(course.Key);
             paymentsEvent.Learner.Reference.Should().Be(_scenarioContext.GetLearnerRef());
             paymentsEvent.Earnings.Should().BeEmpty();
         }
