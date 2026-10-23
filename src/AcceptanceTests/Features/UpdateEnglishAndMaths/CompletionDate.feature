@@ -20,7 +20,7 @@ Scenario: English and Maths completion moved later
 		| Maths1 | 100    | 2021         | 3              | Regular   |
 		| Maths1 | 100    | 2021         | 4              | Regular   |
 		| Maths1 | 1100   | 2021         | 5              | Balancing |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 
 Scenario: English and Maths completion moved earlier
 	Given an apprenticeship has been created with the following information
@@ -38,7 +38,7 @@ Scenario: English and Maths completion moved earlier
 		| Maths1 | 100    | 2021         | 1              | Regular   |
 		| Maths1 | 100    | 2021         | 2              | Regular   |
 		| Maths1 | 1300   | 2021         | 3              | Balancing |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 
 Scenario: English and Maths completion removed
 	Given an apprenticeship has been created with the following information
@@ -68,7 +68,7 @@ Scenario: English and Maths completion removed
 		| Maths1 | 100    | 2122         | 1              | Regular |
 		| Maths1 | 100    | 2122         | 2              | Regular |
 		| Maths1 | 100    | 2122         | 3              | Regular |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained
 
 Scenario: English and Maths early completion within last month
 	Given an apprenticeship has been created with the following information
@@ -98,4 +98,4 @@ Scenario: English and Maths early completion within last month
 		| Maths1 | 100    | 2122         | 1              | Regular   |
 		| Maths1 | 100    | 2122         | 2              | Regular   |
 		| Maths1 | 100    | 2122         | 3              | Balancing |
-	And the earnings history is maintained
+	And the english and maths earnings history is maintained

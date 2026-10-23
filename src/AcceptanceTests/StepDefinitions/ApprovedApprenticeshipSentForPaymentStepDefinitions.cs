@@ -62,7 +62,83 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             paymentsEvent.Training.CourseType.Should().Be(CourseType.Apprenticeship);
             paymentsEvent.Training.LearningType.Should().Be(LearningType.Apprenticeship);
             paymentsEvent.Training.CourseCode.Should().Be(request.OnProgramme.TrainingCode);
-            paymentsEvent.Training.CourseReference.Should().Be("ZPROG0001");
+            paymentsEvent.Training.CourseReference.Should().Be("ZPROG001");
+            paymentsEvent.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
+
+            var expectedTrainingStatus = TrainingStatus.Continuing;
+            if (episode.CompletionDate.HasValue) expectedTrainingStatus = TrainingStatus.Completed;
+            if (episode.WithdrawalDate.HasValue) expectedTrainingStatus = TrainingStatus.Withdrawn;
+            paymentsEvent.Training.TrainingStatus.Should().Be(expectedTrainingStatus);
+            paymentsEvent.Training.ActualEndDate.Should().Be(episode.WithdrawalDate ?? episode.CompletionDate);
+
+            var instalments = episode.EarningsProfile.Instalments;
+            var academicYears = instalments.Select(x => x.AcademicYear).Distinct().ToList();
+
+            paymentsEvent.Earnings.Should().NotBeNull();
+            paymentsEvent.Earnings.Should().HaveCount(academicYears.Count);
+
+            // AC1: on-programme (Learning), Completion and Balancing earning types are all present and correctly mapped
+            var prices = episode.Prices.ToDictionary(p => p.PriceKey);
+            foreach (var instalment in instalments)
+            {
+                var price = prices[instalment.EpisodePriceKey];
+                var yearlyEarning = paymentsEvent.Earnings.SingleOrDefault(e => e.AcademicYear == instalment.AcademicYear);
+                yearlyEarning.Should().NotBeNull();
+
+                var pricePeriod = yearlyEarning!.PricePeriods.SingleOrDefault(p => p.Price == price.AgreedPrice && p.StartDate == price.StartDate && p.EndDate == price.EndDate);
+                pricePeriod.Should().NotBeNull();
+
+                var expectedEarningType = instalment.Type switch
+                {
+                    InstalmentType.Regular => EarningType.Learning,
+                    InstalmentType.Completion => EarningType.Completion,
+                    InstalmentType.Balancing => EarningType.Balancing,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+
+                var period = pricePeriod!.Periods.SingleOrDefault(p => p.EarningType == expectedEarningType && p.DeliveryPeriod == instalment.DeliveryPeriod && p.Amount == instalment.Amount);
+                period.Should().NotBeNull($"expected a {expectedEarningType} earning period for delivery period {instalment.DeliveryPeriod}");
+
+                period!.LearningId.Should().Be(domainModel.ApprovalsApprenticeshipId);
+                period.Employer.AccountId.Should().Be(employerAccountId);
+                period.Employer.FundingAccountId.Should().Be(fundingAccountId);
+            }
+
+            // AC1 - all three earning types are represented in this scenario (on-programme + completion date + achievement date)
+            instalments.Select(x => x.Type).Distinct().Should().BeEquivalentTo(new[]
+            {
+                InstalmentType.Regular
+            });
+        }
+
+        [Then("the payments event is sent to pv2 with the correct information for the apprenticeship with all payment types")]
+        public async Task ThenThePaymentsEventIsSentToPv2WithTheCorrectInformationForTheApprenticeshipWithAllPaymentTypes()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+            var employerAccountId = _scenarioContext.GetEmployerAccountId();
+            var fundingAccountId = _scenarioContext.GetFundingAccountId();
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().FirstOrDefault(x => x.Training.CourseType == CourseType.Apprenticeship);
+            paymentsEvent.Should().NotBeNull();
+
+            paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.Version);
+            paymentsEvent.UKPRN.Should().Be(request.OnProgramme.Ukprn);
+            paymentsEvent.EmployerContribution.Should().Be(0);
+
+            paymentsEvent.Learner.Should().NotBeNull();
+            paymentsEvent.Learner.LearnerKey.Should().Be(_scenarioContext.GetLearnerKey());
+            paymentsEvent.Learner.ULN.Should().Be(long.Parse(request.Learner.Uln));
+            paymentsEvent.Learner.Reference.Should().Be(_scenarioContext.GetLearnerRef());
+
+            paymentsEvent.Training.Should().NotBeNull();
+            paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey);
+            paymentsEvent.Training.CourseType.Should().Be(CourseType.Apprenticeship);
+            paymentsEvent.Training.LearningType.Should().Be(LearningType.Apprenticeship);
+            paymentsEvent.Training.CourseCode.Should().Be(request.OnProgramme.TrainingCode);
+            paymentsEvent.Training.CourseReference.Should().Be("ZPROG001");
             paymentsEvent.Training.AgeAtStartOfTraining.Should().Be((byte)episode.AgeAtStartOfApprenticeship);
 
             var expectedTrainingStatus = TrainingStatus.Continuing;
@@ -202,8 +278,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
                 .LastOrDefault();
             paymentsEvent.Should().NotBeNull("an english and maths payments event should have been sent");
 
-            // The latest event must reflect the current earnings profile, not an earlier snapshot
-            paymentsEvent!.EarningsId.Should().Be(episode.EarningsProfile.Version);
+            paymentsEvent!.EarningsId.Should().Be(course.Version);
 
             var storedLearningSupport = course.AdditionalPayments
                 .Where(x => x.AdditionalPaymentType == SFA.DAS.Funding.ApprenticeshipEarnings.Domain.InstalmentTypes.LearningSupport)

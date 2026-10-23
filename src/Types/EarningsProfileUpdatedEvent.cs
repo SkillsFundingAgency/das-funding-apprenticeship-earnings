@@ -25,6 +25,14 @@ public class EarningsProfileUpdatedEvent
     public bool InitialGeneration { get; set; }
 }
 
+public class EarningsProfileForEnglishAndMathsUpdatedEvent
+{
+    public Guid EarningsProfileId { get; set; }
+    public Guid EnglishAndMathsKey { get; set; }
+    public Guid Version { get; set; }
+    public EnglishAndMaths EnglishAndMaths { get; set; } = null!;
+}
+
 public class EnglishAndMaths
 {
     public Guid EnglishAndMathsKey { get; set; }
@@ -32,6 +40,8 @@ public class EnglishAndMaths
     public DateTime EndDate { get; set; }
     public string Course { get; set; } = null!;
     public decimal Amount { get; set; }
+    public string LearnAimRef { get; set; } = null!;
+    public bool IsRemoved { get; set; }
     public List<EnglishAndMathsInstalments> Instalments { get; set; } = [];
 }
 

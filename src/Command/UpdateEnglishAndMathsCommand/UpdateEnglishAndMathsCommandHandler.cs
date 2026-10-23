@@ -7,7 +7,15 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 
-public record UpdateEnglishAndMathsResult(bool HasNewEarningsProfileVersionBeenGenerated);
+public record UpdateEnglishAndMathsResult(
+    bool HasNewEarningsProfileVersionBeenGenerated,
+    List<Guid> CreatedCourseKeys,
+    List<Guid> ChangedCourseKeys,
+    List<Guid> RemovedCourseKeys,
+    List<Guid> ReinstatedCourseKeys)
+{
+    public UpdateEnglishAndMathsResult(bool hasNewEarningsProfileVersionBeenGenerated) : this(hasNewEarningsProfileVersionBeenGenerated, [], [], [], []) { }
+}
 
 public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglishAndMathsCommand, UpdateEnglishAndMathsResult>
 {
@@ -46,7 +54,18 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
         await _learningRepository.Update(learningDomainModel);
 
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.LearningKey);
-        return new UpdateEnglishAndMathsResult(learningDomainModel.GetCurrentEpisode(_systemClock).HasEarningsProfileVersionUpdate);
+        var currentEpisode = learningDomainModel.GetCurrentEpisode(_systemClock);
+        var courseChanges = currentEpisode.EarningsProfile!.EnglishAndMathsCourseChanges;
+
+        _logger.LogInformation("English and Maths course changes for apprenticeship {LearningKey} - Created: {Created}, Changed: {Changed}, Removed: {Removed}, Reinstated: {Reinstated}",
+            command.LearningKey, courseChanges.Created.Count, courseChanges.Changed.Count, courseChanges.Removed.Count, courseChanges.Reinstated.Count);
+
+        return new UpdateEnglishAndMathsResult(
+            currentEpisode.HasEarningsProfileVersionUpdate,
+            courseChanges.Created,
+            courseChanges.Changed,
+            courseChanges.Removed,
+            courseChanges.Reinstated);
     }
 
     private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)

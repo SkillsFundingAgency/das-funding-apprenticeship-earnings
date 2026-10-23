@@ -70,7 +70,7 @@ public class WhenRemovingLearner
     }
 
     [Test]
-    public async Task ThenEnglishAndMathsIsCleared()
+    public async Task ThenEnglishAndMathsIsMarkedAsRemoved()
     {
         // Arrange
         var learningDomainModel = _fixture.BuildLearning();
@@ -90,7 +90,9 @@ public class WhenRemovingLearner
         await handler.Handle(command);
 
         // Assert
-        updated.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile!.MathsAndEnglishCourses.Should().BeEmpty();
+        var courses = updated.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile!.MathsAndEnglishCourses;
+        courses.Should().NotBeEmpty();
+        courses.Should().OnlyContain(x => x.IsRemoved && !x.Instalments.Any() && !x.AdditionalPayments.Any());
     }
 
     [Test]
