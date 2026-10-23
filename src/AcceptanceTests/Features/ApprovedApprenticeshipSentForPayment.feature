@@ -5,7 +5,7 @@ Scenario: Approved apprenticeship with on-programme, completion and balancing ea
 		| StartDate  | EndDate    | TotalPrice | CompletionDate | AchievementDate |
 		| 2021-01-01 | 2021-12-31 |      12000 | 2021-12-15     | 2021-12-01      |
 	And a LearningApproved event is received for the apprenticeship
-	Then the payments event is sent to pv2 with the correct information for the apprenticeship
+	Then the payments event is sent to pv2 with the correct information for the apprenticeship with all payment types
 
 Scenario: Approved apprenticeship with no costs does not send £0 earnings to pv2
 	Given an apprenticeship has been created as a draft with the following information

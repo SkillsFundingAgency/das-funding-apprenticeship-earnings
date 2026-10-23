@@ -124,18 +124,20 @@ public class WhenWithdrawingEnglishAndMathsCourse
     }
 
     [Test]
-    public void Then_New_EarningsProfile_Version_Is_Generated()
+    public void Then_New_Course_Version_Is_Generated_Without_A_New_EarningsProfile_Version()
     {
         // Arrange
-        var initialVersion = _sut.EarningsProfile.Version;
+        var initialProfileVersion = _sut.EarningsProfile.Version;
+        var initialCourseVersion = _sut.EarningsProfile.MathsAndEnglishCourses.Single().Version;
         var withdrawalDate = new DateTime(2024, 7, 1);
 
         // Act
         _sut.UpdateEnglishAndMaths(CreateTestEnglishAndMathsCourses(withdrawalDate), _mockSystemClock.Object);
 
         // Assert
-        var updatedVersion = _sut.EarningsProfile.Version;
-        updatedVersion.Should().NotBe(initialVersion);
+        _sut.EarningsProfile.MathsAndEnglishCourses.Single().Version.Should().NotBe(initialCourseVersion);
+        _sut.EarningsProfile.Version.Should().Be(initialProfileVersion);
+        _sut.HasEarningsProfileVersionUpdate.Should().BeFalse();
     }
 
     private List<EnglishAndMaths> CreateTestEnglishAndMathsCourses(DateTime? withdrawalDate = null)

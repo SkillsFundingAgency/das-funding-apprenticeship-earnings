@@ -48,7 +48,7 @@ public class Startup
             .ConfigureServices((c, s) =>
             {
                 SetupServices(s);
-                s.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace());
+                s.ConfigureNServiceBusForSend(ApplicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace(), ApplicationSettings.UseWebSockets);
             });
     }
 
@@ -57,8 +57,8 @@ public class Startup
         Environment.SetEnvironmentVariable("ENDPOINT_NAME", Infrastructure.Constants.EndpointName);
 
         configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
-                .AddEnvironmentVariables()
-                .AddJsonFile("local.settings.json", true);
+            .AddEnvironmentVariables()
+            .AddJsonFile("local.settings.json", true);
 
         var configuration = configurationBuilder.Build();
         if (configuration.NotAcceptanceTests())

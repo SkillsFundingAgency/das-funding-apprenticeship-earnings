@@ -6,6 +6,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.EarningsOuterApiClient;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.LogCorrelation;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure;
 
@@ -34,7 +35,7 @@ public static class ServiceCollectionExtensions
     }
 
 
-    public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace)
+    public static void ConfigureNServiceBusForSend(this IServiceCollection services, string fullyQualifiedNamespace, bool useWebSockets)
     {
         var endpointConfiguration = new EndpointConfiguration(Constants.EndpointName);
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
@@ -44,6 +45,8 @@ public static class ServiceCollectionExtensions
            fullyQualifiedNamespace,
            new DefaultAzureCredential());
 
+        transport.UseWebSockets = useWebSockets;
+        
         endpointConfiguration.UseTransport(transport);
 
         endpointConfiguration.Conventions().SetConventions();
