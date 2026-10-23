@@ -124,7 +124,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 .ToList(),
             CompletionPayment = profile?.CompletionPayment ?? 0,
             OnProgramTotal = profile?.OnProgramTotal ?? 0,
-            EnglishAndMaths = (profile?.EnglishAndMathsCourses ?? []).Select(em => new EnglishAndMaths
+            EnglishAndMaths = (profile?.EnglishAndMathsCourses ?? []).Where(em => !em.IsRemoved).Select(em => new EnglishAndMaths
             {
                 LearnAimRef = em.LearnAimRef,
                 StartDate = em.StartDate,

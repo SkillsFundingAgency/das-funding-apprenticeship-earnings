@@ -1,18 +1,13 @@
+using System.Text.Json;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ReleaseEarningsCommandTests;
 
@@ -25,6 +20,7 @@ public class WhenReleasingEarnings
     private Mock<IMessageSession> _mockMessageSession = null!;
     private PaymentsConfiguration _paymentsConfiguration = null!;
     private ReleaseEarningsCommand.ReleaseEarningsCommandHandler _sut = null!;
+    private static JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
 
     [SetUp]
     public void SetUp()
@@ -66,9 +62,10 @@ public class WhenReleasingEarnings
             .Create();
     }
 
-    private DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity BuildEnglishAndMathsEntity(bool withInstalments = true)
+    private DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity BuildEnglishAndMathsEntity(bool withInstalments = true, bool isRemoved = false)
     {
         return _fixture.Build<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity>()
+            .With(x => x.IsRemoved, isRemoved)
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
@@ -216,10 +213,105 @@ public class WhenReleasingEarnings
     }
 
     [Test]
-    public async Task WhenEpisodeIsRemoved_ThenNoPaymentEventIsSent()
+    public async Task WhenTheOnlyEpisodeIsRemoved_ThenThePaymentEventIsStillSent()
     {
         var learningKey = _fixture.Create<Guid>();
         var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, isRemoved: true);
+        var learning = BuildLearning(learningKey, episodeEntity);
+        var removedEpisode = learning.GetEpisode(episodeEntity.Key);
+        var paymentEvent = new CalculateGrowthAndSkillsPayments();
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        _mockBuilder.Setup(x => x.Build(removedEpisode, learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(paymentEvent);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockMessageSession.Verify(x => x.Send(paymentEvent, It.IsAny<SendOptions>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == paymentEvent), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenTheOnlyEpisodeIsRemoved_ThenEachEnglishAndMathsCourseIsStillSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var courseOne = BuildEnglishAndMathsEntity(withInstalments: false);
+        var courseTwo = BuildEnglishAndMathsEntity(withInstalments: false);
+        courseOne.IsRemoved = true;
+        courseTwo.IsRemoved = true;
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, isRemoved: true,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { courseOne, courseTwo });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        _mockBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
+        _mockBuilder.Setup(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == courseOne.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == courseTwo.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Exactly(3));
+        _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Exactly(3));
+    }
+
+    [Test]
+    public async Task WhenARemovedEpisodeSitsAlongsideAnActiveEpisode_ThenOnlyTheActiveEpisodeIsSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var activeEpisodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey);
+        var removedEpisodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, isRemoved: true);
+        var learning = BuildLearning(learningKey, removedEpisodeEntity, activeEpisodeEntity);
+        var activeEpisode = learning.GetEpisode(activeEpisodeEntity.Key);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        _mockBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(activeEpisode, learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenTheRemovedEpisodeWasNeverApproved_ThenNoPaymentEventIsSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, isApproved: false, isRemoved: true);
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Never);
+    }
+
+    [Test]
+    public async Task WhenTheRemovedEpisodeIsNotOnTheDasFundingPlatform_ThenNoPaymentEventIsSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, isRemoved: true, fundingPlatform: FundingPlatform.SLD);
         var learning = BuildLearning(learningKey, episodeEntity);
 
         var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
@@ -371,5 +463,180 @@ public class WhenReleasingEarnings
         _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenReleaseTypeIsOnProgramme_ThenOnlyOnProgrammeIsSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var course = BuildEnglishAndMathsEntity();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { course });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, BuildRequest(ReleaseEarningsCommand.ReleaseType.OnProgramme, course.Key));
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        SetupBuilder(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenReleaseTypeIsFunctionalSkill_ThenOnlyTheRequestedCoursesAreSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var requestedCourse = BuildEnglishAndMathsEntity();
+        var otherCourse = BuildEnglishAndMathsEntity();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { requestedCourse, otherCourse });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, BuildRequest(ReleaseEarningsCommand.ReleaseType.FunctionalSkill, requestedCourse.Key));
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        SetupBuilder(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == requestedCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == otherCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenReleaseTypeIsFunctionalSkillWithNoCourseKeys_ThenNothingIsSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { BuildEnglishAndMathsEntity() });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, BuildRequest(ReleaseEarningsCommand.ReleaseType.FunctionalSkill));
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        SetupBuilder(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Never);
+    }
+
+    [Test]
+    public async Task WhenReleaseTypeIsAllWithCourseKeys_ThenOnProgrammeAndOnlyTheRequestedCoursesAreSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var requestedCourse = BuildEnglishAndMathsEntity();
+        var otherCourse = BuildEnglishAndMathsEntity();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { requestedCourse, otherCourse });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, BuildRequest(ReleaseEarningsCommand.ReleaseType.All, requestedCourse.Key));
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        SetupBuilder(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == requestedCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == otherCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task WhenReleaseTypeIsAllWithNoCourseKeys_ThenRemovedCoursesAreNotSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var activeCourse = BuildEnglishAndMathsEntity();
+        var removedCourse = BuildEnglishAndMathsEntity(withInstalments: false, isRemoved: true);
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { activeCourse, removedCourse });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, BuildRequest(ReleaseEarningsCommand.ReleaseType.All));
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        SetupBuilder(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == activeCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == removedCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task WhenRemovedCourseKeyIsSupplied_ThenTheRemovedCourseIsSent()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var activeCourse = BuildEnglishAndMathsEntity();
+        var removedCourse = BuildEnglishAndMathsEntity(withInstalments: false, isRemoved: true);
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { activeCourse, removedCourse });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, BuildRequest(ReleaseEarningsCommand.ReleaseType.FunctionalSkill, removedCourse.Key));
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+        SetupBuilder(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == removedCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.Is<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(c => c.Key == activeCourse.Key), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
+    }
+
+    [TestCase("All", ReleaseEarningsCommand.ReleaseType.All)]
+    [TestCase("OnProgramme", ReleaseEarningsCommand.ReleaseType.OnProgramme)]
+    [TestCase("FunctionalSkill", ReleaseEarningsCommand.ReleaseType.FunctionalSkill)]
+    public void WhenReleaseTypeIsSentAsString_ThenItIsDeserialized(string releaseType, ReleaseEarningsCommand.ReleaseType expected)
+    {
+        var courseKey = Guid.NewGuid();
+        var json = $"{{\"learnerKey\":\"{Guid.NewGuid()}\",\"learnerRef\":\"ref\",\"releaseType\":\"{releaseType}\",\"englishAndMathsCourseKeys\":[\"{courseKey}\"]}}";
+
+        var result = System.Text.Json.JsonSerializer.Deserialize<ReleaseEarningsCommand.ReleaseEarningsRequest>(json, _serializerOptions);
+
+        result!.ReleaseType.Should().Be(expected);
+        result.EnglishAndMathsCourseKeys.Should().BeEquivalentTo(new[] { courseKey });
+    }
+
+    [Test]
+    public void WhenReleaseTypeIsNotSent_ThenItDefaultsToAll()
+    {
+        var json = $"{{\"learnerKey\":\"{Guid.NewGuid()}\",\"learnerRef\":\"ref\"}}";
+
+        var result = System.Text.Json.JsonSerializer.Deserialize<ReleaseEarningsCommand.ReleaseEarningsRequest>(json, _serializerOptions);
+
+        result!.ReleaseType.Should().Be(ReleaseEarningsCommand.ReleaseType.All);
+        result.EnglishAndMathsCourseKeys.Should().BeEmpty();
+    }
+
+    private ReleaseEarningsCommand.ReleaseEarningsRequest BuildRequest(ReleaseEarningsCommand.ReleaseType releaseType, params Guid[] courseKeys)
+    {
+        return new ReleaseEarningsCommand.ReleaseEarningsRequest
+        {
+            LearnerKey = _fixture.Create<Guid>(),
+            LearnerRef = _fixture.Create<string>(),
+            ReleaseType = releaseType,
+            EnglishAndMathsCourseKeys = courseKeys.ToList()
+        };
+    }
+
+    private void SetupBuilder(ApprenticeshipLearning learning)
+    {
+        _mockBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
+        _mockBuilder.Setup(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
     }
 }
