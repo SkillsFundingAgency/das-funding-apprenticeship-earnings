@@ -41,6 +41,7 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
         var episode = learningDomainModel.GetEpisode(command.Request.ApprenticeshipEpisodeKey);
         var request = command.Request;
+        var withdrawalDateChanged = episode.WithdrawalDate != request.WithdrawalDate;
 
         ExecuteAndLog(() => learningDomainModel.UpdateDateOfBirth(request.DateOfBirth), "update DateOfBirth");
         ExecuteAndLog(() => episode.UpdatePause(request.PauseDate), "update Pause");
@@ -69,6 +70,11 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
 
             episode.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClock);
         }, "update Learning Support");
+
+        if (withdrawalDateChanged)
+        {
+            ExecuteAndLog(() => episode.GenerateNewEarningsProfileVersion(_systemClock), "generate new earnings profile version for Withdrawal");
+        }
 
         _logger.LogInformation("Updating LearningKey: {LearningKey} in repository", command.LearningKey);
         await _learningRepository.Update(learningDomainModel);

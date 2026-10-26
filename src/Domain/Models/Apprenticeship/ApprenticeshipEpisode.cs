@@ -169,6 +169,18 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         }
     }
 
+    /// <summary>
+    /// Generates a new earnings profile version where one has not already been generated, so that payments are informed
+    /// of changes which do not affect the earnings themselves (e.g. a withdrawal which leaves the instalments unchanged).
+    /// </summary>
+    public void GenerateNewEarningsProfileVersion(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null || HasEarningsProfileVersionUpdate) return;
+
+        _earningsProfile.Update(systemClock, forceNewVersion: true);
+        HasEarningsProfileVersionUpdate = true;
+    }
+
     public void RemoveAdditionalEarnings(ISystemClockService systemClock)
     {
         _earningsProfile!.Update(systemClock, additionalPayments: new List<AdditionalPayment>());
