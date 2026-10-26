@@ -28,4 +28,7 @@ public class UpdateOnProgrammeModel
     public TrackedValue<bool> HasEHCP { get; set; } = new TrackedValue<bool>(false);
     public TrackedValue<bool> IsCareLeaver { get; set; } = new TrackedValue<bool>(false);
     public TrackedValue<bool> CareLeaverEmployerConsentGiven { get; set; } = new TrackedValue<bool>(false);
+
+    // Further approval
+    public TrackedValue<bool> FurtherApprovalRequired { get; set; } = new TrackedValue<bool>(false);
 }
