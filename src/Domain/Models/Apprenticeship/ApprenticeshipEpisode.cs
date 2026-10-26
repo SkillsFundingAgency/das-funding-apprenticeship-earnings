@@ -112,7 +112,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
                 _earningsProfile.SetApprovalStatus(false);
             }
 
-            additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
+            additionalPayments.AddRange(AdditionalPayments.RemoveLearningSupportNotQualifying(EarningsProfile!.PersistentAdditionalPayments().ToList(), EpisodePeriodsInLearning, LastDayOfLearning));
             _earningsProfile.Update(systemClock,
                 instalments: instalments,
                 additionalPayments: additionalPayments,
@@ -158,6 +158,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         var existingAdditionalPayments = EarningsProfile!.AdditionalPayments.Where(x => x.AdditionalPaymentType != additionalPaymentType).ToList();
 
         existingAdditionalPayments.AddRange(additionalPayments);
+
+        // Learning support is not earned for learners withdrawn before the end of the qualifying period
+        AdditionalPayments.RemoveLearningSupportNotQualifying(existingAdditionalPayments, EpisodePeriodsInLearning, LastDayOfLearning);
 
         _earningsProfile!.Update(
             systemClock,

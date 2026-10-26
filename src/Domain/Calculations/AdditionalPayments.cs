@@ -26,4 +26,22 @@ internal static class AdditionalPayments
         return additionalPayments;
     }
 
+    /// <summary>
+    /// Learning support is only earned for months covered by a period in learning that qualifies for earnings.
+    /// A payment is removed when no qualifying period in learning spans its delivery period (this also removes any after the last day of learning).
+    /// </summary>
+    internal static List<AdditionalPayment> RemoveLearningSupportNotQualifying(List<AdditionalPayment> additionalPayments, IReadOnlyCollection<ApprenticeshipPeriodInLearning> periodsInLearning, DateTime? lastDayOfLearning)
+    {
+        if (!lastDayOfLearning.HasValue || periodsInLearning.Count == 0)
+        {
+            return additionalPayments;
+        }
+
+        additionalPayments.RemoveAll(x =>
+            x.AdditionalPaymentType == InstalmentTypes.LearningSupport &&
+            !periodsInLearning.Any(p => p.QualifiesForEarnings(lastDayOfLearning.Value) && p.SpansDeliveryPeriod(x.AcademicYear, x.DeliveryPeriod, lastDayOfLearning.Value)));
+
+        return additionalPayments;
+    }
+
 }

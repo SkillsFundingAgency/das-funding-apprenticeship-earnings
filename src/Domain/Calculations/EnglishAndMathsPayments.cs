@@ -138,7 +138,7 @@ public static class EnglishAndMathsPayments
         }
     }
 
-    private static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
+    internal static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
     {
         var plannedLength = (endDate - startDate).TotalDays + 1;
         var actualLength = (withdrawalDate - startDate).TotalDays + 1;
