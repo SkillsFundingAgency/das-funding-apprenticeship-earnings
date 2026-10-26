@@ -71,7 +71,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
             OriginalExpectedEndDate = pil.OriginalExpectedEndDate
         }).ToList();
         _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
-        // Learning support is not earned if the learner withdrew before the end of the qualifying period, matching the instalments
+
         var withdrawnBeforeQualifying = withdrawalDate.HasValue && !EnglishAndMathsPayments.WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value);
         _entity.AdditionalPayments = (withdrawnBeforeQualifying ? [] : (additionalPayments ?? []).ToList()).ToModels<EnglishAndMathsAdditionalPayment, EnglishAndMathsAdditionalPaymentEntity>();
 
