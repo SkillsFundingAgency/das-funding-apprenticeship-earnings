@@ -11,6 +11,8 @@
     [CompletionDate] DATETIME NULL, 
     [LearnAimRef] VARCHAR(8) NOT NULL DEFAULT '',
     [CombinedFundingAdjustmentPercentage] DECIMAL(18, 6) NULL,
+    [IsRemoved] BIT NOT NULL DEFAULT 0,
+    [Version] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
 )
 GO
 

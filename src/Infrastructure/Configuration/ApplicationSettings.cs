@@ -15,6 +15,7 @@ public class ApplicationSettings
     public string NServiceBusLicense { get; set; }
     public string DbConnectionString { get; set; }
     public string LearningTransportStorageDirectory { get; set; }
+    public bool UseWebSockets { get; set; }
     public PaymentsConfiguration PaymentsConfiguration { get; set; }
     public EarningOuterApiConfiguration EarningOuterApiConfiguration { get; set; }
     public ApprenticeshipOptInConfiguration ApprenticeshipOptInConfiguration { get; set; }

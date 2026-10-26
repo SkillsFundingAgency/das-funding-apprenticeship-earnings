@@ -104,4 +104,9 @@ public abstract class AggregateComponent
     {
         _events.RemoveAll(e => e is T);
     }
+
+    public void PurgeEventsOfType<T>(Func<T, bool> predicate)
+    {
+        _events.RemoveAll(e => e is T typed && predicate(typed));
+    }
 }

@@ -1,4 +1,5 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
@@ -42,7 +43,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 CourseReference = ApprenticeshipCourseReference,
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.Prices.Min(p => p.StartDate),
-                PlannedEndDate = episode.LastDayOfLearning ?? episode.Prices.Max(p => p.EndDate),
+                PlannedEndDate = GetPlannedEndDate(episode),
                 ActualEndDate = episode.WithdrawalDate ?? episode.CompletionDate,
                 TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate, episode.PauseDate)
             },
@@ -56,7 +57,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
     {
         return new CalculateGrowthAndSkillsPayments
         {
-            EarningsId = episode.EarningsProfile!.Version,
+            EarningsId = course.Version,
             UKPRN = episode.UKPRN,
             Learner = new Learner
             {
@@ -66,7 +67,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             },
             Training = new Training
             {
-                LearningKey = learning.LearningKey,
+                LearningKey = course.Key,
                 CourseType = CourseType.FunctionalSkill,
                 LearningType = LearningType.MathsAndEnglish,
                 CourseCode = course.LearnAimRef.Trim(),
@@ -74,12 +75,22 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = course.StartDate,
                 PlannedEndDate = course.EndDate,
-                ActualEndDate = course.ActualEndDate,
+                ActualEndDate = course.WithdrawalDate ?? course.CompletionDate,
                 TrainingStatus = GetTrainingStatus(course.WithdrawalDate, course.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
             Earnings = BuildEnglishAndMathsEarnings(episode, course, learning, employerAccountId, fundingAccountId)
         };
+    }
+
+    /// <summary>
+    /// Periods in learning are cleared when a learner is removed from the ILR, in which case the latest price end date is used instead.
+    /// </summary>
+    private static DateTime GetPlannedEndDate(ApprenticeshipEpisode episode)
+    {
+        var latestPeriodInLearning = episode.EpisodePeriodsInLearning.MaxBy(o => o.StartDate);
+
+        return latestPeriodInLearning?.OriginalExpectedEndDate ?? episode.Prices.Max(p => p.EndDate);
     }
 
     private static TrainingStatus GetTrainingStatus(DateTime? withdrawalDate, DateTime? completionDate, DateTime? pauseDate)
@@ -127,11 +138,18 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                     .Select(priceGroup =>
                     {
                         var price = prices[priceGroup.Key];
+                        var regularInstalmentsForPrice = episode.EarningsProfile.Instalments
+                            .Where(x => x.EpisodePriceKey == price.PriceKey && x.Type == InstalmentType.Regular)
+                            .ToList();
+
                         return new PricePeriod
                         {
                             Price = price.AgreedPrice,
                             StartDate = price.StartDate,
                             EndDate = price.EndDate,
+                            CompletionAmount = new ApprenticeshipFunding(price.AgreedPrice, episode.FundingBandMaximum).CompletionPayment,
+                            InstalmentAmount = regularInstalmentsForPrice.Count > 0 ? regularInstalmentsForPrice.Max(o => o.Amount) : 0,
+                            NumberOfInstalments = regularInstalmentsForPrice.Count,
                             Periods = priceGroup.Select(x => new EarningPeriod
                             {
                                 EarningType = x.EarningType,
@@ -147,6 +165,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                             }).ToList()
                         };
                     })
+                    .OrderBy(p => p.StartDate)
                     .ToList()
             })
             .OrderBy(e => e.AcademicYear)
@@ -206,6 +225,10 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
 
     private static IList<Earnings> BuildEnglishAndMathsEarnings(ApprenticeshipEpisode episode, EnglishAndMathsDomainModel course, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
     {
+        var regularInstalments = course.Instalments
+            .Where(x => x.Type == EnglishAndMathsInstalmentType.Regular)
+            .ToList();
+
         var instalmentEntries = course.Instalments
             .Select(instalment => (
                 instalment.AcademicYear,
@@ -234,12 +257,15 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                         Price = course.Amount,
                         StartDate = course.StartDate,
                         EndDate = course.EndDate,
-                        Periods = yearGroup.Select(x => new EarningPeriod
+                        CompletionAmount = 0,
+                        InstalmentAmount = regularInstalments.Count > 0 ? regularInstalments.Max(o => o.Amount) : 0,
+                        NumberOfInstalments = regularInstalments.Count,
+                        Periods = yearGroup.Select(instalment => new EarningPeriod
                         {
-                            EarningType = x.EarningType,
-                            DeliveryPeriod = x.DeliveryPeriod,
+                            EarningType = instalment.EarningType,
+                            DeliveryPeriod = instalment.DeliveryPeriod,
                             LearningId = learning.ApprovalsApprenticeshipId,
-                            Amount = x.Amount,
+                            Amount = instalment.Amount,
                             Employer = new Employer
                             {
                                 AccountId = employerAccountId,

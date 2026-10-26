@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
@@ -8,6 +9,7 @@ public interface IEarningsProfileHistoryRepository
 {
     Task Add(ApprenticeshipEarningsProfileHistoryEntity item);
     Task Add(ShortCourseEarningsProfileHistoryEntity item);
+    Task Add(EnglishAndMathsEarningsProfileHistoryEntity item);
 }
 public class EarningsProfileHistoryRepository(Lazy<ApprenticeshipEarningsDataContext> lazyContext) : IEarningsProfileHistoryRepository
 {
@@ -22,6 +24,12 @@ public class EarningsProfileHistoryRepository(Lazy<ApprenticeshipEarningsDataCon
     public async Task Add(ShortCourseEarningsProfileHistoryEntity item)
     {
         await DbContext.ShortCourseEarningsProfileHistories.AddAsync(item);
+        await DbContext.SaveChangesAsync();
+    }
+
+    public async Task Add(EnglishAndMathsEarningsProfileHistoryEntity item)
+    {
+        await DbContext.EnglishAndMathsEarningsProfileHistories.AddAsync(item);
         await DbContext.SaveChangesAsync();
     }
 }

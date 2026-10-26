@@ -25,6 +25,8 @@ public class EnglishAndMathsEntity
     public DateTime? PauseDate { get; set; }
     public DateTime? CompletionDate { get; set; }
     public decimal? CombinedFundingAdjustmentPercentage { get; set; }
+    public bool IsRemoved { get; set; }
+    public Guid Version { get; set; }
 
     public List<EnglishAndMathsInstalmentEntity> Instalments { get; set; } = [];
     public List<EnglishAndMathsPeriodInLearningEntity> PeriodsInLearning { get; set; } = [];
