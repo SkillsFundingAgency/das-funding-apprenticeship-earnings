@@ -234,6 +234,24 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         }
     }
 
+    /// <summary>
+    /// Clears a pending further approval once it is approved, releasing the withheld earnings
+    /// </summary>
+    public void ApplyFurtherApproval(Guid learnerKey, string learnerRef)
+    {
+        if (!_entity.FurtherApprovalNeeded) return;
+
+        _entity.FurtherApprovalNeeded = false;
+
+        AddEvent(new ApprenticeshipPayableEarningsUpdatedEvent
+        {
+            LearningKey = _entity.LearningKey,
+            EpisodeKey = EpisodeKey,
+            LearnerKey = learnerKey,
+            LearnerRef = learnerRef
+        });
+    }
+
     public void UpdatePause(DateTime? pauseDate)
     {
         _entity.PauseDate = pauseDate;
