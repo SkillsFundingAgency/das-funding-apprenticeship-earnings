@@ -1,4 +1,4 @@
-using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
+﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
@@ -11,20 +11,6 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 
 public class LearningFactory : ILearningFactory
 {
-    public ApprenticeshipLearning CreateNew(LearningCreatedEvent learningCreatedEvent, int fundingBandMaximum)
-    {
-        var model = new ApprenticeshipLearningEntity
-        {
-            ApprovalsApprenticeshipId = learningCreatedEvent.ApprovalsApprenticeshipId,
-            LearningKey = learningCreatedEvent.LearningKey,
-            Uln = learningCreatedEvent.Uln,
-            Episodes = new List<ApprenticeshipEpisodeEntity> { new ApprenticeshipEpisodeEntity(learningCreatedEvent.LearningKey, learningCreatedEvent.Episode, fundingBandMaximum, null) },
-            DateOfBirth = learningCreatedEvent.DateOfBirth
-        };
-
-        return ApprenticeshipLearning.Get(model);
-    }
-
     public ApprenticeshipLearning GetExistingApprenticeship(ApprenticeshipLearningEntity model)
     {
         return ApprenticeshipLearning.Get(model);
