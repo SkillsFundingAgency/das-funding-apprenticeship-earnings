@@ -21,6 +21,9 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
     public override void Approve(Guid episodeKey, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerRef) =>
         GetEpisode(episodeKey).Approve(employerAccountId, fundingAccountId, learnerKey, learnerRef);
 
+    public void ApplyFurtherApproval(Guid episodeKey, Guid learnerKey, string learnerRef) =>
+        GetEpisode(episodeKey).ApplyFurtherApproval(learnerKey, learnerRef);
+
     public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
         => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
 
