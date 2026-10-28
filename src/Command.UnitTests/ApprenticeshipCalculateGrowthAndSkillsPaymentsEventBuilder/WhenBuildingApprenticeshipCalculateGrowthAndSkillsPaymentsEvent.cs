@@ -1,6 +1,5 @@
 using AutoFixture;
 using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
@@ -8,9 +7,6 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using Moq;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using EmployerType = SFA.DAS.Funding.ApprenticeshipEarnings.Types.EmployerType;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder;
@@ -69,22 +65,25 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.EmployerType, employerType)
             .With(x => x.TrainingCode, "123-1")
             .With(x => x.Prices, prices)
-            .With(x => x.PeriodsInLearning, periodsInLearning ?? new List<ApprenticeshipPeriodInLearningEntity>
-            {
-                new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = endDate, OriginalExpectedEndDate = endDate }
-            })
+            .With(x => x.PeriodsInLearning, periodsInLearning ??
+            [
+                new()
+                {
+                    Key = Guid.NewGuid(), StartDate = startDate, EndDate = endDate, OriginalExpectedEndDate = endDate
+                }
+            ])
             .With(x => x.FundingBandMaximum, fundingBandMaximum ?? _fixture.Create<decimal>())
             .With(x => x.EarningsProfile, _fixture.Build<ApprenticeshipEarningsProfileEntity>()
-                .With(p => p.Instalments, instalments ?? new List<ApprenticeshipInstalmentEntity>())
-                .With(p => p.ApprenticeshipAdditionalPayments, additionalPayments ?? new List<ApprenticeshipAdditionalPaymentEntity>())
-                .With(p => p.EnglishAndMathsCourses, new List<EnglishAndMathsEntity>())
+                .With(p => p.Instalments, instalments ?? [])
+                .With(p => p.ApprenticeshipAdditionalPayments, additionalPayments ?? [])
+                .With(p => p.EnglishAndMathsCourses, [])
                 .Create())
             .Create();
 
         var learningEntity = _fixture.Build<ApprenticeshipLearningEntity>()
             .With(x => x.Uln, "1234567890")
             .With(x => x.DateOfBirth, dateOfBirth ?? startDate.AddYears(-18))
-            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
+            .With(x => x.Episodes, [episodeEntity])
             .Create();
 
         var learning = ApprenticeshipLearning.Get(learningEntity);
@@ -156,13 +155,28 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var returnDate = new DateTime(2024, 1, 1);
         var revisedEndDate = new DateTime(2024, 8, 31);
 
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
+
         var periodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
         {
             new() { Key = Guid.NewGuid(), StartDate = returnDate, EndDate = revisedEndDate, OriginalExpectedEndDate = revisedEndDate },
             new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = new DateTime(2023, 11, 30), OriginalExpectedEndDate = endDate }
         };
 
-        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, periodsInLearning: periodsInLearning);
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 1000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 1000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 7, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 8, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 9, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 10, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, instalments: instalments, agreedPrice: 15000m, periodsInLearning: periodsInLearning);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -195,17 +209,16 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var startDate = new DateTime(2023, 9, 1);
         var endDate = new DateTime(2024, 6, 30);
 
-        var (learning, episode, priceKey) = BuildLearning(startDate, endDate, 15000m);
-        var priceEntity = episode.Prices.Single();
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
 
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceEntity.PriceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1000m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Completion.ToString(), EpisodePriceKey = priceEntity.PriceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 250m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Balancing.ToString(), EpisodePriceKey = priceEntity.PriceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1000m, Type = nameof(InstalmentType.Completion), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 250m, Type = nameof(InstalmentType.Balancing), EpisodePriceKey = priceKey }
         };
 
-        (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, priceKey: priceKey);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, priceKey: priceKey);
 
         var employerAccountId = _fixture.Create<long>();
         var fundingAccountId = _fixture.Create<long>();
@@ -217,7 +230,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         earning.AcademicYear.Should().Be(2324);
         earning.PricePeriods.Should().HaveCount(1);
 
-        var periods = earning.PricePeriods.Single().Periods;
+        var periods = earning.PricePeriods.Single().Periods.ToList();
         periods.Should().HaveCount(3);
 
         var learningPeriod = periods.Single(p => p.EarningType == EarningType.Learning);
@@ -245,8 +258,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var (_, _, priceKey) = BuildLearning(startDate, endDate, 15000m);
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 0m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 0m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 500m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey }
         };
         var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, priceKey: priceKey);
 
@@ -266,7 +279,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var (_, _, priceKey) = BuildLearning(startDate, endDate, 0m);
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 0m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 0m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey }
         };
         var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
         {
@@ -294,19 +307,22 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
-            {
+            .With(x => x.Instalments, [
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 0m, Type = "Regular" },
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 4, Amount = 40m, Type = "Regular" }
-            })
-            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>
-            {
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 0m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" }
-            })
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            ])
+            .With(x => x.AdditionalPayments,
+            [
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 0m,
+                    DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport"
+                }
+            ])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -326,7 +342,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var (learning, episode, priceKey) = BuildLearning(startDate, endDate, 15000m);
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey }
         };
         (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, employerAccountId: employerAccountId, fundingEmployerAccountId: fundingAccountId, priceKey: priceKey);
 
@@ -348,7 +364,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var (learning, episode, priceKey) = BuildLearning(startDate, endDate, 15000m);
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey }
         };
         (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, employerAccountId: employerAccountId, fundingEmployerAccountId: employerAccountId, priceKey: priceKey);
 
@@ -395,15 +411,17 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             AgreedPrice = 9000m
         };
 
-        var (learningInit, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+        var (learningInit, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPrices:
+            [secondPrice]);
 
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 300m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = firstPriceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 700m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = secondPriceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 300m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = firstPriceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 700m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = secondPriceKey }
         };
 
-        var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, instalments, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey);
+        var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, instalments, additionalPrices:
+            [secondPrice], priceKey: firstPriceKey);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -437,23 +455,30 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
-            {
+            .With(x => x.Instalments,
+            [
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" }
-            })
-            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>
-            {
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" },
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 4, Amount = 150m, DueDate = new DateTime(2023, 11, 30), AdditionalPaymentType = "LearningSupport" }
-            })
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            ])
+            .With(x => x.AdditionalPayments, [
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m,
+                    DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport"
+                },
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 4, Amount = 150m,
+                    DueDate = new DateTime(2023, 11, 30), AdditionalPaymentType = "LearningSupport"
+                }
+            ])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
-        var periods = result.Earnings.Single().PricePeriods.Single().Periods;
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods.ToList();
         periods.Should().HaveCount(3);
         periods.Count(p => p.EarningType == EarningType.OnProgrammeMathsAndEnglish).Should().Be(1);
         var learningSupport = periods.Where(p => p.EarningType == EarningType.LearningSupport).ToList();
@@ -475,15 +500,19 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
-            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>
-            {
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m, DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport" }
-            })
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.Instalments, [])
+            .With(x => x.AdditionalPayments,
+            [
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 150m,
+                    DueDate = new DateTime(2023, 10, 31), AdditionalPaymentType = "LearningSupport"
+                }
+            ])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -507,15 +536,15 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
-            {
+            .With(x => x.Instalments,
+            [
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" }
-            })
-            .With(x => x.AdditionalPayments, new List<EnglishAndMathsAdditionalPaymentEntity>())
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            ])
+            .With(x => x.AdditionalPayments, [])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -537,11 +566,11 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.Instalments, [])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -569,11 +598,11 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.Instalments, [])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -594,14 +623,14 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.LearnAimRef, "ENG12345")
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 7, 31))
-            .With(x => x.WithdrawalDate, withdrawn ? new DateTime(2024, 1, 1) : (DateTime?)null)
-            .With(x => x.CompletionDate, completed ? new DateTime(2024, 5, 1) : (DateTime?)null)
+            .With(x => x.WithdrawalDate, withdrawn ? new DateTime(2024, 1, 1) : null)
+            .With(x => x.CompletionDate, completed ? new DateTime(2024, 5, 1) : null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.Instalments, [])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -622,11 +651,11 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, new DateTime(2023, 9, 15)) // withdrawn before qualifying period clears all instalments
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.Instalments, [])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -648,17 +677,19 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, new DateTime(2024, 1, 15))
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
-            {
+            .With(x => x.Instalments, [
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 40m, Type = "Regular" },
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 2, Amount = 40m, Type = "Regular" },
                 new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = "Regular" },
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 6, Amount = 240m, Type = "Balancing" }
-            })
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 6, Amount = 240m, Type = "Balancing"
+                }
+            ])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -685,14 +716,17 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
-            {
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = instalmentType }
-            })
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.Instalments,
+            [
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 40m, Type = instalmentType
+                }
+            ])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -718,15 +752,17 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.WithdrawalDate, (DateTime?)null)
             .With(x => x.CompletionDate, (DateTime?)null)
             .With(x => x.PauseDate, (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>
-            {
-                new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 40m, Type = "Regular" },
+            .With(x => x.Instalments, [
+                new()
+                {
+                    Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 40m, Type = "Regular"
+                },
                 new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 40m, Type = "Regular" }
-            })
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            ])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -801,11 +837,10 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var periods = result.Earnings.Single().PricePeriods.Single().Periods;
         periods.Should().HaveCount(2);
-        periods.Select(p => p.EarningType).Should().BeEquivalentTo(new[]
-        {
+        periods.Select(p => p.EarningType).Should().BeEquivalentTo([
             EarningType.First16To18ProviderIncentive,
             EarningType.First16To18EmployerIncentive
-        });
+        ]);
     }
 
     [Test]
@@ -831,11 +866,10 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
         var periods = result.Earnings.Single().PricePeriods.Single().Periods;
-        periods.Select(p => p.EarningType).Should().BeEquivalentTo(new[]
-        {
+        periods.Select(p => p.EarningType).Should().BeEquivalentTo([
             EarningType.First16To18ProviderIncentive,
             EarningType.First16To18EmployerIncentive
-        });
+        ]);
     }
 
     [Test]
@@ -856,7 +890,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
-        var periods = result.Earnings.Single().PricePeriods.Single().Periods;
+        var periods = result.Earnings.Single().PricePeriods.Single().Periods.ToList();
         periods.Should().HaveCount(2);
         periods.Single(p => p.EarningType == EarningType.First16To18ProviderIncentive).Amount.Should().Be(500m);
         var learningSupport = periods.Single(p => p.EarningType == EarningType.LearningSupport);
@@ -896,7 +930,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         var startDate = new DateTime(2023, 9, 1);
         var endDate = new DateTime(2024, 6, 30);
 
-        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: new List<ApprenticeshipAdditionalPaymentEntity>());
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: []);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -921,7 +955,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             AgreedPrice = 9000m
         };
 
-        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPrices:
+            [secondPrice]);
 
         var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
         {
@@ -929,7 +964,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         };
 
         var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 8000m, additionalPayments: additionalPayments,
-            additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey, dateOfBirth: firstPriceStart.AddYears(-18));
+            additionalPrices: [secondPrice], priceKey: firstPriceKey, dateOfBirth: firstPriceStart.AddYears(-18));
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -961,17 +996,18 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             AgreedPrice = 18000m
         };
 
-        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 15000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 15000m, additionalPrices:
+            [secondPrice]);
 
         var instalments = new List<ApprenticeshipInstalmentEntity>();
         for (byte period = 1; period <= 6; period++)
-            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = firstPriceKey });
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = firstPriceKey });
         for (byte period = 7; period <= 12; period++)
-            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1400m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = secondPriceKey });
-        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 12, Amount = 3600m, Type = InstalmentType.Completion.ToString(), EpisodePriceKey = secondPriceKey });
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1400m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = secondPriceKey });
+        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 12, Amount = 3600m, Type = nameof(InstalmentType.Completion), EpisodePriceKey = secondPriceKey });
 
         var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 15000m, instalments,
-            additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey, fundingBandMaximum: 20000m);
+            additionalPrices: [secondPrice], priceKey: firstPriceKey, fundingBandMaximum: 20000m);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -1011,10 +1047,10 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 1, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 2000m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 11, Amount = 2000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 2000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 1, Amount = 2000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 2, Amount = 2000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey }
         };
 
         var (learning, episode, _) = BuildLearning(startDate, endDate, 10000m, instalments, priceKey: priceKey, fundingBandMaximum: 20000m);
@@ -1058,14 +1094,14 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.LearnAimRef, "ENG12345")
             .With(x => x.StartDate, new DateTime(2023, 9, 1))
             .With(x => x.EndDate, new DateTime(2024, 7, 31))
-            .With(x => x.WithdrawalDate, withdrawn ? new DateTime(2024, 1, 1) : (DateTime?)null)
-            .With(x => x.CompletionDate, completed ? new DateTime(2024, 5, 1) : (DateTime?)null)
-            .With(x => x.PauseDate, paused ? new DateTime(2023, 12, 1) : (DateTime?)null)
-            .With(x => x.Instalments, new List<EnglishAndMathsInstalmentEntity>())
-            .With(x => x.PeriodsInLearning, new List<EnglishAndMathsPeriodInLearningEntity>())
+            .With(x => x.WithdrawalDate, withdrawn ? new DateTime(2024, 1, 1) : null)
+            .With(x => x.CompletionDate, completed ? new DateTime(2024, 5, 1) : null)
+            .With(x => x.PauseDate, paused ? new DateTime(2023, 12, 1) : null)
+            .With(x => x.Instalments, [])
+            .With(x => x.PeriodsInLearning, [])
             .Create();
 
-        var course = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
 
         var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -1089,17 +1125,18 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             AgreedPrice = 15000m
         };
 
-        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 12000m, additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice });
+        var (_, _, firstPriceKey) = BuildLearning(firstPriceStart, firstPriceEnd, 12000m, additionalPrices:
+            [secondPrice]);
 
         var instalments = new List<ApprenticeshipInstalmentEntity>();
         for (byte period = 1; period <= 4; period++)
-            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 800m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = firstPriceKey });
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 800m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = firstPriceKey });
         for (byte period = 5; period <= 12; period++)
-            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1100m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = secondPriceKey });
-        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 12, Amount = 3000m, Type = InstalmentType.Completion.ToString(), EpisodePriceKey = secondPriceKey });
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = period, Amount = 1100m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = secondPriceKey });
+        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2425, DeliveryPeriod = 12, Amount = 3000m, Type = nameof(InstalmentType.Completion), EpisodePriceKey = secondPriceKey });
 
         var (learning, episode, _) = BuildLearning(firstPriceStart, firstPriceEnd, 12000m, instalments,
-            additionalPrices: new List<ApprenticeshipEpisodePriceEntity> { secondPrice }, priceKey: firstPriceKey, fundingBandMaximum: 20000m);
+            additionalPrices: [secondPrice], priceKey: firstPriceKey, fundingBandMaximum: 20000m);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
@@ -1142,22 +1179,26 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             .With(x => x.PauseDate, (DateTime?)null)
             .With(x => x.TrainingCode, "123")
             .With(x => x.FundingBandMaximum, 20000m)
-            .With(x => x.Prices, new List<ApprenticeshipEpisodePriceEntity> { firstPrice, secondPrice })
-            .With(x => x.PeriodsInLearning, new List<ApprenticeshipPeriodInLearningEntity>
-            {
-                new() { Key = Guid.NewGuid(), StartDate = firstPrice.StartDate, EndDate = secondPrice.EndDate, OriginalExpectedEndDate = secondPrice.EndDate }
-            })
+            .With(x => x.Prices, [firstPrice, secondPrice])
+            .With(x => x.PeriodsInLearning,
+            [
+                new()
+                {
+                    Key = Guid.NewGuid(), StartDate = firstPrice.StartDate, EndDate = secondPrice.EndDate,
+                    OriginalExpectedEndDate = secondPrice.EndDate
+                }
+            ])
             .Without(x => x.EarningsProfile)
             .Create();
 
         var learningEntity = _fixture.Build<ApprenticeshipLearningEntity>()
             .With(x => x.Uln, "1234567890")
             .With(x => x.DateOfBirth, new DateTime(2000, 1, 1))
-            .With(x => x.Episodes, new List<ApprenticeshipEpisodeEntity> { episodeEntity })
+            .With(x => x.Episodes, [episodeEntity])
             .Create();
 
         var learning = ApprenticeshipLearning.Get(learningEntity);
-        var episode = (ApprenticeshipEpisode)learning.GetEpisode(episodeEntity.Key);
+        var episode = learning.GetEpisode(episodeEntity.Key);
         var systemClock = new Mock<ISystemClockService>();
         systemClock.Setup(x => x.UtcNow).Returns(new DateTime(2025, 2, 1));
         episode.CalculateOnProgramme(learning, systemClock.Object, "{}");
@@ -1210,8 +1251,8 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
 
         var instalments = new List<ApprenticeshipInstalmentEntity>
         {
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
-            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1000m, Type = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.InstalmentType.Completion.ToString(), EpisodePriceKey = priceKey }
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 1, Amount = 500m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1000m, Type = nameof(InstalmentType.Completion), EpisodePriceKey = priceKey }
         };
         var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
         {
