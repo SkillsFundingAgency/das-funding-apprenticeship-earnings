@@ -1,13 +1,7 @@
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.ApprenticeshipFunding;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
-using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using static SFA.DAS.Funding.ApprenticeshipEarnings.Types.EmployerTypeExtensions;
+using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 
@@ -28,12 +22,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
         {
             EarningsId = episode.EarningsProfile!.Version,
             UKPRN = episode.UKPRN,
-            Learner = new Learner
-            {
-                LearnerKey = learnerKey,
-                ULN = long.Parse(learning.Uln),
-                Reference = learnerReference
-            },
+            Learner = CreateLearnerEventDetails(learning, learnerKey, learnerReference),
             Training = new Training
             {
                 LearningKey = learning.LearningKey,
@@ -59,12 +48,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
         {
             EarningsId = course.Version,
             UKPRN = episode.UKPRN,
-            Learner = new Learner
-            {
-                LearnerKey = learnerKey,
-                ULN = long.Parse(learning.Uln),
-                Reference = learnerReference
-            },
+            Learner = CreateLearnerEventDetails(learning, learnerKey, learnerReference),
             Training = new Training
             {
                 LearningKey = course.Key,
@@ -95,32 +79,28 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
 
     private static TrainingStatus GetTrainingStatus(DateTime? withdrawalDate, DateTime? completionDate, DateTime? pauseDate)
     {
-        if (withdrawalDate != null)
+        if (withdrawalDate is not null)
         {
             return TrainingStatus.Withdrawn;
         }
 
-        if (completionDate != null)
+        if (completionDate is not null)
         {
             return TrainingStatus.Completed;
         }
 
-        if (pauseDate != null)
-        {
-            return TrainingStatus.BreakInLearning;
-        }
-
-        return TrainingStatus.Continuing;
+        return pauseDate is null ? TrainingStatus.Continuing : TrainingStatus.BreakInLearning;
     }
 
     private static IList<Earnings> BuildEarnings(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
     {
         var prices = episode.Prices.ToDictionary(p => p.PriceKey);
+        var periodsInLearning = episode.EpisodePeriodsInLearning.OrderBy(p => p.StartDate).ToList();
 
         var onProgrammeEntries = episode.EarningsProfile!.Instalments
             .Select(instalment => (
                 instalment.AcademicYear,
-                EpisodePriceKey: instalment.EpisodePriceKey,
+                instalment.EpisodePriceKey,
                 EarningType: GetEarningType(instalment.Type),
                 instalment.DeliveryPeriod,
                 instalment.Amount));
@@ -134,20 +114,24 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             .Select(yearGroup => new Earnings
             {
                 AcademicYear = yearGroup.Key,
+                // Each period in learning is sent as its own price period, so a return from a break in learning
+                // is reported with the instalments recalculated for that return
                 PricePeriods = yearGroup
-                    .GroupBy(x => x.EpisodePriceKey)
+                    .GroupBy(x => (x.EpisodePriceKey, PeriodInLearning: GetPeriodInLearning(periodsInLearning, x.AcademicYear, x.DeliveryPeriod)))
                     .Select(priceGroup =>
                     {
-                        var price = prices[priceGroup.Key];
+                        var price = prices[priceGroup.Key.EpisodePriceKey];
+                        var periodInLearning = priceGroup.Key.PeriodInLearning;
                         var regularInstalmentsForPrice = episode.EarningsProfile.Instalments
-                            .Where(x => x.EpisodePriceKey == price.PriceKey && x.Type == InstalmentType.Regular)
+                            .Where(x => x.EpisodePriceKey == price.PriceKey && x.Type == InstalmentType.Regular
+                                && GetPeriodInLearning(periodsInLearning, x.AcademicYear, x.DeliveryPeriod) == periodInLearning)
                             .ToList();
 
                         return new PricePeriod
                         {
                             Price = price.AgreedPrice,
-                            StartDate = price.StartDate,
-                            EndDate = price.EndDate,
+                            StartDate = GetPricePeriodStartDate(price, periodInLearning),
+                            EndDate = GetPricePeriodEndDate(price, periodInLearning, periodsInLearning),
                             CompletionAmount = new ApprenticeshipFunding(price.AgreedPrice, episode.FundingBandMaximum).CompletionPayment,
                             InstalmentAmount = regularInstalmentsForPrice.Count > 0 ? regularInstalmentsForPrice.Max(o => o.Amount) : 0,
                             NumberOfInstalments = regularInstalmentsForPrice.Count,
@@ -171,6 +155,38 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             })
             .OrderBy(e => e.AcademicYear)
             .ToList();
+    }
+
+    /// <summary>
+    /// Earnings hold no reference to the period in learning they were earned in, so they are matched on delivery period instead.
+    /// Instalments are only generated for whole months within a period in learning, so periods never share a delivery period and
+    /// anything due after a period ends (e.g. completion or balancing) belongs to the latest period started by then.
+    /// </summary>
+    private static ApprenticeshipPeriodInLearning? GetPeriodInLearning(List<ApprenticeshipPeriodInLearning> periodsInLearning, short academicYear, byte deliveryPeriod)
+    {
+        var deliveryMonth = academicYear.ToDateTime(deliveryPeriod);
+
+        return periodsInLearning.LastOrDefault(p => new DateTime(p.StartDate.Year, p.StartDate.Month, 1) <= deliveryMonth)
+            ?? periodsInLearning.FirstOrDefault();
+    }
+
+    private static DateTime GetPricePeriodStartDate(ApprenticeshipPrice price, ApprenticeshipPeriodInLearning? periodInLearning)
+    {
+        return periodInLearning != null && periodInLearning.StartDate > price.StartDate
+            ? periodInLearning.StartDate
+            : price.StartDate;
+    }
+
+    private static DateTime GetPricePeriodEndDate(ApprenticeshipPrice price, ApprenticeshipPeriodInLearning? periodInLearning, List<ApprenticeshipPeriodInLearning> periodsInLearning)
+    {
+        if (periodInLearning is null || periodInLearning == periodsInLearning.Last())
+        {
+            return price.EndDate;
+        }
+
+        return periodInLearning.EffectiveEndDate < price.EndDate
+            ? periodInLearning.EffectiveEndDate
+            : price.EndDate;
     }
 
     private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetIncentiveEntries(
@@ -282,24 +298,28 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             .ToList();
     }
 
-    private static EarningType GetEarningType(InstalmentType instalmentType)
-    {
-        return instalmentType switch
+    private static EarningType GetEarningType(InstalmentType instalmentType) =>
+        instalmentType switch
         {
             InstalmentType.Regular => EarningType.Learning,
             InstalmentType.Completion => EarningType.Completion,
             InstalmentType.Balancing => EarningType.Balancing,
             _ => throw new ArgumentException($"Unknown instalment type: {instalmentType}")
         };
-    }
 
-    private static EarningType GetEnglishAndMathsEarningType(EnglishAndMathsInstalmentType instalmentType)
-    {
-        return instalmentType switch
+    private static EarningType GetEnglishAndMathsEarningType(EnglishAndMathsInstalmentType instalmentType) =>
+        instalmentType switch
         {
             EnglishAndMathsInstalmentType.Regular => EarningType.OnProgrammeMathsAndEnglish,
             EnglishAndMathsInstalmentType.Balancing => EarningType.BalancingMathsAndEnglish,
             _ => throw new ArgumentException($"Unknown instalment type: {instalmentType}")
         };
-    }
+
+    private static Learner CreateLearnerEventDetails(ApprenticeshipLearning learning, Guid learnerKey, string learnerReference) =>
+        new()
+        {
+            LearnerKey = learnerKey,
+            ULN = long.Parse(learning.Uln),
+            Reference = learnerReference
+        };
 }
