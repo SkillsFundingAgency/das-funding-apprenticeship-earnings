@@ -249,10 +249,91 @@ public class WhenGetFm36Data
     }
 
     [Test]
-    public async Task Handle_WithdrawnBackToStart_IsExcluded()
+    public async Task Handle_WithdrawnBackToStart_StartedBeforeCollectionPeriodInAY_IsIncludedWithNoEarnings()
+    {
+        // Last date in learning == start date, within the requested AY, no earnings: learner is still returned
+        const long ukprn = 10005077;
+        var startDate = AcademicYearStart.AddMonths(2); // before the collection period (Jan 2025)
+
+        var learning = BuildLearning(Guid.NewGuid(), ukprn,
+            priceStartDate: startDate,
+            priceEndDate: startDate.AddYears(2),
+            withdrawalDate: startDate);
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid>()), CancellationToken.None);
+
+        var apprenticeship = result.Apprenticeships.Should().ContainSingle().Subject;
+        apprenticeship.Key.Should().Be(learning.LearningKey);
+        var episode = apprenticeship.Episodes.Single();
+        episode.NumberOfInstalments.Should().Be(0);
+        episode.Instalments.Should().BeEmpty();
+        episode.AdditionalPayments.Should().BeEmpty();
+        episode.EnglishAndMaths.Should().BeEmpty();
+        result.TotalItems.Should().Be(1);
+    }
+
+    [Test]
+    public async Task Handle_WithdrawnBackToStart_StartedAfterCollectionPeriodInAY_IsIncludedWithNoEarnings()
     {
         const long ukprn = 10005077;
-        var startDate = AcademicYearStart.AddMonths(1);
+        var startDate = new DateTime(2025, 3, 1); // after the collection period (Jan 2025), still in AY 2425
+
+        var learning = BuildLearning(Guid.NewGuid(), ukprn,
+            priceStartDate: startDate,
+            priceEndDate: startDate.AddYears(2),
+            withdrawalDate: startDate);
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid>()), CancellationToken.None);
+
+        var apprenticeship = result.Apprenticeships.Should().ContainSingle().Subject;
+        apprenticeship.Key.Should().Be(learning.LearningKey);
+        apprenticeship.Episodes.Single().Instalments.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Handle_WithdrawnBackToStart_WithEarnings_ReturnsTheEarnings()
+    {
+        // "Return the approved or unapproved earnings": if any exist they must come back unchanged
+        const long ukprn = 10005077;
+        var startDate = AcademicYearStart.AddMonths(2);
+
+        var instalment = new ApprenticeshipInstalmentEntity
+        {
+            Key = Guid.NewGuid(),
+            AcademicYear = CollectionYear,
+            DeliveryPeriod = CollectionPeriod,
+            Amount = 500m,
+            Type = "Regular",
+            EpisodePriceKey = Guid.NewGuid()
+        };
+
+        var learning = BuildLearning(Guid.NewGuid(), ukprn,
+            priceStartDate: startDate,
+            priceEndDate: startDate.AddYears(2),
+            instalment: instalment,
+            withdrawalDate: startDate);
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid>()), CancellationToken.None);
+
+        var episode = result.Apprenticeships.Should().ContainSingle().Subject.Episodes.Single();
+        episode.NumberOfInstalments.Should().Be(1);
+        episode.Instalments.Should().ContainSingle(i => i.Amount == 500m);
+    }
+
+    [Test]
+    public async Task Handle_WithdrawnBackToStart_InPreviousAY_IsExcluded()
+    {
+        const long ukprn = 10005077;
+        var startDate = AcademicYearStart.AddMonths(-2); // Jun 2024, AY 2324
 
         var learning = BuildLearning(Guid.NewGuid(), ukprn,
             priceStartDate: startDate,
@@ -265,6 +346,48 @@ public class WhenGetFm36Data
         var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid>()), CancellationToken.None);
 
         result.Apprenticeships.Should().BeNull();
+        result.TotalItems.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Handle_WithdrawnBackToStart_InNextAY_IsExcluded()
+    {
+        const long ukprn = 10005077;
+        var startDate = AcademicYearEnd.AddDays(1); // 2025-08-01, AY 2526
+
+        var learning = BuildLearning(Guid.NewGuid(), ukprn,
+            priceStartDate: startDate,
+            priceEndDate: startDate.AddYears(2),
+            withdrawalDate: startDate);
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid>()), CancellationToken.None);
+
+        result.Apprenticeships.Should().BeNull();
+        result.TotalItems.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Handle_WithdrawnBackToStart_OnAYBoundaries_IsIncluded()
+    {
+        // Start/withdrawal on first and last day of the requested AY
+        const long ukprn = 10005077;
+
+        foreach (var date in new[] { AcademicYearStart, AcademicYearEnd })
+        {
+            _dbContext.ApprenticeshipLearnings.Add(BuildLearning(Guid.NewGuid(), ukprn,
+                priceStartDate: date,
+                priceEndDate: date.AddYears(2),
+                withdrawalDate: date));
+        }
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid>()), CancellationToken.None);
+
+        result.Apprenticeships.Should().HaveCount(2);
+        result.TotalItems.Should().Be(2);
     }
 
     [Test]
