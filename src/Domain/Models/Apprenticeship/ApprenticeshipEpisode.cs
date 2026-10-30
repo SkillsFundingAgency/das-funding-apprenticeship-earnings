@@ -112,7 +112,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
                 _earningsProfile.SetApprovalStatus(false);
             }
 
-            additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
+            additionalPayments.AddRange(AdditionalPayments.RemoveLearningSupportNotQualifying(EarningsProfile!.PersistentAdditionalPayments().ToList(), EpisodePeriodsInLearning, LastDayOfLearning));
             _earningsProfile.Update(systemClock,
                 instalments: instalments,
                 additionalPayments: additionalPayments,
@@ -159,6 +159,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         existingAdditionalPayments.AddRange(additionalPayments);
 
+        // Learning support is not earned for learners withdrawn before the end of the qualifying period
+        AdditionalPayments.RemoveLearningSupportNotQualifying(existingAdditionalPayments, EpisodePeriodsInLearning, LastDayOfLearning);
+
         _earningsProfile!.Update(
             systemClock,
             additionalPayments: existingAdditionalPayments);
@@ -167,6 +170,18 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         {
             HasEarningsProfileVersionUpdate = true;
         }
+    }
+
+    /// <summary>
+    /// Generates a new earnings profile version where one has not already been generated, so that payments are informed
+    /// of changes which do not affect the earnings themselves (e.g. a withdrawal which leaves the instalments unchanged).
+    /// </summary>
+    public void GenerateNewEarningsProfileVersion(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null || HasEarningsProfileVersionUpdate) return;
+
+        _earningsProfile.Update(systemClock, forceNewVersion: true);
+        HasEarningsProfileVersionUpdate = true;
     }
 
     public void RemoveAdditionalEarnings(ISystemClockService systemClock)

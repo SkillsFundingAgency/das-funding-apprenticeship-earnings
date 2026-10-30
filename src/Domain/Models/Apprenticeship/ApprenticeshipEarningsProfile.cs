@@ -49,10 +49,11 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
         List<AdditionalPayment>? additionalPayments = null, 
         List<EnglishAndMathsDomainModel>? mathsAndEnglishCourses = null,
         decimal? completionPayment = null,
-        string? calculationData = null
+        string? calculationData = null,
+        bool forceNewVersion = false
     )
     {
-        var versionChanged = false;
+        var versionChanged = forceNewVersion;
 
         if (onProgramTotal.HasValue && Entity.OnProgramTotal != onProgramTotal.Value)
         {

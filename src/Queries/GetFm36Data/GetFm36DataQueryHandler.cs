@@ -4,6 +4,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Queries;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Queries.GetFm36Data;
 
@@ -26,49 +27,75 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
         var academicYearStart = searchDate.Month >= 8 ? new DateTime(searchDate.Year, 8, 1) : new DateTime(searchDate.Year - 1, 8, 1);
         var academicYearEnd = searchDate.Month >= 8 ? new DateTime(searchDate.Year + 1, 7, 31) : new DateTime(searchDate.Year, 7, 31);
 
-        var dbQuery = _dbContext.ApprenticeshipLearnings
-            .Where(x => x.Episodes.Any(e => e.Ukprn == query.Ukprn))
+        // All conditions are evaluated against the same episode, and entirely in the database, so that paging is accurate
+        var filteredQuery = _dbContext.ApprenticeshipLearnings
             .Where(x => x.Episodes.Any(e =>
+                e.Ukprn == query.Ukprn &&
+                !e.IsRemoved &&
+                e.FundingPlatform == FundingPlatform.DAS &&
+
+                // Include if started on or before end of the academic year
                 e.Prices.Any(p => p.StartDate <= academicYearEnd) &&
+
+                // Exclude if withdrawn before start of the academic year
                 !(e.WithdrawalDate.HasValue && e.WithdrawalDate.Value < academicYearStart) &&
-                !(e.CompletionDate.HasValue && e.CompletionDate.Value < academicYearStart)))
-            .Include(x => x.Episodes)
+
+                // Exclude if completed before start of the academic year
+                !(e.CompletionDate.HasValue && e.CompletionDate.Value < academicYearStart) &&
+
+                // With no actual end date recorded, the planned end date must not be before the start of the academic year
+                (e.CompletionDate.HasValue || e.WithdrawalDate.HasValue || e.Prices.Any(p => p.EndDate >= academicYearStart))));
+
+        if (query.LearningKeys != null && query.LearningKeys.Any())
+            filteredQuery = filteredQuery.Where(x => query.LearningKeys.Contains(x.LearningKey));
+
+        var totalItems = await filteredQuery.CountAsync(cancellationToken);
+
+        IQueryable<ApprenticeshipLearningEntity> pagedQuery = filteredQuery.OrderBy(x => x.LearningKey);
+        if (query.IsPaged)
+            pagedQuery = pagedQuery.Skip(query.Offset).Take(query.PageSize!.Value);
+
+        var learnings = await pagedQuery
+            .Include(x => x.Episodes.Where(e => !e.IsRemoved))
                 .ThenInclude(x => x.Prices)
-            .Include(x => x.Episodes)
+            .Include(x => x.Episodes.Where(e => !e.IsRemoved))
                 .ThenInclude(x => x.EarningsProfile)
                     .ThenInclude(x => x.Instalments)
-            .Include(x => x.Episodes)
+            .Include(x => x.Episodes.Where(e => !e.IsRemoved))
                 .ThenInclude(x => x.EarningsProfile)
                     .ThenInclude(x => x.ApprenticeshipAdditionalPayments)
-            .Include(x => x.Episodes)
+            .Include(x => x.Episodes.Where(e => !e.IsRemoved))
                 .ThenInclude(x=> x.EarningsProfile)
                     .ThenInclude(x => x.EnglishAndMathsCourses)
                         .ThenInclude(x => x.Instalments)
-            .Include(x => x.Episodes)
+            .Include(x => x.Episodes.Where(e => !e.IsRemoved))
                 .ThenInclude(x=> x.EarningsProfile)
                     .ThenInclude(x => x.EnglishAndMathsCourses)
                         .ThenInclude(x => x.AdditionalPayments)
             .AsNoTracking()
-            .AsSplitQuery();
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
 
-        if (query.LearningKeys != null && query.LearningKeys.Any())
-            dbQuery = dbQuery.Where(x => query.LearningKeys.Contains(x.LearningKey));
-
-        var learnings = await dbQuery.ToListAsync(cancellationToken);
-
+        // the current episode must also belong to this provider and be a DAS (opted-in) episode
         var apprenticeships = learnings
             .Select(l => (learning: l, currentEpisode: GetCurrentEpisode(l.Episodes, searchDate)))
-            .Where(x => x.currentEpisode?.Ukprn == query.Ukprn)
+            .Where(x => x.currentEpisode?.Ukprn == query.Ukprn && x.currentEpisode.FundingPlatform == FundingPlatform.DAS)
             .Select(x => MapApprenticeship(x.learning, x.currentEpisode!))
             .ToList();
 
         if (!apprenticeships.Any())
         {
             _logger.LogInformation("No apprenticeships found for: {ukprn}", query.Ukprn);
-            return new GetFm36DataResponse();
+            return new GetFm36DataResponse { TotalItems = totalItems, Page = query.IsPaged ? query.Page : null, PageSize = query.PageSize };
         }
 
-        return new GetFm36DataResponse { Apprenticeships = apprenticeships };
+        return new GetFm36DataResponse
+        {
+            Apprenticeships = apprenticeships,
+            TotalItems = totalItems,
+            Page = query.IsPaged ? query.Page : null,
+            PageSize = query.PageSize
+        };
     }
 
     private static Apprenticeship MapApprenticeship(ApprenticeshipLearningEntity learning, ApprenticeshipEpisodeEntity currentEpisode)
