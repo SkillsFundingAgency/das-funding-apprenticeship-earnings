@@ -116,6 +116,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
     private static IList<Earnings> BuildEarnings(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
     {
         var prices = episode.Prices.ToDictionary(p => p.PriceKey);
+        var periodsInLearning = episode.EpisodePeriodsInLearning.OrderBy(p => p.StartDate).ToList();
 
         var onProgrammeEntries = episode.EarningsProfile!.Instalments
             .Select(instalment => (
@@ -134,20 +135,24 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             .Select(yearGroup => new Earnings
             {
                 AcademicYear = yearGroup.Key,
+                // Each period in learning is sent as its own price period, so a return from a break in learning
+                // is reported with the instalments recalculated for that return
                 PricePeriods = yearGroup
-                    .GroupBy(x => x.EpisodePriceKey)
+                    .GroupBy(x => (x.EpisodePriceKey, PeriodInLearning: GetPeriodInLearning(periodsInLearning, x.AcademicYear, x.DeliveryPeriod)))
                     .Select(priceGroup =>
                     {
-                        var price = prices[priceGroup.Key];
+                        var price = prices[priceGroup.Key.EpisodePriceKey];
+                        var periodInLearning = priceGroup.Key.PeriodInLearning;
                         var regularInstalmentsForPrice = episode.EarningsProfile.Instalments
-                            .Where(x => x.EpisodePriceKey == price.PriceKey && x.Type == InstalmentType.Regular)
+                            .Where(x => x.EpisodePriceKey == price.PriceKey && x.Type == InstalmentType.Regular
+                                && GetPeriodInLearning(periodsInLearning, x.AcademicYear, x.DeliveryPeriod) == periodInLearning)
                             .ToList();
 
                         return new PricePeriod
                         {
                             Price = price.AgreedPrice,
-                            StartDate = price.StartDate,
-                            EndDate = price.EndDate,
+                            StartDate = GetPricePeriodStartDate(price, periodInLearning),
+                            EndDate = GetPricePeriodEndDate(price, periodInLearning, periodsInLearning),
                             CompletionAmount = new ApprenticeshipFunding(price.AgreedPrice, episode.FundingBandMaximum).CompletionPayment,
                             InstalmentAmount = regularInstalmentsForPrice.Count > 0 ? regularInstalmentsForPrice.Max(o => o.Amount) : 0,
                             NumberOfInstalments = regularInstalmentsForPrice.Count,
@@ -171,6 +176,42 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
             })
             .OrderBy(e => e.AcademicYear)
             .ToList();
+    }
+
+    /// <summary>
+    /// Earnings hold no reference to the period in learning they were earned in, so they are matched on delivery period instead.
+    /// Instalments are only generated for whole months within a period in learning, so periods never share a delivery period and
+    /// anything due after a period ends (e.g. completion or balancing) belongs to the latest period started by then.
+    /// </summary>
+    private static ApprenticeshipPeriodInLearning? GetPeriodInLearning(List<ApprenticeshipPeriodInLearning> periodsInLearning, short academicYear, byte deliveryPeriod)
+    {
+        var deliveryMonth = academicYear.ToDateTime(deliveryPeriod);
+
+        return periodsInLearning.LastOrDefault(p => new DateTime(p.StartDate.Year, p.StartDate.Month, 1) <= deliveryMonth)
+            ?? periodsInLearning.FirstOrDefault();
+    }
+
+    private static DateTime GetPricePeriodStartDate(ApprenticeshipPrice price, ApprenticeshipPeriodInLearning? periodInLearning)
+    {
+        return periodInLearning != null && periodInLearning.StartDate > price.StartDate
+            ? periodInLearning.StartDate
+            : price.StartDate;
+    }
+
+    /// <summary>
+    /// Only a period in learning the learner has since returned from is ended early, the latest period keeps the price end date
+    /// so that withdrawals and open breaks in learning are reported against the planned end date as before.
+    /// </summary>
+    private static DateTime GetPricePeriodEndDate(ApprenticeshipPrice price, ApprenticeshipPeriodInLearning? periodInLearning, List<ApprenticeshipPeriodInLearning> periodsInLearning)
+    {
+        if (periodInLearning == null || periodInLearning == periodsInLearning.Last())
+        {
+            return price.EndDate;
+        }
+
+        return periodInLearning.EffectiveEndDate < price.EndDate
+            ? periodInLearning.EffectiveEndDate
+            : price.EndDate;
     }
 
     private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetIncentiveEntries(

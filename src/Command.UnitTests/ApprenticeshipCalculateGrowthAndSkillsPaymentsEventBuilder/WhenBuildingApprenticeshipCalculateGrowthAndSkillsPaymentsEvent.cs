@@ -1,4 +1,4 @@
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
@@ -1235,5 +1235,99 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.LearningKey.Should().Be(learning.LearningKey);
         result.Training.StartDate.Should().Be(startDate);
         result.Training.PlannedEndDate.Should().Be(endDate);
+    }
+    [Test]
+    public void WhenThereHasBeenAReturnFromABreakInLearning_ThenEachPeriodInLearningIsSentAsItsOwnPricePeriod()
+    {
+        var startDate = new DateTime(2020, 8, 1);
+        var endDate = new DateTime(2021, 10, 1);
+        var breakStartDate = new DateTime(2020, 10, 14);
+        var returnDate = new DateTime(2021, 1, 16);
+
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
+        {
+            new() { Key = Guid.NewGuid(), StartDate = returnDate, EndDate = endDate, OriginalExpectedEndDate = endDate },
+            new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = breakStartDate, OriginalExpectedEndDate = endDate }
+        };
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 7000m);
+
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 1, Amount = 400m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 2, Amount = 400m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+        };
+        for (byte period = 6; period <= 12; period++)
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = period, Amount = 533.33333m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey });
+        for (byte period = 1; period <= 2; period++)
+            instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2122, DeliveryPeriod = period, Amount = 533.33333m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey });
+        instalments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2122, DeliveryPeriod = 3, Amount = 1400m, Type = InstalmentType.Completion.ToString(), EpisodePriceKey = priceKey });
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 7000m, instalments, priceKey: priceKey, fundingBandMaximum: 7000m, periodsInLearning: periodsInLearning);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Earnings.Should().HaveCount(2);
+
+        var firstYear = result.Earnings.Single(e => e.AcademicYear == 2021);
+        firstYear.PricePeriods.Should().HaveCount(2);
+
+        var beforeBreak = firstYear.PricePeriods.First();
+        beforeBreak.Price.Should().Be(7000m);
+        beforeBreak.StartDate.Should().Be(startDate);
+        beforeBreak.EndDate.Should().Be(breakStartDate);
+        beforeBreak.InstalmentAmount.Should().Be(400m);
+        beforeBreak.NumberOfInstalments.Should().Be(2);
+        beforeBreak.CompletionAmount.Should().Be(1400m);
+        beforeBreak.Periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 1, 2 });
+
+        var afterReturn = firstYear.PricePeriods.Last();
+        afterReturn.Price.Should().Be(7000m);
+        afterReturn.StartDate.Should().Be(returnDate);
+        afterReturn.EndDate.Should().Be(endDate);
+        afterReturn.InstalmentAmount.Should().Be(533.33333m);
+        afterReturn.NumberOfInstalments.Should().Be(9);
+        afterReturn.CompletionAmount.Should().Be(1400m);
+        afterReturn.Periods.Select(p => p.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 6, 7, 8, 9, 10, 11, 12 });
+
+        var secondYear = result.Earnings.Single(e => e.AcademicYear == 2122);
+        var secondYearPricePeriod = secondYear.PricePeriods.Single();
+        secondYearPricePeriod.StartDate.Should().Be(returnDate);
+        secondYearPricePeriod.InstalmentAmount.Should().Be(533.33333m);
+        secondYearPricePeriod.NumberOfInstalments.Should().Be(9);
+        secondYearPricePeriod.Periods.Should().HaveCount(3);
+        secondYearPricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion).Amount.Should().Be(1400m);
+    }
+
+    [Test]
+    public void WhenThereIsAnOpenBreakInLearning_ThenASinglePricePeriodIsSentWithThePlannedEndDate()
+    {
+        var startDate = new DateTime(2020, 8, 1);
+        var endDate = new DateTime(2021, 10, 1);
+        var pauseDate = new DateTime(2020, 10, 15);
+
+        var periodsInLearning = new List<ApprenticeshipPeriodInLearningEntity>
+        {
+            new() { Key = Guid.NewGuid(), StartDate = startDate, EndDate = new DateTime(2020, 10, 14), OriginalExpectedEndDate = endDate }
+        };
+
+        var (_, _, priceKey) = BuildLearning(startDate, endDate, 7000m);
+
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 1, Amount = 400m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey },
+            new() { Key = Guid.NewGuid(), AcademicYear = 2021, DeliveryPeriod = 2, Amount = 400m, Type = InstalmentType.Regular.ToString(), EpisodePriceKey = priceKey }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 7000m, instalments, pauseDate: pauseDate, priceKey: priceKey, fundingBandMaximum: 7000m, periodsInLearning: periodsInLearning);
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var pricePeriod = result.Earnings.Single().PricePeriods.Single();
+        pricePeriod.StartDate.Should().Be(startDate);
+        pricePeriod.EndDate.Should().Be(endDate);
+        pricePeriod.InstalmentAmount.Should().Be(400m);
+        pricePeriod.NumberOfInstalments.Should().Be(2);
+        result.Training.TrainingStatus.Should().Be(TrainingStatus.BreakInLearning);
     }
 }
