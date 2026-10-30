@@ -176,7 +176,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
             new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 12, Amount = 1666m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey },
         };
 
-        var (learning, episode, _) = BuildLearning(startDate, endDate, instalments: instalments, agreedPrice: 15000m, periodsInLearning: periodsInLearning);
+        var (learning, episode, _) = BuildLearning(startDate, endDate, instalments: instalments, agreedPrice: 15000m, priceKey: priceKey, periodsInLearning: periodsInLearning);
 
         var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
 
