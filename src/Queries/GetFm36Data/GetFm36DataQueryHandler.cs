@@ -43,9 +43,6 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 // Exclude if completed before start of the academic year
                 !(e.CompletionDate.HasValue && e.CompletionDate.Value < academicYearStart) &&
 
-                // Exclude if withdrawn back to start
-                !(e.WithdrawalDate.HasValue && e.WithdrawalDate.Value == e.Prices.Min(p => p.StartDate)) &&
-
                 // With no actual end date recorded, the planned end date must not be before the start of the academic year
                 (e.CompletionDate.HasValue || e.WithdrawalDate.HasValue || e.Prices.Any(p => p.EndDate >= academicYearStart))));
 
