@@ -225,6 +225,55 @@ public class WhenGetFm36Data
     }
 
     [Test]
+    public async Task Handle_RemovedEnglishAndMathsCourse_AdditionalPaymentsAreExcluded()
+    {
+        const long ukprn = 10005077;
+        var learningKey = Guid.NewGuid();
+        var startDate = SearchDate.AddMonths(-6);
+        var endDate = SearchDate.AddMonths(12);
+
+        var englishAndMathsCourse = new EnglishAndMathsEntity
+        {
+            Key = Guid.NewGuid(),
+            StartDate = startDate,
+            EndDate = endDate,
+            Course = "Maths GCSE",
+            LearnAimRef = "MATHS_GCSE",
+            Amount = 1900m,
+            IsRemoved = true,
+            Instalments = [],
+        };
+        englishAndMathsCourse.AdditionalPayments =
+        [
+            new EnglishAndMathsAdditionalPaymentEntity
+            {
+                Key = Guid.NewGuid(),
+                EnglishAndMathsKey = englishAndMathsCourse.Key,
+                AcademicYear = CollectionYear,
+                DeliveryPeriod = CollectionPeriod,
+                Amount = 150m,
+                AdditionalPaymentType = "LearningSupport",
+                DueDate = SearchDate
+            }
+        ];
+
+        var learning = BuildLearning(learningKey, ukprn,
+            priceStartDate: startDate,
+            priceEndDate: endDate,
+            englishAndMaths: englishAndMathsCourse,
+            dateOfBirth: new DateTime(2000, 6, 1));
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid> { learningKey }), CancellationToken.None);
+
+        var episode = result.Apprenticeships.Single().Episodes.Single();
+        episode.AdditionalPayments.Should().BeEmpty();
+        episode.EnglishAndMaths.Should().BeEmpty();
+    }
+
+    [Test]
     public async Task Handle_ApprenticeshipsExist_Under19_Returns1618FundingLineType()
     {
         const long ukprn = 10005077;

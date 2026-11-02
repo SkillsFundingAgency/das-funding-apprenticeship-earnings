@@ -143,7 +143,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                     AdditionalPaymentType = p.AdditionalPaymentType,
                     DueDate = p.DueDate
                 })
-                .Concat((profile?.EnglishAndMathsCourses ?? []).SelectMany(em => (em.AdditionalPayments ?? []).Select(p => new AdditionalPayment
+                .Concat((profile?.EnglishAndMathsCourses ?? []).Where(em => !em.IsRemoved).SelectMany(em => (em.AdditionalPayments ?? []).Select(p => new AdditionalPayment
                 {
                     AcademicYear = p.AcademicYear,
                     DeliveryPeriod = p.DeliveryPeriod,
