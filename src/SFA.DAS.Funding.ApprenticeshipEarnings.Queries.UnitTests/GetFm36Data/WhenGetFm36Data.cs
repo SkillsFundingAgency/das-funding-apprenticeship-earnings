@@ -119,7 +119,8 @@ public class WhenGetFm36Data
             englishAndMaths: englishAndMathsCourse,
             dateOfBirth: new DateTime(2000, 6, 1),
             onProgramTotal: 4500m,
-            completionPayment: 500m);
+            completionPayment: 500m,
+            fundingBandMaximum: 6000m);
 
         _dbContext.ApprenticeshipLearnings.Add(learning);
         await _dbContext.SaveChangesAsync();
@@ -140,6 +141,7 @@ public class WhenGetFm36Data
         episode.NumberOfInstalments.Should().Be(1);
         episode.CompletionPayment.Should().Be(500m);
         episode.OnProgramTotal.Should().Be(4500m);
+        episode.FundingBandMaximum.Should().Be(6000m);
 
         episode.Instalments.Should().ContainSingle(i =>
             i.AcademicYear == CollectionYear &&
@@ -607,6 +609,7 @@ public class WhenGetFm36Data
         DateTime? dateOfBirth = null,
         decimal onProgramTotal = 0m,
         decimal completionPayment = 0m,
+        decimal fundingBandMaximum = 0m,
         DateTime? withdrawalDate = null,
         DateTime? completionDate = null,
         bool isRemoved = false,
@@ -642,6 +645,7 @@ public class WhenGetFm36Data
             TrainingCode = "ST0001",
             EmployerType = EmployerType.Levy,
             EarningsProfile = profile,
+            FundingBandMaximum = fundingBandMaximum,
             WithdrawalDate = withdrawalDate,
             CompletionDate = completionDate,
             IsRemoved = isRemoved,
