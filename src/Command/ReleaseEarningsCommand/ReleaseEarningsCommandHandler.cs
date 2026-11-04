@@ -63,7 +63,16 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
 
             if (command.Request.ReleaseType is ReleaseType.All or ReleaseType.OnProgramme)
             {
-                await SendOnProgramme(episode, learning, learnerKey, learnerRef, options, cancellationToken);
+                // Further Approval being needed withholds payments for on-programme earnings until the change is approved.
+                // English and Maths are deliberately not subject to this.
+                if (episode.FurtherApprovalNeeded)
+                {
+                    _logger.LogInformation("{Handler} - Skipped on-programme for EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as it needs further approval", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, command.LearningKey);
+                }
+                else
+                {
+                    await SendOnProgramme(episode, learning, learnerKey, learnerRef, options, cancellationToken);
+                }
             }
 
             if (command.Request.ReleaseType is ReleaseType.All or ReleaseType.FunctionalSkill)

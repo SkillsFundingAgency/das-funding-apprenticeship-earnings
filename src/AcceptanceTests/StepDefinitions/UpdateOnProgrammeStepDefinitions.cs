@@ -108,6 +108,10 @@ public class UpdateOnProgrammeStepDefinitions
                 case nameof(UpdateOnProgrammeModel.CareLeaverEmployerConsentGiven):
                     model.CareLeaverEmployerConsentGiven.SetValue(item.ToBool());
                     break;
+
+                case nameof(UpdateOnProgrammeModel.FurtherApprovalRequired):
+                    model.FurtherApprovalRequired.SetValue(item.ToBool());
+                    break;
             }
         }
 

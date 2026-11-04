@@ -29,6 +29,7 @@ public class UpdateOnProgrammeRequestBuilder
     private bool _isCareLeaver = false;
     private bool _careLeaverEmployerConsentGiven = false;
     private List<LearningSupportItem> _learningSupport = new List<LearningSupportItem>();
+    private bool _furtherApprovalRequired = false;
 
     public UpdateOnProgrammeRequestBuilder WithLearningSupport(List<LearningSupportItem> learningSupport)
     {
@@ -81,6 +82,7 @@ public class UpdateOnProgrammeRequestBuilder
         if (model.HasEHCP.HasChanged) _hasEHCP = model.HasEHCP.Value;
         if (model.IsCareLeaver.HasChanged) _isCareLeaver = model.IsCareLeaver.Value;
         if (model.CareLeaverEmployerConsentGiven.HasChanged) _careLeaverEmployerConsentGiven = model.CareLeaverEmployerConsentGiven.Value;
+        if (model.FurtherApprovalRequired.HasChanged) _furtherApprovalRequired = model.FurtherApprovalRequired.Value;
         return this;
     }
 
@@ -146,7 +148,8 @@ public class UpdateOnProgrammeRequestBuilder
                 HasEHCP = _hasEHCP,
                 IsCareLeaver = _isCareLeaver
             },
-            LearningSupport = _learningSupport
+            LearningSupport = _learningSupport,
+            FurtherApprovalRequired = _furtherApprovalRequired
         };
     }
 }
