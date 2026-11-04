@@ -69,10 +69,13 @@ public class FurtherApprovalStepDefinitions
     [Then("an english and maths payments event is sent to pv2 for the current earnings")]
     public async Task ThenAnEnglishAndMathsPaymentsEventIsSentForTheCurrentEarnings()
     {
-        var currentVersion = await GetCurrentEarningsProfileVersion();
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+        var episode = ApprenticeshipLearning.Get(dbEntity!).GetEpisode(request.EpisodeKey);
+        var course = episode.EarningsProfile!.MathsAndEnglishCourses.Single();
 
         _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
-            .Should().Contain(x => x.Training.LearningType == LearningType.MathsAndEnglish && x.EarningsId == currentVersion);
+            .Should().Contain(x => x.Training.LearningType == LearningType.MathsAndEnglish && x.EarningsId == course.Version);
     }
 
     private async Task<Guid> GetCurrentEarningsProfileVersion()

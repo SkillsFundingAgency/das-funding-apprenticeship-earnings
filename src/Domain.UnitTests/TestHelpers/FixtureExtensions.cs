@@ -1,4 +1,4 @@
-using AutoFixture;
+﻿using AutoFixture;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
@@ -47,11 +47,19 @@ internal static class FixtureExtensions
         EmployerType employerType = EmployerType.Levy, 
         byte age = 17)
     {
-        var learningCreatedEvent = fixture.CreateLearningCreatedEvent(startDate, endDate, agreedPrice, age);
+        var learningKey = Guid.NewGuid();
+        var learningEpisode = CreateLearningEpisode(startDate, endDate, agreedPrice, age);
 
-        learningCreatedEvent.Episode.EmployerType = employerType == EmployerType.Levy ? Learning.Enums.EmployerType.Levy : Learning.Enums.EmployerType.NonLevy;
+        learningEpisode.EmployerType = employerType == EmployerType.Levy ? Learning.Enums.EmployerType.Levy : Learning.Enums.EmployerType.NonLevy;
 
-        return _apprenticeshipFactory.CreateNew(learningCreatedEvent, int.MaxValue);
+        return ApprenticeshipLearning.Get(new ApprenticeshipLearningEntity
+        {
+            ApprovalsApprenticeshipId = fixture.Create<long>(),
+            LearningKey = learningKey,
+            Uln = fixture.Create<string>(),
+            Episodes = new List<ApprenticeshipEpisodeEntity> { new ApprenticeshipEpisodeEntity(learningKey, learningEpisode, int.MaxValue, null) },
+            DateOfBirth = startDate.AddYears(-age)
+        });
     }
 
     internal static ShortCourseLearning CreateLearningWithShortCourse(
@@ -109,23 +117,9 @@ internal static class FixtureExtensions
         return ApprenticeshipLearning.Get(learningEntity);
     }
 
-    internal static LearningCreatedEvent CreateLearningCreatedEvent(
-        this Fixture fixture, 
-        DateTime? startDate = null, 
-        DateTime? endDate = null,
-        decimal? agreedPrice = null,
-        byte age = 17)
+    private static LearningEpisode CreateLearningEpisode(DateTime startDate, DateTime endDate, decimal agreedPrice, byte age)
     {
-        startDate ??= new DateTime(2021, 1, 15);
-        endDate ??= new DateTime(2022, 1, 31);
-        agreedPrice ??= 7000;
-
-        var createdEvent = fixture
-            .Build<LearningCreatedEvent>()
-            .With(x => x.DateOfBirth, startDate.Value.AddYears(-age))
-            .Create();
-
-        createdEvent.Episode = new LearningEpisode()
+        return new LearningEpisode
         {
             Key = Guid.NewGuid(),
             Ukprn = 10000001,
@@ -134,15 +128,13 @@ internal static class FixtureExtensions
             Prices = new List<LearningEpisodePrice>{ new()
                 {
                     Key = Guid.NewGuid(),
-                    StartDate = startDate.Value,
-                    EndDate = endDate.Value,
-                    TotalPrice = agreedPrice.Value
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalPrice = agreedPrice
                 }
             },
             AgeAtStartOfLearning = age
         };
-
-        return createdEvent;
     }
 
     internal static ApprenticeshipEarningsProfileEntity MapEarningsProfileToModel(ApprenticeshipEarningsProfile earningsProfile)
