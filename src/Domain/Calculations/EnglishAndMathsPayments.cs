@@ -119,15 +119,10 @@ public static class EnglishAndMathsPayments
             !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
             context.Instalments.Clear();
 
-        // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
-        if (withdrawalDate.HasValue && 
-            withdrawalDate.Value >= startDate &&
+        // Remove all instalments if the learner was not in learning on a census date before withdrawing
+        if (withdrawalDate.HasValue &&
             withdrawalDate.Value < startDate.LastDayOfMonth())
-        {
-            var numberOfInstalments = CalculateNumberOfInstalments(context.FirstPaymentDate, context.LastCensusDate);
-            var monthlyAmount = context.AdjustedCourseAmount / numberOfInstalments;
-            context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, startDate, monthlyAmount));
-        }   
+            context.Instalments.Clear();
     }
 
     private static void ApplyLastDayOfCourseRule(InstalmentCalculationContext context)
