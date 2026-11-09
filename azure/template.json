@@ -273,7 +273,7 @@
                                 },
                                 {
                                     "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                                    "value": "[reference(concat(variables('appServiceName'), '-app-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
+                                    "value": "[reference(concat(variables('appServiceName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
                                 },
                                 {
                                     "name": "LoggingRedisConnectionString",
@@ -378,6 +378,9 @@
                     },
                     "attachedService": {
                         "value": "[variables('functionAppName')]"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                        "value": "[resourceId(parameters('logAnalyticsSubscriptionId'),parameters('sharedManagementResourceGroup'),'Microsoft.OperationalInsights/workspaces',parameters('logAnalyticsWorkspaceName'))]"
                     }
                 }
             },
@@ -455,7 +458,7 @@
                                 },
                                 {
                                     "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                                    "value": "[reference(concat(variables('functionAppName'), '-app-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
+                                    "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
                                 },
                                 {
                                     "name": "AzureWebJobsStorage",
