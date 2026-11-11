@@ -99,3 +99,68 @@ Scenario: English and Maths early completion within last month
 		| Maths1 | 100    | 2122         | 2              | Regular   |
 		| Maths1 | 100    | 2122         | 3              | Balancing |
 	And the english and maths earnings history is maintained
+Scenario Outline: English and Maths completed before the end of the qualifying period earns nothing
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-08-01 | 2028-07-31 | 7000  |
+	And the apprenticeship commitment is approved
+	And the following english and maths course information is provided
+		| StartDate   | EndDate    | Course | LearnAimRef | Amount |
+		| <StartDate> | 2027-05-05 | Maths1 | Maths1      | 400    |
+	When the following english and maths completion change request is sent
+		| StartDate   | EndDate    | Course | LearnAimRef | Amount | CompletionDate   |
+		| <StartDate> | 2027-05-05 | Maths1 | Maths1      | 400    | <CompletionDate> |
+	Then no english and maths earnings are persisted
+
+Examples:
+	| Description                    | StartDate  | CompletionDate |
+	| Completes on a census date     | 2027-01-19 | 2027-01-31     |
+	| Completes after a census date  | 2027-01-20 | 2027-02-01     |
+	| Completes before a census date | 2027-01-01 | 2027-01-13     |
+
+Scenario: English and Maths completed on a census date after the qualifying period earns everything in that month
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-08-01 | 2028-07-31 | 7000  |
+	And the apprenticeship commitment is approved
+	And the following english and maths course information is provided
+		| StartDate  | EndDate    | Course | LearnAimRef | Amount |
+		| 2027-01-17 | 2027-05-05 | Maths1 | Maths1      | 400    |
+	When the following english and maths completion change request is sent
+		| StartDate  | EndDate    | Course | LearnAimRef | Amount | CompletionDate |
+		| 2027-01-17 | 2027-05-05 | Maths1 | Maths1      | 400    | 2027-01-31     |
+	Then english and maths instalments are persisted as follows
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
+		| Maths1 | 100    | 2627         | 6              | Regular   |
+		| Maths1 | 300    | 2627         | 6              | Balancing |
+
+Scenario: English and Maths completed after a census date after the qualifying period
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-08-01 | 2028-07-31 | 7000  |
+	And the apprenticeship commitment is approved
+	And the following english and maths course information is provided
+		| StartDate  | EndDate    | Course | LearnAimRef | Amount |
+		| 2027-01-18 | 2027-05-05 | Maths1 | Maths1      | 400    |
+	When the following english and maths completion change request is sent
+		| StartDate  | EndDate    | Course | LearnAimRef | Amount | CompletionDate |
+		| 2027-01-18 | 2027-05-05 | Maths1 | Maths1      | 400    | 2027-02-01     |
+	Then english and maths instalments are persisted as follows
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
+		| Maths1 | 100    | 2627         | 6              | Regular   |
+		| Maths1 | 300    | 2627         | 7              | Balancing |
+
+Scenario: English and Maths completed before a census date after the qualifying period earns everything in that month
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-08-01 | 2028-07-31 | 7000  |
+	And the apprenticeship commitment is approved
+	And the following english and maths course information is provided
+		| StartDate  | EndDate    | Course | LearnAimRef | Amount |
+		| 2027-01-01 | 2027-05-05 | Maths1 | Maths1      | 400    |
+	When the following english and maths completion change request is sent
+		| StartDate  | EndDate    | Course | LearnAimRef | Amount | CompletionDate |
+		| 2027-01-01 | 2027-05-05 | Maths1 | Maths1      | 400    | 2027-01-15     |
+	Then english and maths instalments are persisted as follows
+		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
+		| Maths1 | 400    | 2627         | 6              | Balancing |
