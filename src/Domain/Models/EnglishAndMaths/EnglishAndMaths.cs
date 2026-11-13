@@ -72,7 +72,7 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
         }).ToList();
         _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
 
-        var withdrawnBeforeQualifying = withdrawalDate.HasValue && !EnglishAndMathsPayments.WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value);
+        var withdrawnBeforeQualifying = withdrawalDate.HasValue && !EnglishAndMathsPayments.LearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value);
         _entity.AdditionalPayments = (withdrawnBeforeQualifying ? [] : (additionalPayments ?? []).ToList()).ToModels<EnglishAndMathsAdditionalPayment, EnglishAndMathsAdditionalPaymentEntity>();
 
         _instalments = _entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();

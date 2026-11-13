@@ -138,6 +138,82 @@ public class EnglishAndMathsPaymentsTests
         result.Should().BeEmpty();
     }
 
+    [TestCase(168, 42, true)]
+    [TestCase(168, 41, false)]
+    [TestCase(14, 14, true)]
+    [TestCase(14, 13, false)]
+    [TestCase(13, 1, true)]
+    public void GenerateMathsAndEnglishPayments_ShouldOnlyReturnInstalmentsIfCompletedAfterQualifyingPeriod(int plannedDuration, int actualDuration, bool expectedToQualifyAfterCompletion)
+    {
+        // Arrange
+        var startDate = new DateTime(2023, 1, 31);
+        var endDate = startDate.AddDays(plannedDuration - 1);
+        var completionDate = startDate.AddDays(actualDuration - 1);
+        var course = CreateEnglishAndMathsCourse(startDate, endDate, "E102", 300, null, null, completionDate);
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        result.Any().Should().Be(expectedToQualifyAfterCompletion);
+    }
+
+    [TestCase("2027-01-19", "2027-01-31", Description = "Completes on a census date, 13 days in learning")]
+    [TestCase("2027-01-20", "2027-02-01", Description = "Completes after a census date, 13 days in learning")]
+    [TestCase("2027-01-01", "2027-01-13", Description = "Completes before a census date, 13 days in learning")]
+    public void GenerateMathsAndEnglishPayments_ShouldNotReturnAnyInstalments_WhenCompletedBeforeQualifyingPeriod(string start, string completion)
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(DateTime.Parse(start), new DateTime(2027, 5, 5), "E102", 400, null, null, DateTime.Parse(completion));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    [TestCase("2027-01-17", "2027-01-31", Description = "Completes on a census date, 15 days in learning")]
+    [TestCase("2027-01-01", "2027-01-15", Description = "Completes before a census date, 15 days in learning")]
+    public void GenerateMathsAndEnglishPayments_ShouldEarnAllInstalmentsInCompletionMonth_WhenCompletedAfterQualifyingPeriod(string start, string completion)
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(DateTime.Parse(start), new DateTime(2027, 5, 5), "E102", 400, null, null, DateTime.Parse(completion));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        result.Should().NotBeEmpty();
+        result.Should().AllSatisfy(x =>
+        {
+            x.AcademicYear.Should().Be(2627);
+            x.DeliveryPeriod.Should().Be(6);
+        });
+        result.Sum(x => x.Amount).Should().Be(400);
+    }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldEarnOneInstalmentThenBalance_WhenCompletedAfterCensusDateAndQualifyingPeriod()
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(new DateTime(2027, 1, 18), new DateTime(2027, 5, 5), "E102", 400, null, null, new DateTime(2027, 2, 1));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        result.Count.Should().Be(2);
+        var regular = result.Single(x => x.Type == EnglishAndMathsInstalmentType.Regular.ToString());
+        regular.AcademicYear.Should().Be(2627);
+        regular.DeliveryPeriod.Should().Be(6);
+        regular.Amount.Should().Be(100);
+        var balancing = result.Single(x => x.Type == EnglishAndMathsInstalmentType.Balancing.ToString());
+        balancing.AcademicYear.Should().Be(2627);
+        balancing.DeliveryPeriod.Should().Be(7);
+        balancing.Amount.Should().Be(300);
+    }
+
     [TestCase(20)]
     [TestCase(93)]
     [TestCase(100)]

@@ -11,6 +11,9 @@ public static class EnglishAndMathsPayments
         if (IsInvalidCourse(englishAndMaths))
             return [];
 
+        if (CompletedBeforeEndOfQualifyingPeriod(englishAndMaths))
+            return [];
+
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
         if (IsSingleMonthCourse(englishAndMaths))
             return [CreateInstalment(englishAndMaths.Key, englishAndMaths.EndDate, englishAndMaths.Amount)];
@@ -28,6 +31,12 @@ public static class EnglishAndMathsPayments
     private static bool IsInvalidCourse(EnglishAndMaths mathsAndEnglish)
     {
         return mathsAndEnglish.StartDate > mathsAndEnglish.EndDate;
+    }
+
+    private static bool CompletedBeforeEndOfQualifyingPeriod(EnglishAndMaths englishAndMaths)
+    {
+        return englishAndMaths.CompletionDate.HasValue &&
+               !LearnerQualifiesForEarnings(englishAndMaths.StartDate, englishAndMaths.EndDate, englishAndMaths.CompletionDate.Value);
     }
 
     private static bool IsSingleMonthCourse(EnglishAndMaths mathsAndEnglish)
@@ -116,7 +125,7 @@ public static class EnglishAndMathsPayments
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
         if (withdrawalDate.HasValue && 
-            !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
+            !LearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
             context.Instalments.Clear();
 
         // Remove all instalments if the learner was not in learning on a census date before withdrawing
@@ -133,11 +142,11 @@ public static class EnglishAndMathsPayments
         }
     }
 
-    internal static bool WithdrawnLearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime withdrawalDate)
+    internal static bool LearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime lastDayInLearning)
     {
         var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, endDate);
 
-        return withdrawalDate >= startDate.AddDays(qualifyingPeriodDays - 1);
+        return lastDayInLearning >= startDate.AddDays(qualifyingPeriodDays - 1);
     }
 
     private static void DeleteAfterDate(
