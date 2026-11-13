@@ -46,13 +46,15 @@ public class WhenReleasingEarnings
         bool isRemoved = false,
         FundingPlatform fundingPlatform = FundingPlatform.DAS,
         long? fundingEmployerAccountId = null,
-        List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity>? englishAndMathsCourses = null)
+        List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity>? englishAndMathsCourses = null,
+        bool furtherApprovalNeeded = false)
     {
         return _fixture.Build<ApprenticeshipEpisodeEntity>()
             .With(x => x.Key, episodeKey)
             .With(x => x.LearningKey, learningKey)
             .With(x => x.IsRemoved, isRemoved)
             .With(x => x.FundingPlatform, fundingPlatform)
+            .With(x => x.FurtherApprovalNeeded, furtherApprovalNeeded)
             .With(x => x.FundingEmployerAccountId, fundingEmployerAccountId)
             .With(x => x.EarningsProfile, _fixture.Build<ApprenticeshipEarningsProfileEntity>()
                 .With(x => x.IsApproved, isApproved)
@@ -463,6 +465,78 @@ public class WhenReleasingEarnings
         _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
         _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
+    public async Task WhenEpisodeNeedsFurtherApproval_ThenNoOnProgrammePaymentEventIsSentOrPublished()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, furtherApprovalNeeded: true);
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Never);
+    }
+
+    [Test]
+    public async Task WhenEpisodeNeedsFurtherApproval_ThenEnglishAndMathsAreStillSent()
+    {
+        // English and maths are not subject to further approval, so only on-programme earnings are held back
+        var learningKey = _fixture.Create<Guid>();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, furtherApprovalNeeded: true,
+            englishAndMathsCourses: new List<DataAccess.Entities.EnglishAndMaths.EnglishAndMathsEntity> { BuildEnglishAndMathsEntity(), BuildEnglishAndMathsEntity() });
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+
+        _mockBuilder.Setup(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockBuilder.Verify(x => x.BuildForEnglishAndMaths(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Exactly(2));
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Exactly(2));
+        _mockMessageSession.Verify(x => x.Publish(It.IsAny<GrowthAndSkillsPaymentsRecalculatedEvent>(), It.IsAny<PublishOptions>()), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task WhenLearningHasMultipleEpisodes_ThenOnProgrammeIsNotPaidForEpisodesNeedingFurtherApproval()
+    {
+        var learningKey = _fixture.Create<Guid>();
+
+        var payableEpisode = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey);
+        var flaggedEpisode = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, furtherApprovalNeeded: true);
+
+        var learning = BuildLearning(learningKey, payableEpisode, flaggedEpisode);
+
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(
+            learningKey,
+            new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() });
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+
+        _mockBuilder.Setup(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(new CalculateGrowthAndSkillsPayments());
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.Is<ApprenticeshipEpisode>(e => e.EpisodeKey == payableEpisode.Key), learning, It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        _mockBuilder.Verify(x => x.Build(It.Is<ApprenticeshipEpisode>(e => e.EpisodeKey == flaggedEpisode.Key), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<SendOptions>()), Times.Once);
     }
 
     [Test]

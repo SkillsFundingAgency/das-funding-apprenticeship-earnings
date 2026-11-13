@@ -142,17 +142,11 @@ public static class EnglishAndMathsPayments
         }
     }
 
-    private static bool LearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime lastDayInLearning)
+    internal static bool LearnerQualifiesForEarnings(DateTime startDate, DateTime endDate, DateTime lastDayInLearning)
     {
-        var plannedLength = (endDate - startDate).TotalDays + 1;
-        var actualLength = (lastDayInLearning - startDate).TotalDays + 1;
+        var qualifyingPeriodDays = QualifyingPeriod.GetQualifyingPeriodDays(startDate, endDate);
 
-        if (plannedLength >= 168)
-            return actualLength >= 42;
-        if (plannedLength >= 14)
-            return actualLength >= 14;
-
-        return actualLength >= 1;
+        return lastDayInLearning >= startDate.AddDays(qualifyingPeriodDays - 1);
     }
 
     private static void DeleteAfterDate(

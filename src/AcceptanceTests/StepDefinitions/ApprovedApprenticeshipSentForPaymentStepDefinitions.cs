@@ -1,5 +1,6 @@
 using FluentAssertions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
+using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
@@ -9,6 +10,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
+using TechTalk.SpecFlow.Assist;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
@@ -189,6 +191,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
             });
         }
 
+        [Given("the earnings are released to payments")]
         [When("the earnings are released to payments")]
         public async Task WhenTheEarningsAreReleasedToPayments()
         {
@@ -199,6 +202,85 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
                 LearnerKey = _scenarioContext.GetLearnerKey(),
                 LearnerRef = _scenarioContext.GetLearnerRef()
             });
+        }
+
+        [Then("the payments event is sent to pv2 with the recalculated earnings for the apprenticeship")]
+        public async Task ThenThePaymentsEventIsSentToPv2WithTheRecalculatedEarningsForTheApprenticeship()
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+
+            var paymentsEvents = GetApprenticeshipPaymentsEvents();
+            paymentsEvents.Should().HaveCountGreaterThan(1, "payments should have been sent earnings on approval before the recalculation was released");
+
+            var paymentsEvent = paymentsEvents.Last();
+            paymentsEvent.EarningsId.Should().Be(episode.EarningsProfile!.Version);
+            paymentsEvent.EarningsId.Should().NotBe(paymentsEvents[^2].EarningsId, "the recalculated earnings should be sent as a new earnings profile version");
+            paymentsEvent.Training.LearningKey.Should().Be(request.LearningKey);
+            paymentsEvent.Learner.LearnerKey.Should().Be(_scenarioContext.GetLearnerKey());
+            paymentsEvent.Learner.Reference.Should().Be(_scenarioContext.GetLearnerRef());
+
+            var expectedPeriods = episode.EarningsProfile.Instalments
+                .Select(x => (EarningType: GetEarningType(x.Type), AcademicYear: (short)x.AcademicYear, DeliveryPeriod: (byte)x.DeliveryPeriod, x.Amount))
+                .Concat(episode.EarningsProfile.AdditionalPayments
+                    .Where(x => x.AdditionalPaymentType == SFA.DAS.Funding.ApprenticeshipEarnings.Domain.InstalmentTypes.LearningSupport)
+                    .Select(x => (EarningType: EarningType.LearningSupport, AcademicYear: (short)x.AcademicYear, DeliveryPeriod: (byte)x.DeliveryPeriod, x.Amount)))
+                .Where(x => x.Amount != 0)
+                .ToList();
+
+            var sentPeriods = paymentsEvent.Earnings
+                .SelectMany(e => e.PricePeriods.SelectMany(p => p.Periods).Select(p => (p.EarningType, AcademicYear: (short)e.AcademicYear, DeliveryPeriod: (byte)p.DeliveryPeriod, p.Amount)))
+                .ToList();
+
+            // Every stored earning must be sent and nothing previously sent may be left behind
+            sentPeriods.Should().BeEquivalentTo(expectedPeriods);
+        }
+
+        [Then(@"the payments event is sent to pv2 with a training status of ""(.*)""")]
+        public void ThenThePaymentsEventIsSentToPv2WithATrainingStatusOf(TrainingStatus expectedTrainingStatus)
+        {
+            GetApprenticeshipPaymentsEvents().Last().Training.TrainingStatus.Should().Be(expectedTrainingStatus);
+        }
+
+        [Then("the payments event is sent to pv2 with the following on-programme earnings")]
+        public void ThenThePaymentsEventIsSentToPv2WithTheFollowingOnProgrammeEarnings(Table table)
+        {
+            var expectedEarnings = table.CreateSet<EarningDbExpectationModel>().ToList();
+            var paymentsEvent = GetApprenticeshipPaymentsEvents().Last();
+
+            var sentEarnings = paymentsEvent.Earnings
+                .SelectMany(e => e.PricePeriods.SelectMany(p => p.Periods).Select(p => (e.AcademicYear, Period: p)))
+                .Where(x => x.Period.EarningType == EarningType.Learning)
+                .ToList();
+
+            sentEarnings.Should().HaveCount(expectedEarnings.Count);
+            foreach (var expected in expectedEarnings)
+            {
+                sentEarnings.Should().ContainSingle(x => x.AcademicYear == expected.AcademicYear
+                        && x.Period.DeliveryPeriod == expected.DeliveryPeriod
+                        && Math.Round(x.Period.Amount, 2) == Math.Round(expected.Amount, 2),
+                    $"expected a Learning earning of {expected.Amount} for {expected.AcademicYear} R{expected.DeliveryPeriod:00}");
+            }
+        }
+
+        private System.Collections.Generic.List<CalculateGrowthAndSkillsPayments> GetApprenticeshipPaymentsEvents()
+        {
+            return _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+                .Where(x => x.Training.LearningType == LearningType.Apprenticeship)
+                .ToList();
+        }
+
+        private static EarningType GetEarningType(InstalmentType instalmentType)
+        {
+            return instalmentType switch
+            {
+                InstalmentType.Regular => EarningType.Learning,
+                InstalmentType.Completion => EarningType.Completion,
+                InstalmentType.Balancing => EarningType.Balancing,
+                _ => throw new ArgumentOutOfRangeException(nameof(instalmentType))
+            };
         }
 
         [Then(@"the payments event is sent to pv2 with (\d+) learning support earnings matching the stored learning support")]
@@ -285,6 +367,55 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
                 .ToList();
 
             return (paymentsEvent, storedLearningSupport);
+        }
+
+        [Then(@"the latest payments event is sent to pv2 with a training status of ""(.*)"" and (\d+) learning earnings")]
+        public async Task ThenTheLatestPaymentsEventIsSentToPv2WithATrainingStatusAndLearningEarnings(TrainingStatus expectedTrainingStatus, int expectedLearningCount)
+        {
+            var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+            var dbEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+            var domainModel = ApprenticeshipLearning.Get(dbEntity!);
+            var episode = (ApprenticeshipEpisode)domainModel.GetEpisode(request.EpisodeKey);
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault(x => x.Training.CourseType == CourseType.Apprenticeship);
+            paymentsEvent.Should().NotBeNull("a payments event should have been sent");
+
+            // The latest event must reflect the current earnings profile, not an earlier version
+            paymentsEvent!.EarningsId.Should().Be(episode.EarningsProfile!.Version);
+            paymentsEvent.Training.TrainingStatus.Should().Be(expectedTrainingStatus);
+            paymentsEvent.Training.ActualEndDate.Should().Be(episode.WithdrawalDate ?? episode.CompletionDate);
+
+            var sentLearningEarnings = paymentsEvent.Earnings
+                .SelectMany(e => e.PricePeriods.SelectMany(p => p.Periods).Select(p => (e.AcademicYear, Period: p)))
+                .Where(x => x.Period.EarningType == EarningType.Learning).ToList();
+            var storedLearningInstalments = episode.EarningsProfile.Instalments.Where(x => x.Type == InstalmentType.Regular).ToList();
+
+            storedLearningInstalments.Should().HaveCount(expectedLearningCount);
+            sentLearningEarnings.Should().HaveCount(expectedLearningCount);
+            foreach (var instalment in storedLearningInstalments)
+            {
+                sentLearningEarnings.Should().ContainSingle(x => x.AcademicYear == instalment.AcademicYear && x.Period.DeliveryPeriod == instalment.DeliveryPeriod && x.Period.Amount == instalment.Amount);
+            }
+        }
+
+        [Then(@"the latest payments event is sent to pv2 with no ""(.*)"" earnings")]
+        public void ThenTheLatestPaymentsEventIsSentToPv2WithNoEarningsOfType(EarningType earningType)
+        {
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>().LastOrDefault(x => x.Training.CourseType == CourseType.Apprenticeship);
+            paymentsEvent.Should().NotBeNull("a payments event should have been sent");
+
+            paymentsEvent!.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+                .Should().NotContain(p => p.EarningType == earningType);
+        }
+
+        [Then(@"(\d+) payments events are sent to pv2 for the apprenticeship each with a different earnings id")]
+        public void ThenPaymentsEventsAreSentToPv2ForTheApprenticeshipEachWithADifferentEarningsId(int expectedCount)
+        {
+            var paymentsEvents = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+                .Where(x => x.Training.CourseType == CourseType.Apprenticeship).ToList();
+
+            paymentsEvents.Should().HaveCount(expectedCount);
+            paymentsEvents.Select(x => x.EarningsId).Distinct().Should().HaveCount(expectedCount);
         }
 
         [Then("the payments event is sent to pv2 with no earnings")]

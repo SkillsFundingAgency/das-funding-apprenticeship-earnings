@@ -23,6 +23,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public string LegalEntityName => _entity.LegalEntityName;
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
     public Types.FundingPlatform FundingPlatform => _entity.FundingPlatform;
+    public bool FurtherApprovalNeeded => _entity.FurtherApprovalNeeded;
 
     public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
     public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
@@ -112,7 +113,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
                 _earningsProfile.SetApprovalStatus(false);
             }
 
-            additionalPayments.AddRange(EarningsProfile!.PersistentAdditionalPayments());
+            additionalPayments.AddRange(AdditionalPayments.RemoveLearningSupportNotQualifying(EarningsProfile!.PersistentAdditionalPayments().ToList(), EpisodePeriodsInLearning, LastDayOfLearning));
             _earningsProfile.Update(systemClock,
                 instalments: instalments,
                 additionalPayments: additionalPayments,
@@ -159,6 +160,9 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
 
         existingAdditionalPayments.AddRange(additionalPayments);
 
+        // Learning support is not earned for learners withdrawn before the end of the qualifying period
+        AdditionalPayments.RemoveLearningSupportNotQualifying(existingAdditionalPayments, EpisodePeriodsInLearning, LastDayOfLearning);
+
         _earningsProfile!.Update(
             systemClock,
             additionalPayments: existingAdditionalPayments);
@@ -167,6 +171,18 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
         {
             HasEarningsProfileVersionUpdate = true;
         }
+    }
+
+    /// <summary>
+    /// Generates a new earnings profile version where one has not already been generated, so that payments are informed
+    /// of changes which do not affect the earnings themselves (e.g. a withdrawal which leaves the instalments unchanged).
+    /// </summary>
+    public void GenerateNewEarningsProfileVersion(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null || HasEarningsProfileVersionUpdate) return;
+
+        _earningsProfile.Update(systemClock, forceNewVersion: true);
+        HasEarningsProfileVersionUpdate = true;
     }
 
     public void RemoveAdditionalEarnings(ISystemClockService systemClock)
@@ -209,6 +225,46 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             .ToList();
         _entity.Prices.AddRange(newPrices.Select(x => x.GetEntity()));
         _prices.AddRange(newPrices);
+    }
+
+    /// <summary>
+    /// Records whether a change to this episode is waiting for further approval
+    /// </summary>
+    public void UpdateFurtherApprovalNeeded(ApprenticeshipLearning learning, bool furtherApprovalNeeded)
+    {
+        var isFlagSet = furtherApprovalNeeded && !_entity.FurtherApprovalNeeded;
+        _entity.FurtherApprovalNeeded = furtherApprovalNeeded;
+
+        if (isFlagSet && FundingPlatform is Types.FundingPlatform.DAS)
+        {
+            AddEvent(new WithholdPaymentsForLearningEvent
+            {
+                UKPRN = UKPRN,
+                ULN = long.Parse(learning.Uln),
+                LearningKey = learning.LearningKey,
+                CourseCode = TrainingCode.Trim(),
+                LearningType = Payments.EarningEvents.Messages.External.LearningType.Apprenticeship,
+                CourseType = Payments.EarningEvents.Messages.External.CourseType.Apprenticeship
+            });
+        }
+    }
+
+    /// <summary>
+    /// Clears a pending further approval once it is approved, releasing the withheld earnings
+    /// </summary>
+    public void ApplyFurtherApproval(Guid learnerKey, string learnerRef)
+    {
+        if (!_entity.FurtherApprovalNeeded) return;
+
+        _entity.FurtherApprovalNeeded = false;
+
+        AddEvent(new ApprenticeshipPayableEarningsUpdatedEvent
+        {
+            LearningKey = _entity.LearningKey,
+            EpisodeKey = EpisodeKey,
+            LearnerKey = learnerKey,
+            LearnerRef = learnerRef
+        });
     }
 
     public void UpdatePause(DateTime? pauseDate)
