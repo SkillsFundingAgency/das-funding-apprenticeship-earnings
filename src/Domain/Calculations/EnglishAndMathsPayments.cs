@@ -119,22 +119,17 @@ public static class EnglishAndMathsPayments
             !WithdrawnLearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value))
             context.Instalments.Clear();
 
-        // Special case if the withdrawal date is on/after the start date but before a census date we should make one instalment for the first month of learning
-        if (withdrawalDate.HasValue && 
-            withdrawalDate.Value >= startDate &&
+        // Remove all instalments if the learner was not in learning on a census date before withdrawing
+        if (withdrawalDate.HasValue &&
             withdrawalDate.Value < startDate.LastDayOfMonth())
-        {
-            var numberOfInstalments = CalculateNumberOfInstalments(context.FirstPaymentDate, context.LastCensusDate);
-            var monthlyAmount = context.AdjustedCourseAmount / numberOfInstalments;
-            context.Instalments.Add(CreateInstalment(context.MathsAndEnglish.Key, startDate, monthlyAmount));
-        }   
+            context.Instalments.Clear();
     }
 
     private static void ApplyLastDayOfCourseRule(InstalmentCalculationContext context)
     {
         if (context.MathsAndEnglish.ActualEndDate.HasValue)
         {
-            DeleteAfterDate(context.Instalments, context.MathsAndEnglish.ActualEndDate.Value, context.MathsAndEnglish.StartDate);
+            DeleteAfterDate(context.Instalments, context.MathsAndEnglish.ActualEndDate.Value);
         }
     }
 
@@ -147,16 +142,15 @@ public static class EnglishAndMathsPayments
 
     private static void DeleteAfterDate(
         List<EnglishAndMathsInstalmentEntity> instalments,
-        DateTime cutoff,
-        DateTime startDate)
+        DateTime cutoff)
     {
-        var instalmentsToKeep = GetEnglishAndMathsEarningsToKeep(instalments, startDate, cutoff);
+        var instalmentsToKeep = GetEnglishAndMathsEarningsToKeep(instalments, cutoff);
 
         instalments.RemoveAll(x => !instalmentsToKeep.Any(y => y.Key == x.Key));
 
     }
 
-    private static List<EnglishAndMathsInstalmentEntity> GetEnglishAndMathsEarningsToKeep(List<EnglishAndMathsInstalmentEntity> instalments, DateTime startDate, DateTime? lastDayOfLearning)
+    private static List<EnglishAndMathsInstalmentEntity> GetEnglishAndMathsEarningsToKeep(List<EnglishAndMathsInstalmentEntity> instalments, DateTime? lastDayOfLearning)
     {
         if (!lastDayOfLearning.HasValue)
         {
@@ -165,8 +159,6 @@ public static class EnglishAndMathsPayments
 
         var academicYear = lastDayOfLearning.Value.ToAcademicYear();
         var deliveryPeriod = lastDayOfLearning.Value.ToDeliveryPeriod();
-        var startAcademicYear = startDate.ToAcademicYear();
-        var startDeliveryPeriod = startDate.ToDeliveryPeriod();
 
         return instalments
             .Where(x =>
@@ -176,10 +168,7 @@ public static class EnglishAndMathsPayments
                     x.AcademicYear < academicYear //keep earnings from previous academic years
                     || x.AcademicYear == academicYear && x.DeliveryPeriod < deliveryPeriod //keep earnings from previous delivery periods in the same academic year
                     || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
-                        && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
-                    || x.AcademicYear == academicYear && x.DeliveryPeriod == deliveryPeriod
-                        && startAcademicYear == academicYear && startDeliveryPeriod == deliveryPeriod
-                        && lastDayOfLearning.Value > startDate) // special case if the withdrawal date is on/after the start date but before a census date we should keep the instalment for the first month of learning
+                        && lastDayOfLearning.Value.Day == DateTime.DaysInMonth(lastDayOfLearning.Value.Year, lastDayOfLearning.Value.Month)) //keep earnings in the last delivery period of learning if the learner is in learning on the census date
             )
             .ToList();
 

@@ -77,7 +77,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
     }
 
     [Test]
-    public void Then_A_Single_Instalment_Where_The_Withdrawal_Date_Is_Before_The_Census_Date_Is_Kept()
+    public void Then_No_Instalments_Are_Kept_Where_The_Withdrawal_Date_Is_Before_The_First_Census_Date()
     {
         // Arrange
         var withdrawalDate = new DateTime(2024, 1, 15);
@@ -88,9 +88,7 @@ public class WhenWithdrawingEnglishAndMathsCourse
         // Assert
         var course = _sut.EarningsProfile.MathsAndEnglishCourses.Single(x => x.Course == _courseName);
 
-        course.Instalments.Should().OnlyContain(x =>
-            x.AcademicYear == 2324 && x.DeliveryPeriod == 6);
-        course.Instalments.Count.Should().Be(1);
+        course.Instalments.Count.Should().Be(0);
     }
 
     [Test]
