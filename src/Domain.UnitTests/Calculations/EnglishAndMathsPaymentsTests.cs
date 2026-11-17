@@ -104,6 +104,40 @@ public class EnglishAndMathsPaymentsTests
         result.Any().Should().Be(expectedToQualifyAfterWithdrawal);
     }
 
+    [TestCase("2027-01-17", "2027-01-31", Description = "Withdrawn on a census date, qualifying period met")]
+    [TestCase("2027-01-18", "2027-02-01", Description = "Withdrawn after a census date, qualifying period met")]
+    public void GenerateMathsAndEnglishPayments_ShouldReturnOneInstalment_WhenWithdrawnOnOrAfterACensusDateAndQualifyingPeriodMet(string startDate, string withdrawalDate)
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(DateTime.Parse(startDate), new DateTime(2027, 5, 5), "E102", 400, DateTime.Parse(withdrawalDate));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        result.Should().ContainSingle();
+        result.Single().Amount.Should().Be(100);
+        result.Single().AcademicYear.Should().Be(2627);
+        result.Single().DeliveryPeriod.Should().Be(6);
+        result.Single().Type.Should().Be(EnglishAndMathsInstalmentType.Regular.ToString());
+    }
+
+    [TestCase("2027-01-19", "2027-01-31", Description = "Withdrawn on a census date, qualifying period not met")]
+    [TestCase("2027-01-20", "2027-02-01", Description = "Withdrawn after a census date, qualifying period not met")]
+    [TestCase("2027-01-01", "2027-01-13", Description = "Withdrawn before a census date, qualifying period not met")]
+    [TestCase("2027-01-01", "2027-01-15", Description = "Withdrawn before a census date, qualifying period met")]
+    public void GenerateMathsAndEnglishPayments_ShouldNotReturnAnyInstalments_WhenWithdrawnBeforeQualifyingPeriodOrBeforeACensusDate(string startDate, string withdrawalDate)
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(DateTime.Parse(startDate), new DateTime(2027, 5, 5), "E102", 400, DateTime.Parse(withdrawalDate));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
     [TestCase(20)]
     [TestCase(93)]
     [TestCase(100)]
