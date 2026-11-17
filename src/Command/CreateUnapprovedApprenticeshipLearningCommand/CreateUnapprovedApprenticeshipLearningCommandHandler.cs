@@ -5,6 +5,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 using EnglishAndMathsAdditionalPayment = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMathsAdditionalPayment;
+using AdditionalPayment = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship.AdditionalPayment;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateOnProgrammeCommand;
@@ -55,37 +56,44 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         {
             if (!IsOptedIntoEarnings(request))
             {
-                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
-
-                //remove the existing unapproved episode in this scenario instead of updating it (FLP-2012 AC5)
                 var episode = learning.GetEpisode(request.EpisodeKey);
-                if (!episode.IsApproved)
+                if (episode.IsApproved)
                 {
-                    episode.Remove(learning, _systemClock);
-                    await _learningRepository.Update(learning);
+                    _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, episode is approved so it is left unchanged", request.LearningKey);
+                    return;
                 }
 
-                return;
-            }
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, updating the episode without earnings", request.LearningKey);
 
-            UpdateAndCalculate(learning, request, fundingBandMaximum);
-            await _learningRepository.Update(learning);
+                UpdateWithoutCalculate(learning, request, fundingBandMaximum);
+                await _learningRepository.Update(learning);
+            }
+            else
+            {
+                UpdateAndCalculate(learning, request, fundingBandMaximum);
+                await _learningRepository.Update(learning);
+            }
         }
         //existing learning, new episode
         else if (learning != null)
         {
-            if (!IsOptedIntoEarnings(request))
-            {
-                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
-                return;
-            }
-
             learning.AddUnapprovedEpisode(
                 request,
                 fundingBandMaximum,
                 request.ToEpisodePeriodsInLearning());
 
-            UpdateAndCalculate(learning, request, fundingBandMaximum);
+            if (!IsOptedIntoEarnings(request))
+            {
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, storing the new episode without earnings", request.LearningKey);
+
+                // the new episode's FundingPlatform defaults to SLD
+                UpdateWithoutCalculate(learning, request, fundingBandMaximum);
+            }
+            else
+            {
+                UpdateAndCalculate(learning, request, fundingBandMaximum);
+            }
+
             await _learningRepository.Update(learning);
         }
         //new learning & episode
@@ -93,7 +101,16 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         {
             if (!IsOptedIntoEarnings(request))
             {
-                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}", request.LearningKey);
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, storing it without earnings", request.LearningKey);
+
+                var optedOutLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum, FundingPlatform.SLD);
+
+                UpdateWithoutCalculate(optedOutLearning, request, fundingBandMaximum);
+                await _learningRepository.Add(optedOutLearning);
+
+                _logger.LogInformation(
+                    "Successfully handled CreateUnapprovedApprenticeshipLearningCommand for learning {LearningKey}",
+                    request.LearningKey);
                 return;
             }
 
@@ -120,7 +137,45 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
         return _apprenticeshipOptInConfiguration.PaymentsOptedInProviders.Contains(request.OnProgramme.Ukprn);
     }
 
+    /// <summary>
+    /// Opted in: updates the learning, calculates the on-programme earnings, then English and Maths and Learning Support with earnings.
+    /// </summary>
     private void UpdateAndCalculate(
+        ApprenticeshipLearning learning,
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum)
+    {
+        UpdateLearningInformation(learning, request, fundingBandMaximum);
+
+        learning.Calculate(
+            _systemClock,
+            JsonSerializer.Serialize(request),
+            request.EpisodeKey,
+            initialGenerationIsApproved: false);
+
+        var episode = learning.GetEpisode(request.EpisodeKey);
+        episode.UpdateEnglishAndMaths(BuildEnglishAndMathsCourses(request, calculate: true), _systemClock);
+        episode.AddAdditionalEarnings(GenerateLearningSupport(request.LearningSupport, calculate: true), InstalmentTypes.LearningSupport, _systemClock);
+    }
+
+    /// <summary>
+    /// Opted out: updates the learning and stores a blank earnings profile, with English and Maths and Learning Support
+    /// stored but no earnings calculated.
+    /// </summary>
+    private void UpdateWithoutCalculate(
+        ApprenticeshipLearning learning,
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum)
+    {
+        UpdateLearningInformation(learning, request, fundingBandMaximum);
+
+        var episode = learning.GetEpisode(request.EpisodeKey);
+        episode.UpdateWithoutCalculating(learning, _systemClock);
+        episode.UpdateEnglishAndMaths(BuildEnglishAndMathsCourses(request, calculate: false), _systemClock);
+        episode.AddAdditionalEarnings(GenerateLearningSupport(request.LearningSupport, calculate: false), InstalmentTypes.LearningSupport, _systemClock);
+    }
+
+    private void UpdateLearningInformation(
         ApprenticeshipLearning learning,
         CreateUnapprovedApprenticeshipLearningRequest request,
         int fundingBandMaximum)
@@ -130,53 +185,60 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
             fundingBandMaximum,
             request.ToEpisodePeriodsInLearning(),
             _systemClock);
-
-        learning.Calculate(
-            _systemClock,
-            JsonSerializer.Serialize(request),
-            request.EpisodeKey,
-            initialGenerationIsApproved: false);
-
-        var episode = learning.GetEpisode(request.EpisodeKey);
-        episode.UpdateEnglishAndMaths(BuildEnglishAndMathsCourses(request), _systemClock);
-
-        var learningSupportPayments = request.LearningSupport
-            .SelectMany(x => LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
-            .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
-            .ToList();
-
-        episode.AddAdditionalEarnings(learningSupportPayments, InstalmentTypes.LearningSupport, _systemClock);
     }
 
-    private static List<EnglishAndMathsDomainModel> BuildEnglishAndMathsCourses(CreateUnapprovedApprenticeshipLearningRequest request)
+    private static List<AdditionalPayment> GenerateLearningSupport(IEnumerable<LearningSupportItem> learningSupport, bool calculate)
+    {
+        return learningSupport
+            .SelectMany(x => calculate
+                ? LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate)
+                : LearningSupportPayments.GenerateLearningSupportPaymentsWithoutEarnings(x.StartDate, x.EndDate))
+            .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+            .ToList();
+    }
+
+    private static List<EnglishAndMathsDomainModel> BuildEnglishAndMathsCourses(CreateUnapprovedApprenticeshipLearningRequest request, bool calculate)
     {
         var courses = new List<EnglishAndMathsDomainModel>();
 
         foreach (var detail in request.EnglishAndMaths)
         {
-            var learningSupportPayments = detail.LearningSupport
-                .SelectMany(x => LearningSupportPayments.GenerateLearningSupportPayments(x.StartDate, x.EndDate))
-                .DistinctBy(x => new { x.AcademicYear, x.DeliveryPeriod, x.DueDate })
+            var learningSupportPayments = GenerateLearningSupport(detail.LearningSupport, calculate)
                 .Select(p => new EnglishAndMathsAdditionalPayment(p.AcademicYear, p.DeliveryPeriod, p.Amount, p.DueDate, p.AdditionalPaymentType))
                 .ToList();
 
-            courses.Add(new EnglishAndMathsDomainModel(
-                detail.StartDate,
-                detail.EndDate,
-                detail.Course,
-                detail.LearnAimRef,
-                detail.Amount,
-                detail.WithdrawalDate,
-                detail.CompletionDate,
-                detail.PauseDate,
-                detail.CombinedFundingAdjustmentPercentage,
-                detail.PeriodsInLearning.Select(x => new PeriodInLearningItem
-                {
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
-                    OriginalExpectedEndDate = x.OriginalExpectedEndDate
-                }),
-                learningSupportPayments));
+            var periodsInLearning = detail.PeriodsInLearning.Select(x => new PeriodInLearningItem
+            {
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                OriginalExpectedEndDate = x.OriginalExpectedEndDate
+            }).ToList();
+
+            courses.Add(calculate
+                ? new EnglishAndMathsDomainModel(
+                    detail.StartDate,
+                    detail.EndDate,
+                    detail.Course,
+                    detail.LearnAimRef,
+                    detail.Amount,
+                    detail.WithdrawalDate,
+                    detail.CompletionDate,
+                    detail.PauseDate,
+                    detail.CombinedFundingAdjustmentPercentage,
+                    periodsInLearning,
+                    learningSupportPayments)
+                : EnglishAndMathsDomainModel.CreateWithoutEarnings(
+                    detail.StartDate,
+                    detail.EndDate,
+                    detail.Course,
+                    detail.LearnAimRef,
+                    detail.Amount,
+                    detail.WithdrawalDate,
+                    detail.CompletionDate,
+                    detail.PauseDate,
+                    detail.CombinedFundingAdjustmentPercentage,
+                    periodsInLearning,
+                    learningSupportPayments));
         }
 
         return courses;
