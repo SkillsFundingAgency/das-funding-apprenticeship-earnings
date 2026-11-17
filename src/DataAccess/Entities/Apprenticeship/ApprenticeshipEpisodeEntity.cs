@@ -21,6 +21,14 @@ public class ApprenticeshipEpisodeEntity : BaseEpisodeEntity
     public Types.FundingPlatform FundingPlatform { get; set; } = Types.FundingPlatform.SLD;
     public bool FurtherApprovalNeeded { get; set; }
 
+    /// <summary>
+    /// True when earnings are calculated and paid via the Earn and Pay calculation (opted in).
+    /// False when the episode is only stored, with a blank earnings profile (opted out).
+    /// Deliberately not configured with HasDefaultValue in the DbContext: for a non-nullable bool EF treats
+    /// false as "not set" and would write the database default (true) instead of false.
+    /// </summary>
+    public bool UsingEarnAndPayCalc { get; set; } = true;
+
     public ApprenticeshipEpisodeEntity()
     {
     }

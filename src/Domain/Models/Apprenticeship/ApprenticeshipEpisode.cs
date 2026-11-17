@@ -24,6 +24,7 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     public long? FundingEmployerAccountId => _entity.FundingEmployerAccountId;
     public Types.FundingPlatform FundingPlatform => _entity.FundingPlatform;
     public bool FurtherApprovalNeeded => _entity.FurtherApprovalNeeded;
+    public bool UsingEarnAndPayCalc => _entity.UsingEarnAndPayCalc;
 
     public IReadOnlyCollection<ApprenticeshipPrice> Prices => new ReadOnlyCollection<ApprenticeshipPrice>(_prices);
     public IReadOnlyCollection<ApprenticeshipPeriodInLearning> EpisodePeriodsInLearning => new ReadOnlyCollection<ApprenticeshipPeriodInLearning>(_periodsInLearning);
@@ -74,6 +75,66 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
             completionPayment: 0m,
             calculationData: "{}");
         UpdatePeriodsInLearning([]);
+    }
+
+    /// <summary>
+    /// Update (store only): creates an earnings profile with no earnings for an episode that is not using the Earn and Pay calculation (opted out),
+    /// so that English and Maths and Learning Support can still be stored against it. Marks the episode as not using the calculation.
+    /// Use <see cref="CalculateOnProgramme"/> to generate earnings.
+    /// </summary>
+    public void CreateBlankEarningsProfile(bool isApproved)
+    {
+        if (_earningsProfile != null)
+        {
+            throw new InvalidOperationException($"Episode {EpisodeKey} already has an earnings profile.");
+        }
+
+        _entity.UsingEarnAndPayCalc = false;
+
+        _earningsProfile = this.CreateEarningsProfile(0m, [], [], [], 0m, EpisodeKey, isApproved, "{}");
+        _entity.EarningsProfile = _earningsProfile.GetModel();
+    }
+
+    /// <summary>
+    /// Update (store only) for an episode that is not using the Earn and Pay calculation (opted out).
+    /// With no earnings profile yet, a blank one is created. With an existing unapproved profile, any calculated earnings are cleared
+    /// (raising <see cref="ApprenticeshipEarningsRecalculatedEvent"/> only if there were earnings to clear) and the episode is marked as
+    /// not using the calculation. An episode already stored without earnings is left as it is.
+    /// </summary>
+    public void UpdateWithoutCalculating(ApprenticeshipLearning learning, ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null)
+        {
+            CreateBlankEarningsProfile(isApproved: false);
+            return;
+        }
+
+        if (_earningsProfile.IsApproved)
+        {
+            throw new InvalidOperationException($"Episode {EpisodeKey} is approved, its earnings cannot be cleared.");
+        }
+
+        _entity.UsingEarnAndPayCalc = false;
+
+        var hadEarnings = _earningsProfile.Instalments.Any()
+                          || _earningsProfile.AdditionalPayments.Any()
+                          || _earningsProfile.MathsAndEnglishCourses.Any()
+                          || _earningsProfile.OnProgramTotal != 0m
+                          || _earningsProfile.CompletionPayment != 0m;
+
+        if (!hadEarnings) return;
+
+        _entity.IsRemoved = false;
+        _earningsProfile.Update(
+            systemClock,
+            instalments: [],
+            additionalPayments: [],
+            mathsAndEnglishCourses: [],
+            onProgramTotal: 0m,
+            completionPayment: 0m,
+            calculationData: "{}");
+
+        AddEvent(this.CreateApprenticeshipEarningsRecalculatedEvent(learning.LearningKey));
     }
 
     public void CalculateOnProgramme(ApprenticeshipLearning learning, ISystemClockService systemClock, string calculationData, bool initialGenerationIsApproved = true)
