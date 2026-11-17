@@ -131,8 +131,7 @@ Scenario: English and Maths completed on a census date after the qualifying peri
 		| 2027-01-17 | 2027-05-05 | Maths1 | Maths1      | 400    | 2027-01-31     |
 	Then english and maths instalments are persisted as follows
 		| Course | Amount | AcademicYear | DeliveryPeriod | Type      |
-		| Maths1 | 100    | 2627         | 6              | Regular   |
-		| Maths1 | 300    | 2627         | 6              | Balancing |
+		| Maths1 | 400    | 2627         | 6              | Balancing |
 
 Scenario: English and Maths completed after a census date after the qualifying period
 	Given an apprenticeship has been created with the following information

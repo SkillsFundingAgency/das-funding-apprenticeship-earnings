@@ -94,8 +94,10 @@ public static class EnglishAndMathsPayments
 
         var completionCensusDate = mathsAndEnglish.CompletionDate.Value.LastDayOfMonth();
         var completionIsOnCensusDate = mathsAndEnglish.CompletionDate.Value.Date == completionCensusDate.Date;
+        var completedInFirstMonth = completionCensusDate.Date == mathsAndEnglish.StartDate.LastDayOfMonth().Date;
 
-        var paymentDateToAdjust = completionIsOnCensusDate
+        // A completion in the first month is paid as a single balancing instalment, even on the census date
+        var paymentDateToAdjust = completionIsOnCensusDate && !completedInFirstMonth
             ? completionCensusDate.AddMonths(1).LastDayOfMonth()
             : completionCensusDate;
 

@@ -184,13 +184,12 @@ public class EnglishAndMathsPaymentsTests
         var result = EnglishAndMathsPayments.GenerateInstalments(course);
 
         // Assert
-        result.Should().NotBeEmpty();
-        result.Should().AllSatisfy(x =>
-        {
-            x.AcademicYear.Should().Be(2627);
-            x.DeliveryPeriod.Should().Be(6);
-        });
-        result.Sum(x => x.Amount).Should().Be(400);
+        result.Should().ContainSingle();
+        var balancing = result.Single();
+        balancing.Type.Should().Be(EnglishAndMathsInstalmentType.Balancing.ToString());
+        balancing.Amount.Should().Be(400);
+        balancing.AcademicYear.Should().Be(2627);
+        balancing.DeliveryPeriod.Should().Be(6);
     }
 
     [Test]
