@@ -146,6 +146,18 @@ public class EnglishAndMathsStepDefinitions
         }, "English and maths earnings history was not archived for the latest version of each course");
     }
 
+    [Then(@"(\d+) english and maths learning support payments are persisted")]
+    public async Task ThenEnglishAndMathsLearningSupportPaymentsArePersisted(int expectedCount)
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+
+        var updatedEntity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+
+        var learningSupportInDb = updatedEntity.Episodes.First().EarningsProfile.EnglishAndMathsCourses.SelectMany(x => x.AdditionalPayments);
+
+        learningSupportInDb.Should().HaveCount(expectedCount);
+    }
+
     [Then(@"no english and maths earnings are persisted")]
     public async Task ThenNoMathsAndEnglishInstalmentsArePersisted()
     {

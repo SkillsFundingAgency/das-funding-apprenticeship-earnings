@@ -44,6 +44,8 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
     public CalculateGrowthAndSkillsPayments BuildForEnglishAndMaths(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
         EnglishAndMathsDomainModel course, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
     {
+        var courseEndDates = course.GetEffectiveEndDates(episode.IsApproved ? episode.WithdrawalDate : null);
+
         return new CalculateGrowthAndSkillsPayments
         {
             EarningsId = course.Version,
@@ -59,8 +61,8 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = course.StartDate,
                 PlannedEndDate = course.EndDate,
-                ActualEndDate = course.WithdrawalDate ?? course.CompletionDate,
-                TrainingStatus = GetTrainingStatus(course.WithdrawalDate, course.CompletionDate, episode.PauseDate)
+                ActualEndDate = courseEndDates.WithdrawalDate ?? courseEndDates.CompletionDate,
+                TrainingStatus = GetTrainingStatus(courseEndDates.WithdrawalDate, courseEndDates.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
             Earnings = BuildEnglishAndMathsEarnings(episode, course, learning, employerAccountId, fundingAccountId)

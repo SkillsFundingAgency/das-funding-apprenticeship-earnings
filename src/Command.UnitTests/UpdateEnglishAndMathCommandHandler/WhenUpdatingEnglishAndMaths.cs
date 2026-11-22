@@ -150,13 +150,46 @@ public class WhenUpdatingEnglishAndMaths
         result.ReinstatedCourseKeys.Should().BeEmpty();
     }
 
-    private ApprenticeshipLearning BuildLearning()
+    [TestCase(true, 5, Description = "Approved apprenticeship withdrawn on 15 June 2024 - January to May earned")]
+    [TestCase(false, 12, Description = "Unapproved apprenticeship withdrawal is not applied")]
+    public async Task ThenTheApprenticeshipWithdrawalIsAppliedToTheCourseOnlyWhenApproved(bool isApproved, int expectedInstalments)
+    {
+        // Arrange
+        var learningDomainModel = BuildLearning(new DateTime(2024, 6, 15), isApproved);
+
+        SetupMocks();
+
+        var command = BuildCommand(learningDomainModel);
+        var item = command.EnglishAndMathsDetails.Single();
+        item.PeriodsInLearning = [new UpdateOnProgrammeCommand.PeriodInLearningItem { StartDate = item.StartDate, EndDate = item.EndDate, OriginalExpectedEndDate = item.EndDate }];
+
+        _mockRepository
+            .Setup(x => x.GetApprenticeshipLearning(command.LearningKey))
+            .ReturnsAsync(learningDomainModel);
+
+        var sut = new UpdateEnglishAndMathsCommandHandler(
+            _mockLogger.Object,
+            _mockRepository.Object,
+            _mockSystemClock.Object
+        );
+
+        // Act
+        await sut.Handle(command);
+
+        // Assert
+        var course = learningDomainModel.GetCurrentEpisode(_mockSystemClock.Object).EarningsProfile!.MathsAndEnglishCourses.Single();
+        course.Instalments.Should().HaveCount(expectedInstalments);
+        course.WithdrawalDate.Should().BeNull("the ILR withdrawal date of the course is kept as provided");
+    }
+
+    private ApprenticeshipLearning BuildLearning(DateTime? apprenticeshipWithdrawalDate = null, bool isApproved = false)
     {
         var learningEntity = _fixture.Create<ApprenticeshipLearningEntity>();
         learningEntity.Episodes = [new ApprenticeshipEpisodeEntity(learningEntity.LearningKey, _fixture.Create<LearningEpisode>(), _fixture.Create<int>(), null){ EarningsProfile = new ApprenticeshipEarningsProfileEntity
         {
-            EnglishAndMathsCourses = new List<EnglishAndMathsEntity>()
-        }}];
+            EnglishAndMathsCourses = new List<EnglishAndMathsEntity>(),
+            IsApproved = isApproved
+        }, WithdrawalDate = apprenticeshipWithdrawalDate }];
         return ApprenticeshipLearning.Get(learningEntity);
     }
 

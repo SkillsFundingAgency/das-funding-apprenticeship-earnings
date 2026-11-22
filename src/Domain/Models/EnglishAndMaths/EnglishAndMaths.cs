@@ -48,7 +48,8 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
         DateTime? pauseDate,
         decimal? combinedFundingAdjustmentPercentage,
         IEnumerable<IPeriodInLearning> periodsInLearning,
-        IEnumerable<EnglishAndMathsAdditionalPayment>? additionalPayments = null)
+        IEnumerable<EnglishAndMathsAdditionalPayment>? additionalPayments = null,
+        DateTime? apprenticeshipWithdrawalDate = null)
     {
         _entity = new EnglishAndMathsEntity();
         _entity.Key = Guid.NewGuid();
@@ -70,10 +71,17 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
             EndDate = pil.EndDate,
             OriginalExpectedEndDate = pil.OriginalExpectedEndDate
         }).ToList();
-        _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
+        _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this, apprenticeshipWithdrawalDate);
 
-        var withdrawnBeforeQualifying = withdrawalDate.HasValue && !EnglishAndMathsPayments.LearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value);
-        _entity.AdditionalPayments = (withdrawnBeforeQualifying ? [] : (additionalPayments ?? []).ToList()).ToModels<EnglishAndMathsAdditionalPayment, EnglishAndMathsAdditionalPaymentEntity>();
+        var effectiveWithdrawalDate = GetEffectiveEndDates(apprenticeshipWithdrawalDate).WithdrawalDate;
+        var withdrawnBeforeQualifying = effectiveWithdrawalDate.HasValue && !EnglishAndMathsPayments.LearnerQualifiesForEarnings(startDate, endDate, effectiveWithdrawalDate.Value);
+        // Learning support for a course withdrawn in the ILR is already limited to its withdrawal date, whereas a course
+        // treated as withdrawn because of the apprenticeship withdrawal needs limiting here
+        var withdrawnWithApprenticeship = effectiveWithdrawalDate.HasValue && effectiveWithdrawalDate != withdrawalDate;
+        var learningSupport = (additionalPayments ?? [])
+            .Where(x => !withdrawnWithApprenticeship || x.DueDate <= effectiveWithdrawalDate!.Value)
+            .ToList();
+        _entity.AdditionalPayments = (withdrawnBeforeQualifying ? [] : learningSupport).ToModels<EnglishAndMathsAdditionalPayment, EnglishAndMathsAdditionalPaymentEntity>();
 
         _instalments = _entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
         _additionalPayments = _entity.AdditionalPayments.Select(EnglishAndMathsAdditionalPayment.Get).ToList();
@@ -87,6 +95,40 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
     public static EnglishAndMaths Get(EnglishAndMathsEntity model)
     {
         return new EnglishAndMaths(model);
+    }
+
+    /// <summary>
+    /// When the apprenticeship is withdrawn, the course is treated as withdrawn on the same date, unless it was already
+    /// completed or withdrawn on or before that date. A completion after the apprenticeship withdrawal no longer applies.
+    /// </summary>
+    public EnglishAndMathsEndDates GetEffectiveEndDates(DateTime? apprenticeshipWithdrawalDate)
+    {
+        var ownEndDates = new EnglishAndMathsEndDates(WithdrawalDate, CompletionDate);
+
+        if (!apprenticeshipWithdrawalDate.HasValue)
+            return ownEndDates;
+
+        if (CompletionDate.HasValue && CompletionDate.Value <= apprenticeshipWithdrawalDate.Value)
+            return ownEndDates;
+
+        if (WithdrawalDate.HasValue && WithdrawalDate.Value <= apprenticeshipWithdrawalDate.Value)
+            return ownEndDates;
+
+        return new EnglishAndMathsEndDates(apprenticeshipWithdrawalDate.Value, null);
+    }
+
+    /// <summary>
+    /// Recalculates the course from its stored details against the given apprenticeship withdrawal date (or none).
+    /// The course's own dates are kept as provided in the ILR, so removing the apprenticeship withdrawal restores its instalments.
+    /// </summary>
+    public EnglishAndMaths WithApprenticeshipWithdrawal(DateTime? apprenticeshipWithdrawalDate)
+    {
+        var additionalPayments = AdditionalPayments
+            .Select(x => new EnglishAndMathsAdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.AdditionalPaymentType))
+            .ToList();
+
+        return new EnglishAndMaths(StartDate, EndDate, Course, LearnAimRef, Amount, WithdrawalDate, CompletionDate, PauseDate,
+            CombinedFundingAdjustmentPercentage, PeriodsInLearning, additionalPayments, apprenticeshipWithdrawalDate);
     }
 
     public bool AreSame(EnglishAndMathsEntity? compare)

@@ -174,3 +174,35 @@ Scenario: Withdrawn apprenticeship which has not been approved is not sent for p
 		| WithdrawalDate | 2021-03-31 |
 	And the earnings are released to payments
 	Then no payments event is sent to pv2
+
+Scenario: Withdrawn approved apprenticeship sends its english and maths course to pv2 as withdrawn with earnings up to the withdrawal date
+	Given an apprenticeship has been created as a draft with the following information
+		| StartDate  | EndDate    | TotalPrice |
+		| 2026-10-01 | 2027-07-31 |       5000 |
+	And the following english and maths course information is provided
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    |    700 |
+	And the english and maths course has the following learning support
+		| StartDate  | EndDate    |
+		| 2026-10-01 | 2027-05-15 |
+	And a LearningApproved event is received for the apprenticeship
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2027-02-10 |
+	And the earnings are released to payments
+	Then the english and maths course "English1" is sent to pv2 with a training status of "Withdrawn" and 4 earnings
+	And the english and maths payments event is sent to pv2 with 4 learning support earnings matching the stored learning support
+
+Scenario: Withdrawn approved apprenticeship leaves an english and maths course completed before the withdrawal as completed in pv2
+	Given an apprenticeship has been created as a draft with the following information
+		| StartDate  | EndDate    | TotalPrice |
+		| 2026-10-01 | 2027-07-31 |       5000 |
+	And the following english and maths course information is provided
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount | CompletionDate |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    |    700 | 2027-01-20     |
+	And a LearningApproved event is received for the apprenticeship
+	When the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2027-02-10 |
+	And the earnings are released to payments
+	Then the english and maths course "English1" is sent to pv2 with a training status of "Completed" and 4 earnings

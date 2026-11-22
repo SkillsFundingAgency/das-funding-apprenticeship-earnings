@@ -6,19 +6,21 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 public static class EnglishAndMathsPayments
 {
-    public static List<EnglishAndMathsInstalmentEntity> GenerateInstalments(EnglishAndMaths englishAndMaths)
+    public static List<EnglishAndMathsInstalmentEntity> GenerateInstalments(EnglishAndMaths englishAndMaths, DateTime? apprenticeshipWithdrawalDate = null)
     {
         if (IsInvalidCourse(englishAndMaths))
             return [];
 
-        if (CompletedBeforeEndOfQualifyingPeriod(englishAndMaths))
+        var endDates = englishAndMaths.GetEffectiveEndDates(apprenticeshipWithdrawalDate);
+
+        if (CompletedBeforeEndOfQualifyingPeriod(englishAndMaths, endDates.CompletionDate))
             return [];
 
         // If the course dates don't span a census date (i.e. course only exists in one month and ends before the census date), we still want to pay for that course in a single instalment for that month
         if (IsSingleMonthCourse(englishAndMaths))
             return [CreateInstalment(englishAndMaths.Key, englishAndMaths.EndDate, englishAndMaths.Amount)];
 
-        var context = BuildCalculationContext(englishAndMaths);
+        var context = BuildCalculationContext(englishAndMaths, endDates);
 
         GenerateMonthlyInstalments(context);
         ApplyEarlyCompletionAdjustment(context);
@@ -33,10 +35,10 @@ public static class EnglishAndMathsPayments
         return mathsAndEnglish.StartDate > mathsAndEnglish.EndDate;
     }
 
-    private static bool CompletedBeforeEndOfQualifyingPeriod(EnglishAndMaths englishAndMaths)
+    private static bool CompletedBeforeEndOfQualifyingPeriod(EnglishAndMaths englishAndMaths, DateTime? completionDate)
     {
-        return englishAndMaths.CompletionDate.HasValue &&
-               !LearnerQualifiesForEarnings(englishAndMaths.StartDate, englishAndMaths.EndDate, englishAndMaths.CompletionDate.Value);
+        return completionDate.HasValue &&
+               !LearnerQualifiesForEarnings(englishAndMaths.StartDate, englishAndMaths.EndDate, completionDate.Value);
     }
 
     private static bool IsSingleMonthCourse(EnglishAndMaths mathsAndEnglish)
@@ -44,7 +46,7 @@ public static class EnglishAndMathsPayments
         return mathsAndEnglish.StartDate.Month == mathsAndEnglish.EndDate.Month && mathsAndEnglish.StartDate.Year == mathsAndEnglish.EndDate.Year;
     }
 
-    private static InstalmentCalculationContext BuildCalculationContext(EnglishAndMaths mathsAndEnglish)
+    private static InstalmentCalculationContext BuildCalculationContext(EnglishAndMaths mathsAndEnglish, EnglishAndMathsEndDates endDates)
     {
         var lastCensusDate = mathsAndEnglish.EndDate.LastCensusDate();
         var paymentDate = mathsAndEnglish.StartDate.LastDayOfMonth();
@@ -56,6 +58,7 @@ public static class EnglishAndMathsPayments
 
         return new InstalmentCalculationContext(
             mathsAndEnglish,
+            endDates,
             lastCensusDate,
             paymentDate,
             adjustedAmount
@@ -87,13 +90,14 @@ public static class EnglishAndMathsPayments
     private static void ApplyEarlyCompletionAdjustment(InstalmentCalculationContext context)
     {
         var mathsAndEnglish = context.MathsAndEnglish;
+        var completionDate = context.CompletionDate;
 
-        if (!mathsAndEnglish.CompletionDate.HasValue ||
-            mathsAndEnglish.CompletionDate >= mathsAndEnglish.EndDate)
+        if (!completionDate.HasValue ||
+            completionDate >= mathsAndEnglish.EndDate)
             return;
 
-        var completionCensusDate = mathsAndEnglish.CompletionDate.Value.LastDayOfMonth();
-        var completionIsOnCensusDate = mathsAndEnglish.CompletionDate.Value.Date == completionCensusDate.Date;
+        var completionCensusDate = completionDate.Value.LastDayOfMonth();
+        var completionIsOnCensusDate = completionDate.Value.Date == completionCensusDate.Date;
         var completedInFirstMonth = completionCensusDate.Date == mathsAndEnglish.StartDate.LastDayOfMonth().Date;
 
         // A completion in the first month is paid as a single balancing instalment, even on the census date
@@ -123,7 +127,7 @@ public static class EnglishAndMathsPayments
     {
         var startDate = context.MathsAndEnglish.StartDate;
         var endDate = context.MathsAndEnglish.EndDate;
-        var withdrawalDate = context.MathsAndEnglish.WithdrawalDate;
+        var withdrawalDate = context.WithdrawalDate;
 
         // Remove all instalments if the withdrawal date is before the end of the qualifying period
         if (withdrawalDate.HasValue && 
@@ -138,9 +142,9 @@ public static class EnglishAndMathsPayments
 
     private static void ApplyLastDayOfCourseRule(InstalmentCalculationContext context)
     {
-        if (context.MathsAndEnglish.ActualEndDate.HasValue)
+        if (context.ActualEndDate.HasValue)
         {
-            DeleteAfterDate(context.Instalments, context.MathsAndEnglish.ActualEndDate.Value);
+            DeleteAfterDate(context.Instalments, context.ActualEndDate.Value);
         }
     }
 
@@ -207,6 +211,9 @@ internal class InstalmentCalculationContext
 {
     internal List<EnglishAndMathsInstalmentEntity> Instalments { get; } = new List<EnglishAndMathsInstalmentEntity>();
     internal EnglishAndMaths MathsAndEnglish { get; private set; }
+    internal DateTime? WithdrawalDate { get; private set; }
+    internal DateTime? CompletionDate { get; private set; }
+    internal DateTime? ActualEndDate => WithdrawalDate ?? CompletionDate ?? MathsAndEnglish.PauseDate;
     internal DateTime LastCensusDate { get; private set; }
     internal DateTime FirstPaymentDate { get; private set; }
 
@@ -216,9 +223,11 @@ internal class InstalmentCalculationContext
 
     internal decimal AmountOutStanding => _adjustedCourseAmount - Instalments.Sum(x => x.Amount);
 
-    internal InstalmentCalculationContext(EnglishAndMaths mathsAndEnglish, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
+    internal InstalmentCalculationContext(EnglishAndMaths mathsAndEnglish, EnglishAndMathsEndDates endDates, DateTime lastCensusDate, DateTime firstPaymentDate, decimal adjustedCourseTotal)
     {
         MathsAndEnglish = mathsAndEnglish;
+        WithdrawalDate = endDates.WithdrawalDate;
+        CompletionDate = endDates.CompletionDate;
         LastCensusDate = lastCensusDate;
         FirstPaymentDate = firstPaymentDate;
         _adjustedCourseAmount = adjustedCourseTotal;

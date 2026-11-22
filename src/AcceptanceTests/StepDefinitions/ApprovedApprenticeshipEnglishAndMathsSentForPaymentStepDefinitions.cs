@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Extensions;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.ReleaseEarningsCommand;
@@ -76,6 +76,22 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.StepDefinitions
 
             releasedEvents.Should().NotBeEmpty("the on-programme earnings should still be released");
             releasedEvents.Should().NotContain(e => e.Training.LearningType == LearningType.MathsAndEnglish);
+        }
+
+        [Then(@"the english and maths course ""(.*)"" is sent to pv2 with a training status of ""(.*)"" and (\d+) earnings")]
+        public async Task ThenTheEnglishAndMathsCourseIsSentToPv2WithATrainingStatusAndEarnings(string learnAimRef, TrainingStatus expectedStatus, int expectedEarnings)
+        {
+            var course = await GetEnglishAndMathsCourse(learnAimRef);
+
+            var paymentsEvent = _testContext.MessageSession.ReceivedEvents<CalculateGrowthAndSkillsPayments>()
+                .LastOrDefault(e => e.Training.LearningType == LearningType.MathsAndEnglish && e.Training.CourseReference == learnAimRef);
+            paymentsEvent.Should().NotBeNull($"expected the english and maths course {learnAimRef} to be sent to pv2");
+
+            paymentsEvent!.EarningsId.Should().Be(course.Version);
+            paymentsEvent.Training.TrainingStatus.Should().Be(expectedStatus);
+            paymentsEvent.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods)
+                .Where(p => p.EarningType != EarningType.LearningSupport)
+                .Should().HaveCount(expectedEarnings);
         }
 
         [Then(@"the english and maths course ""(.*)"" is sent to pv2 with a new earnings version")]

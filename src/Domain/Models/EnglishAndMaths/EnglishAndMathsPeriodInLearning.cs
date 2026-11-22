@@ -1,8 +1,9 @@
 ﻿using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.EnglishAndMaths;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Interfaces;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 
-public class EnglishAndMathsPeriodInLearning
+public class EnglishAndMathsPeriodInLearning : IPeriodInLearning
 {
     private EnglishAndMathsPeriodInLearningEntity _entity;
 

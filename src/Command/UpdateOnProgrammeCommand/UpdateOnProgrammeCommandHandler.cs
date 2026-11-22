@@ -49,6 +49,11 @@ public class UpdateOnProgrammeCommandHandler : ICommandHandler<UpdateOnProgramme
         ExecuteAndLog(() => episode.UpdateCompletion(request.CompletionDate), "update Completion");
         ExecuteAndLog(() => episode.UpdateAchievementDate(request.AchievementDate), "update Achievement");
         ExecuteAndLog(() => episode.UpdateWithdrawalDate(request.WithdrawalDate, _systemClock), "update Withdrawal");
+
+        if (withdrawalDateChanged)
+        {
+            ExecuteAndLog(() => episode.ApplyWithdrawalToEnglishAndMaths(_systemClock), "apply Withdrawal to English and Maths");
+        }
         ExecuteAndLog(() => episode.UpdateFurtherApprovalNeeded(learningDomainModel, request.FurtherApprovalRequired), "update FurtherApprovalNeeded");
 
         if (request.IncludesFundingBandMaximumUpdate)
