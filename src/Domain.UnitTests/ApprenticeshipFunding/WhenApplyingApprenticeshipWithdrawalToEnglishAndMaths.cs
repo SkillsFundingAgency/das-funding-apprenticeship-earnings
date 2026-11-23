@@ -16,7 +16,7 @@ using System.Linq;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.ApprenticeshipFunding;
 
 /// <summary>
-/// English and maths courses on an approved apprenticeship are treated as withdrawn when the apprenticeship is withdrawn,
+/// English and maths courses on an apprenticeship (approved or not) are treated as withdrawn when the apprenticeship is withdrawn,
 /// unless they were completed (or withdrawn) on or before the apprenticeship withdrawal date
 /// </summary>
 [TestFixture]
@@ -141,7 +141,7 @@ public class WhenApplyingApprenticeshipWithdrawalToEnglishAndMaths
     }
 
     [Test]
-    public void ThenCoursesOnAnUnapprovedApprenticeshipAreNotRecalculated()
+    public void ThenCoursesOnAnUnapprovedApprenticeshipAreRecalculatedWhenTheApprenticeshipIsWithdrawn()
     {
         // Arrange
         var (_, episode) = CreateApprenticeshipWithCourse(isApproved: false);
@@ -151,7 +151,10 @@ public class WhenApplyingApprenticeshipWithdrawalToEnglishAndMaths
         episode.ApplyWithdrawalToEnglishAndMaths(_mockSystemClock.Object);
 
         // Assert
-        episode.EarningsProfile!.MathsAndEnglishCourses.Single().Instalments.Should().HaveCount(7);
+        var course = episode.EarningsProfile!.MathsAndEnglishCourses.Single();
+        course.Instalments.Select(x => (int)x.DeliveryPeriod).Should().BeEquivalentTo(new[] { 3, 4, 5, 6 });
+        course.AdditionalPayments.Should().HaveCount(4);
+        course.WithdrawalDate.Should().BeNull("the ILR withdrawal date of the course is kept as provided");
     }
 
     [Test]

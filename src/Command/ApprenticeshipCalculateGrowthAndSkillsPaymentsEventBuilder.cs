@@ -44,7 +44,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
     public CalculateGrowthAndSkillsPayments BuildForEnglishAndMaths(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
         EnglishAndMathsDomainModel course, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
     {
-        var courseEndDates = course.GetEffectiveEndDates(episode.IsApproved ? episode.WithdrawalDate : null);
+        var courseEndDates = course.GetEffectiveEndDates(episode.WithdrawalDate);
 
         return new CalculateGrowthAndSkillsPayments
         {

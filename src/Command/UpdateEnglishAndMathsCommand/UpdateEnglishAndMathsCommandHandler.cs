@@ -49,8 +49,8 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
 
         var currentEpisode = learningDomainModel.GetCurrentEpisode(_systemClock);
 
-        // Courses on an approved apprenticeship that has been withdrawn are treated as withdrawn on the same date
-        var apprenticeshipWithdrawalDate = currentEpisode.IsApproved ? currentEpisode.WithdrawalDate : null;
+        // Courses on an apprenticeship that has been withdrawn (approved or not) are treated as withdrawn on the same date
+        var apprenticeshipWithdrawalDate = currentEpisode.WithdrawalDate;
 
         var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command, apprenticeshipWithdrawalDate);
 

@@ -238,17 +238,77 @@ Scenario: Apprenticeship withdrawal removed; english and maths learning support 
 	Then 7 english and maths learning support payments are persisted
 	And the english and maths earnings history is maintained
 
-Scenario: Unapproved apprenticeship withdrawn; english and maths unaffected
+Scenario: AC1 - Unapproved apprenticeship withdrawn; ongoing english and maths course stops at the apprenticeship withdrawal date
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2026-10-01 | 2027-07-31 | 5000  |
-	And an unapproved apprenticeship has been submitted
-	And the following english and maths course information is provided
+	And the unapproved apprenticeship has the following english and maths courses
 		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
 		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    |
-	When the following on-programme request is sent
-		| Key            | Value      |
-		| WithdrawalDate | 2027-02-10 |
+	And an unapproved apprenticeship has been submitted
+	When the unapproved apprenticeship is withdrawn on 2027-02-10
+	Then english and maths instalments are persisted as follows
+		| Course   | Amount | AcademicYear | DeliveryPeriod | Type    |
+		| English1 | 100    | 2627         | 3              | Regular |
+		| English1 | 100    | 2627         | 4              | Regular |
+		| English1 | 100    | 2627         | 5              | Regular |
+		| English1 | 100    | 2627         | 6              | Regular |
+
+Scenario: AC1 - Unapproved apprenticeship withdrawn; english and maths learning support stops at the apprenticeship withdrawal date
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-10-01 | 2027-07-31 | 5000  |
+	And the unapproved apprenticeship has the following english and maths courses
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    |
+	And the unapproved english and maths course has the following learning support
+		| StartDate  | EndDate    |
+		| 2026-10-01 | 2027-05-15 |
+	And an unapproved apprenticeship has been submitted
+	When the unapproved apprenticeship is withdrawn on 2027-02-10
+	Then 4 english and maths learning support payments are persisted
+
+Scenario: AC1 - Unapproved apprenticeship withdrawn; english and maths course already withdrawn by SLD keeps its own withdrawal date
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-10-01 | 2027-07-31 | 5000  |
+	And the unapproved apprenticeship has the following english and maths courses
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount | WithdrawalDate |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    | 2027-01-10     |
+	And an unapproved apprenticeship has been submitted
+	When the unapproved apprenticeship is withdrawn on 2027-02-10
+	Then english and maths instalments are persisted as follows
+		| Course   | Amount | AcademicYear | DeliveryPeriod | Type    |
+		| English1 | 100    | 2627         | 3              | Regular |
+		| English1 | 100    | 2627         | 4              | Regular |
+		| English1 | 100    | 2627         | 5              | Regular |
+
+Scenario: AC1 - Unapproved apprenticeship withdrawn then approved; english and maths earnings stay stopped
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-10-01 | 2027-07-31 | 5000  |
+	And the unapproved apprenticeship has the following english and maths courses
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    |
+	And the unapproved apprenticeship is withdrawn on 2027-02-10
+	When the apprenticeship commitment is approved
+	Then the apprenticeship earnings profile is marked as approved
+	And english and maths instalments are persisted as follows
+		| Course   | Amount | AcademicYear | DeliveryPeriod | Type    |
+		| English1 | 100    | 2627         | 3              | Regular |
+		| English1 | 100    | 2627         | 4              | Regular |
+		| English1 | 100    | 2627         | 5              | Regular |
+		| English1 | 100    | 2627         | 6              | Regular |
+
+Scenario: Unapproved apprenticeship withdrawal removed; english and maths instalments restored
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-10-01 | 2027-07-31 | 5000  |
+	And the unapproved apprenticeship has the following english and maths courses
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    |
+	And the unapproved apprenticeship is withdrawn on 2027-02-10
+	When the unapproved apprenticeship withdrawal is removed
 	Then english and maths instalments are persisted as follows
 		| Course   | Amount | AcademicYear | DeliveryPeriod | Type    |
 		| English1 | 100    | 2627         | 3              | Regular |

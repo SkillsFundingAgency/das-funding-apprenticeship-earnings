@@ -640,7 +640,7 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
     [TestCase(null, true, TrainingStatus.Withdrawn, "2024-01-10", Description = "Course still in learning when apprenticeship withdrawn")]
     [TestCase("2024-05-01", true, TrainingStatus.Withdrawn, "2024-01-10", Description = "Course completed after apprenticeship withdrawal")]
     [TestCase("2023-12-15", true, TrainingStatus.Completed, "2023-12-15", Description = "Course completed before apprenticeship withdrawal")]
-    [TestCase(null, false, TrainingStatus.Continuing, null, Description = "Unapproved apprenticeship withdrawal is not applied")]
+    [TestCase(null, false, TrainingStatus.Withdrawn, "2024-01-10", Description = "Course still in learning when unapproved apprenticeship withdrawn")]
     public void BuildForEnglishAndMaths_WhenApprenticeshipWithdrawn_ThenTrainingStatusAndActualEndDateReflectIt(string? courseCompletion, bool isApproved, TrainingStatus expectedStatus, string? expectedActualEndDate)
     {
         var apprenticeshipWithdrawalDate = new DateTime(2024, 1, 10);

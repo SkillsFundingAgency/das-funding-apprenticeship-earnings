@@ -151,8 +151,8 @@ public class WhenUpdatingEnglishAndMaths
     }
 
     [TestCase(true, 5, Description = "Approved apprenticeship withdrawn on 15 June 2024 - January to May earned")]
-    [TestCase(false, 12, Description = "Unapproved apprenticeship withdrawal is not applied")]
-    public async Task ThenTheApprenticeshipWithdrawalIsAppliedToTheCourseOnlyWhenApproved(bool isApproved, int expectedInstalments)
+    [TestCase(false, 5, Description = "Unapproved apprenticeship withdrawn on 15 June 2024 - January to May earned")]
+    public async Task ThenTheApprenticeshipWithdrawalIsAppliedToTheCourse(bool isApproved, int expectedInstalments)
     {
         // Arrange
         var learningDomainModel = BuildLearning(new DateTime(2024, 6, 15), isApproved);

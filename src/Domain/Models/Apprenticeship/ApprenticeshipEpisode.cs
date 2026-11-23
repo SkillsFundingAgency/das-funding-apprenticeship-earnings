@@ -201,12 +201,12 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     }
 
     /// <summary>
-    /// Recalculates the English and Maths courses of an approved apprenticeship against its withdrawal date, so that
+    /// Recalculates the English and Maths courses of the apprenticeship (approved or not) against its withdrawal date, so that
     /// courses still in learning are treated as withdrawn alongside the apprenticeship (or restored if the withdrawal is removed).
     /// </summary>
     public void ApplyWithdrawalToEnglishAndMaths(ISystemClockService systemClock)
     {
-        if (_earningsProfile == null || !IsApproved) return;
+        if (_earningsProfile == null) return;
 
         var courses = _earningsProfile.MathsAndEnglishCourses
             .Where(x => !x.IsRemoved)

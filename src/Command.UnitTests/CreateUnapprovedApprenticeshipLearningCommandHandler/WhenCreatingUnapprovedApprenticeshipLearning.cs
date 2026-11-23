@@ -1,4 +1,5 @@
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand;
@@ -229,6 +230,112 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
             l.GetEpisode(request.EpisodeKey).EarningsProfile!.MathsAndEnglishCourses
                 .Single(c => c.LearnAimRef == "ENG001").AdditionalPayments.Count == 3 &&
             l.GetEpisode(request.EpisodeKey).EarningsProfile!.AdditionalPayments.Count == 0)), Times.Once);
+    }
+
+    [Test]
+    public async Task Then_EnglishAndMaths_Is_Treated_As_Withdrawn_With_The_Apprenticeship()
+    {
+        var request = BuildRequest();
+        request.WithdrawalDate = ApprenticeshipWithdrawalDate;
+
+        var course = await HandleNewDraftAndGetCourse(request);
+
+        course.Instalments.Select(x => x.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 1, 2, 3, 4, 5 });
+        course.Instalments.Should().OnlyContain(x => x.AcademicYear == 2526);
+        course.WithdrawalDate.Should().BeNull("the ILR withdrawal date of the course is kept as provided");
+    }
+
+    [Test]
+    public async Task Then_EnglishAndMaths_LearningSupport_Stops_At_The_Apprenticeship_Withdrawal_Date()
+    {
+        var request = BuildRequest();
+        request.WithdrawalDate = ApprenticeshipWithdrawalDate;
+        request.EnglishAndMaths[0].LearningSupport =
+        [
+            new LearningSupportItem { StartDate = request.EnglishAndMaths[0].StartDate, EndDate = request.EnglishAndMaths[0].EndDate }
+        ];
+
+        var course = await HandleNewDraftAndGetCourse(request);
+
+        course.AdditionalPayments.Should().HaveCount(5);
+        course.AdditionalPayments.Should().OnlyContain(x => x.DueDate <= ApprenticeshipWithdrawalDate);
+    }
+
+    [Test]
+    public async Task Then_EnglishAndMaths_Completed_Before_The_Apprenticeship_Withdrawal_Is_Unaffected()
+    {
+        var completionDate = new DateTime(2025, 12, 15);
+
+        var withoutApprenticeshipWithdrawal = BuildRequest();
+        withoutApprenticeshipWithdrawal.EnglishAndMaths[0].CompletionDate = completionDate;
+        var expected = await HandleNewDraftAndGetCourse(withoutApprenticeshipWithdrawal);
+
+        var request = BuildRequest();
+        request.WithdrawalDate = ApprenticeshipWithdrawalDate;
+        request.EnglishAndMaths[0].CompletionDate = completionDate;
+
+        var course = await HandleNewDraftAndGetCourse(request);
+
+        course.Instalments.Select(x => (x.AcademicYear, x.DeliveryPeriod, x.Amount, x.Type))
+            .Should().BeEquivalentTo(expected.Instalments.Select(x => (x.AcademicYear, x.DeliveryPeriod, x.Amount, x.Type)));
+    }
+
+    [Test]
+    public async Task Then_EnglishAndMaths_Withdrawn_Before_The_Apprenticeship_Is_Unaffected()
+    {
+        var request = BuildRequest();
+        request.WithdrawalDate = ApprenticeshipWithdrawalDate;
+        request.EnglishAndMaths[0].WithdrawalDate = new DateTime(2025, 11, 10);
+
+        var course = await HandleNewDraftAndGetCourse(request);
+
+        course.Instalments.Select(x => x.DeliveryPeriod).Should().BeEquivalentTo(new byte[] { 1, 2, 3 });
+        course.WithdrawalDate.Should().Be(new DateTime(2025, 11, 10));
+    }
+
+    [Test]
+    public async Task Then_Existing_Draft_EnglishAndMaths_Is_Recalculated_When_The_Apprenticeship_Is_Withdrawn()
+    {
+        var request = BuildRequest();
+        var existingLearning = await HandleNewDraft(request);
+        existingLearning.GetEpisode(request.EpisodeKey).EarningsProfile!.MathsAndEnglishCourses.Single().Instalments.Should().HaveCount(24);
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync(existingLearning);
+
+        request.WithdrawalDate = ApprenticeshipWithdrawalDate;
+
+        await BuildHandler().Handle(new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request), CancellationToken.None);
+
+        _repository.Verify(x => x.Update(It.Is<ApprenticeshipLearning>(l =>
+            !l.GetEpisode(request.EpisodeKey).IsApproved &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.MathsAndEnglishCourses.Single().Instalments.Count == 5)), Times.Once);
+    }
+
+    private static readonly DateTime ApprenticeshipWithdrawalDate = new(2026, 1, 10);
+
+    private async Task<ApprenticeshipLearning> HandleNewDraft(CreateUnapprovedApprenticeshipLearningRequest request)
+    {
+        ApprenticeshipLearning? added = null;
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+        _repository
+            .Setup(x => x.Add(It.IsAny<ApprenticeshipLearning>()))
+            .Callback<object>(l => added = (ApprenticeshipLearning)l);
+
+        await BuildHandler().Handle(new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request), CancellationToken.None);
+
+        added.Should().NotBeNull();
+        return added!;
+    }
+
+    private async Task<SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths> HandleNewDraftAndGetCourse(CreateUnapprovedApprenticeshipLearningRequest request)
+    {
+        var learning = await HandleNewDraft(request);
+        return learning.GetEpisode(request.EpisodeKey).EarningsProfile!.MathsAndEnglishCourses.Single();
     }
 
     [TestCase(false, true, TestName = "Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]

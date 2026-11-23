@@ -41,6 +41,27 @@ public class EnglishAndMathsStepDefinitions
         await PutEnglishAndMaths(request);
     }
 
+    [Given(@"the unapproved apprenticeship has the following english and maths courses")]
+    public void GivenTheUnapprovedApprenticeshipHasTheFollowingEnglishAndMathsCourses(Table table)
+    {
+        var items = table.CreateSet<EnglishAndMathsItem>().ToList();
+        _scenarioContext.Set(items, "EnglishAndMathsItems");
+        _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder().WithEnglishAndMaths(items);
+    }
+
+    [Given(@"the unapproved english and maths course has the following learning support")]
+    public void GivenTheUnapprovedEnglishAndMathsCourseHasTheFollowingLearningSupport(Table table)
+    {
+        var learningSupport = table.CreateSet<LearningSupportItem>().ToList();
+        var items = _scenarioContext.Get<List<EnglishAndMathsItem>>("EnglishAndMathsItems");
+        foreach (var item in items)
+        {
+            item.LearningSupport = learningSupport;
+        }
+
+        _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder().WithEnglishAndMaths(items);
+    }
+
     [Given(@"the english and maths course has the following learning support")]
     [When(@"the english and maths course has the following learning support")]
     public async Task GivenTheEnglishAndMathsCourseHasTheFollowingLearningSupport(Table table)

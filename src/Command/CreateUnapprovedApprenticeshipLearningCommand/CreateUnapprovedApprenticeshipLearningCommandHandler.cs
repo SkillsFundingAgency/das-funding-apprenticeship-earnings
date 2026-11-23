@@ -176,7 +176,9 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
                     EndDate = x.EndDate,
                     OriginalExpectedEndDate = x.OriginalExpectedEndDate
                 }),
-                learningSupportPayments));
+                learningSupportPayments,
+                // Courses on a withdrawn apprenticeship are treated as withdrawn on the same date
+                request.WithdrawalDate));
         }
 
         return courses;
