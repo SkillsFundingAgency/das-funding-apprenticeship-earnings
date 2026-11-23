@@ -219,6 +219,7 @@ Scenario: Unapproved apprenticeship withdrawn; english and maths unaffected
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
 		| 2026-10-01 | 2027-07-31 | 5000  |
+	And an unapproved apprenticeship has been submitted
 	And the following english and maths course information is provided
 		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
 		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    |
