@@ -14,6 +14,7 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.UnitTests.Apprenticeship
 public class WhenGeneratingHiringGrant
 {
     private Mock<ISystemClockService> _systemClock = null!;
+    private static readonly DateTime EligibleFrom = new(2026, 10, 1);
 
     [SetUp]
     public void SetUp()
@@ -27,7 +28,7 @@ public class WhenGeneratingHiringGrant
     {
         var (learning, episode) = CreateLearning(EmployerType.NonLevy);
 
-        learning.GenerateHiringGrant(episode.EpisodeKey, _systemClock.Object);
+        learning.GenerateHiringGrant(episode.EpisodeKey, EligibleFrom, _systemClock.Object);
 
         GrantsOf(episode).Select(x => x.DueDate).Should().Equal(new DateTime(2026, 12, 29), new DateTime(2027, 9, 30));
     }
@@ -37,7 +38,7 @@ public class WhenGeneratingHiringGrant
     {
         var (learning, episode) = CreateLearning(EmployerType.Levy);
 
-        learning.GenerateHiringGrant(episode.EpisodeKey, _systemClock.Object);
+        learning.GenerateHiringGrant(episode.EpisodeKey, EligibleFrom, _systemClock.Object);
 
         GrantsOf(episode).Should().BeEmpty();
     }
@@ -47,8 +48,8 @@ public class WhenGeneratingHiringGrant
     {
         var (learning, episode) = CreateLearning(EmployerType.NonLevy);
 
-        learning.GenerateHiringGrant(episode.EpisodeKey, _systemClock.Object);
-        learning.GenerateHiringGrant(episode.EpisodeKey, _systemClock.Object);
+        learning.GenerateHiringGrant(episode.EpisodeKey, EligibleFrom, _systemClock.Object);
+        learning.GenerateHiringGrant(episode.EpisodeKey, EligibleFrom, _systemClock.Object);
 
         GrantsOf(episode).Should().HaveCount(2);
     }
@@ -58,7 +59,7 @@ public class WhenGeneratingHiringGrant
     {
         var (learning, episode) = CreateLearning(EmployerType.NonLevy);
         learning.Calculate(_systemClock.Object, "{}", episode.EpisodeKey, initialGenerationIsApproved: false);
-        learning.GenerateHiringGrant(episode.EpisodeKey, _systemClock.Object);
+        learning.GenerateHiringGrant(episode.EpisodeKey, EligibleFrom, _systemClock.Object);
 
         learning.Calculate(_systemClock.Object, "{}", episode.EpisodeKey, initialGenerationIsApproved: false);
 

@@ -5,23 +5,21 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 
 /// <summary>
-/// Employer hiring grant for 16-24 year old apprentices of non-levy employers starting on or after 1 October 2026.
+/// Employer hiring grant for 16-24 year old apprentices of non-levy employers starting on or after the configured start date (1 October 2026 at launch).
 /// Earnings only, these are not sent to payments.
 /// </summary>
 public static class HiringGrantPayments
 {
-    public static readonly DateTime EligibleFromDate = new(2026, 8, 1); //todo needs to be configurable and set to 1st Oct 2026
-
     private const int MinimumAge = 16;
     private const int MaximumAge = 24;
 
     // Due on day 90 and day 365 of the apprenticeship (start date + 89 days and + 364 days)
     private static readonly int[] MilestoneDaysAfterStart = [89, 364];
 
-    public static List<IncentivePayment> GenerateHiringGrantPayments(EmployerType employerType, int ageAtStartOfLearning, DateTime apprenticeshipStartDate)
+    public static List<IncentivePayment> GenerateHiringGrantPayments(EmployerType employerType, int ageAtStartOfLearning, DateTime apprenticeshipStartDate, DateTime eligibleFromDate)
     {
         if (employerType != EmployerType.NonLevy
-            || apprenticeshipStartDate < EligibleFromDate
+            || apprenticeshipStartDate < eligibleFromDate
             || ageAtStartOfLearning < MinimumAge
             || ageAtStartOfLearning > MaximumAge)
         {

@@ -237,12 +237,12 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     /// <summary>
     /// Generates the employer hiring grant earnings
     /// </summary>
-    public void GenerateHiringGrant(ISystemClockService systemClock)
+    public void GenerateHiringGrant(DateTime eligibleFromDate, ISystemClockService systemClock)
     {
         if (_earningsProfile == null) return;
 
         var hiringGrants = HiringGrantPayments
-            .GenerateHiringGrantPayments(EmployerType, AgeAtStartOfApprenticeship, _prices.Min(p => p.StartDate))
+            .GenerateHiringGrantPayments(EmployerType, AgeAtStartOfApprenticeship, _prices.Min(p => p.StartDate), eligibleFromDate)
             .Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType))
             .ToList();
 

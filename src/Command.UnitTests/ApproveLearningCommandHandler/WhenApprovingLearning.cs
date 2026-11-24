@@ -9,6 +9,7 @@ using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApproveLearningCommandHandler;
 
@@ -253,5 +254,5 @@ public class WhenApprovingLearning
         => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), employerType);
 
     private Command.ApproveLearningCommand.ApproveLearningCommandHandler CreateHandler()
-        => new(_mockDomainService.Object, _mockLogger.Object, _mockSystemClock.Object);
+        => new(_mockDomainService.Object, _mockLogger.Object, _mockSystemClock.Object, new EmployerHiringGrantConfiguration { StartDate = new DateTime(2026, 10, 1) });
 }

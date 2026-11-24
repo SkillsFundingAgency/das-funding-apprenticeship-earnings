@@ -27,8 +27,8 @@ public class ApprenticeshipLearning : BaseLearning<ApprenticeshipLearningEntity,
     public void SetApprovalsApprenticeshipId(long approvalsApprenticeshipId)
         => _entity.ApprovalsApprenticeshipId = approvalsApprenticeshipId;
 
-    public void GenerateHiringGrant(Guid episodeKey, ISystemClockService systemClock)
-        => GetEpisode(episodeKey).GenerateHiringGrant(systemClock);
+    public void GenerateHiringGrant(Guid episodeKey, DateTime eligibleFromDate, ISystemClockService systemClock)
+        => GetEpisode(episodeKey).GenerateHiringGrant(eligibleFromDate, systemClock);
 
     public void SetEmployerType(Guid episodeKey, EmployerType employerType)
         => GetEpisode(episodeKey).SetEmployerType(employerType);
