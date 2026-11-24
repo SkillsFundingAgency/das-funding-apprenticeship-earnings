@@ -235,6 +235,21 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
     }
 
     /// <summary>
+    /// Generates the employer hiring grant earnings
+    /// </summary>
+    public void GenerateHiringGrant(ISystemClockService systemClock)
+    {
+        if (_earningsProfile == null) return;
+
+        var hiringGrants = HiringGrantPayments
+            .GenerateHiringGrantPayments(EmployerType, AgeAtStartOfApprenticeship, _prices.Min(p => p.StartDate))
+            .Select(x => new AdditionalPayment(x.AcademicYear, x.DeliveryPeriod, x.Amount, x.DueDate, x.IncentiveType))
+            .ToList();
+
+        AddAdditionalEarnings(hiringGrants, InstalmentTypes.EmployerHiringGrant, systemClock);
+    }
+
+    /// <summary>
     /// Generates a new earnings profile version where one has not already been generated, so that payments are informed
     /// of changes which do not affect the earnings themselves (e.g. a withdrawal which leaves the instalments unchanged).
     /// </summary>

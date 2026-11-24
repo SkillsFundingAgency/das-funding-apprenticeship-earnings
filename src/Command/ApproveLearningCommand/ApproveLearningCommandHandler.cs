@@ -9,11 +9,13 @@ public class ApproveLearningCommandHandler : ICommandHandler<ApproveLearningComm
 {
     private readonly ILearningDomainService _learningDomainService;
     private readonly ILogger<ApproveLearningCommandHandler> _logger;
+    private readonly ISystemClockService _systemClock;
 
-    public ApproveLearningCommandHandler(ILearningDomainService learningDomainService, ILogger<ApproveLearningCommandHandler> logger)
+    public ApproveLearningCommandHandler(ILearningDomainService learningDomainService, ILogger<ApproveLearningCommandHandler> logger, ISystemClockService systemClock)
     {
         _learningDomainService = learningDomainService;
         _logger = logger;
+        _systemClock = systemClock;
     }
 
     public async Task Handle(ApproveLearningCommand command, CancellationToken cancellationToken = default)
@@ -37,6 +39,9 @@ public class ApproveLearningCommandHandler : ICommandHandler<ApproveLearningComm
         {
             apprenticeshipLearning.SetApprovalsApprenticeshipId(command.ApprovalsApprenticeshipId);
             apprenticeshipLearning.SetEmployerType(command.EpisodeKey, command.EmployerType);
+
+            // employer type is only known at approval, so the hiring grant is generated here for every approved learner, opted in or not
+            apprenticeshipLearning.GenerateHiringGrant(command.EpisodeKey, _systemClock);
         }
 
         learning.Approve(command.EpisodeKey, command.EmployerAccountId, command.FundingAccountId, command.LearnerKey, command.LearnerRef);

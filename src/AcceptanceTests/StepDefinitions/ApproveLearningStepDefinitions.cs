@@ -83,6 +83,12 @@ public class ApproveLearningStepDefinitions
         episode.EarningsProfile.ApprenticeshipAdditionalPayments.Should().OnlyContain(x => x.Amount == 0);
     }
 
+    [Given("the employer is non-levy")]
+    public void GivenTheEmployerIsNonLevy()
+    {
+        _scenarioContext.Set(SFA.DAS.Learning.Enums.EmployerType.NonLevy, "EmployerType");
+    }
+
     [Given("a LearningApproved event is received for the apprenticeship")]
     [When("a LearningApproved event is received for the apprenticeship")]
     public async Task WhenLearningApprovedEventReceivedForApprenticeship()
