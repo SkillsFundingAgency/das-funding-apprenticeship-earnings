@@ -637,6 +637,35 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         result.Training.TrainingStatus.Should().Be(expected);
     }
 
+    [TestCase(null, true, TrainingStatus.Withdrawn, "2024-01-10", Description = "Course still in learning when apprenticeship withdrawn")]
+    [TestCase("2024-05-01", true, TrainingStatus.Withdrawn, "2024-01-10", Description = "Course completed after apprenticeship withdrawal")]
+    [TestCase("2023-12-15", true, TrainingStatus.Completed, "2023-12-15", Description = "Course completed before apprenticeship withdrawal")]
+    [TestCase(null, false, TrainingStatus.Continuing, null, Description = "Unapproved apprenticeship withdrawal is not applied")]
+    public void BuildForEnglishAndMaths_WhenApprenticeshipWithdrawn_ThenTrainingStatusAndActualEndDateReflectIt(string? courseCompletion, bool isApproved, TrainingStatus expectedStatus, string? expectedActualEndDate)
+    {
+        var apprenticeshipWithdrawalDate = new DateTime(2024, 1, 10);
+        var (learning, episode, _) = BuildLearning(new DateTime(2023, 9, 1), new DateTime(2024, 6, 30), 15000m, withdrawalDate: apprenticeshipWithdrawalDate);
+        ((ApprenticeshipLearningEntity)learning.GetModel()).Episodes.Single().EarningsProfile!.IsApproved = isApproved;
+
+        var courseEntity = _fixture.Build<EnglishAndMathsEntity>()
+            .With(x => x.LearnAimRef, "ENG12345")
+            .With(x => x.StartDate, new DateTime(2023, 9, 1))
+            .With(x => x.EndDate, new DateTime(2024, 7, 31))
+            .With(x => x.WithdrawalDate, (DateTime?)null)
+            .With(x => x.CompletionDate, courseCompletion == null ? null : DateTime.Parse(courseCompletion))
+            .With(x => x.PauseDate, (DateTime?)null)
+            .With(x => x.Instalments, [])
+            .With(x => x.PeriodsInLearning, [])
+            .Create();
+
+        var course = Domain.Models.EnglishAndMaths.EnglishAndMaths.Get(courseEntity);
+
+        var result = _sut.BuildForEnglishAndMaths(episode, learning, course, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Training.TrainingStatus.Should().Be(expectedStatus);
+        result.Training.ActualEndDate.Should().Be(expectedActualEndDate == null ? null : DateTime.Parse(expectedActualEndDate));
+    }
+
     [Test]
     public void BuildForEnglishAndMaths_WhenCourseHasNoInstalments_ThenEarningsAreEmptyButMessageStillBuilds()
     {

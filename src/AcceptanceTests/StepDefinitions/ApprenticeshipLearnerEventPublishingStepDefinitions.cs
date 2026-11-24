@@ -41,6 +41,22 @@ public class ApprenticeshipLearnerEventPublishingStepDefinitions
         await ApproveLearning(request);
     }
 
+    [Given(@"an unapproved apprenticeship has been submitted")]
+    public async Task GivenAnUnapprovedApprenticeshipHasBeenSubmitted()
+    {
+        await PostUnapprovedApprenticeshipLearning();
+    }
+
+    private async Task PostUnapprovedApprenticeshipLearning()
+    {
+        var request = _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder()
+            .Build(_testContext.FundingBandMaximumService.GetFundingBandMaximum());
+
+        await _testContext.TestInnerApi.Post("/learning", request);
+
+        _scenarioContext.Set(request);
+    }
+
     [When(@"the adjusted price has been calculated")]
     public async Task WhenTheAdjustedPriceHasBeenCalculated()
     {

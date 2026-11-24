@@ -37,8 +37,6 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
     {
         _logger.LogInformation("Handling UpdateEnglishAndMathsCommand for learning {LearningKey}", command.LearningKey);
 
-        var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command);
-
         var learningDomainModel = await _learningRepository.GetApprenticeshipLearning(command.LearningKey);
 
         if (learningDomainModel == null)
@@ -49,12 +47,18 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
             return new UpdateEnglishAndMathsResult(false);
         }
 
+        var currentEpisode = learningDomainModel.GetCurrentEpisode(_systemClock);
+
+        // Courses on an approved apprenticeship that has been withdrawn are treated as withdrawn on the same date
+        var apprenticeshipWithdrawalDate = currentEpisode.IsApproved ? currentEpisode.WithdrawalDate : null;
+
+        var englishAndMathsCourses = BuildEnglishAndMathsCoursesWithInstalments(command, apprenticeshipWithdrawalDate);
+
         learningDomainModel.UpdateEnglishAndMathsCourses(englishAndMathsCourses, _systemClock);
 
         await _learningRepository.Update(learningDomainModel);
 
         _logger.LogInformation("Successfully handled UpdateEnglishAndMathsCommand for apprenticeship {LearningKey}", command.LearningKey);
-        var currentEpisode = learningDomainModel.GetCurrentEpisode(_systemClock);
         var courseChanges = currentEpisode.EarningsProfile!.EnglishAndMathsCourseChanges;
 
         _logger.LogInformation("English and Maths course changes for apprenticeship {LearningKey} - Created: {Created}, Changed: {Changed}, Removed: {Removed}, Reinstated: {Reinstated}",
@@ -68,7 +72,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
             courseChanges.Reinstated);
     }
 
-    private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command)
+    private List<EnglishAndMaths> BuildEnglishAndMathsCoursesWithInstalments(UpdateEnglishAndMathsCommand command, DateTime? apprenticeshipWithdrawalDate)
     {
         _logger.LogInformation("Building English and Maths details to domain models for apprenticeship {LearningKey}", command.LearningKey);
         
@@ -81,7 +85,7 @@ public class UpdateEnglishAndMathsCommandHandler : ICommandHandler<UpdateEnglish
                 .Select(p => new EnglishAndMathsAdditionalPayment(p.AcademicYear, p.DeliveryPeriod, p.Amount, p.DueDate, p.AdditionalPaymentType))
                 .ToList();
 
-            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.CombinedFundingAdjustmentPercentage, detail.PeriodsInLearning, learningSupportPayments);
+            var course = new EnglishAndMaths(detail.StartDate, detail.EndDate, detail.Course, detail.LearnAimRef, detail.Amount, detail.WithdrawalDate, detail.CompletionDate, detail.PauseDate, detail.CombinedFundingAdjustmentPercentage, detail.PeriodsInLearning, learningSupportPayments, apprenticeshipWithdrawalDate);
             courses.Add(course);
         }
 

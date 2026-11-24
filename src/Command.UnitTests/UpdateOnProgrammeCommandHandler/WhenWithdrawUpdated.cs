@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Repositories;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
 
@@ -69,6 +70,57 @@ public class WhenWithdrawUpdated : BaseUpdateCommandHandlerTests
         // Assert
         result.HasNewEarningsProfileVersionBeenGenerated.Should().BeFalse();
         episode.EarningsProfile.Version.Should().Be(originalVersion);
+    }
+
+    [Test]
+    public async Task ThenEnglishAndMathsCoursesAreTreatedAsWithdrawnWithTheApprenticeship()
+    {
+        // Arrange
+        var (handler, learningDomainModel, command) = await SetupCalculatedLearning();
+        var episode = learningDomainModel.Episodes.Single();
+        var course = AddEnglishAndMathsCourse(episode);
+        var withdrawalDate = course.StartDate.AddMonths(5);
+        command.Request.WithdrawalDate = withdrawalDate;
+
+        // Act
+        await handler.Handle(command);
+
+        // Assert
+        var updatedCourse = episode.EarningsProfile!.MathsAndEnglishCourses.Single();
+        var expectedInstalments = course.WithApprenticeshipWithdrawal(withdrawalDate).Instalments;
+        updatedCourse.Instalments.Should().HaveCount(expectedInstalments.Count).And.HaveCountLessThan(course.Instalments.Count);
+        updatedCourse.Instalments.Select(x => (x.AcademicYear, x.DeliveryPeriod, x.Amount))
+            .Should().BeEquivalentTo(expectedInstalments.Select(x => (x.AcademicYear, x.DeliveryPeriod, x.Amount)));
+        episode.EarningsProfile.EnglishAndMathsCourseChanges.Changed.Should().ContainSingle().Which.Should().Be(updatedCourse.Key);
+    }
+
+    [Test]
+    public async Task ThenEnglishAndMathsCoursesAreNotRecalculatedWhenTheWithdrawalDateIsUnchanged()
+    {
+        // Arrange
+        var (handler, learningDomainModel, command) = await SetupCalculatedLearning();
+        var episode = learningDomainModel.Episodes.Single();
+        var course = AddEnglishAndMathsCourse(episode);
+        var originalVersion = episode.EarningsProfile!.MathsAndEnglishCourses.Single().Version;
+
+        // Act
+        await handler.Handle(command);
+
+        // Assert
+        var updatedCourse = episode.EarningsProfile.MathsAndEnglishCourses.Single();
+        updatedCourse.Version.Should().Be(originalVersion);
+        updatedCourse.Instalments.Should().HaveCount(course.Instalments.Count);
+    }
+
+    private EnglishAndMaths AddEnglishAndMathsCourse(ApprenticeshipEpisode episode)
+    {
+        var startDate = episode.Prices.Min(x => x.StartDate).Date;
+        var endDate = startDate.AddYears(1).AddDays(-1);
+        var course = new EnglishAndMaths(startDate, endDate, "Maths", "Maths Level 2", 1200m, null, null, null, null,
+            [new UpdateOnProgrammeCommand.PeriodInLearningItem { StartDate = startDate, EndDate = endDate, OriginalExpectedEndDate = endDate }]);
+
+        episode.UpdateEnglishAndMaths([course], SystemClockServiceMock.Object);
+        return episode.EarningsProfile!.MathsAndEnglishCourses.Single();
     }
 
     /// <summary>

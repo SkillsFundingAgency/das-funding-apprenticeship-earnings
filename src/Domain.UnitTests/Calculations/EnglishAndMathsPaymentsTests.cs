@@ -310,6 +310,100 @@ public class EnglishAndMathsPaymentsTests
         act.Should().NotThrow<DivideByZeroException>();
     }
 
+    // English Oct 2026 to 15 May 2027 worth £700 earns £100 a month R03 to R09, apprenticeship withdrawn on 10 Feb 2027 (R07)
+    private static readonly DateTime ApprenticeshipWithdrawalDate = new(2027, 2, 10);
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldStopAtApprenticeshipWithdrawalDate_WhenCourseStillInLearning()
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(new DateTime(2026, 10, 1), new DateTime(2027, 5, 15), "E102", 700);
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course, ApprenticeshipWithdrawalDate);
+
+        // Assert
+        result.Should().HaveCount(4);
+        result.Should().OnlyContain(x => x.Amount == 100 && x.AcademicYear == 2627 && x.Type == EnglishAndMathsInstalmentType.Regular.ToString());
+        result.Select(x => (int)x.DeliveryPeriod).Should().BeEquivalentTo(new[] { 3, 4, 5, 6 });
+    }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldBeUnchanged_WhenCourseCompletedBeforeApprenticeshipWithdrawal()
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(new DateTime(2026, 10, 1), new DateTime(2027, 5, 15), "E102", 700, null, null, new DateTime(2027, 1, 20));
+
+        // Act
+        var withoutApprenticeshipWithdrawal = EnglishAndMathsPayments.GenerateInstalments(course);
+        var result = EnglishAndMathsPayments.GenerateInstalments(course, ApprenticeshipWithdrawalDate);
+
+        // Assert
+        result.Should().BeEquivalentTo(withoutApprenticeshipWithdrawal, options => options.Excluding(x => x.Key));
+        var balancing = result.Single(x => x.Type == EnglishAndMathsInstalmentType.Balancing.ToString());
+        balancing.DeliveryPeriod.Should().Be(6);
+        balancing.Amount.Should().Be(400);
+    }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldClawBackAfterApprenticeshipWithdrawalDate_WhenCourseCompletedAfterIt()
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(new DateTime(2026, 10, 1), new DateTime(2027, 5, 15), "E102", 700, null, null, new DateTime(2027, 5, 15));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course, ApprenticeshipWithdrawalDate);
+
+        // Assert
+        result.Should().HaveCount(4);
+        result.Should().NotContain(x => x.Type == EnglishAndMathsInstalmentType.Balancing.ToString());
+        result.Select(x => (int)x.DeliveryPeriod).Should().BeEquivalentTo(new[] { 3, 4, 5, 6 });
+    }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldUseCourseWithdrawalDate_WhenCourseWithdrawnBeforeApprenticeship()
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(new DateTime(2026, 10, 1), new DateTime(2027, 5, 15), "E102", 700, new DateTime(2026, 12, 31));
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course, ApprenticeshipWithdrawalDate);
+
+        // Assert
+        result.Select(x => (int)x.DeliveryPeriod).Should().BeEquivalentTo(new[] { 3, 4, 5 });
+    }
+
+    [TestCase("2027-01-17", "2027-01-31", 1, Description = "Apprenticeship withdrawn on a census date, qualifying period met")]
+    [TestCase("2027-01-18", "2027-02-01", 1, Description = "Apprenticeship withdrawn after a census date, qualifying period met")]
+    [TestCase("2027-01-19", "2027-01-31", 0, Description = "Apprenticeship withdrawn on a census date, qualifying period not met")]
+    [TestCase("2027-01-01", "2027-01-13", 0, Description = "Apprenticeship withdrawn before a census date, qualifying period not met")]
+    [TestCase("2027-01-01", "2027-01-15", 0, Description = "Apprenticeship withdrawn before a census date, qualifying period met")]
+    public void GenerateMathsAndEnglishPayments_ShouldApplyQualifyingPeriodAndCensusDateRules_ToApprenticeshipWithdrawal(string start, string apprenticeshipWithdrawal, int expectedInstalments)
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(DateTime.Parse(start), new DateTime(2027, 5, 5), "E102", 400);
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course, DateTime.Parse(apprenticeshipWithdrawal));
+
+        // Assert
+        result.Should().HaveCount(expectedInstalments);
+        result.Should().OnlyContain(x => x.Amount == 100 && x.DeliveryPeriod == 6);
+    }
+
+    [Test]
+    public void GenerateMathsAndEnglishPayments_ShouldBeUnchanged_WhenNoApprenticeshipWithdrawal()
+    {
+        // Arrange
+        var course = CreateEnglishAndMathsCourse(new DateTime(2026, 10, 1), new DateTime(2027, 5, 15), "E102", 700);
+
+        // Act
+        var result = EnglishAndMathsPayments.GenerateInstalments(course, null);
+
+        // Assert
+        result.Should().HaveCount(7);
+    }
+
     private EnglishAndMaths CreateEnglishAndMathsCourse(DateTime startDate, DateTime endDate, string courseCode = "M101", decimal amount = 300, DateTime? withdrawalDate = null, decimal? combinedFundingAdjustmentPercentage = null, DateTime? completionDate = null)
     {
         var model = new EnglishAndMathsEntity
