@@ -4,10 +4,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.DataAccess.Entities.ShortCourse;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.ShortCourse;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Services;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Infrastructure.Configuration;
 
 namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command.UnitTests.ApproveLearningCommandHandler;
 
@@ -17,6 +19,7 @@ public class WhenApprovingLearning
     private Fixture _fixture = null!;
     private Mock<ILearningDomainService> _mockDomainService = null!;
     private Mock<ILogger<Command.ApproveLearningCommand.ApproveLearningCommandHandler>> _mockLogger = null!;
+    private Mock<ISystemClockService> _mockSystemClock = null!;
 
     [SetUp]
     public void SetUp()
@@ -24,6 +27,8 @@ public class WhenApprovingLearning
         _fixture = new Fixture();
         _mockDomainService = new Mock<ILearningDomainService>();
         _mockLogger = new Mock<ILogger<Command.ApproveLearningCommand.ApproveLearningCommandHandler>>();
+        _mockSystemClock = new Mock<ISystemClockService>();
+        _mockSystemClock.Setup(x => x.UtcNow).Returns(new DateTime(2026, 11, 1));
     }
 
     [Test]
@@ -185,6 +190,69 @@ public class WhenApprovingLearning
     private void SetupDomainService(ApprenticeshipLearning learning)
         => _mockDomainService.Setup(x => x.GetLearning(learning.LearningKey)).ReturnsAsync(learning);
 
+    [TestCase(Types.EmployerType.NonLevy, 1)]
+    [TestCase(Types.EmployerType.Levy, 0)]
+    public async Task ThenTheHiringGrantIsGeneratedOnlyForNonLevyEmployers(Types.EmployerType employerType, int expectedGrants)
+    {
+        var learning = BuildApprenticeshipLearningForHiringGrant(usingEarnAndPayCalc: true);
+        var command = BuildCommand(learning, employerType);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        learning.Episodes.Single().EarningsProfile!.AdditionalPayments
+            .Count(x => x.AdditionalPaymentType == InstalmentTypes.EmployerHiringGrant).Should().Be(expectedGrants * 2);
+    }
+
+    [Test]
+    public async Task ThenTheHiringGrantIsGeneratedForAnEpisodeNotUsingTheEarnAndPayCalculation()
+    {
+        var learning = BuildApprenticeshipLearningForHiringGrant(usingEarnAndPayCalc: false);
+        var command = BuildCommand(learning, Types.EmployerType.NonLevy);
+        SetupDomainService(learning);
+
+        await CreateHandler().Handle(command);
+
+        var episode = learning.Episodes.Single();
+        episode.UsingEarnAndPayCalc.Should().BeFalse();
+        episode.EarningsProfile!.IsApproved.Should().BeTrue();
+        episode.EarningsProfile.Instalments.Should().BeEmpty();
+        var grants = episode.EarningsProfile.AdditionalPayments.Where(x => x.AdditionalPaymentType == InstalmentTypes.EmployerHiringGrant).OrderBy(x => x.DueDate).ToList();
+        grants.Select(x => x.DueDate).Should().Equal(new DateTime(2026, 12, 29), new DateTime(2027, 9, 30));
+        grants.Should().OnlyContain(x => x.Amount == 1000m);
+    }
+
+    private ApprenticeshipLearning BuildApprenticeshipLearningForHiringGrant(bool usingEarnAndPayCalc)
+    {
+        var episodeKey = Guid.NewGuid();
+        var episodeEntity = new ApprenticeshipEpisodeEntity
+        {
+            Key = episodeKey,
+            UsingEarnAndPayCalc = usingEarnAndPayCalc,
+            Prices = [new ApprenticeshipEpisodePriceEntity { Key = Guid.NewGuid(), EpisodeKey = episodeKey, StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2028, 9, 30), AgreedPrice = 12000 }],
+            EarningsProfile = new ApprenticeshipEarningsProfileEntity
+            {
+                EarningsProfileId = Guid.NewGuid(),
+                EpisodeKey = episodeKey,
+                IsApproved = false,
+                CalculationData = "{}",
+                Instalments = [],
+                ApprenticeshipAdditionalPayments = [],
+                EnglishAndMathsCourses = []
+            }
+        };
+
+        return ApprenticeshipLearning.Get(new ApprenticeshipLearningEntity
+        {
+            LearningKey = Guid.NewGuid(),
+            DateOfBirth = new DateTime(2008, 1, 1),
+            Episodes = [episodeEntity]
+        });
+    }
+
+    private ApproveLearningCommand.ApproveLearningCommand BuildCommand(ApprenticeshipLearning learning, Types.EmployerType employerType)
+        => new(learning.LearningKey, learning.Episodes.Single().EpisodeKey, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), employerType);
+
     private Command.ApproveLearningCommand.ApproveLearningCommandHandler CreateHandler()
-        => new(_mockDomainService.Object, _mockLogger.Object);
+        => new(_mockDomainService.Object, _mockLogger.Object, _mockSystemClock.Object, new EmployerHiringGrantConfiguration { StartDate = new DateTime(2026, 10, 1) });
 }

@@ -72,6 +72,7 @@ internal class TestStartup
                 new KeyValuePair<string, string>("ApplicationSettings:PaymentsConfiguration:PaymentsEndpoint", "payments-queue-name"),
                 new KeyValuePair<string, string>("ApplicationSettings:DbConnectionString", testContext.SqlDatabase?.DatabaseInfo.ConnectionString!),
                 new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:StartDate", "2018-01-01"),
+                new KeyValuePair<string, string>("ApplicationSettings:EmployerHiringGrantConfiguration:StartDate", "2026-10-01"),
                 new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:EarningsOptedInProviders:0", "12345678"),
                 new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:PaymentsOptedInProviders:0", "12345678"),
                 new KeyValuePair<string, string>("ApplicationSettings:ApprenticeshipOptInConfiguration:PaymentsOptedInProviders:1", "116")

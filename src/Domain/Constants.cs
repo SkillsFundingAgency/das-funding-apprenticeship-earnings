@@ -14,10 +14,12 @@ public static class InstalmentTypes
     public const string EmployerIncentive = "EmployerIncentive";
     public const string LearningSupport = "LearningSupport";
     public const string MathsAndEnglish = "MathsAndEnglish";
+    public const string EmployerHiringGrant = "EmployerHiringGrant";
 }
 
 public static class AdditionalPaymentAmounts
 {
     public const decimal Incentive = 500;
     public const decimal LearningSupport = 150;
+    public const decimal EmployerHiringGrant = 1000;
 }

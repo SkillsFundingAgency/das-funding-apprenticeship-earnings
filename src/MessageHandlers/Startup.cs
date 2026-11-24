@@ -96,6 +96,7 @@ public class Startup
         services.AddSingleton(x => ApplicationSettings);
         services.AddSingleton(x => ApplicationSettings.PaymentsConfiguration);
         services.AddSingleton(x => ApplicationSettings.ApprenticeshipOptInConfiguration);
+        services.AddSingleton(x => ApplicationSettings.EmployerHiringGrantConfiguration);
         services.AddCommandServices().AddEventServices().AddCommandDependencies();
 
         services.AddSingleton<ISystemClockService, SystemClockService>();

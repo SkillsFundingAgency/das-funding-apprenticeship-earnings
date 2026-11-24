@@ -109,7 +109,8 @@ public class ApprenticeshipEarningsProfile : BaseEarningsProfile<ApprenticeshipE
     public IReadOnlyCollection<AdditionalPayment> PersistentAdditionalPayments()
     {
         return Entity.ApprenticeshipAdditionalPayments
-            .Where(x=> x.AdditionalPaymentType == InstalmentTypes.LearningSupport)
+            .Where(x=> x.AdditionalPaymentType == InstalmentTypes.LearningSupport
+                    || x.AdditionalPaymentType == InstalmentTypes.EmployerHiringGrant)
             .Select(AdditionalPayment.Get)
             .ToList().AsReadOnly();
     }
