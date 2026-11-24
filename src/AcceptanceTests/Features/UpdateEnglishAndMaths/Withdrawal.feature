@@ -215,6 +215,29 @@ Scenario: Apprenticeship withdrawal removed; english and maths instalments resto
 		| English1 | 100    | 2627         | 9              | Regular |
 	And the english and maths earnings history is maintained
 
+Scenario: Apprenticeship withdrawal removed; english and maths learning support restored when the english and maths details are resent
+	Given an apprenticeship has been created with the following information
+		| StartDate  | EndDate    | Price |
+		| 2026-10-01 | 2027-07-31 | 5000  |
+	And the apprenticeship commitment is approved
+	And the following english and maths course information is provided
+		| StartDate  | EndDate    | Course   | LearnAimRef | Amount |
+		| 2026-10-01 | 2027-05-15 | English1 | English1    | 700    |
+	And the english and maths course has the following learning support
+		| StartDate  | EndDate    |
+		| 2026-10-01 | 2027-05-15 |
+	And the following on-programme request is sent
+		| Key            | Value      |
+		| WithdrawalDate | 2027-02-10 |
+	And the following on-programme request is sent
+		| Key            | Value |
+		| WithdrawalDate |       |
+	When the english and maths course has the following learning support
+		| StartDate  | EndDate    |
+		| 2026-10-01 | 2027-05-15 |
+	Then 7 english and maths learning support payments are persisted
+	And the english and maths earnings history is maintained
+
 Scenario: Unapproved apprenticeship withdrawn; english and maths unaffected
 	Given an apprenticeship has been created with the following information
 		| StartDate  | EndDate    | Price |
