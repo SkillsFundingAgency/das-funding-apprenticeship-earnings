@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Calculations;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Factories;
-using SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship;
 using EnglishAndMathsDomainModel = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMaths;
 using EnglishAndMathsAdditionalPayment = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.EnglishAndMaths.EnglishAndMathsAdditionalPayment;
 using AdditionalPayment = SFA.DAS.Funding.ApprenticeshipEarnings.Domain.Models.Apprenticeship.AdditionalPayment;
@@ -51,79 +49,100 @@ public class CreateUnapprovedApprenticeshipLearningCommandHandler
                                      $"FundingBandMaximum is required for draft apprenticeship learning. LearningKey: {request.LearningKey}");
         var learning = await _learningRepository.GetApprenticeshipLearning(request.LearningKey);
 
-        //existing learning, existing episode
         if (learning != null && learning.HasEpisode(request.EpisodeKey))
         {
-            if (!IsOptedIntoEarnings(request))
-            {
-                var episode = learning.GetEpisode(request.EpisodeKey);
-                if (episode.IsApproved)
-                {
-                    _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, episode is approved so it is left unchanged", request.LearningKey);
-                    return;
-                }
-
-                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, updating the episode without earnings", request.LearningKey);
-
-                UpdateWithoutCalculate(learning, request, fundingBandMaximum);
-                await _learningRepository.Update(learning);
-            }
-            else
-            {
-                UpdateAndCalculate(learning, request, fundingBandMaximum);
-                await _learningRepository.Update(learning);
-            }
+            var handled = await HandleExistingLearningExistingEpisode(learning, request, fundingBandMaximum);
+            if (!handled) return;
         }
-        //existing learning, new episode
         else if (learning != null)
         {
-            learning.AddUnapprovedEpisode(
-                request,
-                fundingBandMaximum,
-                request.ToEpisodePeriodsInLearning());
-
-            if (!IsOptedIntoEarnings(request))
-            {
-                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, storing the new episode without earnings", request.LearningKey);
-
-                // the new episode's FundingPlatform defaults to SLD
-                UpdateWithoutCalculate(learning, request, fundingBandMaximum);
-            }
-            else
-            {
-                UpdateAndCalculate(learning, request, fundingBandMaximum);
-            }
-
-            await _learningRepository.Update(learning);
+            await HandleExistingLearningNewEpisode(learning, request, fundingBandMaximum);
         }
-        //new learning & episode
         else if (request.IsNewApprenticeshipLearner)
         {
-            if (!IsOptedIntoEarnings(request))
-            {
-                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, storing it without earnings", request.LearningKey);
-
-                var optedOutLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum, FundingPlatform.SLD);
-
-                UpdateWithoutCalculate(optedOutLearning, request, fundingBandMaximum);
-                await _learningRepository.Add(optedOutLearning);
-
-                _logger.LogInformation(
-                    "Successfully handled CreateUnapprovedApprenticeshipLearningCommand for learning {LearningKey}",
-                    request.LearningKey);
-                return;
-            }
-
-            var fundingPlatform = IsOptedIntoPayments(request) ? FundingPlatform.DAS : FundingPlatform.SLD;
-            var newLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum, fundingPlatform);
-
-            UpdateAndCalculate(newLearning, request, fundingBandMaximum);
-            await _learningRepository.Add(newLearning);
+            await HandleNewLearningAndEpisode(request, fundingBandMaximum);
         }
 
         _logger.LogInformation(
             "Successfully handled CreateUnapprovedApprenticeshipLearningCommand for learning {LearningKey}",
             request.LearningKey);
+    }
+
+    /// <summary>
+    /// Returns false when the episode is approved and the learner is opted out, in which case nothing is changed.
+    /// </summary>
+    private async Task<bool> HandleExistingLearningExistingEpisode(
+        ApprenticeshipLearning learning,
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum)
+    {
+        if (!IsOptedIntoEarnings(request))
+        {
+            var episode = learning.GetEpisode(request.EpisodeKey);
+            if (episode.IsApproved)
+            {
+                _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, episode is approved so it is left unchanged", request.LearningKey);
+                return false;
+            }
+
+            _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, updating the episode without earnings", request.LearningKey);
+
+            UpdateWithoutCalculate(learning, request, fundingBandMaximum);
+        }
+        else
+        {
+            UpdateAndCalculate(learning, request, fundingBandMaximum);
+        }
+
+        await _learningRepository.Update(learning);
+        return true;
+    }
+
+    private async Task HandleExistingLearningNewEpisode(
+        ApprenticeshipLearning learning,
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum)
+    {
+        learning.AddUnapprovedEpisode(
+            request,
+            fundingBandMaximum,
+            request.ToEpisodePeriodsInLearning());
+
+        if (!IsOptedIntoEarnings(request))
+        {
+            _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, storing the new episode without earnings", request.LearningKey);
+
+            // the new episode's FundingPlatform defaults to SLD
+            UpdateWithoutCalculate(learning, request, fundingBandMaximum);
+        }
+        else
+        {
+            UpdateAndCalculate(learning, request, fundingBandMaximum);
+        }
+
+        await _learningRepository.Update(learning);
+    }
+
+    private async Task HandleNewLearningAndEpisode(
+        CreateUnapprovedApprenticeshipLearningRequest request,
+        int fundingBandMaximum)
+    {
+        if (!IsOptedIntoEarnings(request))
+        {
+            _logger.LogInformation("Apprenticeship did not meet opt-in criteria for learning {LearningKey}, storing it without earnings", request.LearningKey);
+
+            var optedOutLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum, FundingPlatform.SLD);
+
+            UpdateWithoutCalculate(optedOutLearning, request, fundingBandMaximum);
+            await _learningRepository.Add(optedOutLearning);
+            return;
+        }
+
+        var fundingPlatform = IsOptedIntoPayments(request) ? FundingPlatform.DAS : FundingPlatform.SLD;
+        var newLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, fundingBandMaximum, fundingPlatform);
+
+        UpdateAndCalculate(newLearning, request, fundingBandMaximum);
+        await _learningRepository.Add(newLearning);
     }
 
     private bool IsOptedIntoEarnings(CreateUnapprovedApprenticeshipLearningRequest request)
