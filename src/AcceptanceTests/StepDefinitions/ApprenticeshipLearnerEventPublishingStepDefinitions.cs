@@ -47,6 +47,21 @@ public class ApprenticeshipLearnerEventPublishingStepDefinitions
         await PostUnapprovedApprenticeshipLearning();
     }
 
+    [Given(@"the unapproved apprenticeship is withdrawn on (.*)")]
+    [When(@"the unapproved apprenticeship is withdrawn on (.*)")]
+    public async Task WhenTheUnapprovedApprenticeshipIsWithdrawn(DateTime withdrawalDate)
+    {
+        _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder().WithWithdrawalDate(withdrawalDate);
+        await PostUnapprovedApprenticeshipLearning();
+    }
+
+    [When(@"the unapproved apprenticeship withdrawal is removed")]
+    public async Task WhenTheUnapprovedApprenticeshipWithdrawalIsRemoved()
+    {
+        _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder().WithWithdrawalDate(null);
+        await PostUnapprovedApprenticeshipLearning();
+    }
+
     private async Task PostUnapprovedApprenticeshipLearning()
     {
         var request = _scenarioContext.GetCreateUnapprovedApprenticeshipLearningRequestBuilder()

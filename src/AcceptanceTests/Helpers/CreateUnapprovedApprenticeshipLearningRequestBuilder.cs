@@ -1,5 +1,6 @@
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Constants;
 using SFA.DAS.Funding.ApprenticeshipEarnings.AcceptanceTests.Model;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Command.UpdateEnglishAndMathsCommand;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Learning.Types;
 
@@ -20,10 +21,46 @@ public class CreateUnapprovedApprenticeshipLearningRequestBuilder
     private long _employerAccountId = EventBuilderSharedDefaults.EmployerAccountId;
     private Guid _episodeKey = Guid.NewGuid();
     private Guid _priceKey = Guid.NewGuid();
+    private DateTime? _withdrawalDate;
+    private List<DraftEnglishAndMathsItem> _englishAndMaths = new();
 
     public CreateUnapprovedApprenticeshipLearningRequestBuilder WithEndDate(DateTime endDate)
     {
         _endDate = endDate;
+        return this;
+    }
+
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithWithdrawalDate(DateTime? withdrawalDate)
+    {
+        _withdrawalDate = withdrawalDate;
+        return this;
+    }
+
+    public CreateUnapprovedApprenticeshipLearningRequestBuilder WithEnglishAndMaths(List<EnglishAndMathsItem> courses)
+    {
+        _englishAndMaths = courses.Select(x => new DraftEnglishAndMathsItem
+        {
+            StartDate = x.StartDate,
+            EndDate = x.EndDate,
+            Course = x.Course,
+            LearnAimRef = x.LearnAimRef,
+            Amount = x.Amount,
+            CombinedFundingAdjustmentPercentage = x.CombinedFundingAdjustmentPercentage,
+            PauseDate = x.PauseDate,
+            WithdrawalDate = x.WithdrawalDate,
+            CompletionDate = x.CompletionDate,
+            PeriodsInLearning =
+            [
+                new ApprenticeshipPeriodInLearningItem
+                {
+                    StartDate = x.StartDate,
+                    EndDate = x.CompletionDate ?? x.PauseDate ?? x.WithdrawalDate,
+                    OriginalExpectedEndDate = x.EndDate
+                }
+            ],
+            LearningSupport = x.LearningSupport
+        }).ToList();
+
         return this;
     }
 
@@ -104,6 +141,8 @@ public class CreateUnapprovedApprenticeshipLearningRequestBuilder
                 EmployerType = EmployerType.Levy,
                 FundingBandMaximum = fundingBandMaximum
             },
+            WithdrawalDate = _withdrawalDate,
+            EnglishAndMaths = _englishAndMaths,
             Prices = prices,
             PeriodsInLearning = prices
                 .Select(price => new ApprenticeshipPeriodInLearningItem
