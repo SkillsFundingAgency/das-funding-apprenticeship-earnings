@@ -1,4 +1,5 @@
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand;
@@ -155,9 +156,9 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 
-    [TestCase(false, true, TestName = "Then_New_Episode_Is_Not_Added_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
-    [TestCase(true, false, TestName = "Then_New_Episode_Is_Not_Added_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
-    public async Task Then_New_Episode_Is_Not_Added_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
+    [TestCase(false, true, TestName = "Then_New_Episode_Is_Stored_Without_Earnings_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
+    [TestCase(true, false, TestName = "Then_New_Episode_Is_Stored_Without_Earnings_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
+    public async Task Then_New_Episode_Is_Stored_Without_Earnings_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
     {
         _apprenticeshipOptInConfiguration.StartDate = startDateOptedIn ? new DateTime(2020, 1, 1) : new DateTime(2030, 1, 1);
         _apprenticeshipOptInConfiguration.EarningsOptedInProviders = providerOptedIn ? [12345678] : [];
@@ -179,13 +180,21 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
 
         await sut.Handle(command, CancellationToken.None);
 
-        _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+        _repository.Verify(x => x.Update(It.Is<ApprenticeshipLearning>(l =>
+            l.HasEpisode(existingRequest.EpisodeKey) &&
+            l.GetEpisode(existingRequest.EpisodeKey).UsingEarnAndPayCalc &&
+            l.HasEpisode(request.EpisodeKey) &&
+            !l.GetEpisode(request.EpisodeKey).UsingEarnAndPayCalc &&
+            l.GetEpisode(request.EpisodeKey).FundingPlatform == Types.FundingPlatform.SLD &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile != null &&
+            !l.GetEpisode(request.EpisodeKey).EarningsProfile!.IsApproved &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.Instalments.Count == 0)), Times.Once);
         _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Never);
     }
 
-    [TestCase(false, true, TestName = "Then_New_Draft_Learning_Is_Not_Added_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
-    [TestCase(true, false, TestName = "Then_New_Draft_Learning_Is_Not_Added_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
-    public async Task Then_New_Draft_Learning_Is_Not_Added_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
+    [TestCase(false, true, TestName = "Then_New_Draft_Learning_Is_Stored_Without_Earnings_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
+    [TestCase(true, false, TestName = "Then_New_Draft_Learning_Is_Stored_Without_Earnings_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
+    public async Task Then_New_Draft_Learning_Is_Stored_Without_Earnings_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
     {
         _apprenticeshipOptInConfiguration.StartDate = startDateOptedIn ? new DateTime(2020, 1, 1) : new DateTime(2030, 1, 1);
         _apprenticeshipOptInConfiguration.EarningsOptedInProviders = providerOptedIn ? [12345678] : [];
@@ -201,8 +210,82 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
 
         await sut.Handle(command, CancellationToken.None);
 
+        _repository.Verify(x => x.Add(It.Is<ApprenticeshipLearning>(l =>
+            l.HasEpisode(request.EpisodeKey) &&
+            !l.GetEpisode(request.EpisodeKey).UsingEarnAndPayCalc &&
+            l.GetEpisode(request.EpisodeKey).FundingPlatform == Types.FundingPlatform.SLD &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile != null &&
+            !l.GetEpisode(request.EpisodeKey).EarningsProfile!.IsApproved)), Times.Once);
+        _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Then_Opted_Out_Draft_Learning_Has_A_Blank_Earnings_Profile_With_English_And_Maths_And_Learning_Support_Stored()
+    {
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = [];
+
+        var request = BuildRequest();
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+
+        await BuildHandler().Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Add(It.Is<ApprenticeshipLearning>(l => HasNoEarningsButStoredEnglishMathsAndLearningSupport(l.GetEpisode(request.EpisodeKey)))), Times.Once);
+    }
+
+    [Test]
+    public async Task Then_Nothing_Happens_When_Opted_Out_Learning_Does_Not_Exist_And_IsNotNewApprenticeshipLearner()
+    {
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = [];
+
+        var request = BuildRequest();
+        request.IsNewApprenticeshipLearner = false;
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+
+        await BuildHandler().Handle(command, CancellationToken.None);
+
         _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Never);
         _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Then_Opted_In_Draft_Learning_Is_Using_The_Earn_And_Pay_Calculation()
+    {
+        var request = BuildRequest();
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync((ApprenticeshipLearning?)null);
+
+        await BuildHandler().Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Add(It.Is<ApprenticeshipLearning>(l =>
+            l.GetEpisode(request.EpisodeKey).UsingEarnAndPayCalc &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.Instalments.Count > 0 &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.MathsAndEnglishCourses.Single().Instalments.Count > 0 &&
+            l.GetEpisode(request.EpisodeKey).EarningsProfile!.AdditionalPayments.All(p => p.Amount > 0))), Times.Once);
+    }
+
+    private static bool HasNoEarningsButStoredEnglishMathsAndLearningSupport(ApprenticeshipEpisode episode)
+    {
+        var profile = episode.EarningsProfile!;
+        var course = profile.MathsAndEnglishCourses.Single();
+
+        return profile.Instalments.Count == 0 &&
+               profile.OnProgramTotal == 0 &&
+               profile.CompletionPayment == 0 &&
+               course.LearnAimRef == "ENG001" &&
+               course.Instalments.Count == 0 &&
+               profile.AdditionalPayments.Count > 0 &&
+               profile.AdditionalPayments.All(p => p.Amount == 0);
     }
 
     [Test]
@@ -231,14 +314,16 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
             l.GetEpisode(request.EpisodeKey).EarningsProfile!.AdditionalPayments.Count == 0)), Times.Once);
     }
 
-    [TestCase(false, true, TestName = "Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
-    [TestCase(true, false, TestName = "Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
-    public async Task Then_Existing_Unapproved_Episode_Is_Removed_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
+    [TestCase(false, true, TestName = "Then_Existing_Unapproved_Episode_Earnings_Are_Cleared_When_OptIn_Criteria_Not_Met(StartDate not opted in)")]
+    [TestCase(true, false, TestName = "Then_Existing_Unapproved_Episode_Earnings_Are_Cleared_When_OptIn_Criteria_Not_Met(Provider not opted in)")]
+    public async Task Then_Existing_Unapproved_Episode_Earnings_Are_Cleared_When_OptIn_Criteria_Not_Met(bool startDateOptedIn, bool providerOptedIn)
     {
         var request = BuildRequest();
         var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
         var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000, Types.FundingPlatform.SLD);
         existingLearning.Calculate(_systemClock.Object, "{}", request.EpisodeKey, initialGenerationIsApproved: false);
+        existingLearning.GetEpisode(request.EpisodeKey).EarningsProfile!.Instalments.Should().NotBeEmpty();
+        existingLearning.FlushEvents();
 
         _repository
             .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
@@ -252,8 +337,55 @@ public class WhenCreatingUnapprovedApprenticeshipLearning
         await sut.Handle(command, CancellationToken.None);
 
         _repository.Verify(x => x.Update(It.Is<ApprenticeshipLearning>(l =>
-            l.GetEpisode(request.EpisodeKey).IsRemoved)), Times.Once);
+            !l.GetEpisode(request.EpisodeKey).IsRemoved &&
+            !l.GetEpisode(request.EpisodeKey).UsingEarnAndPayCalc &&
+            !l.GetEpisode(request.EpisodeKey).EarningsProfile!.IsApproved &&
+            HasNoEarningsButStoredEnglishMathsAndLearningSupport(l.GetEpisode(request.EpisodeKey)))), Times.Once);
         _repository.Verify(x => x.Add(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Then_Existing_Unapproved_Episode_Already_Stored_Without_Earnings_Is_Updated_Without_A_Recalculated_Event()
+    {
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = [];
+
+        var request = BuildRequest();
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000, Types.FundingPlatform.SLD);
+        existingLearning.GetEpisode(request.EpisodeKey).CreateBlankEarningsProfile(isApproved: false);
+        existingLearning.FlushEvents();
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync(existingLearning);
+
+        await BuildHandler().Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Update(It.Is<ApprenticeshipLearning>(l =>
+            HasNoEarningsButStoredEnglishMathsAndLearningSupport(l.GetEpisode(request.EpisodeKey)))), Times.Once);
+        existingLearning.FlushEvents().OfType<SFA.DAS.Funding.ApprenticeshipEarnings.Types.ApprenticeshipEarningsRecalculatedEvent>().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Then_Existing_Approved_Episode_Is_Left_Unchanged_When_OptIn_Criteria_Not_Met()
+    {
+        _apprenticeshipOptInConfiguration.EarningsOptedInProviders = [];
+
+        var request = BuildRequest();
+        var command = new SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommand(request);
+        var existingLearning = _learningFactory.CreateNewUnapprovedApprenticeship(request, 10000, Types.FundingPlatform.SLD);
+        existingLearning.Calculate(_systemClock.Object, "{}", request.EpisodeKey, initialGenerationIsApproved: true);
+        existingLearning.GetEpisode(request.EpisodeKey).IsApproved.Should().BeTrue();
+
+        _repository
+            .Setup(x => x.GetApprenticeshipLearning(request.LearningKey))
+            .ReturnsAsync(existingLearning);
+
+        await BuildHandler().Handle(command, CancellationToken.None);
+
+        _repository.Verify(x => x.Update(It.IsAny<ApprenticeshipLearning>()), Times.Never);
+        existingLearning.GetEpisode(request.EpisodeKey).EarningsProfile!.Instalments.Should().NotBeEmpty();
+        existingLearning.GetEpisode(request.EpisodeKey).UsingEarnAndPayCalc.Should().BeTrue();
     }
 
     private SFA.DAS.Funding.ApprenticeshipEarnings.Command.CreateUnapprovedApprenticeshipLearningCommand.CreateUnapprovedApprenticeshipLearningCommandHandler BuildHandler()

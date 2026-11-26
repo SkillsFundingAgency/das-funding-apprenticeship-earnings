@@ -165,6 +165,38 @@ public class WhenGetFm36Data
     }
 
     [Test]
+    public async Task Handle_EmployerHiringGrant_IsNotReported()
+    {
+        const long ukprn = 10005077;
+        var learningKey = Guid.NewGuid();
+        var startDate = SearchDate.AddMonths(-6);
+        var endDate = SearchDate.AddMonths(12);
+
+        var hiringGrant = new ApprenticeshipAdditionalPaymentEntity
+        {
+            Key = Guid.NewGuid(),
+            AcademicYear = CollectionYear,
+            DeliveryPeriod = CollectionPeriod,
+            Amount = 1000m,
+            AdditionalPaymentType = "EmployerHiringGrant",
+            DueDate = SearchDate
+        };
+
+        var learning = BuildLearning(learningKey, ukprn,
+            priceStartDate: startDate,
+            priceEndDate: endDate,
+            additionalPayment: hiringGrant,
+            dateOfBirth: new DateTime(2000, 6, 1));
+
+        _dbContext.ApprenticeshipLearnings.Add(learning);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _queryHandler.Handle(new GetFm36DataRequest(ukprn, CollectionYear, CollectionPeriod, new List<Guid> { learningKey }), CancellationToken.None);
+
+        result.Apprenticeships.Single().Episodes.Single().AdditionalPayments.Should().BeEmpty();
+    }
+
+    [Test]
     public async Task Handle_EnglishAndMathsAdditionalPayments_AreTaggedWithTheirCourseLearnAimRef()
     {
         const long ukprn = 10005077;

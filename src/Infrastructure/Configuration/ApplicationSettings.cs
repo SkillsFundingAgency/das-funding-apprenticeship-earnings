@@ -19,6 +19,7 @@ public class ApplicationSettings
     public PaymentsConfiguration PaymentsConfiguration { get; set; }
     public EarningOuterApiConfiguration EarningOuterApiConfiguration { get; set; }
     public ApprenticeshipOptInConfiguration ApprenticeshipOptInConfiguration { get; set; }
+    public EmployerHiringGrantConfiguration EmployerHiringGrantConfiguration { get; set; } = new();
 }
 
 [ExcludeFromCodeCoverage]
@@ -27,6 +28,13 @@ public class ApprenticeshipOptInConfiguration
     public DateTime StartDate { get; set; }
     public List<long> EarningsOptedInProviders { get; set; } = [];
     public List<long> PaymentsOptedInProviders { get; set; } = [];
+}
+
+[ExcludeFromCodeCoverage]
+public class EmployerHiringGrantConfiguration
+{
+    /// <summary>Apprenticeships starting on or after this date can earn the employer hiring grant. Defaults to 1 October 2026.</summary>
+    public DateTime StartDate { get; set; } = new(2026, 10, 1);
 }
 
 [ExcludeFromCodeCoverage]

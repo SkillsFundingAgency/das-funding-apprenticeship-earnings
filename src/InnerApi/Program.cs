@@ -39,6 +39,7 @@ builder.Services.AddEntityFrameworkForApprenticeships(applicationSettings);
 builder.Services.AddSingleton(x => applicationSettings);
 builder.Services.AddSingleton(x => applicationSettings.PaymentsConfiguration);
 builder.Services.AddSingleton(x => applicationSettings.ApprenticeshipOptInConfiguration);
+builder.Services.AddSingleton(x => applicationSettings.EmployerHiringGrantConfiguration);
 builder.Services.ConfigureNServiceBusForSend(applicationSettings.NServiceBusConnectionString.GetFullyQualifiedNamespace(), applicationSettings.UseWebSockets);
 builder.Services.AddQueryServices().AddCommandDependencies().AddEventServices().AddCommandServices();
 builder.Services.AddApplicationHealthChecks(applicationSettings);

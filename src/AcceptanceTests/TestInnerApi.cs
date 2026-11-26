@@ -48,6 +48,7 @@ public class TestInnerApi : IDisposable
                 services.AddSingleton<IMessageSession>(_testContext.MessageSession);
                 services.AddSingleton<IFundingBandMaximumService>(_testContext.FundingBandMaximumService);
                 services.AddSingleton(new PaymentsConfiguration { PaymentsEndpoint = "payments-queue-name" });
+                services.AddSingleton(new EmployerHiringGrantConfiguration { StartDate = new DateTime(2026, 10, 1) });
                 services.AddSingleton(new ApprenticeshipOptInConfiguration
                 {
                     StartDate = new DateTime(2018, 1, 1),

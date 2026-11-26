@@ -817,6 +817,95 @@ public class WhenBuildingApprenticeshipCalculateGrowthAndSkillsPaymentsEvent
         secondEmployer.DeliveryPeriod.Should().Be(10);
     }
 
+    private static List<ApprenticeshipAdditionalPaymentEntity> HiringGrantPayments() =>
+    [
+        new() { Key = Guid.NewGuid(), AcademicYear = 2627, DeliveryPeriod = 5, Amount = 1000m, DueDate = new DateTime(2026, 12, 29), AdditionalPaymentType = "EmployerHiringGrant" },
+        new() { Key = Guid.NewGuid(), AcademicYear = 2728, DeliveryPeriod = 2, Amount = 1000m, DueDate = new DateTime(2027, 9, 30), AdditionalPaymentType = "EmployerHiringGrant" }
+    ];
+
+    [Test]
+    public void ThenHiringGrant_BothInstalmentsAreSentAlongsideOtherEarnings()
+    {
+        var startDate = new DateTime(2026, 10, 1);
+        var endDate = new DateTime(2027, 9, 30);
+        var additionalPayments = HiringGrantPayments();
+        additionalPayments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2627, DeliveryPeriod = 4, Amount = 150m, DueDate = new DateTime(2026, 11, 30), AdditionalPaymentType = "LearningSupport" });
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments, dateOfBirth: startDate.AddYears(-20));
+
+        var result = _sut.Build(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var periods = result.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).ToList();
+        periods.Should().Contain(p => p.EarningType == EarningType.LearningSupport);
+
+        var first = periods.Single(p => p.EarningType == EarningType.FirstEmployerHiringPayment);
+        first.Amount.Should().Be(1000m);
+        first.DeliveryPeriod.Should().Be(5);
+
+        var second = periods.Single(p => p.EarningType == EarningType.SecondEmployerHiringPayment);
+        second.Amount.Should().Be(1000m);
+        second.DeliveryPeriod.Should().Be(2);
+        result.Earnings.Single(e => e.PricePeriods.SelectMany(p => p.Periods).Contains(second)).AcademicYear.Should().Be(2728);
+    }
+
+    [Test]
+    public void ThenHiringGrantOnly_SendsOnlyTheHiringGrantEarnings()
+    {
+        var startDate = new DateTime(2026, 10, 1);
+        var endDate = new DateTime(2027, 9, 30);
+        var additionalPayments = HiringGrantPayments();
+        additionalPayments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2627, DeliveryPeriod = 4, Amount = 150m, DueDate = new DateTime(2026, 11, 30), AdditionalPaymentType = "LearningSupport" });
+        additionalPayments.Add(new() { Key = Guid.NewGuid(), AcademicYear = 2627, DeliveryPeriod = 5, Amount = 500m, DueDate = new DateTime(2026, 12, 29), AdditionalPaymentType = "EmployerIncentive" });
+
+        var priceKey = Guid.NewGuid();
+        var instalments = new List<ApprenticeshipInstalmentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2627, DeliveryPeriod = 3, Amount = 1000m, Type = nameof(InstalmentType.Regular), EpisodePriceKey = priceKey }
+        };
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, instalments, additionalPayments: additionalPayments, priceKey: priceKey, dateOfBirth: startDate.AddYears(-17));
+
+        var result = _sut.BuildHiringGrantOnly(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Should().NotBeNull();
+        var earningTypes = result!.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).Select(p => p.EarningType).ToList();
+        earningTypes.Should().BeEquivalentTo(new[] { EarningType.FirstEmployerHiringPayment, EarningType.SecondEmployerHiringPayment });
+    }
+
+    [Test]
+    public void ThenHiringGrantOnly_WhenThereIsNoHiringGrant_ReturnsNull()
+    {
+        var startDate = new DateTime(2023, 9, 1);
+        var endDate = new DateTime(2024, 6, 30);
+        var additionalPayments = new List<ApprenticeshipAdditionalPaymentEntity>
+        {
+            new() { Key = Guid.NewGuid(), AcademicYear = 2324, DeliveryPeriod = 3, Amount = 500m, DueDate = new DateTime(2023, 11, 29), AdditionalPaymentType = "EmployerIncentive" }
+        };
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: additionalPayments);
+
+        var result = _sut.BuildHiringGrantOnly(episode, learning, _fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        result.Should().BeNull();
+    }
+
+    [Test]
+    public void ThenHiringGrant_WhenFundedByLevyTransfer_TheReceivingEmployerIsTheHiringEmployer()
+    {
+        var startDate = new DateTime(2026, 10, 1);
+        var endDate = new DateTime(2027, 9, 30);
+        var receivingEmployerAccountId = _fixture.Create<long>();
+        var sendingEmployerAccountId = _fixture.Create<long>();
+
+        var (learning, episode, _) = BuildLearning(startDate, endDate, 15000m, additionalPayments: HiringGrantPayments(), employerType: EmployerType.NonLevy, dateOfBirth: startDate.AddYears(-20));
+
+        var result = _sut.BuildHiringGrantOnly(episode, learning, receivingEmployerAccountId, sendingEmployerAccountId, _fixture.Create<Guid>(), _fixture.Create<string>());
+
+        var employers = result!.Earnings.SelectMany(e => e.PricePeriods).SelectMany(p => p.Periods).Select(p => p.Employer).ToList();
+        employers.Should().OnlyContain(e => e.AccountId == receivingEmployerAccountId
+            && e.FundingAccountId == sendingEmployerAccountId
+            && e.EmployerType == SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType.NonLevy);
+    }
+
     [Test]
     public void ThenAC1_FLP2030_OnlyFirstIncentiveMilestonePresent_MapsToFirstEarningTypesOnly()
     {

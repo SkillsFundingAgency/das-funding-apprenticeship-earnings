@@ -57,7 +57,16 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
         {
             if (episode.FundingPlatform is not FundingPlatform.DAS)
             {
-                _logger.LogInformation("{Handler} - Skipped EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as FundingPlatform is not DAS", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, command.LearningKey);
+                if (command.Request.ReleaseType is ReleaseType.All or ReleaseType.OnProgramme)
+                {
+                    await SendHiringGrantOnly(episode, learning, learnerKey, learnerRef, options, cancellationToken);
+                    _logger.LogInformation("{Handler} - Sending only Hiring Grant payments for EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as FundingPlatform is not DAS", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, command.LearningKey);
+                }
+                else
+                {
+                    _logger.LogInformation("{Handler} - Skipped EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as FundingPlatform is not DAS", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, command.LearningKey);
+                }
+
                 continue;
             }
 
@@ -100,6 +109,21 @@ public class ReleaseEarningsCommandHandler : ICommandHandler<ReleaseEarningsComm
     {
         var paymentEvent = _eventBuilder.Build(episode, learning, episode.EmployerAccountId,
             episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
+
+        await _messageSession.Send(paymentEvent, options, cancellationToken);
+        await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);
+    }
+
+    private async Task SendHiringGrantOnly(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, Guid learnerKey, string learnerRef, SendOptions options, CancellationToken cancellationToken)
+    {
+        var paymentEvent = _eventBuilder.BuildHiringGrantOnly(episode, learning, episode.EmployerAccountId,
+            episode.FundingEmployerAccountId ?? episode.EmployerAccountId, learnerKey, learnerRef);
+
+        if (paymentEvent is null)
+        {
+            _logger.LogInformation("{Handler} - Skipped EpisodeKey: {EpisodeKey} on LearningKey: {LearningKey} as FundingPlatform is not DAS and there is no hiring grant to send", nameof(ReleaseEarningsCommandHandler), episode.EpisodeKey, learning.LearningKey);
+            return;
+        }
 
         await _messageSession.Send(paymentEvent, options, cancellationToken);
         await _messageSession.Publish(new GrowthAndSkillsPaymentsRecalculatedEvent { Command = paymentEvent }, cancellationToken: cancellationToken);

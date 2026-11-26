@@ -145,6 +145,37 @@ public class WhenSendingApprenticeshipPayableEarningsToPayments
     }
 
     [Test]
+    public async Task WhenFundingPlatformIsNotDasAndThereIsAHiringGrant_ThenOnlyTheHiringGrantIsSentAndPublished()
+    {
+        var apprenticeshipPayableEarningsUpdatedEvent = _fixture.Create<ApprenticeshipPayableEarningsUpdatedEvent>();
+        var command = new global::SFA.DAS.Funding.ApprenticeshipEarnings.Command.SendApprenticeshipPayableEarningsToPaymentsCommand.SendApprenticeshipPayableEarningsToPaymentsCommand(apprenticeshipPayableEarningsUpdatedEvent);
+
+        var (learning, _) = BuildLearning(
+            apprenticeshipPayableEarningsUpdatedEvent.LearningKey,
+            apprenticeshipPayableEarningsUpdatedEvent.EpisodeKey,
+            fundingPlatform: FundingPlatform.SLD);
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(command.ApprenticeshipPayableEarningsUpdatedEvent.LearningKey))
+            .ReturnsAsync(learning);
+
+        var hiringGrantEvent = new CalculateGrowthAndSkillsPayments();
+        _mockBuilder.Setup(x => x.BuildHiringGrantOnly(
+                It.IsAny<ApprenticeshipEpisode>(),
+                learning,
+                apprenticeshipPayableEarningsUpdatedEvent.EmployerAccountId,
+                apprenticeshipPayableEarningsUpdatedEvent.FundingAccountId,
+                apprenticeshipPayableEarningsUpdatedEvent.LearnerKey,
+                apprenticeshipPayableEarningsUpdatedEvent.LearnerRef))
+            .Returns(hiringGrantEvent);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(hiringGrantEvent, It.IsAny<SendOptions>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == hiringGrantEvent), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
     public async Task WhenLearningNotFound_ThrowsException()
     {
         var apprenticeshipPayableEarningsUpdatedEvent = _fixture.Create<ApprenticeshipPayableEarningsUpdatedEvent>();

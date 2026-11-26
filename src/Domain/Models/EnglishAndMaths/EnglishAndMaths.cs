@@ -49,6 +49,43 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
         decimal? combinedFundingAdjustmentPercentage,
         IEnumerable<IPeriodInLearning> periodsInLearning,
         IEnumerable<EnglishAndMathsAdditionalPayment>? additionalPayments = null)
+        : this(startDate, endDate, course, learnAimRef, amount, withdrawalDate, completionDate, pauseDate, combinedFundingAdjustmentPercentage, periodsInLearning, additionalPayments, calculate: true)
+    {
+    }
+
+    /// <summary>
+    /// Update (store only): creates the course with its details, periods in learning and additional payments, but without calculating instalments.
+    /// Call <see cref="Calculate"/> to generate the instalments.
+    /// </summary>
+    public static EnglishAndMaths CreateWithoutEarnings(
+        DateTime startDate,
+        DateTime endDate,
+        string course,
+        string learnAimRef,
+        decimal amount,
+        DateTime? withdrawalDate,
+        DateTime? completionDate,
+        DateTime? pauseDate,
+        decimal? combinedFundingAdjustmentPercentage,
+        IEnumerable<IPeriodInLearning> periodsInLearning,
+        IEnumerable<EnglishAndMathsAdditionalPayment>? additionalPayments = null)
+    {
+        return new EnglishAndMaths(startDate, endDate, course, learnAimRef, amount, withdrawalDate, completionDate, pauseDate, combinedFundingAdjustmentPercentage, periodsInLearning, additionalPayments, calculate: false);
+    }
+
+    private EnglishAndMaths(
+        DateTime startDate,
+        DateTime endDate,
+        string course,
+        string learnAimRef,
+        decimal amount,
+        DateTime? withdrawalDate,
+        DateTime? completionDate,
+        DateTime? pauseDate,
+        decimal? combinedFundingAdjustmentPercentage,
+        IEnumerable<IPeriodInLearning> periodsInLearning,
+        IEnumerable<EnglishAndMathsAdditionalPayment>? additionalPayments,
+        bool calculate)
     {
         _entity = new EnglishAndMathsEntity();
         _entity.Key = Guid.NewGuid();
@@ -70,13 +107,27 @@ public class EnglishAndMaths : IDomainEntity<EnglishAndMathsEntity>
             EndDate = pil.EndDate,
             OriginalExpectedEndDate = pil.OriginalExpectedEndDate
         }).ToList();
-        _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
+        _entity.Instalments = [];
 
         var withdrawnBeforeQualifying = withdrawalDate.HasValue && !EnglishAndMathsPayments.LearnerQualifiesForEarnings(startDate, endDate, withdrawalDate.Value);
         _entity.AdditionalPayments = (withdrawnBeforeQualifying ? [] : (additionalPayments ?? []).ToList()).ToModels<EnglishAndMathsAdditionalPayment, EnglishAndMathsAdditionalPaymentEntity>();
 
         _instalments = _entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
         _additionalPayments = _entity.AdditionalPayments.Select(EnglishAndMathsAdditionalPayment.Get).ToList();
+
+        if (calculate)
+        {
+            Calculate();
+        }
+    }
+
+    /// <summary>
+    /// Calculate: generates the instalments for the course, replacing any existing ones.
+    /// </summary>
+    public void Calculate()
+    {
+        _entity.Instalments = EnglishAndMathsPayments.GenerateInstalments(this);
+        _instalments = _entity.Instalments.Select(EnglishAndMathsInstalment.Get).ToList();
     }
 
     public EnglishAndMathsEntity GetEntity()

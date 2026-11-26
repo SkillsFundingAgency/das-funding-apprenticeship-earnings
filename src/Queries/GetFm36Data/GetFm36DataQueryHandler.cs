@@ -132,6 +132,7 @@ public class GetFm36DataQueryHandler : IQueryHandler<GetFm36DataRequest, GetFm36
                 InstalmentType = i.Type
             }).ToList(),
             AdditionalPayments = (profile?.ApprenticeshipAdditionalPayments ?? [])
+                .Where(p => p.AdditionalPaymentType != Domain.InstalmentTypes.EmployerHiringGrant)
                 .Select(p => new AdditionalPayment
                 {
                     AcademicYear = p.AcademicYear,

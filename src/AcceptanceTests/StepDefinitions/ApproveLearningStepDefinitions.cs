@@ -67,6 +67,28 @@ public class ApproveLearningStepDefinitions
         entity.Should().BeNull();
     }
 
+    [Then("the apprenticeship is stored without earnings and flagged as not using earn and pay calc")]
+    public async Task ThenTheApprenticeshipIsStoredWithoutEarnings()
+    {
+        var request = _scenarioContext.Get<CreateUnapprovedApprenticeshipLearningRequest>();
+        var entity = await _testContext.SqlDatabase.GetApprenticeshipLearning(request.LearningKey);
+
+        entity.Should().NotBeNull();
+        var episode = entity!.Episodes.Single(x => x.Key == request.EpisodeKey);
+        episode.UsingEarnAndPayCalc.Should().BeFalse();
+        episode.FundingPlatform.Should().Be(FundingPlatform.SLD);
+        episode.EarningsProfile.Should().NotBeNull();
+        episode.EarningsProfile.IsApproved.Should().BeFalse();
+        episode.EarningsProfile.Instalments.Should().BeEmpty();
+        episode.EarningsProfile.ApprenticeshipAdditionalPayments.Should().OnlyContain(x => x.Amount == 0);
+    }
+
+    [Given("the employer is non-levy")]
+    public void GivenTheEmployerIsNonLevy()
+    {
+        _scenarioContext.Set(SFA.DAS.Learning.Enums.EmployerType.NonLevy, "EmployerType");
+    }
+
     [Given("a LearningApproved event is received for the apprenticeship")]
     [When("a LearningApproved event is received for the apprenticeship")]
     public async Task WhenLearningApprovedEventReceivedForApprenticeship()
