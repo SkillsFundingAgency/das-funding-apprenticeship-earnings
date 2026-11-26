@@ -13,8 +13,6 @@ public interface IApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder
 
 public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder
 {
-    private const string ApprenticeshipCourseReference = "ZPROG001";
-
     public CalculateGrowthAndSkillsPayments Build(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
         long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
     {
@@ -29,7 +27,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 CourseType = CourseType.Apprenticeship,
                 LearningType = LearningType.Apprenticeship,
                 CourseCode = episode.TrainingCode.Trim(),
-                CourseReference = ApprenticeshipCourseReference,
+                CourseReference = Domain.Constants.ApprenticeshipLearningAimReference,
                 AgeAtStartOfTraining = (byte)episode.AgeAtStartOfApprenticeship,
                 StartDate = episode.Prices.Min(p => p.StartDate),
                 PlannedEndDate = GetPlannedEndDate(episode),

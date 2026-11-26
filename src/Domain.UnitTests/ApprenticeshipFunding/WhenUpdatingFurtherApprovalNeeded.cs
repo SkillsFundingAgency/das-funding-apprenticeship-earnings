@@ -39,6 +39,7 @@ public class WhenUpdatingFurtherApprovalNeeded
         @event.CourseCode.Should().Be(TrainingCode);
         @event.LearningType.Should().Be(LearningType.Apprenticeship);
         @event.CourseType.Should().Be(CourseType.Apprenticeship);
+        @event.LearningAimReference.Should().Be("ZPROG001");
     }
 
     [Test]

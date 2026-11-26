@@ -244,7 +244,8 @@ public class ApprenticeshipEpisode : BaseEpisode<ApprenticeshipEpisodeEntity, Ap
                 LearningKey = learning.LearningKey,
                 CourseCode = TrainingCode.Trim(),
                 LearningType = Payments.EarningEvents.Messages.External.LearningType.Apprenticeship,
-                CourseType = Payments.EarningEvents.Messages.External.CourseType.Apprenticeship
+                CourseType = Payments.EarningEvents.Messages.External.CourseType.Apprenticeship,
+                LearningAimReference = Constants.ApprenticeshipLearningAimReference
             });
         }
     }
