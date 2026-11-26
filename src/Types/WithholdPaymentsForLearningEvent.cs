@@ -14,4 +14,5 @@ public class WithholdPaymentsForLearningEvent
     public string CourseCode { get; set; } = string.Empty;
     public LearningType LearningType { get; set; }
     public CourseType CourseType { get; set; }
+    public string LearningAimReference { get; set; } = string.Empty;
 }
