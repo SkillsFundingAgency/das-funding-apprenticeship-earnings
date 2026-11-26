@@ -8,6 +8,13 @@ namespace SFA.DAS.Funding.ApprenticeshipEarnings.Command;
 public interface IApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder
 {
     CalculateGrowthAndSkillsPayments Build(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference);
+
+    /// <summary>
+    /// Builds a message containing only the employer hiring grant earnings, for episodes which are not opted in to payments
+    /// but still have the hiring grant paid through payments. Returns null when there are no hiring grant earnings to send.
+    /// </summary>
+    CalculateGrowthAndSkillsPayments? BuildHiringGrantOnly(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference);
+
     CalculateGrowthAndSkillsPayments BuildForEnglishAndMaths(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, EnglishAndMathsDomainModel course, long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference);
 }
 
@@ -17,6 +24,19 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
 
     public CalculateGrowthAndSkillsPayments Build(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
         long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
+    {
+        return BuildMessage(episode, learning, employerAccountId, fundingAccountId, learnerKey, learnerReference, hiringGrantOnly: false);
+    }
+
+    public CalculateGrowthAndSkillsPayments? BuildHiringGrantOnly(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
+        long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference)
+    {
+        var message = BuildMessage(episode, learning, employerAccountId, fundingAccountId, learnerKey, learnerReference, hiringGrantOnly: true);
+        return message.Earnings.Any() ? message : null;
+    }
+
+    private static CalculateGrowthAndSkillsPayments BuildMessage(ApprenticeshipEpisode episode, ApprenticeshipLearning learning,
+        long employerAccountId, long fundingAccountId, Guid learnerKey, string learnerReference, bool hiringGrantOnly)
     {
         return new CalculateGrowthAndSkillsPayments
         {
@@ -37,7 +57,7 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                 TrainingStatus = GetTrainingStatus(episode.WithdrawalDate, episode.CompletionDate, episode.PauseDate)
             },
             EmployerContribution = 0,
-            Earnings = BuildEarnings(episode, learning, employerAccountId, fundingAccountId)
+            Earnings = BuildEarnings(episode, learning, employerAccountId, fundingAccountId, hiringGrantOnly)
         };
     }
 
@@ -92,23 +112,22 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
         return pauseDate is null ? TrainingStatus.Continuing : TrainingStatus.BreakInLearning;
     }
 
-    private static IList<Earnings> BuildEarnings(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId)
+    private static IList<Earnings> BuildEarnings(ApprenticeshipEpisode episode, ApprenticeshipLearning learning, long employerAccountId, long fundingAccountId, bool hiringGrantOnly)
     {
         var prices = episode.Prices.ToDictionary(p => p.PriceKey);
         var periodsInLearning = episode.EpisodePeriodsInLearning.OrderBy(p => p.StartDate).ToList();
 
-        var onProgrammeEntries = episode.EarningsProfile!.Instalments
-            .Select(instalment => (
-                instalment.AcademicYear,
-                instalment.EpisodePriceKey,
-                EarningType: GetEarningType(instalment.Type),
-                instalment.DeliveryPeriod,
-                instalment.Amount));
+        var hiringGrantEntries = GetHiringGrantEntries(episode);
 
-        var incentiveEntries = GetIncentiveEntries(episode);
-        var learningSupportEntries = GetLearningSupportEntries(episode);
+        // Episodes which are not opted in to payments only have the hiring grant included
+        var entries = hiringGrantOnly
+            ? hiringGrantEntries
+            : GetOnProgrammeEntries(episode)
+                .Concat(GetIncentiveEntries(episode))
+                .Concat(GetLearningSupportEntries(episode))
+                .Concat(hiringGrantEntries);
 
-        return onProgrammeEntries.Concat(incentiveEntries).Concat(learningSupportEntries)
+        return entries
             .Where(x => x.Amount != 0) // £0 earnings are reported on FM36 but not sent to payments
             .GroupBy(x => x.AcademicYear)
             .Select(yearGroup => new Earnings
@@ -212,6 +231,53 @@ public class ApprenticeshipCalculateGrowthAndSkillsPaymentsEventBuilder : IAppre
                     payment.Amount);
             }
         }
+    }
+
+    private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetOnProgrammeEntries(
+        ApprenticeshipEpisode episode)
+    {
+        return episode.EarningsProfile!.Instalments
+            .Select(instalment => (
+                instalment.AcademicYear,
+                instalment.EpisodePriceKey,
+                EarningType: GetEarningType(instalment.Type),
+                instalment.DeliveryPeriod,
+                instalment.Amount));
+    }
+
+    /// <summary>
+    /// The hiring employer is the employer in the message, which is the receiving employer when funded by a levy transfer
+    /// (the funding account is the sending employer).
+    /// </summary>
+    private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetHiringGrantEntries(
+        ApprenticeshipEpisode episode)
+    {
+        var payments = episode.EarningsProfile!.AdditionalPayments
+            .Where(x => x.AdditionalPaymentType == InstalmentTypes.EmployerHiringGrant)
+            .OrderBy(x => x.DueDate)
+            .ToList();
+
+        for (var i = 0; i < payments.Count; i++)
+        {
+            var payment = payments[i];
+
+            yield return (
+                payment.AcademicYear,
+                episode.GetPriceAt(payment.DueDate).PriceKey,
+                GetHiringGrantEarningType(i),
+                payment.DeliveryPeriod,
+                payment.Amount);
+        }
+    }
+
+    private static EarningType GetHiringGrantEarningType(int occurrenceIndex)
+    {
+        return occurrenceIndex switch
+        {
+            0 => EarningType.FirstEmployerHiringPayment,
+            1 => EarningType.SecondEmployerHiringPayment,
+            _ => throw new ArgumentException($"Unexpected {InstalmentTypes.EmployerHiringGrant} occurrence: {occurrenceIndex}")
+        };
     }
 
     private static IEnumerable<(short AcademicYear, Guid EpisodePriceKey, EarningType EarningType, byte DeliveryPeriod, decimal Amount)> GetLearningSupportEntries(

@@ -215,6 +215,29 @@ public class WhenReleasingEarnings
     }
 
     [Test]
+    public async Task WhenFundingPlatformIsNotDasAndThereIsAHiringGrant_ThenOnlyTheHiringGrantIsSentAndPublished()
+    {
+        var learningKey = _fixture.Create<Guid>();
+        var episodeEntity = BuildEpisodeEntity(_fixture.Create<Guid>(), learningKey, fundingPlatform: FundingPlatform.SLD);
+        var learning = BuildLearning(learningKey, episodeEntity);
+
+        var request = new ReleaseEarningsCommand.ReleaseEarningsRequest { LearnerKey = _fixture.Create<Guid>(), LearnerRef = _fixture.Create<string>() };
+        var command = new ReleaseEarningsCommand.ReleaseEarningsCommand(learningKey, request);
+
+        _mockRepository.Setup(x => x.GetApprenticeshipLearning(learningKey)).ReturnsAsync(learning);
+
+        var hiringGrantEvent = new CalculateGrowthAndSkillsPayments();
+        _mockBuilder.Setup(x => x.BuildHiringGrantOnly(It.IsAny<ApprenticeshipEpisode>(), learning, episodeEntity.EmployerAccountId, episodeEntity.EmployerAccountId, request.LearnerKey, request.LearnerRef))
+            .Returns(hiringGrantEvent);
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _mockBuilder.Verify(x => x.Build(It.IsAny<ApprenticeshipEpisode>(), It.IsAny<ApprenticeshipLearning>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        _mockMessageSession.Verify(x => x.Send(hiringGrantEvent, It.IsAny<SendOptions>()), Times.Once);
+        _mockMessageSession.Verify(x => x.Publish(It.Is<GrowthAndSkillsPaymentsRecalculatedEvent>(e => e.Command == hiringGrantEvent), It.IsAny<PublishOptions>()), Times.Once);
+    }
+
+    [Test]
     public async Task WhenTheOnlyEpisodeIsRemoved_ThenThePaymentEventIsStillSent()
     {
         var learningKey = _fixture.Create<Guid>();
